@@ -677,8 +677,8 @@ export default function Swadhyaya(){
   const[profile,setProfile]=useState({name:"",gender:"female",age:"28",weight:"58",height:"162",weightUnit:"kg",heightUnit:"cm",activityLevel:"light",pregnant:"no",lactating:false,lastPeriodStart:"",cycleLength:"28",periodLength:"5",cyclePhase:"follicular",zodiac:"Scorpio",dob:"",fitnessGoal:"",healthConditions:[],plan:"trial",trialStartDate:new Date().toISOString().split("T")[0]});
 
   const[behaviourProfile,setBehaviourProfile]=useState({});
-  const[foodLogs,setFoodLogs]=useState([{id:1,date:new Date().toISOString().split("T")[0],time:"13:00",meal:"Lunch",foods:["poori","poori","chole"],note:"Felt gassy after",symptoms:["gas","heaviness"],water:0}]);
-  const[waterLog,setWaterLog]=useState(500);
+  const[foodLogs,setFoodLogs]=useState([]);
+  const[waterLog,setWaterLog]=useState(0);
   const[moveLog,setMoveLog]=useState([]);
   const[meditationLog,setMeditationLog]=useState([]);
   const[periodLogs,setPeriodLogs]=useState([]);
@@ -786,7 +786,10 @@ export default function Swadhyaya(){
         {section==="journal"&&<JournalSection C={C} galaxy={galaxy} profile={profile} journalEntries={journalEntries} setJournalEntries={setJournalEntries} foodLogs={foodLogs} moveLog={moveLog} completedSteps={completedSteps} periodLogs={periodLogs} behaviourProfile={behaviourProfile} updateBP={updateBP}/>}
         {section==="progress"&&<ProgressSection C={C} profile={profile} up={up} needs={needs} todayFood={todayFood} moveLog={moveLog} completedSteps={completedSteps} weightLog={weightLog} setWeightLog={setWeightLog} foodLogs={foodLogs} behaviourProfile={behaviourProfile} updateBP={updateBP}/>}
         {section==="myspace"&&<MySpaceSection C={C} galaxy={galaxy} profile={profile} foodLogs={foodLogs} setFoodLogs={setFoodLogs} waterLog={waterLog} setWaterLog={setWaterLog} moveLog={moveLog} setMoveLog={setMoveLog} todayFood={todayFood} needs={needs} canSendAI={canSendAI} recordAIMsg={recordAIMsg} todayMsgs={todayMsgs} planData={planData} setSection={setSection} updateBP={updateBP} behaviourProfile={behaviourProfile}/>}
-        {section==="profile"&&<ProfileSection C={C} profile={profile} up={up} needs={needs} setSection={setSection}/>}
+        {section==="profile"&&<ProfileSection C={C} profile={profile} up={up} needs={needs} setSection={setSection}
+          resetToday={()=>{setFoodLogs([]);setWaterLog(0);setCompletedSteps([]);}}
+          resetAllLogs={()=>{setFoodLogs([]);setWaterLog(0);setCompletedSteps([]);setJournalEntries([]);setWeightLog([]);setMoveLog([]);setMeditationLog([]);setPeriodLogs([]);}}
+        />}}
         {section==="birthchart"&&galaxy&&<BirthChartSection C={C} profile={profile}/>}
         {section==="upgrade"&&<UpgradeSection C={C} profile={profile} up={up} setSection={setSection}/>}
       </div>
@@ -3021,7 +3024,7 @@ const HEALTH_SIGNALS = {
     explanation: "Your digestive system is telling you something. Gas, bloating, and acidity are not random — they follow specific patterns. Understanding those patterns lets you enjoy food without suffering.",
     whatToAvoid: [
       "Fruit immediately after a heavy meal — fruit ferments behind slow-digesting food",
-      "Cold water during or after meals — shocks digestive enzymes",
+      "Large amounts of water during meals — dilutes stomach acid and digestive enzymes. Sipping is fine.",
       "Lying down within 1 hour of eating",
       "Eating very fast — proper chewing is 40% of digestion",
       "Combining raw milk with sour fruits",
@@ -3247,11 +3250,11 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
   function addFood(){
     const foods=newFood.foods.split(",").map(f=>f.trim()).filter(Boolean);
     if(!foods.length)return;
-    const entry={id:Date.now(),date:todayStr,time:new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"}),meal:newFood.meal,foods,note:newFood.note,symptoms:newFood.symptoms,water:newFood.water||0};
+    const entry={id:Date.now(),date:todayStr,time:new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"}),meal:newFood.meal,foods,note:newFood.note,symptoms:newFood.symptoms,water:newFood.water||0,waterTiming:newFood.waterTiming||null};
     setFoodLogs(l=>[entry,...l]);
     if(newFood.water>0)setWaterLog(w=>w+(newFood.water*250));
     updateBP({food:foods.join(","),symptoms:newFood.symptoms});
-    setNewFood({meal:"Lunch",foods:"",note:"",symptoms:[],water:0});
+    setNewFood({meal:"Lunch",foods:"",note:"",symptoms:[],water:0,waterTiming:null});
     setView("today");
   }
 
@@ -3403,14 +3406,39 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
               <textarea value={newFood.foods} onChange={e=>setNewFood(f=>({...f,foods:e.target.value}))} rows={2} placeholder="e.g. poha, chai, banana, dal, roti…" style={{width:"100%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"11px 13px",fontSize:13,resize:"none",boxSizing:"border-box"}}/>
               {newFood.foods&&<div style={{fontSize:11,color:C.accent2,marginTop:3}}>✓ Recognised: {newFood.foods.split(",").map(f=>f.trim()).filter(f=>resolveFood(f)).map(f=>{const k=resolveFood(f);return k!==f.toLowerCase().trim()?`${f}→${k}`:f;}).join(", ")||"—"}</div>}
             </div>
-            {/* Water with this meal */}
+            {/* Water timing */}
             <div>
-              <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>💧 WATER WITH THIS MEAL</div>
-              <div style={{display:"flex",gap:7,alignItems:"center"}}>
-                <div style={{display:"flex",gap:5}}>
-                  {[0,1,2,3,4].map(g=><button key={g} onClick={()=>setNewFood(f=>({...f,water:g}))} style={{width:36,height:36,borderRadius:"50%",border:`2px solid ${newFood.water===g?C.accent3:C.border}`,background:newFood.water===g?C.accent3+"22":"transparent",cursor:"pointer",fontSize:12,color:newFood.water===g?C.accent3:C.muted,fontWeight:600}}>{g}</button>)}
+              <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>💧 WHEN DID YOU DRINK WATER?</div>
+              <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:6}}>
+                {[
+                  {v:"before",l:"Before meal",tip:"Best — stimulates digestion"},
+                  {v:"during",l:"During meal",tip:"Dilutes digestive enzymes — avoid large amounts"},
+                  {v:"after",l:"After meal",tip:"Wait 30–45 min for best absorption"},
+                  {v:"independent",l:"Between meals",tip:"Best time — full absorption, no interference"},
+                ].map(opt=>(
+                  <button key={opt.v} onClick={()=>setNewFood(f=>({...f,waterTiming:f.waterTiming===opt.v?null:opt.v}))} style={{
+                    padding:"7px 12px",borderRadius:20,cursor:"pointer",fontSize:11,
+                    border:`1px solid ${newFood.waterTiming===opt.v?C.accent3:C.border}`,
+                    background:newFood.waterTiming===opt.v?C.accent3+"20":"transparent",
+                    color:newFood.waterTiming===opt.v?C.accent3:C.muted,
+                  }}>{opt.l}</button>
+                ))}
+              </div>
+              {newFood.waterTiming&&(
+                <div style={{fontSize:11,color:C.muted,fontStyle:"italic",padding:"6px 10px",background:C.bg,borderRadius:7,lineHeight:1.6}}>
+                  {{
+                    before:"✓ Good choice. Water 20–30 min before meals stimulates digestive juices and prepares the stomach.",
+                    during:"⚠ Sipping a little water during meals is fine. Avoid large glasses — it dilutes stomach acid and slows digestion.",
+                    after:"→ Wait 30–45 minutes after eating before drinking. Gives your stomach acid time to work.",
+                    independent:"✓ Best time to drink water — between meals. Full absorption, no interference with digestion.",
+                  }[newFood.waterTiming]}
                 </div>
-                <div style={{fontSize:12,color:C.muted}}>glasses</div>
+              )}
+              <div style={{marginTop:8,display:"flex",gap:6,alignItems:"center"}}>
+                <div style={{fontSize:11,color:C.muted}}>Glasses logged:</div>
+                <div style={{display:"flex",gap:4}}>
+                  {[0,1,2,3,4].map(g=><button key={g} onClick={()=>setNewFood(f=>({...f,water:g}))} style={{width:30,height:30,borderRadius:"50%",border:`2px solid ${newFood.water===g?C.accent3:C.border}`,background:newFood.water===g?C.accent3+"22":"transparent",cursor:"pointer",fontSize:11,color:newFood.water===g?C.accent3:C.muted,fontWeight:600}}>{g}</button>)}
+                </div>
               </div>
             </div>
             {/* Live preview + smart combo check */}
@@ -4494,7 +4522,7 @@ function YourManualSection({C, galaxy, profile, journalEntries, behaviourProfile
   );
 }
 
-function ProfileSection({C,profile,up,needs,setSection}){
+function ProfileSection({C,profile,up,needs,setSection,resetToday,resetAllLogs}){
   const[saved,setSaved]=useState(false);
   return(
     <div style={{padding:"20px 16px"}}>
@@ -4564,6 +4592,48 @@ function ProfileSection({C,profile,up,needs,setSection}){
       <button onClick={()=>setSaved(true)} style={{width:"100%",padding:"13px",background:`linear-gradient(135deg,${C.accent},${C.warm})`,border:"none",borderRadius:11,color:"#fff",cursor:"pointer",fontSize:14,fontWeight:600}}>
         {saved?"✓ Changes Saved":"Save Changes"}
       </button>
+
+      {/* Reset options */}
+      <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:16,marginTop:8}}>
+        <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:4}}>RESET DATA</div>
+        <div style={{fontSize:11,color:C.dim,marginBottom:12,lineHeight:1.5}}>Use this if you want to start over or clear test entries.</div>
+        <div style={{display:"flex",flexDirection:"column",gap:8}}>
+          <button onClick={()=>{
+            if(window.confirm("Clear today\'s food logs and water? Your profile and past entries stay.")) {
+              resetToday();
+            }
+          }} style={{padding:"12px 14px",background:"transparent",border:`1px solid ${C.border}`,borderRadius:9,cursor:"pointer",fontSize:13,color:C.text,textAlign:"left",display:"flex",gap:10,alignItems:"center"}}>
+            <span style={{fontSize:18}}>🔄</span>
+            <div>
+              <div style={{fontWeight:600}}>Reset today</div>
+              <div style={{fontSize:11,color:C.muted}}>Clears today\'s food, water and ritual</div>
+            </div>
+          </button>
+          <button onClick={()=>{
+            if(window.confirm("Reset all food logs, water, journal and ritual data? Your profile settings stay.")) {
+              resetAllLogs();
+            }
+          }} style={{padding:"12px 14px",background:C.red+"08",border:`1px solid ${C.red}33`,borderRadius:9,cursor:"pointer",fontSize:13,color:C.text,textAlign:"left",display:"flex",gap:10,alignItems:"center"}}>
+            <span style={{fontSize:18}}>🗑</span>
+            <div>
+              <div style={{fontWeight:600,color:C.red}}>Reset all logs</div>
+              <div style={{fontSize:11,color:C.muted}}>Clears food, water, journal, ritual · Keeps your profile</div>
+            </div>
+          </button>
+          <button onClick={()=>{
+            if(window.confirm("This clears EVERYTHING including your profile. You will go through onboarding again. Sure?")) {
+              localStorage.clear();
+              window.location.reload();
+            }
+          }} style={{padding:"12px 14px",background:"transparent",border:`1px solid ${C.border}`,borderRadius:9,cursor:"pointer",fontSize:13,color:C.muted,textAlign:"left",display:"flex",gap:10,alignItems:"center"}}>
+            <span style={{fontSize:18}}>✦</span>
+            <div>
+              <div>Full reset · Start from scratch</div>
+              <div style={{fontSize:11,color:C.dim}}>Clears everything including profile</div>
+            </div>
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
