@@ -910,7 +910,7 @@ export default function Swadhyaya(){
         {section==="profile"&&<ProfileSection C={C} profile={profile} up={up} needs={needs} setSection={setSection}
           resetToday={()=>{setFoodLogs([]);setWaterLog(0);setCompletedSteps([]);}}
           resetAllLogs={()=>{setFoodLogs([]);setWaterLog(0);setCompletedSteps([]);setJournalEntries([]);setWeightLog([]);setMoveLog([]);setMeditationLog([]);setPeriodLogs([]);}}
-        />}}
+        />}
         {section==="birthchart"&&<BirthChartSection C={C} profile={profile}/>}
         {section==="upgrade"&&<UpgradeSection C={C} profile={profile} up={up} setSection={setSection}/>}
       </div>
