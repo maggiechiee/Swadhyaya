@@ -682,15 +682,24 @@ export default function Swadhyaya(){
 
   // Auth listener
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    // Timeout fallback — if supabase doesn't respond in 3s, show auth screen
+    const timeout = setTimeout(() => setAuthLoading(false), 3000);
+
+    supabase.auth.getSession().then(({ data: { session }, error }) => {
+      clearTimeout(timeout);
       setUser(session?.user ?? null);
       setAuthLoading(false);
+      if (session?.user) loadUserData(session.user.id);
+    }).catch(() => {
+      clearTimeout(timeout);
+      setAuthLoading(false);
     });
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null);
       if (session?.user) loadUserData(session.user.id);
     });
-    return () => subscription.unsubscribe();
+    return () => { subscription.unsubscribe(); clearTimeout(timeout); };
   }, []);
 
   // Load user data from Supabase
@@ -859,6 +868,18 @@ export default function Swadhyaya(){
     {id:"birthchart",icon:"✦",label:"Chart"},
     {id:"myspace",icon:"💬",label:"My Space"},
   ].filter(n=>(!n.femaleOnly||profile.gender==="female")&&(!n.galaxyOnly||galaxy));
+
+  // Auth gate
+  if (authLoading) return (
+    <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"linear-gradient(180deg,#faf6ef,#f5f0e6)"}}>
+      <div style={{textAlign:"center"}}>
+        <div style={{fontSize:28,marginBottom:8}}>🪞</div>
+        <div style={{fontSize:14,color:"#9088a0",fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>Loading…</div>
+      </div>
+    </div>
+  );
+
+  if (!user) return <AuthScreen C={EARTHY} onAuth={setUser}/>;
 
   return(
     <div style={{background:C.bg,minHeight:"100vh",fontFamily:"'Jost',sans-serif",color:C.text}}>
