@@ -1,5 +1,11 @@
 "use client";
 import { useState, useEffect, useRef, useMemo } from "react";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.NEXT_PUBLIC_SUPABASE_URL || "",
+  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
+);
 
 /* ═══════════════════════════════════════════════════════════
    SWADHYĀYA v2.0
@@ -226,11 +232,12 @@ function WatercolourNav({NAV, section, setSection, C, galaxy}) {
               padding:"4px 8px",background:"none",border:"none",cursor:"pointer",
               borderTop:active?`2px solid ${C.accent}`:"2px solid transparent",opacity:active?1:0.75,
             }}>
-              <div style={{width:22,height:22,display:"flex",alignItems:"center",justifyContent:"center"}}>
+              <div style={{width:22,height:22,display:"flex",alignItems:"center",justifyContent:"center",position:"relative"}}>
                 {iconMap[n.id] ? iconMap[n.id](active) : <span style={{fontSize:16,opacity:active?1:0.4}}>{n.icon}</span>}
+                {n.id==="birthchart"&&galaxy&&<div style={{position:"absolute",top:-2,right:-2,width:6,height:6,borderRadius:"50%",background:"#c084fc",boxShadow:"0 0 4px #c084fc"}}/>}
               </div>
               <span style={{fontSize:8,fontFamily:"'DM Mono',monospace",letterSpacing:0.5,
-                color:active?C.accent:C.muted,textTransform:"uppercase"}}>
+                color:active?C.accent:n.id==="birthchart"&&galaxy?"#c084fc":C.muted,textTransform:"uppercase"}}>
                 {n.label}
               </span>
             </button>
@@ -670,7 +677,121 @@ const PLANS = {
 // ══════════════════════════════════════════════════════════════
 export default function Swadhyaya(){
   const[galaxy,setGalaxy]=useState(false);
-  const[section,setSection]=useState("home");
+  const [user, setUser] = useState(null);
+  const [authLoading, setAuthLoading] = useState(true);
+
+  // Auth listener
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setUser(session?.user ?? null);
+      setAuthLoading(false);
+    });
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+      if (session?.user) loadUserData(session.user.id);
+    });
+    return () => subscription.unsubscribe();
+  }, []);
+
+  // Load user data from Supabase
+  async function loadUserData(userId) {
+    try {
+      const { data: prof } = await supabase.from("profiles").select("*").eq("id", userId).single();
+      if (prof) {
+        setProfile(p => ({...p,
+          name: prof.name || "",
+          gender: prof.gender || "female",
+          age: prof.age || "",
+          weight: prof.weight || "",
+          height: prof.height || "",
+          activityLevel: prof.activity_level || "light",
+          fitnessGoal: prof.fitness_goal || "",
+          dob: prof.dob || "",
+          birthTime: prof.birth_time || "",
+          birthPlace: prof.birth_place || "",
+          cycleLength: prof.cycle_length || "28",
+          periodLength: prof.period_length || "5",
+          lastPeriodStart: prof.last_period_start || "",
+          healthConditions: prof.health_conditions || [],
+          goals: prof.goals || [],
+          plan: prof.plan || "trial",
+          trialStartDate: prof.trial_start_date || new Date().toISOString().split("T")[0],
+          onboardingDone: prof.onboarding_done || false,
+        }));
+        if (prof.onboarding_done) setOnboarded(true);
+      }
+      const { data: foods } = await supabase.from("food_logs").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(200);
+      if (foods) setFoodLogs(foods.map(f => ({...f, foods: f.foods || [], symptoms: f.symptoms || []})));
+      const { data: journals } = await supabase.from("journal_entries").select("*").eq("user_id", userId).order("date", { ascending: false }).limit(365);
+      if (journals) setJournalEntries(journals.map(j => ({...j, freeWrite: j.free_write, prompts: j.prompts || {}, goals: j.goals || {}})));
+      const { data: periods } = await supabase.from("period_logs").select("*").eq("user_id", userId).order("created_at", { ascending: false });
+      if (periods) setPeriodLogs(periods.map(p => ({...p, startDate: p.start_date, endDate: p.end_date})));
+      const { data: weights } = await supabase.from("weight_logs").select("*").eq("user_id", userId).order("date", { ascending: false });
+      if (weights) setWeightLog(weights);
+    } catch(e) { console.error("Load error:", e); }
+  }
+
+  // Save profile to Supabase
+  async function saveProfile(updates) {
+    if (!user) return;
+    await supabase.from("profiles").upsert({
+      id: user.id,
+      name: updates.name,
+      gender: updates.gender,
+      age: updates.age,
+      weight: updates.weight,
+      height: updates.height,
+      activity_level: updates.activityLevel,
+      fitness_goal: updates.fitnessGoal,
+      dob: updates.dob,
+      birth_time: updates.birthTime,
+      birth_place: updates.birthPlace,
+      cycle_length: updates.cycleLength,
+      period_length: updates.periodLength,
+      last_period_start: updates.lastPeriodStart,
+      health_conditions: updates.healthConditions || [],
+      goals: updates.goals || [],
+      plan: updates.plan,
+      trial_start_date: updates.trialStartDate,
+      onboarding_done: updates.onboardingDone || false,
+      updated_at: new Date().toISOString(),
+    });
+  }
+
+  // Save journal entry
+  async function saveJournalEntry(entry) {
+    if (!user) return;
+    await supabase.from("journal_entries").upsert({
+      user_id: user.id,
+      date: entry.date,
+      mood: entry.mood,
+      energy: entry.energy,
+      free_write: entry.freeWrite,
+      prompts: entry.prompts || {},
+      goals: entry.goals || {},
+      ritual_done: entry.ritualDone || 0,
+      cycle_phase: entry.cyclePhase,
+      updated_at: new Date().toISOString(),
+    }, { onConflict: "user_id,date" });
+  }
+
+  // Save food log
+  async function saveFoodLog(entry) {
+    if (!user) return;
+    await supabase.from("food_logs").insert({
+      user_id: user.id,
+      date: entry.date,
+      time: entry.time,
+      meal: entry.meal,
+      foods: entry.foods || [],
+      note: entry.note,
+      symptoms: entry.symptoms || [],
+      water: entry.water || 0,
+      water_timing: entry.waterTiming,
+    });
+  }
+
+  const [section, setSection] = useState("home");
   const[onboarded,setOnboarded]=useState(false);
   const C=galaxy?GALAXY:EARTHY;
 
@@ -735,7 +856,7 @@ export default function Swadhyaya(){
     {id:"goals",icon:"◎",label:"Goals"},
     {id:"journal",icon:"📓",label:"Journal"},
     {id:"progress",icon:"📈",label:"Progress"},
-    {id:"birthchart",icon:"✦",label:"Chart",galaxyOnly:true},
+    {id:"birthchart",icon:"✦",label:"Chart"},
     {id:"myspace",icon:"💬",label:"My Space"},
   ].filter(n=>(!n.femaleOnly||profile.gender==="female")&&(!n.galaxyOnly||galaxy));
 
@@ -757,7 +878,7 @@ export default function Swadhyaya(){
             {todayPhase&&<div style={{fontSize:11,color:PHASE_COLORS[todayPhase],padding:"3px 9px",background:PHASE_COLORS[todayPhase]+"18",borderRadius:20}}>{PHASE_INFO[todayPhase]?.icon} {PHASE_INFO[todayPhase]?.label}</div>}
             <div style={{fontSize:12,color:C.accent3}}>💧{Math.round(waterLog/250)}g</div>
             <div style={{fontSize:12,color:C.accent}}>🔥{Math.round(todayFood.cal)}</div>
-            <button onClick={()=>setGalaxy(g=>!g)} style={{background:galaxy?"#c084fc22":"#f0e8d8",border:`1px solid ${C.border}`,borderRadius:20,padding:"5px 10px",cursor:"pointer",fontSize:12,color:C.muted}}>{galaxy?"☀":"✦"}</button>
+            <button onClick={()=>setGalaxy(g=>!g)} style={{background:galaxy?"#c084fc33":"transparent",border:`1.5px solid ${galaxy?"#c084fc":"#b5622a44"}`,borderRadius:20,padding:"5px 12px",cursor:"pointer",fontSize:11,color:galaxy?"#c084fc":C.accent,display:"flex",alignItems:"center",gap:4,fontFamily:"'DM Mono',monospace",letterSpacing:0.5}}><span>{galaxy?"☀":"✦"}</span><span style={{fontSize:9}}>{galaxy?"EARTHY":"GALAXY"}</span></button>
             <button onClick={()=>setSection("profile")} style={{width:30,height:30,borderRadius:"50%",background:`linear-gradient(135deg,${C.accent},${C.warm})`,border:"none",cursor:"pointer",fontSize:13,color:"#fff"}}>{profile.name?profile.name[0].toUpperCase():"◉"}</button>
           </div>
         </div>
@@ -790,7 +911,7 @@ export default function Swadhyaya(){
           resetToday={()=>{setFoodLogs([]);setWaterLog(0);setCompletedSteps([]);}}
           resetAllLogs={()=>{setFoodLogs([]);setWaterLog(0);setCompletedSteps([]);setJournalEntries([]);setWeightLog([]);setMoveLog([]);setMeditationLog([]);setPeriodLogs([]);}}
         />}}
-        {section==="birthchart"&&galaxy&&<BirthChartSection C={C} profile={profile}/>}
+        {section==="birthchart"&&<BirthChartSection C={C} profile={profile}/>}
         {section==="upgrade"&&<UpgradeSection C={C} profile={profile} up={up} setSection={setSection}/>}
       </div>
 
@@ -2886,6 +3007,47 @@ function WellnessSection({C,galaxy,profile,moveLog,setMoveLog,todayPhase}){
   );
 
 
+  // Yoga view
+  if(view==="yoga") return(
+    <div style={{padding:"16px 16px"}}>
+      <button onClick={()=>setView("home")} style={{background:"none",border:"none",cursor:"pointer",fontSize:13,color:C.muted,marginBottom:16}}>← Wellness</button>
+      <div style={{fontSize:18,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",marginBottom:6}}>Yoga Asanas</div>
+      <div style={{fontSize:12,color:C.muted,marginBottom:16}}>{Object.values(YOGA_LIBRARY).reduce((a,l)=>a+(l.poses?.length||0),0)} poses · Tap a category to explore</div>
+      {/* Category selector */}
+      {!selectedCat&&(
+        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          {Object.entries(YOGA_LIBRARY).map(([key,lib])=>(
+            <button key={key} onClick={()=>setSelectedCat(key)} style={{padding:"16px",background:C.card,border:`1px solid ${lib.color}44`,borderRadius:13,cursor:"pointer",textAlign:"left",borderLeft:`4px solid ${lib.color}`}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <div>
+                  <div style={{fontSize:14,fontWeight:600,color:lib.color}}>{lib.label}</div>
+                  <div style={{fontSize:11,color:C.muted,marginTop:3}}>{lib.poses?.length||0} poses · {lib.desc||""}</div>
+                </div>
+                <div style={{fontSize:11,color:lib.color,padding:"3px 9px",background:lib.color+"15",borderRadius:20}}>→</div>
+              </div>
+            </button>
+          ))}
+        </div>
+      )}
+      {/* Poses in selected category */}
+      {selectedCat&&(()=>{
+        const lib=YOGA_LIBRARY[selectedCat];
+        if(!lib)return null;
+        return(
+          <div>
+            <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:14}}>
+              <button onClick={()=>setSelectedCat(null)} style={{background:"none",border:"none",cursor:"pointer",fontSize:13,color:C.muted}}>← All</button>
+              <div style={{fontSize:14,fontWeight:600,color:lib.color}}>{lib.label}</div>
+            </div>
+            {(lib.poses||[]).map((pose,i)=>(
+              <PoseCard key={i} pose={pose} color={lib.color} C={C} open={openPose===pose.name} setOpen={()=>setOpenPose(openPose===pose.name?null:pose.name)}/>
+            ))}
+          </div>
+        );
+      })()}
+    </div>
+  );
+
   // Home
   return(
     <div style={{padding:"20px 16px"}}>
@@ -3403,12 +3565,15 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
             </div>
             <div>
               <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>WHAT DID YOU EAT? (comma separated)</div>
-              <textarea value={newFood.foods} onChange={e=>setNewFood(f=>({...f,foods:e.target.value}))} rows={2} placeholder="e.g. poha, chai, banana, dal, roti…" style={{width:"100%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"11px 13px",fontSize:13,resize:"none",boxSizing:"border-box"}}/>
+              <textarea value={newFood.foods} onChange={e=>setNewFood(f=>({...f,foods:e.target.value}))} rows={2} placeholder="Be specific — e.g. masala chai with milk and 1 tsp sugar, 2 whole wheat rotis with dal makhani, banana, nimbu paani" style={{width:"100%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"11px 13px",fontSize:13,resize:"none",boxSizing:"border-box"}}/>
               {newFood.foods&&<div style={{fontSize:11,color:C.accent2,marginTop:3}}>✓ Recognised: {newFood.foods.split(",").map(f=>f.trim()).filter(f=>resolveFood(f)).map(f=>{const k=resolveFood(f);return k!==f.toLowerCase().trim()?`${f}→${k}`:f;}).join(", ")||"—"}</div>}
             </div>
             {/* Water timing */}
             <div>
-              <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>💧 WHEN DID YOU DRINK WATER?</div>
+              <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>💧 WATER</div>
+              <div style={{fontSize:11,color:C.dim,marginBottom:10,padding:"7px 10px",background:C.accent3+"10",border:`1px solid ${C.accent3}22`,borderRadius:7,lineHeight:1.6}}>
+                For best digestion — drink water <strong>20–30 min before meals</strong> or <strong>45–60 min after</strong>. During meals, sip only if needed. Large amounts dilute stomach acid and slow digestion.
+              </div>
               <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:6}}>
                 {[
                   {v:"before",l:"Before meal",tip:"Best — stimulates digestion"},
@@ -3729,9 +3894,30 @@ function CycleSection({C,profile,setProfile,periodLogs,setPeriodLogs,symptoms,se
             <div style={{fontSize:15,fontWeight:600}}>{MONTH_NAMES[calMonth.month]} {calMonth.year}</div>
             <button onClick={()=>setCalMonth(m=>{const d=new Date(m.year,m.month+1,1);return{year:d.getFullYear(),month:d.getMonth()};})} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:7,padding:"6px 12px",cursor:"pointer",fontSize:13,color:C.muted}}>›</button>
           </div>
-          <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:10}}>
-            {Object.entries(PHASE_INFO).map(([k,v])=><div key={k} style={{display:"flex",alignItems:"center",gap:3,padding:"3px 7px",background:PHASE_COLORS[k]+"18",borderRadius:20}}><div style={{width:6,height:6,borderRadius:"50%",background:PHASE_COLORS[k]}}/><div style={{fontSize:9,color:PHASE_COLORS[k]}}>{v.label}</div></div>)}
+          {/* Phase legend — current phase highlighted */}
+          <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:12}}>
+            {Object.entries(PHASE_INFO).map(([k,v])=>{
+              const isCurrent=profile.cyclePhase===k;
+              return<div key={k} style={{display:"flex",alignItems:"center",gap:4,padding:isCurrent?"5px 10px":"3px 8px",background:isCurrent?PHASE_COLORS[k]+"30":PHASE_COLORS[k]+"12",borderRadius:20,border:`${isCurrent?"2px":"1px"} solid ${PHASE_COLORS[k]}${isCurrent?"88":"33"}`,transition:"all 0.2s"}}>
+                <div style={{width:isCurrent?8:5,height:isCurrent?8:5,borderRadius:"50%",background:PHASE_COLORS[k],boxShadow:isCurrent?`0 0 6px ${PHASE_COLORS[k]}`:"none"}}/>
+                <div style={{fontSize:isCurrent?10:9,color:PHASE_COLORS[k],fontWeight:isCurrent?700:400}}>{v.icon} {v.label}{isCurrent?" ← you":""}</div>
+              </div>;
+            })}
           </div>
+          {/* Today's phase banner */}
+          {profile.cyclePhase&&(()=>{
+            const ph=PHASE_INFO[profile.cyclePhase];
+            const pc=PHASE_COLORS[profile.cyclePhase];
+            const todayDay=calDays.find(d=>d&&d.ds===todayStr);
+            const dayNum=todayDay?.cycleDay;
+            return<div style={{background:pc+"18",border:`1px solid ${pc}44`,borderRadius:11,padding:"12px 14px",marginBottom:12,display:"flex",gap:10,alignItems:"center"}}>
+              <div style={{fontSize:26}}>{ph?.icon}</div>
+              <div>
+                <div style={{fontSize:13,fontWeight:700,color:pc}}>{ph?.label} {dayNum?`· Day ${dayNum}`:""}</div>
+                <div style={{fontSize:12,color:C.muted,lineHeight:1.5}}>{ph?.desc}</div>
+              </div>
+            </div>;
+          })()}
           <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:11,marginBottom:12}}>
             <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2,marginBottom:5}}>{["Su","Mo","Tu","We","Th","Fr","Sa"].map(d=><div key={d} style={{textAlign:"center",fontSize:9,color:C.dim,fontFamily:"'DM Mono',monospace"}}>{d}</div>)}</div>
             <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2}}>
@@ -3740,9 +3926,17 @@ function CycleSection({C,profile,setProfile,periodLogs,setPeriodLogs,symptoms,se
                 const isToday=day.ds===todayStr,isSel=selectedDay===day.ds;
                 const fc=day.lp?FLOW_COLORS[day.lp.flow]||PHASE_COLORS.menstrual:null;
                 const pc=day.phase?PHASE_COLORS[day.phase]:null;
-                return<button key={i} onClick={()=>setSelectedDay(isSel?null:day.ds)} style={{padding:"4px 1px",borderRadius:6,minHeight:32,cursor:"pointer",position:"relative",border:`2px solid ${isToday?C.accent:isSel?"#555":"transparent"}`,background:day.lp?fc+"33":pc?pc+"18":"transparent"}}>
-                  <div style={{fontSize:11,fontWeight:isToday?700:400,color:isToday?C.accent:C.text,textAlign:"center"}}>{day.d}</div>
-                  {day.lp?<div style={{width:6,height:6,borderRadius:"50%",background:fc,margin:"1px auto 0"}}/>:pc?<div style={{width:4,height:4,borderRadius:"50%",background:pc,margin:"1px auto 0"}}/>:null}
+                return<button key={i} onClick={()=>setSelectedDay(isSel?null:day.ds)} style={{
+                  padding:"4px 1px",borderRadius:6,minHeight:36,cursor:"pointer",position:"relative",
+                  border:`2px solid ${isToday?C.accent:isSel?pc||"#555":"transparent"}`,
+                  background:day.lp?fc+"55":pc?pc+"28":"transparent",
+                  boxShadow:isToday?`0 0 0 2px ${C.accent}`:"none",
+                }}>
+                  <div style={{fontSize:11,fontWeight:isToday?700:400,color:day.lp?fc:isToday?C.accent:pc?pc:C.text,textAlign:"center"}}>{day.d}</div>
+                  {day.lp
+                    ?<div style={{width:6,height:6,borderRadius:"50%",background:fc,margin:"1px auto 0",boxShadow:`0 0 4px ${fc}`}}/>
+                    :pc?<div style={{width:5,height:5,borderRadius:"50%",background:pc,margin:"1px auto 0",opacity:0.8}}/>
+                    :null}
                 </button>;
               })}
             </div>
@@ -5140,6 +5334,20 @@ Question: ${q || "Give a deep, personalised Vedic reading covering: core persona
     <div>
       {/* Sign trio header */}
       <div style={{padding:"16px 16px 0"}}>
+        {/* Galaxy mode header banner */}
+        <div style={{background:"linear-gradient(135deg,#0a0520,#1a0a3a)",borderRadius:14,padding:"18px 18px 14px",marginBottom:14,position:"relative",overflow:"hidden"}}>
+          {[...Array(16)].map((_,i)=><div key={i} style={{position:"absolute",left:`${(i*37)%100}%`,top:`${(i*53)%100}%`,width:i%4===0?2.5:1.5,height:i%4===0?2.5:1.5,borderRadius:"50%",background:"#e8e0ff",opacity:0.15+Math.sin(i)*0.1}}/>)}
+          <div style={{position:"relative",zIndex:1}}>
+            <div style={{fontSize:10,color:"#c084fc88",fontFamily:"'DM Mono',monospace",letterSpacing:3,marginBottom:6}}>✦ JYOTISH · VEDIC BIRTH CHART</div>
+            <div style={{fontSize:22,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:"#ede8ff",marginBottom:4}}>
+              {chart?.lagna?.en} Rising · {chart?.moon?.en} Moon · {chart?.sun?.en} Sun
+            </div>
+            <div style={{fontSize:12,color:"#7a6fa8"}}>
+              {chart?.nakshatra?.name} Nakshatra · {chart?.md?.current?.planet} Mahadasha
+              {chart?.ss?.isSadeSati?" · ⚠ Sade Sati Active":""}
+            </div>
+          </div>
+        </div>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
           <div style={{fontSize:15,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>✦ Vedic Birth Chart</div>
           <button onClick={()=>setStep("input")} style={{fontSize:11,color:G.muted,background:"transparent",border:`1px solid ${G.border}`,borderRadius:20,padding:"4px 12px",cursor:"pointer"}}>Edit</button>
@@ -5610,4 +5818,149 @@ function BCField({label,G,children}){
 }
 function bcInput(G){
   return{width:"100%",background:G.card,border:`1px solid ${G.border}`,borderRadius:9,color:G.text,padding:"11px 13px",fontSize:14,boxSizing:"border-box"};
+}// ── AUTH SCREEN ────────────────────────────────────────────────
+function AuthScreen({ C, onAuth }) {
+  const [mode, setMode] = useState('login'); // login | signup | magic
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [msg, setMsg] = useState('');
+  const [sent, setSent] = useState(false);
+
+  async function handleEmailAuth() {
+    if (!email || !password) return setMsg('Please enter email and password.');
+    setLoading(true); setMsg('');
+    const { error } = mode === 'signup'
+      ? await supabase.auth.signUp({ email, password })
+      : await supabase.auth.signInWithPassword({ email, password });
+    if (error) setMsg(error.message);
+    else if (mode === 'signup') setMsg('Check your email to confirm your account.');
+    setLoading(false);
+  }
+
+  async function handleMagicLink() {
+    if (!email) return setMsg('Enter your email first.');
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithOtp({ email });
+    if (error) setMsg(error.message);
+    else setSent(true);
+    setLoading(false);
+  }
+
+  async function handleGoogle() {
+    setLoading(true);
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: 'google',
+      options: { redirectTo: window.location.origin }
+    });
+    if (error) setMsg(error.message);
+    setLoading(false);
+  }
+
+  return (
+    <div style={{
+      minHeight: '100vh', display: 'flex', flexDirection: 'column',
+      alignItems: 'center', justifyContent: 'center',
+      background: 'linear-gradient(180deg,#faf6ef,#f5f0e6)',
+      padding: '20px',
+    }}>
+      {/* Logo */}
+      <div style={{ textAlign: 'center', marginBottom: 32 }}>
+        <div style={{ fontSize: 36, marginBottom: 8 }}>🪞</div>
+        <div style={{ fontSize: 28, fontFamily: "'Cormorant Garamond',serif", fontStyle: 'italic', color: '#b5622a' }}>Swadhyāya</div>
+        <div style={{ fontSize: 12, color: '#9088a0', letterSpacing: 3, fontFamily: "'DM Mono',monospace", marginTop: 4 }}>स्वाध्याय · KNOW THYSELF</div>
+        <div style={{ fontSize: 14, color: '#9088a0', marginTop: 12, fontStyle: 'italic', fontFamily: "'Cormorant Garamond',serif" }}>
+          "You already have the answers.<br/>This helps you hear them."
+        </div>
+      </div>
+
+      <div style={{ width: '100%', maxWidth: 380, background: '#fff', borderRadius: 20, padding: 28, boxShadow: '0 4px 40px #b5622a12' }}>
+        {sent ? (
+          <div style={{ textAlign: 'center', padding: '20px 0' }}>
+            <div style={{ fontSize: 32, marginBottom: 12 }}>📬</div>
+            <div style={{ fontSize: 16, fontFamily: "'Cormorant Garamond',serif", fontStyle: 'italic', marginBottom: 8 }}>Check your email</div>
+            <div style={{ fontSize: 13, color: '#9088a0', lineHeight: 1.7 }}>We sent a magic link to <strong>{email}</strong>. Tap it to sign in — no password needed.</div>
+            <button onClick={() => setSent(false)} style={{ marginTop: 16, fontSize: 12, color: '#9088a0', background: 'transparent', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>Use a different email</button>
+          </div>
+        ) : (
+          <>
+            {/* Google Sign In */}
+            <button onClick={handleGoogle} disabled={loading} style={{
+              width: '100%', padding: '13px', borderRadius: 12, border: '1.5px solid #e2d8c8',
+              background: '#fff', cursor: 'pointer', fontSize: 14, fontWeight: 600,
+              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 16,
+            }}>
+              <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+              Continue with Google
+            </button>
+
+            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+              <div style={{ flex: 1, height: 1, background: '#e2d8c8' }}/>
+              <div style={{ fontSize: 11, color: '#9088a0' }}>or</div>
+              <div style={{ flex: 1, height: 1, background: '#e2d8c8' }}/>
+            </div>
+
+            {/* Email */}
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 14 }}>
+              <input
+                value={email} onChange={e => setEmail(e.target.value)}
+                placeholder="Email address"
+                type="email"
+                style={{ padding: '12px 14px', borderRadius: 10, border: '1.5px solid #e2d8c8', fontSize: 14, outline: 'none', background: '#faf6ef' }}
+              />
+              {mode !== 'magic' && (
+                <input
+                  value={password} onChange={e => setPassword(e.target.value)}
+                  placeholder="Password"
+                  type="password"
+                  onKeyDown={e => e.key === 'Enter' && handleEmailAuth()}
+                  style={{ padding: '12px 14px', borderRadius: 10, border: '1.5px solid #e2d8c8', fontSize: 14, outline: 'none', background: '#faf6ef' }}
+                />
+              )}
+            </div>
+
+            {msg && <div style={{ fontSize: 12, color: msg.includes('Check') ? '#71b478' : '#e05a5a', marginBottom: 10, lineHeight: 1.5 }}>{msg}</div>}
+
+            {mode !== 'magic' ? (
+              <>
+                <button onClick={handleEmailAuth} disabled={loading} style={{
+                  width: '100%', padding: '13px', background: 'linear-gradient(135deg,#b5622a,#d4855a)',
+                  border: 'none', borderRadius: 12, color: '#fff', cursor: 'pointer', fontSize: 15,
+                  fontFamily: "'Cormorant Garamond',serif", fontStyle: 'italic', marginBottom: 12,
+                }}>
+                  {loading ? '...' : mode === 'signup' ? 'Create account →' : 'Sign in →'}
+                </button>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#9088a0' }}>
+                  <button onClick={() => setMode(mode === 'login' ? 'signup' : 'login')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#b5622a', textDecoration: 'underline' }}>
+                    {mode === 'login' ? 'Create account' : 'Already have account'}
+                  </button>
+                  <button onClick={() => setMode('magic')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#9088a0', textDecoration: 'underline' }}>
+                    Magic link instead
+                  </button>
+                </div>
+              </>
+            ) : (
+              <>
+                <button onClick={handleMagicLink} disabled={loading} style={{
+                  width: '100%', padding: '13px', background: 'linear-gradient(135deg,#b5622a,#d4855a)',
+                  border: 'none', borderRadius: 12, color: '#fff', cursor: 'pointer', fontSize: 15,
+                  fontFamily: "'Cormorant Garamond',serif", fontStyle: 'italic', marginBottom: 12,
+                }}>
+                  {loading ? '...' : 'Send magic link →'}
+                </button>
+                <button onClick={() => setMode('login')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#9088a0', textDecoration: 'underline', width: '100%' }}>
+                  Use password instead
+                </button>
+              </>
+            )}
+          </>
+        )}
+      </div>
+
+      <div style={{ marginTop: 20, fontSize: 11, color: '#c4a882', textAlign: 'center', lineHeight: 1.7 }}>
+        Your data is private and belongs only to you.<br/>
+        We never sell or share it.
+      </div>
+    </div>
+  );
 }
