@@ -422,8 +422,8 @@ const FOOD_DB={
   "chole":{cal:180,protein:9,carbs:20,fat:5,fibre:6,iron:3.5,calcium:60,vitC:2,vitB12:0,vitD:0,folate:80,magnesium:48,zinc:1.5,potassium:320,omega3:0.1,choline:40,addedSugar:0,sodium:350,vitA:2,vitE:0.5},
   "roti":{cal:70,protein:2.5,carbs:15,fat:0.5,fibre:1.9,iron:0.9,calcium:15,vitC:0,vitB12:0,vitD:0,folate:10,magnesium:18,zinc:0.5,potassium:80,omega3:0,choline:5,addedSugar:0,sodium:80,vitA:0,vitE:0.1},
   "paratha":{cal:200,protein:4,carbs:24,fat:9,fibre:2,iron:1.2,calcium:25,vitC:0,vitB12:0,vitD:0,folate:12,magnesium:20,zinc:0.6,potassium:100,omega3:0,choline:6,addedSugar:0,sodium:150,vitA:0,vitE:0.5},
-  "dal":{cal:120,protein:8,carbs:18,fat:2,fibre:4,iron:2.5,calcium:30,vitC:1,vitB12:0,vitD:0,folate:120,magnesium:36,zinc:1.2,potassium:280,omega3:0.1,choline:30,addedSugar:0,sodium:200,vitA:5,vitE:0.2},
-  "rice":{cal:130,protein:2.5,carbs:28,fat:0.3,fibre:0.4,iron:0.5,calcium:10,vitC:0,vitB12:0,vitD:0,folate:3,magnesium:13,zinc:0.5,potassium:55,omega3:0,choline:4,addedSugar:0,sodium:5,vitA:0,vitE:0},
+  "dal":{cal:180,protein:12,carbs:27,fat:3,fibre:6,iron:3.8,calcium:45,vitC:1,vitB12:0,vitD:0,folate:180,magnesium:54,zinc:1.8,potassium:420,omega3:0.15,choline:45,addedSugar:0,sodium:300,vitA:8,vitE:0.3},
+  "rice":{cal:208,protein:4,carbs:45,fat:0.5,fibre:0.6,iron:0.8,calcium:16,vitC:0,vitB12:0,vitD:0,folate:5,magnesium:21,zinc:0.8,potassium:88,omega3:0,choline:6,addedSugar:0,sodium:8,vitA:0,vitE:0},
   "sabzi":{cal:80,protein:2,carbs:10,fat:3,fibre:3,iron:1.5,calcium:40,vitC:15,vitB12:0,vitD:0,folate:30,magnesium:25,zinc:0.5,potassium:300,omega3:0,choline:12,addedSugar:0,sodium:180,vitA:200,vitE:1},
   "paneer":{cal:260,protein:18,carbs:2,fat:20,fibre:0,iron:0.4,calcium:480,vitC:0,vitB12:0.6,vitD:10,folate:10,magnesium:14,zinc:1.4,potassium:90,omega3:0.1,choline:18,addedSugar:0,sodium:30,vitA:60,vitE:0.3},
   "curd":{cal:60,protein:5,carbs:4,fat:3,fibre:0,iron:0.1,calcium:120,vitC:0,vitB12:0.4,vitD:2,folate:8,magnesium:12,zinc:0.6,potassium:150,omega3:0.1,choline:15,addedSugar:0,sodium:50,vitA:20,vitE:0.1},
@@ -463,9 +463,28 @@ function resolveFood(raw){
   for(const k of Object.keys(FOOD_DB)){if(s.includes(k)||k.includes(s))return k;}
   return null;
 }
+function parseQuantity(foodStr) {
+  // Extract quantity multiplier from food string
+  // "2 bowls dal" → {qty: 2, food: "dal"}
+  // "dal" → {qty: 1, food: "dal"}
+  const str = (foodStr||"").toLowerCase().trim();
+  const numMatch = str.match(/^(\d+(?:\.\d+)?)\s*(?:bowls?|katori|cups?|glasses?|pieces?|pcs?|rotis?|servings?|tbsp|tsp|plates?)?\s*(.+)/);
+  if (numMatch) {
+    return { qty: parseFloat(numMatch[1]), food: numMatch[2].trim() };
+  }
+  // "half bowl dal" → 0.5
+  if (str.startsWith("half ")) return { qty: 0.5, food: str.replace("half ","") };
+  return { qty: 1, food: str };
+}
+
 function calcNutrition(foods){
   const b={cal:0,protein:0,carbs:0,fat:0,fibre:0,iron:0,calcium:0,vitC:0,vitB12:0,vitD:0,folate:0,magnesium:0,zinc:0,potassium:0,omega3:0,choline:0,addedSugar:0,sodium:0,vitA:0,vitE:0};
-  (foods||[]).forEach(f=>{const k=resolveFood(f);const d=k?FOOD_DB[k]:null;if(d)for(const n of Object.keys(b))b[n]+=(d[n]||0);});
+  (foods||[]).forEach(f=>{
+    const {qty, food} = parseQuantity(f);
+    const k=resolveFood(food);
+    const d=k?FOOD_DB[k]:null;
+    if(d) for(const n of Object.keys(b)) b[n]+=(d[n]||0)*qty;
+  });
   return b;
 }
 
@@ -679,34 +698,118 @@ export default function Swadhyaya(){
   const[galaxy,setGalaxy]=useState(false);
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const userRef = useRef(null);
+
+  // Keep userRef in sync
+  useEffect(() => { userRef.current = user; }, [user]);
 
   // Auth listener
   useEffect(() => {
-    // Timeout fallback — if supabase doesn't respond in 3s, show auth screen
-    const timeout = setTimeout(() => setAuthLoading(false), 3000);
+    const timeout = setTimeout(() => setAuthLoading(false), 800);
 
-    supabase.auth.getSession().then(({ data: { session }, error }) => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
       clearTimeout(timeout);
-      setUser(session?.user ?? null);
-      setAuthLoading(false);
-      if (session?.user) loadUserData(session.user.id);
+      if (session?.user) {
+        setUser(session.user);
+        loadUserData(session.user.id);
+        setAuthLoading(false);
+      } else {
+        // No session — show login
+        setUser(null);
+        setAuthLoading(false);
+      }
     }).catch(() => {
       clearTimeout(timeout);
+      setUser(null);
       setAuthLoading(false);
     });
 
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
-      if (session?.user) loadUserData(session.user.id);
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === "SIGNED_IN" && session?.user) {
+        setUser(session.user);
+        userRef.current = session.user;
+        // Try loading cloud data first
+        loadUserData(session.user.id).then(hasCloudData => {
+          if (!hasCloudData) {
+            // No cloud data — push local profile to cloud immediately
+            setProfile(p => {
+              const toSave = {...p, onboardingDone: true};
+              // Save directly with user id since userRef might not be set yet
+              supabase.from("profiles").upsert({
+                id: session.user.id,
+                email: session.user.email,
+                name: p.name || "",
+                gender: p.gender || "female",
+                age: p.age || "",
+                weight: p.weight || "",
+                height: p.height || "",
+                activity_level: p.activityLevel || "light",
+                fitness_goal: p.fitnessGoal || "",
+                dob: p.dob || "",
+                birth_time: p.birthTime || "",
+                birth_place: p.birthPlace || "",
+                cycle_length: p.cycleLength || "28",
+                period_length: p.periodLength || "5",
+                last_period_start: p.lastPeriodStart || "",
+                health_conditions: p.healthConditions || [],
+                goals: p.goals || [],
+                plan: p.plan || "trial",
+                trial_start_date: p.trialStartDate || new Date().toISOString().split("T")[0],
+                onboarding_done: true,
+                updated_at: new Date().toISOString(),
+              }).then(() => console.log("Profile saved to cloud"));
+              return toSave;
+            });
+            setOnboarded(true);
+          }
+        });
+      } else if (event === "SIGNED_OUT") {
+        setUser(null);
+        setOnboarded(false);
+      }
     });
     return () => { subscription.unsubscribe(); clearTimeout(timeout); };
   }, []);
+
+  // Save onboarding done flag
+  async function markOnboardingDone(prof) {
+    if (!user) return;
+    await supabase.from("profiles").upsert({
+      id: user.id,
+      ...prof,
+      name: prof.name,
+      gender: prof.gender,
+      age: prof.age,
+      weight: prof.weight,
+      height: prof.height,
+      activity_level: prof.activityLevel,
+      fitness_goal: prof.fitnessGoal,
+      dob: prof.dob,
+      birth_time: prof.birthTime,
+      birth_place: prof.birthPlace,
+      cycle_length: prof.cycleLength,
+      period_length: prof.periodLength,
+      last_period_start: prof.lastPeriodStart,
+      health_conditions: prof.healthConditions||[],
+      goals: prof.goals||[],
+      plan: prof.plan||"trial",
+      trial_start_date: prof.trialStartDate,
+      onboarding_done: true,
+      updated_at: new Date().toISOString(),
+    });
+  }
 
   // Load user data from Supabase
   async function loadUserData(userId) {
     try {
       const { data: prof } = await supabase.from("profiles").select("*").eq("id", userId).single();
       if (prof) {
+        const hasData = !!(prof.name || prof.dob || prof.weight);
+        if (!hasData) {
+          // Cloud is empty — mark onboarding_done in cloud if local is done
+          return false;
+        }
+        // Has cloud data — restore everything
         setProfile(p => ({...p,
           name: prof.name || "",
           gender: prof.gender || "female",
@@ -718,6 +821,9 @@ export default function Swadhyaya(){
           dob: prof.dob || "",
           birthTime: prof.birth_time || "",
           birthPlace: prof.birth_place || "",
+          manualLagna: prof.manual_lagna || "",
+          manualMoon: prof.manual_moon || "",
+          manualSun: prof.manual_sun || "",
           cycleLength: prof.cycle_length || "28",
           periodLength: prof.period_length || "5",
           lastPeriodStart: prof.last_period_start || "",
@@ -726,8 +832,13 @@ export default function Swadhyaya(){
           plan: prof.plan || "trial",
           trialStartDate: prof.trial_start_date || new Date().toISOString().split("T")[0],
           onboardingDone: prof.onboarding_done || false,
+          manualLagna: prof.manual_lagna || "",
+          manualMoon: prof.manual_moon || "",
+          manualSun: prof.manual_sun || "",
         }));
-        if (prof.onboarding_done) setOnboarded(true);
+        if (prof.behaviour_profile) setBehaviourProfile(prof.behaviour_profile);
+        // If profile has basic data, treat as onboarded
+        if (prof.onboarding_done || prof.name || prof.dob) setOnboarded(true);
       }
       const { data: foods } = await supabase.from("food_logs").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(200);
       if (foods) setFoodLogs(foods.map(f => ({...f, foods: f.foods || [], symptoms: f.symptoms || []})));
@@ -737,7 +848,16 @@ export default function Swadhyaya(){
       if (periods) setPeriodLogs(periods.map(p => ({...p, startDate: p.start_date, endDate: p.end_date})));
       const { data: weights } = await supabase.from("weight_logs").select("*").eq("user_id", userId).order("date", { ascending: false });
       if (weights) setWeightLog(weights);
-    } catch(e) { console.error("Load error:", e); }
+
+      // Load today's daily log (ritual steps, water)
+      const todayStr = new Date().toISOString().split("T")[0];
+      const { data: dailyLog } = await supabase.from("daily_logs").select("*").eq("user_id", userId).eq("date", todayStr).single();
+      if (dailyLog) {
+        if (dailyLog.completed_steps) setCompletedSteps(dailyLog.completed_steps);
+        if (dailyLog.water_ml) setWaterLog(dailyLog.water_ml);
+      }
+      return true; // has cloud data
+    } catch(e) { console.error("Load error:", e); return false; }
   }
 
   // Save profile to Supabase
@@ -755,6 +875,9 @@ export default function Swadhyaya(){
       dob: updates.dob,
       birth_time: updates.birthTime,
       birth_place: updates.birthPlace,
+      manual_lagna: updates.manualLagna||"",
+      manual_moon: updates.manualMoon||"",
+      manual_sun: updates.manualSun||"",
       cycle_length: updates.cycleLength,
       period_length: updates.periodLength,
       last_period_start: updates.lastPeriodStart,
@@ -766,6 +889,17 @@ export default function Swadhyaya(){
       updated_at: new Date().toISOString(),
     });
   }
+
+  // Save behaviour profile (My Space patterns) to Supabase
+  const saveBehaviourProfile = async (bp) => {
+    if (!userRef.current) return;
+    try {
+      await supabase.from("profiles").update({
+        behaviour_profile: bp,
+        updated_at: new Date().toISOString(),
+      }).eq("id", userRef.current.id);
+    } catch(e) { console.error("BP save error:", e); }
+  };
 
   // Save journal entry
   async function saveJournalEntry(entry) {
@@ -801,23 +935,58 @@ export default function Swadhyaya(){
   }
 
   const [section, setSection] = useState("home");
-  const[onboarded,setOnboarded]=useState(false);
+  const [showLogin, setShowLogin] = useState(false);
+
+  // Guard: if chart section but not galaxy mode, go home
+  const safeSection = (section === "birthchart" && !galaxy) ? "home" : section;
+  const[onboarded,setOnboarded]=useState(()=>{
+    try { return localStorage.getItem("sw_onboarded") === "true"; } catch(e) { return false; }
+  });
   const C=galaxy?GALAXY:EARTHY;
 
-  const[profile,setProfile]=useState({name:"",gender:"female",age:"28",weight:"58",height:"162",weightUnit:"kg",heightUnit:"cm",activityLevel:"light",pregnant:"no",lactating:false,lastPeriodStart:"",cycleLength:"28",periodLength:"5",cyclePhase:"follicular",zodiac:"Scorpio",dob:"",fitnessGoal:"",healthConditions:[],plan:"trial",trialStartDate:new Date().toISOString().split("T")[0]});
+  const[profile,setProfile]=useState(()=>{
+    // Load from localStorage first for instant restore
+    try {
+      const saved = localStorage.getItem("sw_profile");
+      if (saved) return JSON.parse(saved);
+    } catch(e) {}
+    return {name:"",gender:"female",age:"28",weight:"58",height:"162",weightUnit:"kg",heightUnit:"cm",activityLevel:"light",pregnant:"no",lactating:false,lastPeriodStart:"",cycleLength:"28",periodLength:"5",cyclePhase:"follicular",zodiac:"Scorpio",dob:"",fitnessGoal:"",healthConditions:[],plan:"trial",trialStartDate:new Date().toISOString().split("T")[0]};
+  });
 
   const[behaviourProfile,setBehaviourProfile]=useState({});
-  const[foodLogs,setFoodLogs]=useState([]);
-  const[waterLog,setWaterLog]=useState(0);
+  const[foodLogs,setFoodLogs]=useState(()=>{
+    try {
+      const today = new Date().toISOString().split("T")[0];
+      const saved = localStorage.getItem("sw_food_"+today);
+      return saved ? JSON.parse(saved) : [];
+    } catch(e) { return []; }
+  });
+  const[waterLog,setWaterLog]=useState(()=>{
+    try {
+      const today=new Date().toISOString().split("T")[0];
+      return parseInt(localStorage.getItem("sw_water_"+today)||"0");
+    } catch(e){return 0;}
+  });
   const[moveLog,setMoveLog]=useState([]);
   const[meditationLog,setMeditationLog]=useState([]);
   const[periodLogs,setPeriodLogs]=useState([]);
   const[symptoms,setSymptoms]=useState({});
-  const[completedSteps,setCompletedSteps]=useState([]);
+  const[completedSteps,setCompletedSteps]=useState(()=>{
+    try {
+      const today=new Date().toISOString().split("T")[0];
+      const saved=localStorage.getItem("sw_steps_"+today);
+      return saved ? JSON.parse(saved) : [];
+    } catch(e){return [];}
+  });
   const[gratitude,setGratitude]=useState(["","",""]);
   const[priorities,setPriorities]=useState(["","",""]);
   const[weightLog,setWeightLog]=useState([]);
-  const[journalEntries,setJournalEntries]=useState([]);
+  const[journalEntries,setJournalEntries]=useState(()=>{
+    try {
+      const saved=localStorage.getItem("sw_journal");
+      return saved ? JSON.parse(saved) : [];
+    } catch(e){return [];}
+  });
   const[todayMsgs,setTodayMsgs]=useState(0);
   const[lastMsgDate,setLastMsgDate]=useState("");
 
@@ -848,10 +1017,148 @@ export default function Swadhyaya(){
 
   useEffect(()=>{const s=document.createElement("style");s.textContent=FONTS;document.head.appendChild(s);return()=>document.head.removeChild(s);},[]);
 
-  const up=(k,v)=>setProfile(p=>({...p,[k]:v}));
-  const updateBP=(data)=>setBehaviourProfile(bp=>updateBehaviourProfile(bp,data));
+  // ── Auto-save food logs to Supabase ──────────────────────
+  const saveFoodLogEntry = async (entry) => {
+    if (!userRef.current) return;
+    try {
+      await supabase.from("food_logs").insert({
+        user_id: userRef.current.id,
+        date: entry.date,
+        time: entry.time,
+        meal: entry.meal,
+        foods: entry.foods || [],
+        note: entry.note || "",
+        symptoms: entry.symptoms || [],
+        water: entry.water || 0,
+        water_timing: entry.waterTiming || null,
+      });
+    } catch(e) { console.error("Food save error:", e); }
+  };
 
-  if(!onboarded)return<Onboarding profile={profile} up={up} onDone={()=>setOnboarded(true)} C={EARTHY}/>;
+  // ── Auto-save journal entries to Supabase ─────────────────
+  const saveJournalToCloud = async (entry) => {
+    if (!userRef.current) return;
+    try {
+      await supabase.from("journal_entries").upsert({
+        user_id: userRef.current.id,
+        date: entry.date,
+        mood: entry.mood || null,
+        energy: entry.energy || null,
+        free_write: entry.freeWrite || "",
+        prompts: entry.prompts || {},
+        goals: entry.goals || {},
+        ritual_done: entry.ritualDone || 0,
+        cycle_phase: entry.cyclePhase || null,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "user_id,date" });
+    } catch(e) { console.error("Journal save error:", e); }
+  };
+
+  // ── Auto-save weight logs ────────────────────────────────
+  const saveWeightToCloud = async (entry) => {
+    if (!userRef.current) return;
+    try {
+      await supabase.from("weight_logs").insert({
+        user_id: userRef.current.id,
+        date: entry.date,
+        weight: entry.weight,
+      });
+    } catch(e) { console.error("Weight save error:", e); }
+  };
+
+  // ── Auto-save daily ritual + movement ───────────────────
+  const saveDailyLog = async (data) => {
+    if (!userRef.current) return;
+    const todayStr = new Date().toISOString().split("T")[0];
+    try {
+      await supabase.from("daily_logs").upsert({
+        user_id: userRef.current.id,
+        date: todayStr,
+        ...data,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: "user_id,date" });
+    } catch(e) { console.error("Daily log save error:", e); }
+  };
+
+  // ── Auto-save period logs ─────────────────────────────────
+  const savePeriodToCloud = async (entry) => {
+    if (!userRef.current) return;
+    try {
+      if (entry.id && typeof entry.id === 'number' && entry.id > 1000000000000) {
+        // New entry — insert
+        await supabase.from("period_logs").insert({
+          user_id: userRef.current.id,
+          start_date: entry.startDate,
+          end_date: entry.endDate || null,
+          flow: entry.flow || null,
+          symptoms: entry.symptoms || [],
+          notes: entry.notes || "",
+        });
+      } else {
+        // Update existing
+        await supabase.from("period_logs").update({
+          start_date: entry.startDate,
+          end_date: entry.endDate || null,
+          flow: entry.flow || null,
+          symptoms: entry.symptoms || [],
+          notes: entry.notes || "",
+        }).eq("user_id", userRef.current.id).eq("start_date", entry.startDate);
+      }
+    } catch(e) { console.error("Period save error:", e); }
+  };
+
+  // Save ritual completion to cloud when steps change
+  useEffect(()=>{
+    if(userRef.current && completedSteps.length > 0){
+      saveDailyLog({completed_steps: completedSteps, water_ml: waterLog});
+    }
+  },[completedSteps]);
+
+  // Save water log to cloud when it changes
+  useEffect(()=>{
+    if(userRef.current && waterLog > 0){
+      saveDailyLog({water_ml: waterLog});
+    }
+  },[waterLog]);
+
+  const up=(k,v)=>setProfile(p=>{
+    const updated={...p,[k]:v};
+    // Save to localStorage immediately
+    try { localStorage.setItem("sw_profile", JSON.stringify(updated)); } catch(e) {}
+    // Save to Supabase if logged in
+    if(userRef.current) saveProfile(updated);
+    return updated;
+  });
+  const updateBP=(data)=>setBehaviourProfile(bp=>{
+    const updated=updateBehaviourProfile(bp,data);
+    // Save to cloud every 5 updates
+    if(Math.random()<0.2) saveBehaviourProfile(updated);
+    return updated;
+  });
+
+  if (authLoading) return (
+    <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"linear-gradient(180deg,#faf6ef,#f5f0e6)"}}>
+      <div style={{textAlign:"center"}}>
+        <div style={{fontSize:28,marginBottom:8}}>🪞</div>
+        <div style={{fontSize:14,color:"#9088a0",fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>Loading…</div>
+      </div>
+    </div>
+  );
+
+  if (!user) return (
+    <AuthScreen C={EARTHY} onAuth={(u)=>{setUser(u);if(u)loadUserData(u.id);}}/>
+  );
+
+  // Then onboarding if not done yet
+  if(!onboarded) return <Onboarding profile={profile} up={up} onDone={()=>{
+    setOnboarded(true);
+    // Save to Supabase so it persists across refreshes
+    if(user) markOnboardingDone({...profile, onboardingDone:true});
+    else {
+      // No user yet — save locally, will sync when they log in
+      setProfile(p=>({...p, onboardingDone:true}));
+    }
+  }} C={EARTHY}/>;
 
   const hour=new Date().getHours();
   const greeting=hour<9?"Good morning":hour<16?"Hello":hour<19?"Good evening":"Good night";
@@ -865,24 +1172,35 @@ export default function Swadhyaya(){
     {id:"goals",icon:"◎",label:"Goals"},
     {id:"journal",icon:"📓",label:"Journal"},
     {id:"progress",icon:"📈",label:"Progress"},
-    {id:"birthchart",icon:"✦",label:"Chart"},
+    {id:"birthchart",icon:"✦",label:"Chart",galaxyOnly:true},
     {id:"myspace",icon:"💬",label:"My Space"},
   ].filter(n=>(!n.femaleOnly||profile.gender==="female")&&(!n.galaxyOnly||galaxy));
 
   // Auth gate
-  if (authLoading) return (
-    <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"linear-gradient(180deg,#faf6ef,#f5f0e6)"}}>
-      <div style={{textAlign:"center"}}>
-        <div style={{fontSize:28,marginBottom:8}}>🪞</div>
-        <div style={{fontSize:14,color:"#9088a0",fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>Loading…</div>
-      </div>
-    </div>
-  );
-
-  if (!user) return <AuthScreen C={EARTHY} onAuth={setUser}/>;
 
   return(
     <div style={{background:C.bg,minHeight:"100vh",fontFamily:"'Jost',sans-serif",color:C.text}}>
+      {/* Login modal */}
+      {showLogin&&!user&&(
+        <div style={{position:"fixed",inset:0,zIndex:1000,background:"rgba(0,0,0,0.5)",display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
+          <div style={{width:"100%",maxWidth:400,background:C.card,borderRadius:20,overflow:"hidden"}}>
+            <div style={{padding:"16px 20px",display:"flex",justifyContent:"space-between",alignItems:"center",borderBottom:`1px solid ${C.border}`}}>
+              <div style={{fontSize:15,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>Sign in to save your data</div>
+              <button onClick={()=>setShowLogin(false)} style={{background:"none",border:"none",cursor:"pointer",fontSize:20,color:C.muted}}>×</button>
+            </div>
+            <AuthScreen C={C} onAuth={(u)=>{setUser(u);setShowLogin(false);if(u)loadUserData(u.id);}}/>
+          </div>
+        </div>
+      )}
+      {showLogin&&user&&(
+        <div style={{position:"fixed",inset:0,zIndex:1000,background:"rgba(0,0,0,0.5)",display:"flex",alignItems:"center",justifyContent:"center",padding:20}} onClick={()=>setShowLogin(false)}>
+          <div style={{background:C.card,borderRadius:16,padding:24,textAlign:"center",maxWidth:300}}>
+            <div style={{fontSize:14,marginBottom:8}}>✓ Signed in as</div>
+            <div style={{fontSize:13,color:C.accent,marginBottom:16}}>{user.email}</div>
+            <button onClick={async()=>{await supabase.auth.signOut();setUser(null);setShowLogin(false);}} style={{padding:"10px 24px",background:C.red+"20",border:`1px solid ${C.red}44`,borderRadius:20,cursor:"pointer",color:C.red,fontSize:13}}>Sign out</button>
+          </div>
+        </div>
+      )}
       {galaxy&&<Stars/>}
       {!galaxy&&<div style={{position:"fixed",inset:0,background:"radial-gradient(ellipse at 30% 20%, #d4a57812 0%, transparent 60%)",pointerEvents:"none",zIndex:0}}/>}
 
@@ -901,6 +1219,9 @@ export default function Swadhyaya(){
             <div style={{fontSize:12,color:C.accent}}>🔥{Math.round(todayFood.cal)}</div>
             <button onClick={()=>setGalaxy(g=>!g)} style={{background:galaxy?"#c084fc33":"transparent",border:`1.5px solid ${galaxy?"#c084fc":"#b5622a44"}`,borderRadius:20,padding:"5px 12px",cursor:"pointer",fontSize:11,color:galaxy?"#c084fc":C.accent,display:"flex",alignItems:"center",gap:4,fontFamily:"'DM Mono',monospace",letterSpacing:0.5}}><span>{galaxy?"☀":"✦"}</span><span style={{fontSize:9}}>{galaxy?"EARTHY":"GALAXY"}</span></button>
             <button onClick={()=>setSection("profile")} style={{width:30,height:30,borderRadius:"50%",background:`linear-gradient(135deg,${C.accent},${C.warm})`,border:"none",cursor:"pointer",fontSize:13,color:"#fff"}}>{profile.name?profile.name[0].toUpperCase():"◉"}</button>
+            <button onClick={()=>setShowLogin(true)} style={{fontSize:10,padding:"4px 8px",borderRadius:20,border:`1px solid ${user?C.accent2:C.red}44`,background:user?C.accent2+"15":C.red+"15",cursor:"pointer",color:user?C.accent2:C.red,fontFamily:"'DM Mono',monospace"}}>
+              {user?"●":"LOGIN"}
+            </button>
           </div>
         </div>
       </div>
@@ -918,21 +1239,21 @@ export default function Swadhyaya(){
 
       {/* MAIN CONTENT */}
       <div style={{maxWidth:700,margin:"0 auto",padding:"0 0 120px",position:"relative",zIndex:1}}>
-        {section==="home"&&<HomeSection C={C} galaxy={galaxy} profile={profile} needs={needs} todayFood={todayFood} waterLog={waterLog} completedSteps={completedSteps} greeting={greeting} section={section} setSection={setSection} todayPhase={todayPhase} behaviourProfile={behaviourProfile} trialDaysLeft={trialDaysLeft} journalEntries={journalEntries} foodLogs={foodLogs}/>}
-        {section==="morning"&&<MorningSection C={C} galaxy={galaxy} completedSteps={completedSteps} setCompletedSteps={setCompletedSteps} gratitude={gratitude} setGratitude={setGratitude} priorities={priorities} setPriorities={setPriorities} meditationLog={meditationLog} setMeditationLog={setMeditationLog} profile={profile}/>}
-        {section==="wellness"&&<WellnessSection C={C} galaxy={galaxy} profile={profile} moveLog={moveLog} setMoveLog={setMoveLog} todayPhase={todayPhase}/>}
-        {section==="food"&&<FoodSection C={C} galaxy={galaxy} foodLogs={foodLogs} setFoodLogs={setFoodLogs} waterLog={waterLog} setWaterLog={setWaterLog} needs={needs} todayFood={todayFood} updateBP={updateBP} profile={profile}/>}
-        {section==="cycle"&&profile.gender==="female"&&<CycleSection C={C} profile={profile} setProfile={setProfile} periodLogs={periodLogs} setPeriodLogs={setPeriodLogs} symptoms={symptoms} setSymptoms={setSymptoms}/>}
-        {section==="manual"&&<YourManualSection C={C} galaxy={galaxy} profile={profile} journalEntries={journalEntries} behaviourProfile={behaviourProfile} foodLogs={foodLogs}/>}
-        {section==="goals"&&<GoalsSection C={C} galaxy={galaxy} profile={profile} up={up} journalEntries={journalEntries}/>}
-        {section==="journal"&&<JournalSection C={C} galaxy={galaxy} profile={profile} journalEntries={journalEntries} setJournalEntries={setJournalEntries} foodLogs={foodLogs} moveLog={moveLog} completedSteps={completedSteps} periodLogs={periodLogs} behaviourProfile={behaviourProfile} updateBP={updateBP}/>}
-        {section==="progress"&&<ProgressSection C={C} profile={profile} up={up} needs={needs} todayFood={todayFood} moveLog={moveLog} completedSteps={completedSteps} weightLog={weightLog} setWeightLog={setWeightLog} foodLogs={foodLogs} behaviourProfile={behaviourProfile} updateBP={updateBP}/>}
-        {section==="myspace"&&<MySpaceSection C={C} galaxy={galaxy} profile={profile} foodLogs={foodLogs} setFoodLogs={setFoodLogs} waterLog={waterLog} setWaterLog={setWaterLog} moveLog={moveLog} setMoveLog={setMoveLog} todayFood={todayFood} needs={needs} canSendAI={canSendAI} recordAIMsg={recordAIMsg} todayMsgs={todayMsgs} planData={planData} setSection={setSection} updateBP={updateBP} behaviourProfile={behaviourProfile}/>}
-        {section==="profile"&&<ProfileSection C={C} profile={profile} up={up} needs={needs} setSection={setSection}
+        {safeSection==="home"&&<HomeSection C={C} galaxy={galaxy} profile={profile} needs={needs} todayFood={todayFood} waterLog={waterLog} completedSteps={completedSteps} greeting={greeting} section={section} setSection={setSection} todayPhase={todayPhase} behaviourProfile={behaviourProfile} trialDaysLeft={trialDaysLeft} journalEntries={journalEntries} foodLogs={foodLogs}/>}
+        {safeSection==="morning"&&<MorningSection C={C} galaxy={galaxy} completedSteps={completedSteps} setCompletedSteps={setCompletedSteps} gratitude={gratitude} setGratitude={setGratitude} priorities={priorities} setPriorities={setPriorities} meditationLog={meditationLog} setMeditationLog={setMeditationLog} profile={profile}/>}
+        {safeSection==="wellness"&&<WellnessSection C={C} galaxy={galaxy} profile={profile} moveLog={moveLog} setMoveLog={setMoveLog} todayPhase={todayPhase}/>}
+        {safeSection==="food"&&<FoodSection C={C} galaxy={galaxy} foodLogs={foodLogs} setFoodLogs={setFoodLogs} waterLog={waterLog} setWaterLog={setWaterLog} needs={needs} todayFood={todayFood} updateBP={updateBP} profile={profile}/>}
+        {section==="cycle"&&profile.gender==="female"&&<CycleSection C={C} profile={profile} setProfile={setProfile} periodLogs={periodLogs} setPeriodLogs={setPeriodLogs} symptoms={symptoms} setSymptoms={setSymptoms} savePeriodToCloud={savePeriodToCloud}/>}
+        {safeSection==="manual"&&<YourManualSection C={C} galaxy={galaxy} profile={profile} journalEntries={journalEntries} behaviourProfile={behaviourProfile} foodLogs={foodLogs}/>}
+        {safeSection==="goals"&&<GoalsSection C={C} galaxy={galaxy} profile={profile} up={up} journalEntries={journalEntries}/>}
+        {safeSection==="journal"&&<JournalSection C={C} galaxy={galaxy} profile={profile} journalEntries={journalEntries} setJournalEntries={setJournalEntries} foodLogs={foodLogs} moveLog={moveLog} completedSteps={completedSteps} periodLogs={periodLogs} behaviourProfile={behaviourProfile} updateBP={updateBP}/>}
+        {safeSection==="progress"&&<ProgressSection C={C} profile={profile} up={up} needs={needs} todayFood={todayFood} moveLog={moveLog} completedSteps={completedSteps} weightLog={weightLog} setWeightLog={setWeightLog} foodLogs={foodLogs} behaviourProfile={behaviourProfile} updateBP={updateBP}/>}
+        {safeSection==="myspace"&&<MySpaceSection C={C} galaxy={galaxy} profile={profile} foodLogs={foodLogs} setFoodLogs={setFoodLogs} waterLog={waterLog} setWaterLog={setWaterLog} moveLog={moveLog} setMoveLog={setMoveLog} todayFood={todayFood} needs={needs} canSendAI={canSendAI} recordAIMsg={recordAIMsg} todayMsgs={todayMsgs} planData={planData} setSection={setSection} updateBP={updateBP} behaviourProfile={behaviourProfile}/>}
+        {safeSection==="profile"&&<ProfileSection C={C} profile={profile} up={up} needs={needs} setSection={setSection}
           resetToday={()=>{setFoodLogs([]);setWaterLog(0);setCompletedSteps([]);}}
           resetAllLogs={()=>{setFoodLogs([]);setWaterLog(0);setCompletedSteps([]);setJournalEntries([]);setWeightLog([]);setMoveLog([]);setMeditationLog([]);setPeriodLogs([]);}}
         />}
-        {section==="birthchart"&&<BirthChartSection C={C} profile={profile}/>}
+        {safeSection==="birthchart"&&galaxy&&<BirthChartSection C={C} profile={profile} up={up}/>}
         {section==="upgrade"&&<UpgradeSection C={C} profile={profile} up={up} setSection={setSection}/>}
       </div>
 
@@ -1417,7 +1738,7 @@ function HomeSection({C,galaxy,profile,needs,todayFood,waterLog,completedSteps,g
               {Icon:({a})=><IconNutrition size={22} active={a} C={C}/>,label:"Log Food",sub:"Track nutrition",s:"food"},
               {Icon:({a})=><IconWellness size={22} active={a} C={C}/>,label:"Wellness",sub:"Yoga · Breathwork",s:"wellness"},
               {Icon:({a})=><IconProgress size={22} active={a} C={C}/>,label:"Progress",sub:"Track your goals",s:"progress"},
-              ...(profile.gender==="female"?[{Icon:({a})=><IconCycle size={22} active={a} C={C}/>,label:"Cycle",sub:"Period tracker",s:"cycle"}]:[{Icon:({a})=><IconBirthChart size={22} active={a} C={C}/>,label:"Galaxy Mode",sub:"Vedic timing",s:"birthchart"}]),
+              ...(profile.gender==="female"?[{Icon:({a})=><IconCycle size={22} active={a} C={C}/>,label:"Cycle",sub:"Period tracker",s:"cycle"}]:[{Icon:({a})=><IconProgress size={22} active={a} C={C}/>,label:"Progress",sub:"Track your day",s:"progress"}]),
             ].map((item,i)=>{
               const isActive=section===item.s;
               const ItemIcon=item.Icon;
@@ -2280,8 +2601,11 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
     };
     setJournalEntries(prev => {
       const filtered = prev.filter(e => e.date !== todayStr);
-      return [entry, ...filtered].sort((a,b) => new Date(b.date)-new Date(a.date));
+      const updated=[entry, ...filtered].sort((a,b) => new Date(b.date)-new Date(a.date));
+      try { localStorage.setItem("sw_journal", JSON.stringify(updated.slice(0,100))); } catch(e){}
+      return updated;
     });
+    saveJournalToCloud(entry);
     updateBP({chatMsg: entry.freeWrite || Object.values(entry.prompts).join(" ")});
     setTimeout(() => setSaving(false), 800);
   }
@@ -2732,7 +3056,10 @@ function MorningSection({C,galaxy,completedSteps,setCompletedSteps,gratitude,set
     timerRef.current=setInterval(()=>setTimerSec(s=>{if(s<=1){clearInterval(timerRef.current);setTimerOn(false);return 0;}return s-1;}),1000);
   }
   function markDone(id){
-    if(!completedSteps.includes(id))setCompletedSteps(p=>[...p,id]);
+    if(!completedSteps.includes(id)){
+      const updated=[...completedSteps,id];
+      setCompletedSteps(updated);
+    }
     clearInterval(timerRef.current);setTimerOn(false);
     if(step<STEPS.length-1)setStep(s=>s+1);
     else setView("list");
@@ -3851,7 +4178,7 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
 // ══════════════════════════════════════════════════════════════
 //  CYCLE TRACKER
 // ══════════════════════════════════════════════════════════════
-function CycleSection({C,profile,setProfile,periodLogs,setPeriodLogs,symptoms,setSymptoms}){
+function CycleSection({C,profile,setProfile,periodLogs,setPeriodLogs,symptoms,setSymptoms,savePeriodToCloud}){
   const[view,setView]=useState("cal");
   const[calMonth,setCalMonth]=useState(()=>{const n=new Date();return{year:n.getFullYear(),month:n.getMonth()};});
   const[selectedDay,setSelectedDay]=useState(null);
@@ -3869,8 +4196,15 @@ function CycleSection({C,profile,setProfile,periodLogs,setPeriodLogs,symptoms,se
   function savePeriod(){
     const ts=editPeriod?{...editPeriod,...np}:np;
     if(!ts.startDate)return;
-    if(editPeriod)setPeriodLogs(l=>l.map(p=>p.id===editPeriod.id?ts:p));
-    else{setPeriodLogs(l=>[{...ts,id:Date.now()},...l].sort((a,b)=>new Date(b.startDate)-new Date(a.startDate)));up("lastPeriodStart",ts.startDate);}
+    if(editPeriod){
+      setPeriodLogs(l=>l.map(p=>p.id===editPeriod.id?ts:p));
+      if(savePeriodToCloud) savePeriodToCloud(ts);
+    } else {
+      const newEntry={...ts,id:Date.now()};
+      setPeriodLogs(l=>[newEntry,...l].sort((a,b)=>new Date(b.startDate)-new Date(a.startDate)));
+      up("lastPeriodStart",ts.startDate);
+      if(savePeriodToCloud) savePeriodToCloud(newEntry);
+    }
     setNp({startDate:"",endDate:"",flow:"medium",notes:"",symptoms:[]});setEditPeriod(null);setView("cal");
   }
   function analysis(){
@@ -4058,6 +4392,203 @@ function CycleSection({C,profile,setProfile,periodLogs,setPeriodLogs,symptoms,se
 //  TODAY'S MIRROR
 //  One sentence that feels true. Tap to reveal.
 // ══════════════════════════════════════════════════════════════
+
+
+// ══════════════════════════════════════════════════════════════
+//  DAY DASHBOARD — 4 questions, 3 seconds
+//  How am I? Why? Why not better? Now what?
+// ══════════════════════════════════════════════════════════════
+
+function DayDashboard({C, galaxy, profile, todayFood, needs, completedSteps, journalEntries, behaviourProfile, moveLog}) {
+  const todayStr = new Date().toISOString().split("T")[0];
+  const todayJournal = (journalEntries||[]).find(e => e.date === todayStr);
+  const [insight, setInsight] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [expanded, setExpanded] = useState(false);
+
+  const MOOD_SCORE = {energised:10,happy:9,good:8,calm:7,neutral:5,confused:4,anxious:3,low:3,sad:2,angry:1};
+  const MOOD_EMOJI = {energised:"🔥",happy:"😄",good:"🙂",calm:"😌",neutral:"😐",confused:"🌀",anxious:"😟",low:"😔",sad:"😢",angry:"😤"};
+
+  // ── Score 0-100 ──────────────────────────────────────────
+  function calcScore() {
+    let score = 50; // baseline
+    const mood = todayJournal?.mood;
+    const energy = todayJournal?.energy;
+    const calPct = Math.round((todayFood?.cal||0) / (needs?.cal||1776) * 100);
+    const water = (profile?.waterLog||0) >= (needs?.water||2000);
+    const ritual = (completedSteps||[]).length;
+
+    if (energy) score = score * 0.3 + (energy/10)*100 * 0.7;
+    if (mood) score = score * 0.5 + (MOOD_SCORE[mood]||5)/10*100 * 0.5;
+    if (ritual >= 7) score = Math.min(100, score + 8);
+    if (calPct >= 60 && calPct <= 110) score = Math.min(100, score + 5);
+    if (water) score = Math.min(100, score + 5);
+
+    return Math.round(score);
+  }
+
+  // ── Why am I this score — positives ─────────────────────
+  function getUps() {
+    const ups = [];
+    const mood = todayJournal?.mood;
+    const energy = todayJournal?.energy;
+    const ritual = (completedSteps||[]).length;
+    const calPct = Math.round((todayFood?.cal||0) / (needs?.cal||1776) * 100);
+    const todayMove = (moveLog||[]).filter(m => m.date === todayStr || (m.time||"").startsWith(todayStr));
+
+    if (["happy","energised","good","calm"].includes(mood)) ups.push(MOOD_EMOJI[mood] + " " + mood);
+    if (energy >= 7) ups.push("⚡ High energy");
+    if (ritual >= 7) ups.push("☀ Full ritual");
+    if (ritual >= 4 && ritual < 7) ups.push("☀ Morning done");
+    if (calPct >= 60 && calPct <= 110) ups.push("🥗 Fed well");
+    if (todayMove.length > 0) ups.push("🏃 Moved");
+    if (todayJournal?.freeWrite?.toLowerCase().includes("creat")) ups.push("✦ Created");
+    if (todayJournal?.freeWrite?.toLowerCase().includes("grateful")) ups.push("🙏 Grateful");
+
+    return ups.slice(0, 3);
+  }
+
+  // ── Why not better — negatives ───────────────────────────
+  function getDowns() {
+    const downs = [];
+    const mood = todayJournal?.mood;
+    const energy = todayJournal?.energy;
+    const ritual = (completedSteps||[]).length;
+    const calPct = Math.round((todayFood?.cal||0) / (needs?.cal||1776) * 100);
+    const fw = (todayJournal?.freeWrite||"").toLowerCase();
+
+    if (["anxious","low","sad","angry"].includes(mood)) downs.push(MOOD_EMOJI[mood] + " " + mood);
+    if (energy && energy <= 4) downs.push("🪫 Low energy");
+    if (ritual === 0) downs.push("⏰ No ritual");
+    if (calPct < 40 && calPct > 0) downs.push("🍽 Ate too little");
+    if (calPct > 120) downs.push("🍽 Overate");
+    if (fw.includes("stress") || fw.includes("anxious")) downs.push("😰 Stress");
+    if (fw.includes("phone") || fw.includes("scroll")) downs.push("📱 Phone");
+    if (fw.includes("sleep") || fw.includes("tired")) downs.push("😴 Sleep");
+    if (fw.includes("overthink") || fw.includes("worry")) downs.push("🌀 Overthinking");
+
+    return downs.slice(0, 3);
+  }
+
+  // ── One action ───────────────────────────────────────────
+  function getAction() {
+    const score = calcScore();
+    const mood = todayJournal?.mood;
+    const calPct = Math.round((todayFood?.cal||0) / (needs?.cal||1776) * 100);
+    const ritual = (completedSteps||[]).length;
+    const fw = (todayJournal?.freeWrite||"").toLowerCase();
+    const hour = new Date().getHours();
+
+    if (calPct < 40) return "Eat something real. Your brain needs fuel.";
+    if (["anxious","stressed"].includes(mood) || fw.includes("stress")) return "4 minutes of box breathing. Inhale 4, hold 4, exhale 4, hold 4.";
+    if (mood === "low" || (todayJournal?.energy||5) <= 3) return "Go outside for 10 minutes. Light and movement shift everything.";
+    if (fw.includes("phone") || fw.includes("scroll")) return "Put the phone in another room for 1 hour.";
+    if (ritual === 0 && hour < 14) return "Do one morning ritual step right now. Just one.";
+    if (fw.includes("overthink") || fw.includes("worry")) return "Write it down. Get it out of your head and onto paper.";
+    if (score >= 75) return "You're doing well. Protect this energy — don't overcommit today.";
+    return "Drink a glass of water. Then decide the next thing.";
+  }
+
+  const score = calcScore();
+  const ups = getUps();
+  const downs = getDowns();
+  const action = getAction();
+  const mood = todayJournal?.mood;
+
+  // Score color
+  const scoreColor = score >= 70 ? "#71b478" : score >= 45 ? "#c49a2a" : "#e05a5a";
+  const scoreBg = score >= 70 ? "#71b47818" : score >= 45 ? "#c49a2a18" : "#e05a5a18";
+
+  const DIVIDER = <div style={{height:1,background:C.border,margin:"0 -18px",opacity:0.5}}/>;
+
+  async function getAIInsight() {
+    if (loading || insight) { setExpanded(e=>!e); return; }
+    setLoading(true);
+    const summary = `Score ${score}/100. Mood: ${mood||"not logged"}. Energy: ${todayJournal?.energy||"not logged"}/10. Ups: ${ups.join(", ")||"none"}. Downs: ${downs.join(", ")||"none"}. Journal: "${(todayJournal?.freeWrite||"").slice(0,100)}". Goal: ${profile?.fitnessGoal||"none"}.`;
+    try {
+      const r = await fetch("https://api.anthropic.com/v1/messages", {
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({
+          model:"claude-sonnet-4-20250514", max_tokens:60,
+          system:"One sentence, max 12 words. True, specific, warm. Not advice — an observation. Like a wise friend.",
+          messages:[{role:"user", content:`My day: ${summary}. What does today say about me?`}]
+        })
+      });
+      const d = await r.json();
+      setInsight(d.content?.[0]?.text?.trim() || "");
+    } catch { setInsight(""); }
+    setLoading(false);
+    setExpanded(true);
+  }
+
+  return (
+    <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:16,overflow:"hidden",marginBottom:14}}>
+
+      {/* Q1: HOW AM I */}
+      <div style={{padding:"20px 18px",background:scoreBg}}>
+        <div style={{fontSize:9,color:scoreColor,fontFamily:"'DM Mono',monospace",letterSpacing:3,marginBottom:12}}>😊 HOW AM I?</div>
+        <div style={{display:"flex",alignItems:"center",gap:16}}>
+          <div style={{fontSize:56,fontWeight:800,color:scoreColor,lineHeight:1,fontFamily:"'DM Mono',monospace"}}>{score}</div>
+          <div style={{flex:1}}>
+            {/* Score bar */}
+            <div style={{background:C.border,borderRadius:6,height:8,marginBottom:6}}>
+              <div style={{width:`${score}%`,height:8,background:scoreColor,borderRadius:6,transition:"width 0.8s ease"}}/>
+            </div>
+            <div style={{fontSize:12,color:scoreColor,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif"}}>
+              {score>=80?"Really good today":score>=65?"Doing well":score>=45?"Okay, hanging in":score>=30?"Rough day":"Hard day — that's okay"}
+            </div>
+            {mood&&<div style={{fontSize:18,marginTop:4}}>{MOOD_EMOJI[mood]||""}</div>}
+          </div>
+        </div>
+      </div>
+
+      {DIVIDER}
+
+      {/* Q2: WHY */}
+      <div style={{padding:"14px 18px"}}>
+        <div style={{fontSize:9,color:C.accent2,fontFamily:"'DM Mono',monospace",letterSpacing:3,marginBottom:10}}>⬆ WHY?</div>
+        {ups.length > 0
+          ? <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+              {ups.map((u,i)=><div key={i} style={{fontSize:12,padding:"5px 11px",background:C.accent2+"18",border:`1px solid ${C.accent2}33`,borderRadius:20,color:C.accent2}}>{u}</div>)}
+            </div>
+          : <div style={{fontSize:12,color:C.dim,fontStyle:"italic"}}>Log your mood and food to see what's working.</div>
+        }
+      </div>
+
+      {DIVIDER}
+
+      {/* Q3: WHY NOT BETTER */}
+      <div style={{padding:"14px 18px"}}>
+        <div style={{fontSize:9,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:3,marginBottom:10}}>⬇ WHY NOT BETTER?</div>
+        {downs.length > 0
+          ? <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+              {downs.map((d,i)=><div key={i} style={{fontSize:12,padding:"5px 11px",background:C.red+"12",border:`1px solid ${C.red}33`,borderRadius:20,color:C.muted}}>{d}</div>)}
+            </div>
+          : <div style={{fontSize:12,color:C.accent2,fontStyle:"italic"}}>Nothing dragging you down today.</div>
+        }
+      </div>
+
+      {DIVIDER}
+
+      {/* Q4: NOW WHAT */}
+      <div style={{padding:"14px 18px 18px"}}>
+        <div style={{fontSize:9,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:3,marginBottom:10}}>👉 NOW WHAT?</div>
+        <div style={{fontSize:15,color:C.text,lineHeight:1.6,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>{action}</div>
+      </div>
+
+      {DIVIDER}
+
+      {/* Mirror tap */}
+      <button onClick={getAIInsight} style={{width:"100%",padding:"14px 18px",background:"transparent",border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+        <span style={{fontSize:14}}>🪞</span>
+        <span style={{fontSize:13,color:C.muted,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>
+          {loading?"Reading your day…":insight&&expanded?`"${insight}"`:insight?"Tap to see the mirror insight":"What does today say about you?"}
+        </span>
+      </button>
+
+    </div>
+  );
+}
 
 function TodaysMirror({C,galaxy,profile,todayFood,needs,ritualDone,moveMin,completedSteps,behaviourProfile,mirrorOpen,setMirrorOpen,mirrorInsight,mirrorLoading,getMirrorInsight,journalEntries}){
   const todayStr=new Date().toISOString().split("T")[0];
@@ -4308,22 +4839,16 @@ function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedS
 
       {view==="today"&&(
         <div style={{display:"flex",flexDirection:"column",gap:10}}>
-          {/* ── TODAY'S MIRROR ── */}
-          <TodaysMirror
+          {/* ── DAY DASHBOARD — 4 questions ── */}
+          <DayDashboard
             C={C} galaxy={galaxy}
             profile={profile}
             todayFood={todayFood}
             needs={needs}
-            ritualDone={ritualDone}
-            moveMin={moveMin}
             completedSteps={completedSteps}
+            journalEntries={journalEntries||[]}
             behaviourProfile={behaviourProfile}
-            mirrorOpen={mirrorOpen}
-            setMirrorOpen={setMirrorOpen}
-            mirrorInsight={mirrorInsight}
-            mirrorLoading={mirrorLoading}
-            getMirrorInsight={getMirrorInsight}
-            journalEntries={typeof journalEntries!=="undefined"?journalEntries:[]}
+            moveLog={moveLog||[]}
           />
           {/* Calorie balance */}
           <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
@@ -5193,7 +5718,7 @@ function fmtDateShort(d) {
 }
 
 // ── Main Birth Chart Section ───────────────────────────────────
-function BirthChartSection({C, profile}) {
+function BirthChartSection({C, profile, up}) {
   const G = C; // galaxy palette
   const [step, setStep] = useState(profile.dob ? "chart" : "input");
   const [bd, setBd] = useState({
@@ -5201,9 +5726,9 @@ function BirthChartSection({C, profile}) {
     time: profile.birthTime || (profile.dob === "1994-03-06" ? "00:05" : ""),
     place: profile.birthPlace || "",
     knowsTime: profile.birthTime ? "yes" : "no",
-    manualLagna: profile.dob === "1994-03-06" ? "Scorpio" : "",
-    manualMoon: profile.dob === "1994-03-06" ? "Virgo" : "",
-    manualSun: profile.dob === "1994-03-06" ? "Pisces" : "",
+    manualLagna: profile.manualLagna || (profile.dob === "1994-03-06" ? "Scorpio" : ""),
+    manualMoon: profile.manualMoon || (profile.dob === "1994-03-06" ? "Virgo" : ""),
+    manualSun: profile.manualSun || (profile.dob === "1994-03-06" ? "Pisces" : ""),
   });
   const [activeTab, setActiveTab] = useState("overview");
   const [expandedDosha, setExpandedDosha] = useState(null);
@@ -5342,7 +5867,18 @@ Question: ${q || "Give a deep, personalised Vedic reading covering: core persona
             ))}
           </div>
         </div>
-        <button onClick={()=>bd.dob&&setStep("chart")} disabled={!bd.dob} style={{padding:"15px",background:bd.dob?`linear-gradient(135deg,${G.accent},${G.warm})`:G.border,border:"none",borderRadius:12,color:"#fff",cursor:bd.dob?"pointer":"not-allowed",fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontStyle:"italic",marginTop:6}}>
+        <button onClick={()=>{
+    if(!bd.dob) return;
+    setStep("chart");
+    // Save birth details to profile
+    if(profile.up) {
+      profile.up("birthTime", bd.time);
+      profile.up("birthPlace", bd.place);
+      profile.up("manualLagna", bd.manualLagna);
+      profile.up("manualMoon", bd.manualMoon);
+      profile.up("manualSun", bd.manualSun);
+    }
+  }} disabled={!bd.dob} style={{padding:"15px",background:bd.dob?`linear-gradient(135deg,${G.accent},${G.warm})`:G.border,border:"none",borderRadius:12,color:"#fff",cursor:bd.dob?"pointer":"not-allowed",fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontStyle:"italic",marginTop:6}}>
           {bd.dob?"Read My Chart →":"Enter date of birth to continue"}
         </button>
       </div>
@@ -5905,21 +6441,8 @@ function AuthScreen({ C, onAuth }) {
           </div>
         ) : (
           <>
-            {/* Google Sign In */}
-            <button onClick={handleGoogle} disabled={loading} style={{
-              width: '100%', padding: '13px', borderRadius: 12, border: '1.5px solid #e2d8c8',
-              background: '#fff', cursor: 'pointer', fontSize: 14, fontWeight: 600,
-              display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 10, marginBottom: 16,
-            }}>
-              <svg width="18" height="18" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
-              Continue with Google
-            </button>
-
-            <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
-              <div style={{ flex: 1, height: 1, background: '#e2d8c8' }}/>
-              <div style={{ fontSize: 11, color: '#9088a0' }}>or</div>
-              <div style={{ flex: 1, height: 1, background: '#e2d8c8' }}/>
-            </div>
+            {/* Email header */}
+            <div style={{ fontSize: 13, color: '#9088a0', textAlign: 'center', marginBottom: 16, fontStyle: 'italic', fontFamily: "'Cormorant Garamond',serif" }}>Sign in to your account</div>
 
             {/* Email */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 14 }}>
