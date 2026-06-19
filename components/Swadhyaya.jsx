@@ -254,17 +254,17 @@ const GALAXY={bg:"#04020e",surface:"#0a0720",card:"#0f0b28",border:"#221d42",bor
 
 const PHASE_COLORS={menstrual:"#e05a5a",follicular:"#c49a2a",ovulation:"#71b478",luteal:"#7a5fa5",pms:"#d4855a"};
 const PHASE_INFO={
-  menstrual:{label:"Menstrual",days:"1–5",desc:"Rest. Iron-rich foods. Gentle movement only.",icon:"??"},
-  follicular:{label:"Follicular",days:"6–13",desc:"Energy rising. Best for bold moves.",icon:"??"},
-  ovulation:{label:"Ovulation",days:"14–16",desc:"Peak energy. Most magnetic.",icon:"??"},
-  luteal:{label:"Luteal",days:"17–24",desc:"Declining energy. Need more rest.",icon:"??"},
-  pms:{label:"PMS",days:"25–28",desc:"Be gentle. Magnesium helps.",icon:"??"},
+  menstrual:{label:"Menstrual",days:"1–5",desc:"Rest. Iron-rich foods. Gentle movement only.",icon:"🩸"},
+  follicular:{label:"Follicular",days:"6–13",desc:"Energy rising. Best for bold moves.",icon:"🌱"},
+  ovulation:{label:"Ovulation",days:"14–16",desc:"Peak energy. Most magnetic.",icon:"🌸"},
+  luteal:{label:"Luteal",days:"17–24",desc:"Declining energy. Need more rest.",icon:"🌙"},
+  pms:{label:"PMS",days:"25–28",desc:"Be gentle. Magnesium helps.",icon:"🌧"},
 };
 
 // ── FULL YOGA LIBRARY ─────────────────────────────────────────
 const YOGA_LIBRARY = {
   flexibility: {
-    label: "?? Flexibility", color: "#71b478",
+    label: "🤸 Flexibility", color: "#71b478",
     poses: [
       {name:"Adho Mukha Svanasana",en:"Downward-Facing Dog",dur:"1 min",benefit:"Stretches entire body, improves circulation.",steps:["Start on hands and knees.","Lift hips up and back forming an inverted V.","Press heels toward floor. Hold and breathe.","Pedal feet gently to deepen stretch."]},
       {name:"Uttanasana",en:"Standing Forward Bend",dur:"60 sec",benefit:"Improves hamstring and back flexibility.",steps:["Stand feet hip-width.","Exhale and fold forward from hips.","Knees soft. Let gravity do the work.","Hold elbows or let arms hang freely."]},
@@ -276,7 +276,7 @@ const YOGA_LIBRARY = {
     ]
   },
   strength: {
-    label: "?? Strength", color: "#b5622a",
+    label: "💪 Strength", color: "#b5622a",
     poses: [
       {name:"Phalakasana",en:"Plank",dur:"30–60 sec × 3",benefit:"Core and arm strength, full body stability.",steps:["From push-up position. Arms straight.","Body in straight line head to heels.","Engage core. Don't let hips drop.","Hold. Build to 60 seconds over time."]},
       {name:"Utkatasana",en:"Chair Pose",dur:"45 sec × 3",benefit:"Strengthens legs and glutes.",steps:["Stand feet together.","Inhale: raise arms overhead.","Exhale: bend knees as if sitting in chair.","Keep chest lifted. Hold and breathe."]},
@@ -288,7 +288,7 @@ const YOGA_LIBRARY = {
     ]
   },
   digestion: {
-    label: "?? Digestion", color: "#c49a2a",
+    label: "🌀 Digestion", color: "#c49a2a",
     poses: [
       {name:"Pavanamuktasana",en:"Wind-Relieving Pose",dur:"1 min each side",benefit:"Relieves gas and bloating.",steps:["Lie on back.","Bring right knee to chest. Hold with both hands.","Press knee gently into belly.","Switch legs then do both together."]},
       {name:"Ardha Matsyendrasana",en:"Half Spinal Twist",dur:"1 min each side",benefit:"Supports digestion, spinal mobility.",steps:["Sit with legs extended.","Bend right knee over left leg.","Place right foot outside left thigh.","Twist right. Left elbow on right knee. Hold."]},
@@ -298,7 +298,7 @@ const YOGA_LIBRARY = {
     ]
   },
   eyes: {
-    label: "?? Eye Relaxation", color: "#38bdf8",
+    label: "👁 Eye Relaxation", color: "#38bdf8",
     poses: [
       {name:"Trataka",en:"Candle Gazing",dur:"5 min",benefit:"Improves concentration, reduces eye fatigue.",steps:["Place candle at eye level 60cm away.","Gaze at flame without blinking.","When eyes water, close and visualise flame.","Do not strain. Stop if uncomfortable."],caution:"Not a cure for refractive errors. Reduces strain only."},
       {name:"Palming",en:"Palming",dur:"3–5 min",benefit:"Relaxes eye muscles deeply.",steps:["Rub palms together until warm.","Cup palms gently over closed eyes.","No pressure on eyeballs.","Breathe. Let darkness and warmth relax eyes."]},
@@ -306,7 +306,7 @@ const YOGA_LIBRARY = {
     ]
   },
   sleep: {
-    label: "?? Sleep & Relaxation", color: "#7a5fa5",
+    label: "🌙 Sleep & Relaxation", color: "#7a5fa5",
     poses: [
       {name:"Shavasana",en:"Corpse Pose",dur:"10–15 min",benefit:"Complete nervous system reset, deepest rest.",steps:["Lie flat on back. Feet fall open.","Arms slightly away from body, palms up.","Close eyes. Let body become heavy.","Breathe naturally. Nothing to do."]},
       {name:"Viparita Karani",en:"Legs-Up-the-Wall",dur:"10 min",benefit:"Reverses blood flow, calms nervous system.",steps:["Lie near wall. Legs up the wall.","Arms open. Eyes closed.","Stay 10 min minimum before bed.","Exit slowly — roll to side first."]},
@@ -324,7 +324,7 @@ const YOGA_LIBRARY = {
     ]
   },
   backpain: {
-    label: "?? Back Pain & Posture", color: "#4a6e8a",
+    label: "🧍 Back Pain & Posture", color: "#4a6e8a",
     poses: [
       {name:"Tadasana",en:"Mountain Pose",dur:"1 min",benefit:"Corrects posture, relieves chest compression.",steps:["Stand feet together or hip-width.","Press all four corners of feet into floor.","Lengthen spine upward.","Roll shoulders back and down. Breathe."]},
       {name:"Marjaryasana-Bitilasana",en:"Cat-Cow",dur:"10 slow rounds",benefit:"Relieves back pain, improves spinal mobility.",steps:["On hands and knees.","Inhale: drop belly, lift head (Cow).","Exhale: round spine, tuck chin (Cat).","Sync movement with breath. Never rush."]},
@@ -334,7 +334,7 @@ const YOGA_LIBRARY = {
     ]
   },
   womens: {
-    label: "?? Women's Wellness", color: "#e05a5a",
+    label: "🌸 Women's Wellness", color: "#e05a5a",
     phases: {
       menstrual: ["Balasana","Supta Baddha Konasana","Viparita Karani","Makarasana"],
       follicular: ["Virabhadrasana I","Virabhadrasana II","Utkatasana","Adho Mukha Svanasana"],
@@ -360,7 +360,7 @@ const YOGA_LIBRARY = {
     ]
   },
   weightgain: {
-    label: "?? Weight Gain & Muscle", color: "#fbbf24",
+    label: "💪 Weight Gain & Muscle", color: "#fbbf24",
     poses: [
       {name:"Virabhadrasana I & II",en:"Warrior Series",dur:"2 min each",benefit:"Builds muscle in legs, shoulders, core.",steps:["Hold each warrior for 2 full minutes.","Feel muscle burn — that's growth.","Switch sides. Don't rush."]},
       {name:"Utkatasana",en:"Chair Pose",dur:"2 min × 5",benefit:"Heavy leg and glute work.",steps:["Thighs parallel to floor.","Hold 2 full minutes each set.","Build toward 5 sets."]},
@@ -1150,12 +1150,31 @@ export default function Swadhyaya(){
       return saved ? JSON.parse(saved) : [];
     } catch(e) { return []; }
   });
+  // Auto-persist today's food logs on every change — safety net so any
+  // setFoodLogs call (food screen, My Space, etc.) survives a refresh
+  // even if the caller forgets to persist explicitly.
+  useEffect(()=>{
+    try{
+      const today=new Date().toISOString().split("T")[0];
+      const todaysEntries=foodLogs.filter(l=>l.date===today);
+      localStorage.setItem("sw_food_"+today, JSON.stringify(todaysEntries));
+    }catch(e){}
+  },[foodLogs]);
   const[waterLog,setWaterLog]=useState(()=>{
     try {
       const today=new Date().toISOString().split("T")[0];
       return parseInt(localStorage.getItem("sw_water_"+today)||"0");
     } catch(e){return 0;}
   });
+  // Auto-persist water log on every change — fixes a bug where water
+  // logged via the food screen, My Space, or quick-add buttons updated
+  // React state only and was lost on refresh.
+  useEffect(()=>{
+    try{
+      const today=new Date().toISOString().split("T")[0];
+      localStorage.setItem("sw_water_"+today, String(waterLog));
+    }catch(e){}
+  },[waterLog]);
   const[moveLog,setMoveLog]=useState([]);
   const[meditationLog,setMeditationLog]=useState([]);
   const[periodLogs,setPeriodLogs]=useState([]);
@@ -1328,7 +1347,7 @@ export default function Swadhyaya(){
   if (authLoading) return (
     <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"linear-gradient(180deg,#faf6ef,#f5f0e6)"}}>
       <div style={{textAlign:"center"}}>
-        <div style={{fontSize:28,marginBottom:8}}>??</div>
+        <div style={{fontSize:28,marginBottom:8}}>✦</div>
         <div style={{fontSize:14,color:"#9088a0",fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>Loading…</div>
       </div>
     </div>
@@ -1358,15 +1377,15 @@ export default function Swadhyaya(){
 
   const NAV=[
     {id:"home",icon:"⬡",label:"Home"},
-    {id:"morning",icon:"??",label:"Morning"},
-    {id:"wellness",icon:"??",label:"Wellness"},
-    {id:"food",icon:"??",label:"Nutrition"},
-    {id:"cycle",icon:"??",label:"Cycle",femaleOnly:true},
+    {id:"morning",icon:"🌅",label:"Morning"},
+    {id:"wellness",icon:"🧘",label:"Wellness"},
+    {id:"food",icon:"🍽",label:"Nutrition"},
+    {id:"cycle",icon:"🌙",label:"Cycle",femaleOnly:true},
     {id:"goals",icon:"◎",label:"Goals"},
-    {id:"journal",icon:"??",label:"Journal"},
-    {id:"progress",icon:"??",label:"Progress"},
+    {id:"journal",icon:"📔",label:"Journal"},
+    {id:"progress",icon:"📈",label:"Progress"},
     {id:"birthchart",icon:"✦",label:"Chart",galaxyOnly:true},
-    {id:"myspace",icon:"??",label:"My Space"},
+    {id:"myspace",icon:"✨",label:"My Space"},
   ].filter(n=>(!n.femaleOnly||profile.gender==="female")&&(!n.galaxyOnly||galaxy));
 
   // Auth gate
@@ -1408,8 +1427,8 @@ export default function Swadhyaya(){
           </div>
           <div style={{display:"flex",gap:8,alignItems:"center"}}>
             {todayPhase&&<div style={{fontSize:11,color:PHASE_COLORS[todayPhase],padding:"3px 9px",background:PHASE_COLORS[todayPhase]+"18",borderRadius:20}}>{PHASE_INFO[todayPhase]?.icon} {PHASE_INFO[todayPhase]?.label}</div>}
-            <div style={{fontSize:12,color:C.accent3}}>??{Math.round(waterLog/250)}g</div>
-            <div style={{fontSize:12,color:C.accent}}>??{Math.round(todayFood.cal)}</div>
+            <div style={{fontSize:12,color:C.accent3}}>💧{Math.round(waterLog/250)}g</div>
+            <div style={{fontSize:12,color:C.accent}}>🔥{Math.round(todayFood.cal)}</div>
             <button onClick={()=>setGalaxy(g=>!g)} style={{background:galaxy?"#c084fc33":"transparent",border:`1.5px solid ${galaxy?"#c084fc":"#b5622a44"}`,borderRadius:20,padding:"5px 12px",cursor:"pointer",fontSize:11,color:galaxy?"#c084fc":C.accent,display:"flex",alignItems:"center",gap:4,fontFamily:"'DM Mono',monospace",letterSpacing:0.5}}><span>{galaxy?"☀":"✦"}</span><span style={{fontSize:9}}>{galaxy?"EARTHY":"GALAXY"}</span></button>
             <button onClick={()=>setSection("profile")} style={{width:30,height:30,borderRadius:"50%",background:`linear-gradient(135deg,${C.accent},${C.warm})`,border:"none",cursor:"pointer",fontSize:13,color:"#fff"}}>{profile.name?profile.name[0].toUpperCase():"◉"}</button>
             <button onClick={()=>setShowLogin(true)} style={{fontSize:10,padding:"4px 8px",borderRadius:20,border:`1px solid ${user?C.accent2:C.red}44`,background:user?C.accent2+"15":C.red+"15",cursor:"pointer",color:user?C.accent2:C.red,fontFamily:"'DM Mono',monospace"}}>
@@ -1435,13 +1454,13 @@ export default function Swadhyaya(){
         {safeSection==="home"&&<HomeSection C={C} galaxy={galaxy} profile={profile} needs={needs} todayFood={todayFood} waterLog={waterLog} completedSteps={completedSteps} greeting={greeting} section={section} setSection={setSection} todayPhase={todayPhase} behaviourProfile={behaviourProfile} trialDaysLeft={trialDaysLeft} journalEntries={journalEntries} foodLogs={foodLogs}/>}
         {safeSection==="morning"&&<MorningSection C={C} galaxy={galaxy} completedSteps={completedSteps} setCompletedSteps={setCompletedSteps} gratitude={gratitude} setGratitude={setGratitude} priorities={priorities} setPriorities={setPriorities} meditationLog={meditationLog} setMeditationLog={setMeditationLog} profile={profile}/>}
         {safeSection==="wellness"&&<WellnessSection C={C} galaxy={galaxy} profile={profile} moveLog={moveLog} setMoveLog={setMoveLog} todayPhase={todayPhase}/>}
-        {safeSection==="food"&&<FoodSection C={C} galaxy={galaxy} foodLogs={foodLogs} setFoodLogs={setFoodLogs} waterLog={waterLog} setWaterLog={setWaterLog} needs={needs} todayFood={todayFood} updateBP={updateBP} profile={profile}/>}
+        {safeSection==="food"&&<FoodSection C={C} galaxy={galaxy} foodLogs={foodLogs} setFoodLogs={setFoodLogs} waterLog={waterLog} setWaterLog={setWaterLog} needs={needs} todayFood={todayFood} updateBP={updateBP} profile={profile} saveFoodLogEntry={saveFoodLogEntry}/>}
         {section==="cycle"&&profile.gender==="female"&&<CycleSection C={C} profile={profile} setProfile={setProfile} periodLogs={periodLogs} setPeriodLogs={setPeriodLogs} symptoms={symptoms} setSymptoms={setSymptoms} savePeriodToCloud={savePeriodToCloud}/>}
         {safeSection==="manual"&&<YourManualSection C={C} galaxy={galaxy} profile={profile} journalEntries={journalEntries} behaviourProfile={behaviourProfile} foodLogs={foodLogs}/>}
         {safeSection==="goals"&&<GoalsSection C={C} galaxy={galaxy} profile={profile} up={up} journalEntries={journalEntries}/>}
         {safeSection==="journal"&&<JournalSection C={C} galaxy={galaxy} profile={profile} journalEntries={journalEntries} setJournalEntries={setJournalEntries} foodLogs={foodLogs} moveLog={moveLog} completedSteps={completedSteps} periodLogs={periodLogs} behaviourProfile={behaviourProfile} updateBP={updateBP}/>}
         {safeSection==="progress"&&<ProgressSection C={C} profile={profile} up={up} needs={needs} todayFood={todayFood} moveLog={moveLog} completedSteps={completedSteps} weightLog={weightLog} setWeightLog={setWeightLog} foodLogs={foodLogs} behaviourProfile={behaviourProfile} updateBP={updateBP}/>}
-        {safeSection==="myspace"&&<MySpaceSection C={C} galaxy={galaxy} profile={profile} foodLogs={foodLogs} setFoodLogs={setFoodLogs} waterLog={waterLog} setWaterLog={setWaterLog} moveLog={moveLog} setMoveLog={setMoveLog} todayFood={todayFood} needs={needs} canSendAI={canSendAI} recordAIMsg={recordAIMsg} todayMsgs={todayMsgs} planData={planData} setSection={setSection} updateBP={updateBP} behaviourProfile={behaviourProfile}/>}
+        {safeSection==="myspace"&&<MySpaceSection C={C} galaxy={galaxy} profile={profile} foodLogs={foodLogs} setFoodLogs={setFoodLogs} waterLog={waterLog} setWaterLog={setWaterLog} moveLog={moveLog} setMoveLog={setMoveLog} todayFood={todayFood} needs={needs} canSendAI={canSendAI} recordAIMsg={recordAIMsg} todayMsgs={todayMsgs} planData={planData} setSection={setSection} updateBP={updateBP} behaviourProfile={behaviourProfile} saveFoodLogEntry={saveFoodLogEntry}/>}
         {safeSection==="profile"&&<ProfileSection C={C} profile={profile} up={up} needs={needs} setSection={setSection}
           resetToday={()=>{setFoodLogs([]);setWaterLog(0);setCompletedSteps([]);}}
           resetAllLogs={()=>{setFoodLogs([]);setWaterLog(0);setCompletedSteps([]);setJournalEntries([]);setWeightLog([]);setMoveLog([]);setMeditationLog([]);setPeriodLogs([]);}}
@@ -1666,7 +1685,7 @@ const DAY_STATES = {
     id: "flow",
     label: "The Builder",
     sub: "You're in a flow state.",
-    icon: "??",
+    icon: "🔥",
     color: "#f0a030",
     reminders: ["Remember to eat.", "Drink water.", "Check in with someone you care about."],
     philosophy: "You're focused and alive today. Don't interrupt it with too much tracking. Just note what works.",
@@ -1677,7 +1696,7 @@ const DAY_STATES = {
     id: "normal",
     label: "The Explorer",
     sub: "A full, balanced day.",
-    icon: "??",
+    icon: "🧭",
     color: "#71b478",
     reminders: [],
     philosophy: "Nothing special to note — which means everything is available to you today.",
@@ -1688,7 +1707,7 @@ const DAY_STATES = {
     id: "overwhelmed",
     label: "The Survivor",
     sub: "One thing at a time today.",
-    icon: "??",
+    icon: "🌊",
     color: "#4a6e8a",
     reminders: ["One goal only.", "Drink water.", "Eat one real meal.", "5-minute brain dump — write anything."],
     philosophy: "Hard days are not failure days. They're data. You showed up. That counts.",
@@ -2052,7 +2071,7 @@ function HomeSection({C,galaxy,profile,needs,todayFood,waterLog,completedSteps,g
       <div style={{background:galaxy?"linear-gradient(180deg,#0a0520,#04020e)":hour<9?"linear-gradient(180deg,#fff3e0,#faf6ef)":hour<20?"linear-gradient(180deg,#faf6ef,#f5f0e6)":"linear-gradient(180deg,#1a1530,#0f0c1a)",padding:"32px 20px 24px",textAlign:"center",position:"relative",overflow:"hidden"}}>
         {galaxy&&<div style={{position:"absolute",inset:0,pointerEvents:"none"}}>{[...Array(20)].map((_,i)=><div key={i} style={{position:"absolute",left:`${(i*37)%100}%`,top:`${(i*53)%100}%`,width:i%5===0?2:1,height:i%5===0?2:1,borderRadius:"50%",background:"#e8e0ff",opacity:0.2+Math.sin(i)*0.1}}/>)}</div>}
         <div style={{position:"relative",zIndex:1}}>
-        <div style={{fontSize:34,marginBottom:6,animation:"sunrise 0.6s ease"}}>{galaxy?(hour<9?"✦":hour<16?"☀":hour<20?"✦":"??"):(hour<9?"??":hour<16?"☀️":hour<20?"??":"??")}</div>
+        <div style={{fontSize:34,marginBottom:6,animation:"sunrise 0.6s ease"}}>{galaxy?(hour<9?"✦":hour<16?"☀":hour<20?"✦":"🌙"):(hour<9?"🌅":hour<16?"☀️":hour<20?"🌇":"🌙")}</div>
         <div style={{fontSize:26,fontWeight:300,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:galaxy?"#ede8ff":hour>=20?"#ede8ff":C.text}}>{greeting}{profile.name?`, ${profile.name}`:""}.</div>
         <div style={{fontSize:13,color:galaxy?"#7a6fa8":hour>=20?"#7a6fa8":C.muted,marginTop:4}}>{profile.fitnessGoal?`Goal: ${profile.fitnessGoal.slice(0,50)}${profile.fitnessGoal.length>50?"…":""}`:galaxy?"Your inner life, made visible.":""}</div>
         </div>
@@ -2167,14 +2186,14 @@ function HomeSection({C,galaxy,profile,needs,todayFood,waterLog,completedSteps,g
 // ══════════════════════════════════════════════════════════════
 
 const GOAL_CATEGORIES = [
-  {id:"health",label:"Health",color:"#71b478",icon:"??"},
-  {id:"career",label:"Career",color:"#b5622a",icon:"??"},
-  {id:"financial",label:"Financial",color:"#c49a2a",icon:"??"},
+  {id:"health",label:"Health",color:"#71b478",icon:"💪"},
+  {id:"career",label:"Career",color:"#b5622a",icon:"💼"},
+  {id:"financial",label:"Financial",color:"#c49a2a",icon:"💰"},
   {id:"creative",label:"Creative",color:"#7a5fa5",icon:"✦"},
   {id:"personal",label:"Personal",color:"#4a6e8a",icon:"◎"},
   {id:"relationship",label:"Relationships",color:"#e05a5a",icon:"❤"},
-  {id:"spiritual",label:"Spiritual",color:"#8050c8",icon:"??"},
-  {id:"learning",label:"Learning",color:"#38bdf8",icon:"??"},
+  {id:"spiritual",label:"Spiritual",color:"#8050c8",icon:"🕉"},
+  {id:"learning",label:"Learning",color:"#38bdf8",icon:"📚"},
 ];
 
 function getCatColor(catId) {
@@ -2316,7 +2335,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
             {[
               {v:"number",l:"Number Goal",d:"Track a specific number — savings amount, kg to lose, videos to post, books to read",icon:"123"},
               {v:"milestone",l:"Milestone Goal",d:"Track steps toward a big dream — become an actress, launch a brand, write a book",icon:"◈"},
-              {v:"habit",l:"Habit Goal",d:"Build a daily practice — meditate, walk, journal, cold shower, no sugar",icon:"??"},
+              {v:"habit",l:"Habit Goal",d:"Build a daily practice — meditate, walk, journal, cold shower, no sugar",icon:"🔁"},
             ].map(t=>(
               <button key={t.v} onClick={()=>setNewGoal(g=>({...g,type:t.v}))} style={{
                 padding:"12px 14px",borderRadius:10,textAlign:"left",cursor:"pointer",
@@ -2478,7 +2497,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
             </div>
             <div>
               {goal.type==="number"&&<div style={{fontSize:20,fontWeight:700,color:catColor}}>{parseFloat(goal.currentNumber)||0} <span style={{fontSize:12,color:C.muted,fontWeight:400}}>/ {goal.targetNumber} {goal.targetUnit}</span></div>}
-              {goal.type==="habit"&&<div><div style={{fontSize:20,fontWeight:700,color:catColor}}>{streak} day streak ??</div><div style={{fontSize:11,color:C.muted}}>Target: {goal.targetNumber} days</div></div>}
+              {goal.type==="habit"&&<div><div style={{fontSize:20,fontWeight:700,color:catColor}}>{streak} day streak 🔥</div><div style={{fontSize:11,color:C.muted}}>Target: {goal.targetNumber} days</div></div>}
               {goal.type==="milestone"&&<div style={{fontSize:20,fontWeight:700,color:catColor}}>{(goal.milestones||[]).filter(m=>m.done).length}/{(goal.milestones||[]).length} <span style={{fontSize:12,color:C.muted,fontWeight:400}}>milestones</span></div>}
               {daysLeft!==null&&<div style={{fontSize:11,color:daysLeft<30?C.red:daysLeft<90?C.gold:C.muted,marginTop:3}}>{daysLeft>0?`${daysLeft} days left`:daysLeft===0?"Due today!":"Overdue by "+Math.abs(daysLeft)+" days"}</div>}
             </div>
@@ -2604,7 +2623,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
                   </div>
                   <div style={{textAlign:"right",flexShrink:0}}>
                     <div style={{fontSize:16,fontWeight:700,color:catColor}}>{pct}%</div>
-                    {goal.type==="habit"&&<div style={{fontSize:10,color:C.muted}}>{streak}??</div>}
+                    {goal.type==="habit"&&<div style={{fontSize:10,color:C.muted}}>{streak}🔥</div>}
                   </div>
                 </div>
                 {/* Progress bar */}
@@ -2650,16 +2669,16 @@ const JOURNAL_PROMPTS = [
 ];
 
 const MOOD_OPTIONS = [
-  {emoji:"??", label:"Angry", color:"#e05a5a", val:"angry"},
-  {emoji:"??", label:"Sad", color:"#4a6e8a", val:"sad"},
-  {emoji:"??", label:"Anxious", color:"#7a5fa5", val:"anxious"},
-  {emoji:"??", label:"Low", color:"#7090a8", val:"low"},
-  {emoji:"??", label:"Neutral", color:"#b0a090", val:"neutral"},
-  {emoji:"??", label:"Confused", color:"#c49a2a", val:"confused"},
-  {emoji:"??", label:"Calm", color:"#71b478", val:"calm"},
-  {emoji:"??", label:"Good", color:"#71b478", val:"good"},
-  {emoji:"??", label:"Happy", color:"#f0c040", val:"happy"},
-  {emoji:"??", label:"Energised", color:"#b5622a", val:"energised"},
+  {emoji:"😠", label:"Angry", color:"#e05a5a", val:"angry"},
+  {emoji:"😢", label:"Sad", color:"#4a6e8a", val:"sad"},
+  {emoji:"😰", label:"Anxious", color:"#7a5fa5", val:"anxious"},
+  {emoji:"😔", label:"Low", color:"#7090a8", val:"low"},
+  {emoji:"😐", label:"Neutral", color:"#b0a090", val:"neutral"},
+  {emoji:"😕", label:"Confused", color:"#c49a2a", val:"confused"},
+  {emoji:"😌", label:"Calm", color:"#71b478", val:"calm"},
+  {emoji:"🙂", label:"Good", color:"#71b478", val:"good"},
+  {emoji:"😊", label:"Happy", color:"#f0c040", val:"happy"},
+  {emoji:"⚡", label:"Energised", color:"#b5622a", val:"energised"},
 ];
 
 function getMoodColor(val) {
@@ -2675,11 +2694,11 @@ function MonthlyTimeline({C, journalEntries, todayStr}) {
   const [viewMonth, setViewMonth] = useState({year:now.getFullYear(), month:now.getMonth()});
 
   const MOOD_OPTIONS_LOCAL = [
-    {emoji:"??",val:"angry",color:"#e05a5a"},{emoji:"??",val:"sad",color:"#4a6e8a"},
-    {emoji:"??",val:"anxious",color:"#7a5fa5"},{emoji:"??",val:"low",color:"#7090a8"},
-    {emoji:"??",val:"neutral",color:"#b0a090"},{emoji:"??",val:"confused",color:"#c49a2a"},
-    {emoji:"??",val:"calm",color:"#71b478"},{emoji:"??",val:"good",color:"#71b478"},
-    {emoji:"??",val:"happy",color:"#f0c040"},{emoji:"??",val:"energised",color:"#b5622a"},
+    {emoji:"😠",val:"angry",color:"#e05a5a"},{emoji:"😢",val:"sad",color:"#4a6e8a"},
+    {emoji:"😰",val:"anxious",color:"#7a5fa5"},{emoji:"😔",val:"low",color:"#7090a8"},
+    {emoji:"😐",val:"neutral",color:"#b0a090"},{emoji:"😕",val:"confused",color:"#c49a2a"},
+    {emoji:"😌",val:"calm",color:"#71b478"},{emoji:"🙂",val:"good",color:"#71b478"},
+    {emoji:"😊",val:"happy",color:"#f0c040"},{emoji:"⚡",val:"energised",color:"#b5622a"},
   ];
   function getMoodColorLocal(val) { return MOOD_OPTIONS_LOCAL.find(m=>m.val===val)?.color||"#b0a090"; }
 
@@ -2751,7 +2770,7 @@ function EmotionalGraph({C, galaxy, journalEntries, profile}) {
   const [selectedEntry, setSelectedEntry] = useState(null);
 
   const MOOD_SCORE = {energised:10,happy:9,good:8,calm:7,neutral:5,confused:4,anxious:3,low:3,sad:2,angry:1};
-  const MOOD_EMOJI = {energised:"??",happy:"??",good:"??",calm:"??",neutral:"??",confused:"??",anxious:"??",low:"??",sad:"??",angry:"??"};
+  const MOOD_EMOJI = {energised:"⚡",happy:"😊",good:"🙂",calm:"😌",neutral:"😐",confused:"😕",anxious:"😰",low:"😔",sad:"😢",angry:"😠"};
 
   function getRangeData() {
     const now = new Date();
@@ -2824,7 +2843,7 @@ function EmotionalGraph({C, galaxy, journalEntries, profile}) {
       <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:14}}>
         {[
           {l:"Avg energy",v:avgScore.toFixed(1)+"/10",c:lineColor},
-          {l:"Best day",v:data.length?MOOD_EMOJI[data.reduce((a,b)=>a.score>b.score?a:b).mood]||"??":"—",c:C.accent2},
+          {l:"Best day",v:data.length?MOOD_EMOJI[data.reduce((a,b)=>a.score>b.score?a:b).mood]||"🙂":"—",c:C.accent2},
           {l:"Days tracked",v:data.length,c:C.accent},
         ].map((n,i)=>(
           <div key={i} style={{padding:"9px 8px",background:C.card,borderRadius:8,textAlign:"center",border:`1px solid ${C.border}`}}>
@@ -3047,7 +3066,7 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
       <div style={{fontSize:12,color:C.muted,marginBottom:16}}>Your inner life, recorded. Every entry is yours — private, permanent, searchable.</div>
 
       <div style={{display:"flex",gap:5,marginBottom:18,overflowX:"auto"}}>
-        {[{v:"today",l:"Today"},{v:"history",l:"Past Entries"},{v:"weekly",l:"This Week"},{v:"monthly",l:"Timeline"},{v:"graph",l:"?? Graph"},{v:"highlights",l:"✦ Highlights"}].map(t=>(
+        {[{v:"today",l:"Today"},{v:"history",l:"Past Entries"},{v:"weekly",l:"This Week"},{v:"monthly",l:"Timeline"},{v:"graph",l:"📈 Graph"},{v:"highlights",l:"✦ Highlights"}].map(t=>(
           <button key={t.v} onClick={()=>setView(t.v)} style={{flexShrink:0,padding:"7px 13px",borderRadius:20,border:`1px solid ${view===t.v?C.accent:C.border}`,background:view===t.v?C.accent+"15":"transparent",cursor:"pointer",fontSize:11,color:view===t.v?C.accent:C.muted}}>{t.l}</button>
         ))}
       </div>
@@ -3156,7 +3175,7 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
         <div>
           {journalEntries.length===0?(
             <div style={{textAlign:"center",padding:"40px",color:C.dim}}>
-              <div style={{fontSize:28,marginBottom:10}}>??</div>
+              <div style={{fontSize:28,marginBottom:10}}>📔</div>
               <div style={{fontSize:14,fontStyle:"italic"}}>No entries yet. Start writing today.</div>
             </div>
           ):journalEntries.slice(0,20).map((entry,i)=>(
@@ -3426,13 +3445,13 @@ function MorningSection({C,galaxy,completedSteps,setCompletedSteps,gratitude,set
   const timerRef=useRef(null);
 
   const STEPS=[
-    {id:"water",icon:"??",title:"Drink Water",dur:120,color:C.accent3,inst:"Two glasses. Slow. Before anything else.",why:"Rehydrates organs after sleep. Signals the brain that the day has begun.",cue:"Feel the water move through you. Notice how your body receives it."},
+    {id:"water",icon:"💧",title:"Drink Water",dur:120,color:C.accent3,inst:"Two glasses. Slow. Before anything else.",why:"Rehydrates organs after sleep. Signals the brain that the day has begun.",cue:"Feel the water move through you. Notice how your body receives it."},
     {id:"sun",icon:"☀️",title:"Morning Light",dur:300,color:C.gold,inst:"Stand near a window or step outside. Face the sun.",why:"5–10 min of morning light sets your circadian rhythm and boosts serotonin.",cue:"No sunglasses. No phone. Just light on your face. Breathe."},
-    {id:"stretch",icon:"??",title:"Move Your Body",dur:300,color:C.accent2,inst:"5 minutes of stretch, walk in place, or gentle yoga.",why:"Circulation starts. Even 5 min movement beats coffee for energy.",cue:"Neck rolls → shoulder circles → forward fold → cat-cow → child's pose."},
-    {id:"meditate",icon:"??",title:"Quiet Reflection",dur:300,color:C.purple,inst:"Sit still. Close your eyes. Nothing to do for 5 minutes.",why:"5 min stillness before the world gets its hooks in you shapes the whole day.",cue:"Spine upright. Hands in lap. Watch the breath."},
-    {id:"gratitude",icon:"??",title:"Gratitude + Intention",dur:180,color:C.warm,inst:"Three things you're grateful for. One intention for today.",why:"Naming what's good trains the brain out of its default negativity bias.",cue:"Small things count more. Warmth of bed. Someone who texted."},
+    {id:"stretch",icon:"🤸",title:"Move Your Body",dur:300,color:C.accent2,inst:"5 minutes of stretch, walk in place, or gentle yoga.",why:"Circulation starts. Even 5 min movement beats coffee for energy.",cue:"Neck rolls → shoulder circles → forward fold → cat-cow → child's pose."},
+    {id:"meditate",icon:"🧘",title:"Quiet Reflection",dur:300,color:C.purple,inst:"Sit still. Close your eyes. Nothing to do for 5 minutes.",why:"5 min stillness before the world gets its hooks in you shapes the whole day.",cue:"Spine upright. Hands in lap. Watch the breath."},
+    {id:"gratitude",icon:"🙏",title:"Gratitude + Intention",dur:180,color:C.warm,inst:"Three things you're grateful for. One intention for today.",why:"Naming what's good trains the brain out of its default negativity bias.",cue:"Small things count more. Warmth of bed. Someone who texted."},
     {id:"priorities",icon:"◈",title:"Top 3 for Today",dur:180,color:C.accent,inst:"What are the 3 most important things you will do today?",why:"Three things done completely is more powerful than twenty half-done.",cue:"One must be for your financial independence. One for your body."},
-    {id:"breakfast",icon:"??",title:"Nourishing Breakfast",dur:300,color:C.accent2,inst:"Sit down. Eat slowly. No phone. Just food.",why:"Protein + fat + fibre = stable energy for 4–5 hours.",cue:"Chew slowly. Notice taste, texture. Eating slowly is self-respect."},
+    {id:"breakfast",icon:"🍳",title:"Nourishing Breakfast",dur:300,color:C.accent2,inst:"Sit down. Eat slowly. No phone. Just food.",why:"Protein + fat + fibre = stable energy for 4–5 hours.",cue:"Chew slowly. Notice taste, texture. Eating slowly is self-respect."},
   ];
 
   const cur=STEPS[step];
@@ -3457,7 +3476,7 @@ function MorningSection({C,galaxy,completedSteps,setCompletedSteps,gratitude,set
   if(view==="journal")return(
     <div style={{padding:"20px 16px"}}>
       <button onClick={()=>setView("list")} style={{background:"none",border:"none",cursor:"pointer",fontSize:13,color:C.muted,marginBottom:20}}>← Morning</button>
-      <div style={{fontSize:20,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",marginBottom:18}}>?? Daily Journal</div>
+      <div style={{fontSize:20,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",marginBottom:18}}>📔 Daily Journal</div>
       {["How am I really feeling?","What is weighing on me?","What do I need that I'm not giving myself?","Free write:"].map((q,i)=>(
         <div key={i} style={{marginBottom:16}}>
           <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>{q.toUpperCase()}</div>
@@ -3508,7 +3527,7 @@ function MorningSection({C,galaxy,completedSteps,setCompletedSteps,gratitude,set
     <div style={{padding:"20px 16px"}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
         <div><div style={{fontSize:18,fontWeight:600,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}><span style={{marginRight:8,verticalAlign:"middle"}}><IconMorning size={20} active={true} C={C}/></span>Morning Ritual</div><div style={{fontSize:12,color:C.muted}}>{doneCount} of {STEPS.length} complete{allDone?" · ✓":""}</div></div>
-        <button onClick={()=>setView("journal")} style={{padding:"7px 12px",background:C.bg,border:`1px solid ${C.border}`,borderRadius:20,cursor:"pointer",fontSize:12,color:C.muted}}>?? Journal</button>
+        <button onClick={()=>setView("journal")} style={{padding:"7px 12px",background:C.bg,border:`1px solid ${C.border}`,borderRadius:20,cursor:"pointer",fontSize:12,color:C.muted}}>📔 Journal</button>
       </div>
       <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:"14px 16px",marginBottom:14,display:"flex",gap:14,alignItems:"center"}}>
         <div style={{position:"relative",width:48,height:48,flexShrink:0}}>
@@ -3543,14 +3562,14 @@ function MorningSection({C,galaxy,completedSteps,setCompletedSteps,gratitude,set
 const PRANAYAMA_TECHNIQUES = [
   {
     id:"anulom", name:"Anulom Vilom", sub:"Alternate Nostril",
-    color:"#71b478", icon:"??️",
+    color:"#71b478", icon:"🌬️",
     phases:[{label:"Inhale Left",dur:4},{label:"Hold",dur:4},{label:"Exhale Right",dur:8},{label:"Inhale Right",dur:4},{label:"Hold",dur:4},{label:"Exhale Left",dur:8}],
     rounds:10, benefit:"Balances nervous system · Reduces anxiety",
     caution:"Skip retention if high BP",
   },
   {
     id:"bhramari", name:"Bhramari", sub:"Humming Bee",
-    color:"#c49a2a", icon:"??",
+    color:"#c49a2a", icon:"🐝",
     phases:[{label:"Inhale",dur:4},{label:"Hum exhale",dur:8}],
     rounds:7, benefit:"Slows heart rate · Immediate calm · Best before sleep",
     caution:"Not during ear infections",
@@ -3803,12 +3822,12 @@ function WellnessSection({C,galaxy,profile,moveLog,setMoveLog,todayPhase}){
       </div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:12}}>
         <button onClick={()=>setView("breathe")} style={{padding:"18px",background:C.card,border:`1px solid ${C.border}`,borderRadius:14,cursor:"pointer",textAlign:"left"}}>
-          <div style={{fontSize:26,marginBottom:6}}>??️</div>
+          <div style={{fontSize:26,marginBottom:6}}>🌬️️</div>
           <div style={{fontSize:13,fontWeight:600}}>Pranayama</div>
           <div style={{fontSize:11,color:C.muted}}>4 breathwork techniques</div>
         </button>
         <button onClick={()=>setView("yoga")} style={{padding:"18px",background:C.card,border:`1px solid ${C.border}`,borderRadius:14,cursor:"pointer",textAlign:"left"}}>
-          <div style={{fontSize:26,marginBottom:6}}>??</div>
+          <div style={{fontSize:26,marginBottom:6}}>🧘</div>
           <div style={{fontSize:13,fontWeight:600}}>Yoga Asanas</div>
           <div style={{fontSize:11,color:C.muted}}>{Object.values(YOGA_LIBRARY).reduce((a,l)=>a+(l.poses?.length||0),0)} poses · {Object.keys(YOGA_LIBRARY).length} categories</div>
         </button>
@@ -3843,7 +3862,7 @@ function PoseCard({pose,color,C,open,setOpen}){
         <div style={{padding:"0 16px 14px",borderTop:`1px solid ${C.border}`,background:C.bg}}>
           <div style={{fontSize:11,color:C.accent2,marginTop:10,marginBottom:8,lineHeight:1.6}}>{pose.benefit}</div>
           {pose.steps?.map((s,j)=><div key={j} style={{display:"flex",gap:8,padding:"5px 0",borderBottom:j<pose.steps.length-1?`1px solid ${C.border}`:"none"}}><div style={{width:16,height:16,borderRadius:"50%",background:color+"22",display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,color,flexShrink:0}}>{j+1}</div><div style={{fontSize:12,color:C.text,lineHeight:1.6}}>{s}</div></div>)}
-          {pose.note&&<div style={{marginTop:8,padding:"7px 10px",background:color+"12",borderRadius:7,fontSize:11,color:C.text}}>?? {pose.note}</div>}
+          {pose.note&&<div style={{marginTop:8,padding:"7px 10px",background:color+"12",borderRadius:7,fontSize:11,color:C.text}}>💡 {pose.note}</div>}
           {pose.caution&&<div style={{marginTop:6,padding:"7px 10px",background:"#ff000008",border:"1px solid #f8717133",borderRadius:7,fontSize:11,color:C.muted}}>⚠ {pose.caution}</div>}
         </div>
       )}
@@ -3864,7 +3883,7 @@ function MoveLogger({moveLog,setMoveLog,C}){
       </div>
       {moveLog.length===0?<div style={{fontSize:12,color:C.dim,fontStyle:"italic"}}>No movement logged today.</div>:
         moveLog.map((m,i)=><div key={m.id} style={{display:"flex",justifyContent:"space-between",fontSize:12,padding:"5px 0",borderBottom:i<moveLog.length-1?`1px solid ${C.border}`:"none"}}>
-          <span>?? {m.activity}</span><span style={{color:C.muted,fontFamily:"'DM Mono',monospace",fontSize:11}}>{m.duration} min · {m.time}</span>
+          <span>🏃 {m.activity}</span><span style={{color:C.muted,fontFamily:"'DM Mono',monospace",fontSize:11}}>{m.duration} min · {m.time}</span>
         </div>)}
     </div>
   );
@@ -3882,7 +3901,7 @@ function MoveLogger({moveLog,setMoveLog,C}){
 const HEALTH_SIGNALS = {
   blood_sugar: {
     label: "Blood Sugar Sensitivity",
-    icon: "??",
+    icon: "🩸",
     color: "#e05a5a",
     triggerSymptoms: ["itching","frequent urination","energy crash","fatigue after eating","sweet cravings","thirst","blurred vision","headache after eating"],
     triggerFoods: ["sugar","jaggery","mithai","biscuit","bread","rice","poori","paratha","aam","banana","lichi"],
@@ -3896,12 +3915,12 @@ const HEALTH_SIGNALS = {
       "Eating fruits like mango or banana without protein or fat alongside",
     ],
     smartCombos: [
-      { combo: "?? Mango + Curd", why: "Curd's protein and fat slows the sugar from mango entering your bloodstream. Blood sugar rise is gradual, not a spike." },
-      { combo: "?? Rice + Dal + Sabzi", why: "Protein from dal and fibre from sabzi dramatically slow rice's sugar release. This combination is complete and blood-sugar safe." },
-      { combo: "?? Banana + Peanut Butter or Nuts", why: "Fat and protein from nuts slow banana's fructose absorption. Much gentler on blood sugar than banana alone." },
-      { combo: "?? Roti (whole wheat) instead of Maida", why: "Whole wheat releases sugar slowly. Maida (white flour) spikes blood sugar almost as fast as pure sugar." },
-      { combo: "?? Eat fat or protein FIRST", why: "Having a spoon of ghee, a handful of nuts, or eggs before a carb-heavy meal significantly reduces the blood sugar spike from that meal." },
-      { combo: "?? Start meal with salad or vegetable", why: "Fibre first slows everything that comes after. A simple habit that changes your body's sugar response." },
+      { combo: "🥭 Mango + Curd", why: "Curd's protein and fat slows the sugar from mango entering your bloodstream. Blood sugar rise is gradual, not a spike." },
+      { combo: "🍚 Rice + Dal + Sabzi", why: "Protein from dal and fibre from sabzi dramatically slow rice's sugar release. This combination is complete and blood-sugar safe." },
+      { combo: "🍌 Banana + Peanut Butter or Nuts", why: "Fat and protein from nuts slow banana's fructose absorption. Much gentler on blood sugar than banana alone." },
+      { combo: "🌾 Roti (whole wheat) instead of Maida", why: "Whole wheat releases sugar slowly. Maida (white flour) spikes blood sugar almost as fast as pure sugar." },
+      { combo: "🥑 Eat fat or protein FIRST", why: "Having a spoon of ghee, a handful of nuts, or eggs before a carb-heavy meal significantly reduces the blood sugar spike from that meal." },
+      { combo: "🥗 Start meal with salad or vegetable", why: "Fibre first slows everything that comes after. A simple habit that changes your body's sugar response." },
     ],
     lifestyle: [
       "Walk for 10–15 minutes after meals — even slow walking reduces post-meal blood sugar by 30%",
@@ -3916,7 +3935,7 @@ const HEALTH_SIGNALS = {
 
   digestive: {
     label: "Digestive Sensitivity",
-    icon: "??",
+    icon: "🌀",
     color: "#c49a2a",
     triggerSymptoms: ["gas","bloating","acidity","heaviness","nausea","loose stool","constipation","stomach pain","burping"],
     triggerFoods: ["poori","paratha","chole","rajma","dal","milk","curd","aam","lichi","chai"],
@@ -3931,12 +3950,12 @@ const HEALTH_SIGNALS = {
       "Tea or coffee immediately after meals — blocks iron and mineral absorption",
     ],
     smartCombos: [
-      { combo: "?? Ajwain (Carom seeds) in chole/dal", why: "Ajwain contains thymol which releases digestive enzymes. Prevents gas from legumes significantly." },
-      { combo: "?? Hing (Asafoetida) in dal tadka", why: "Hing is one of the most effective anti-flatulents known. A small pinch prevents legume-related gas." },
-      { combo: "?? Curd instead of milk", why: "Fermented curd is far easier to digest than raw milk. Provides probiotics that strengthen gut lining." },
-      { combo: "?? Nimbu paani before meals", why: "A small glass of warm water with lemon 20 min before eating stimulates digestive juices." },
-      { combo: "?? Ghee with dal or rice", why: "Small amount of ghee lubricates the gut, stimulates bile production, and actually aids digestion." },
-      { combo: "?? Jeera (cumin) water in morning", why: "Jeera is a natural digestive stimulant. Soak 1 tsp in water overnight, drink in morning." },
+      { combo: "🌿 Ajwain (Carom seeds) in chole/dal", why: "Ajwain contains thymol which releases digestive enzymes. Prevents gas from legumes significantly." },
+      { combo: "🌿 Hing (Asafoetida) in dal tadka", why: "Hing is one of the most effective anti-flatulents known. A small pinch prevents legume-related gas." },
+      { combo: "🥛 Curd instead of milk", why: "Fermented curd is far easier to digest than raw milk. Provides probiotics that strengthen gut lining." },
+      { combo: "🍋 Nimbu paani before meals", why: "A small glass of warm water with lemon 20 min before eating stimulates digestive juices." },
+      { combo: "🧈 Ghee with dal or rice", why: "Small amount of ghee lubricates the gut, stimulates bile production, and actually aids digestion." },
+      { combo: "🌿 Jeera (cumin) water in morning", why: "Jeera is a natural digestive stimulant. Soak 1 tsp in water overnight, drink in morning." },
     ],
     lifestyle: [
       "Eat fruits 30 minutes BEFORE meals, never immediately after",
@@ -3952,7 +3971,7 @@ const HEALTH_SIGNALS = {
 
   inflammation: {
     label: "Inflammation Pattern",
-    icon: "??",
+    icon: "🔥",
     color: "#d4855a",
     triggerSymptoms: ["joint pain","body ache","stiffness","fatigue","brain fog","skin issues","frequent illness"],
     triggerFoods: ["sugar","poori","paratha","biscuit","namkeen","fried food"],
@@ -3965,10 +3984,10 @@ const HEALTH_SIGNALS = {
       "Alcohol",
     ],
     smartCombos: [
-      { combo: "?? Haldi (Turmeric) + Black Pepper", why: "Piperine in black pepper increases turmeric absorption by 2000%. Always pair them." },
-      { combo: "?? Mustard oil or Coconut oil for cooking", why: "Better omega-3/omega-6 ratio than refined oils. Less inflammatory." },
-      { combo: "?? Dark leafy greens daily", why: "Spinach, methi, sarson — packed with antioxidants that fight inflammation at cellular level." },
-      { combo: "?? Berries + Nuts as snack", why: "Anthocyanins in berries are powerful anti-inflammatories. Combined with omega-3 from walnuts — excellent." },
+      { combo: "🟡 Haldi (Turmeric) + Black Pepper", why: "Piperine in black pepper increases turmeric absorption by 2000%. Always pair them." },
+      { combo: "🥥 Mustard oil or Coconut oil for cooking", why: "Better omega-3/omega-6 ratio than refined oils. Less inflammatory." },
+      { combo: "🥬 Dark leafy greens daily", why: "Spinach, methi, sarson — packed with antioxidants that fight inflammation at cellular level." },
+      { combo: "🫐 Berries + Nuts as snack", why: "Anthocyanins in berries are powerful anti-inflammatories. Combined with omega-3 from walnuts — excellent." },
     ],
     lifestyle: [
       "Haldi milk (golden milk) at bedtime — anti-inflammatory and improves sleep",
@@ -3982,7 +4001,7 @@ const HEALTH_SIGNALS = {
 
   thyroid: {
     label: "Thyroid Support",
-    icon: "??",
+    icon: "🦋",
     color: "#38bdf8",
     triggerSymptoms: ["unexplained weight gain","fatigue","hair thinning","cold sensitivity","constipation","brain fog","low mood","dry skin","puffy face"],
     triggerFoods: [],
@@ -3994,9 +4013,9 @@ const HEALTH_SIGNALS = {
       "Highly processed foods and excess sugar",
     ],
     smartCombos: [
-      { combo: "?? Eggs + Vegetables", why: "Eggs provide selenium and iodine — both critical for thyroid hormone production." },
-      { combo: "?? Iodised salt in cooking", why: "Iodine deficiency is a leading cause of thyroid issues in India. Use iodised salt consistently." },
-      { combo: "?? Brazil nuts (2 per day)", why: "Highest natural source of selenium — essential for converting thyroid hormone T4 to active T3." },
+      { combo: "🥚 Eggs + Vegetables", why: "Eggs provide selenium and iodine — both critical for thyroid hormone production." },
+      { combo: "🧂 Iodised salt in cooking", why: "Iodine deficiency is a leading cause of thyroid issues in India. Use iodised salt consistently." },
+      { combo: "🌰 Brazil nuts (2 per day)", why: "Highest natural source of selenium — essential for converting thyroid hormone T4 to active T3." },
     ],
     lifestyle: [
       "Get thyroid tested (TSH, T3, T4) — symptoms alone are not diagnosis",
@@ -4010,7 +4029,7 @@ const HEALTH_SIGNALS = {
 
   menopause: {
     label: "Menopause Support",
-    icon: "??",
+    icon: "🌙",
     color: "#c084fc",
     triggerSymptoms: ["hot flashes","night sweats","mood swings","sleep disturbance","vaginal dryness","low energy","weight gain","joint pain","memory issues"],
     triggerFoods: ["chai","coffee","alcohol","spicy food","sugar"],
@@ -4023,10 +4042,10 @@ const HEALTH_SIGNALS = {
       "Excess salt — increases bone loss risk",
     ],
     smartCombos: [
-      { combo: "?? Soya (tofu, soya milk, soya chunks)", why: "Contains phytoestrogens — plant compounds that weakly mimic estrogen. May reduce hot flashes." },
-      { combo: "?? Milk + Haldi at bedtime", why: "Calcium for bones + turmeric's anti-inflammatory effect + improves sleep quality." },
-      { combo: "?? Flaxseed (alsi) daily", why: "Lignans in flaxseed are natural phytoestrogens. 1–2 tbsp ground flaxseed in food daily." },
-      { combo: "?? Calcium + Vitamin D together", why: "Post-menopause bone loss accelerates. Calcium from food + Vitamin D (sunlight or supplement) is non-negotiable." },
+      { combo: "🫘 Soya (tofu, soya milk, soya chunks)", why: "Contains phytoestrogens — plant compounds that weakly mimic estrogen. May reduce hot flashes." },
+      { combo: "🥛 Milk + Haldi at bedtime", why: "Calcium for bones + turmeric's anti-inflammatory effect + improves sleep quality." },
+      { combo: "🌾 Flaxseed (alsi) daily", why: "Lignans in flaxseed are natural phytoestrogens. 1–2 tbsp ground flaxseed in food daily." },
+      { combo: "🦴 Calcium + Vitamin D together", why: "Post-menopause bone loss accelerates. Calcium from food + Vitamin D (sunlight or supplement) is non-negotiable." },
     ],
     lifestyle: [
       "Weight-bearing exercise (walking, light weights) — directly protects bones post-menopause",
@@ -4041,7 +4060,7 @@ const HEALTH_SIGNALS = {
 
   iron_deficiency: {
     label: "Low Iron Pattern",
-    icon: "??",
+    icon: "⚙",
     color: "#e05a5a",
     triggerSymptoms: ["fatigue","weakness","pale skin","cold hands feet","hair fall","brittle nails","headache","breathlessness","difficulty concentrating"],
     triggerFoods: [],
@@ -4052,11 +4071,11 @@ const HEALTH_SIGNALS = {
       "Excess raw bran or whole grain alone — phytates bind iron",
     ],
     smartCombos: [
-      { combo: "?? Spinach + Lemon squeeze", why: "Vitamin C in lemon increases iron absorption from spinach by 3–4x. Always add acid to iron-rich greens." },
-      { combo: "?? Rajma/Dal + Tomato in the dish", why: "Tomato's Vitamin C enhances iron absorption from legumes significantly." },
-      { combo: "?? Jaggery + Til (sesame ladoo)", why: "Both are iron-rich. Traditional winter snack that's genuinely medicinal for iron." },
-      { combo: "?? Ragi roti + Amla chutney", why: "Ragi has high iron + calcium. Amla's Vitamin C maximises iron absorption." },
-      { combo: "?? Cook in iron kadai", why: "Cooking acidic foods (dal, tomato-based dishes) in an iron kadai leaches iron into food — a genuine way to increase iron intake." },
+      { combo: "🥬 Spinach + Lemon squeeze", why: "Vitamin C in lemon increases iron absorption from spinach by 3–4x. Always add acid to iron-rich greens." },
+      { combo: "🍅 Rajma/Dal + Tomato in the dish", why: "Tomato's Vitamin C enhances iron absorption from legumes significantly." },
+      { combo: "🍯 Jaggery + Til (sesame ladoo)", why: "Both are iron-rich. Traditional winter snack that's genuinely medicinal for iron." },
+      { combo: "🌾 Ragi roti + Amla chutney", why: "Ragi has high iron + calcium. Amla's Vitamin C maximises iron absorption." },
+      { combo: "🍳 Cook in iron kadai", why: "Cooking acidic foods (dal, tomato-based dishes) in an iron kadai leaches iron into food — a genuine way to increase iron intake." },
     ],
     lifestyle: [
       "Get Hemoglobin and Serum Ferritin tested — ferritin shows iron stores before anemia develops",
@@ -4140,7 +4159,7 @@ function checkFoodCombos(foods) {
   return { warnings, tips };
 }
 
-function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,todayFood,updateBP,profile}){
+function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,todayFood,updateBP,profile,saveFoodLogEntry}){
   const[view,setView]=useState("today");
   const[newFood,setNewFood]=useState({meal:"Lunch",foods:"",note:"",symptoms:[],water:0});
   const[range,setRange]=useState("daily");
@@ -4163,15 +4182,30 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
     return ()=>clearTimeout(t);
   },[newFood.foods]);
 
+  // Persists the full day's food log to localStorage under today's
+  // date-scoped key, so a refresh restores it even before Supabase responds.
+  function persistTodayFoodLogs(updatedLogs){
+    try{
+      const todaysEntries=updatedLogs.filter(l=>l.date===todayStr);
+      localStorage.setItem("sw_food_"+todayStr, JSON.stringify(todaysEntries));
+    }catch(e){}
+  }
+
   function addFood(){
     const foods=newFood.foods.split(",").map(f=>f.trim()).filter(Boolean);
     if(!foods.length)return;
     const entry={id:Date.now(),date:todayStr,time:new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"}),meal:newFood.meal,foods,note:newFood.note,symptoms:newFood.symptoms,water:newFood.water||0,waterTiming:newFood.waterTiming||null,aiNutrition:aiEstimate?aiEstimate.totals:null};
-    setFoodLogs(l=>[entry,...l]);
+    setFoodLogs(l=>{
+      const updated=[entry,...l];
+      persistTodayFoodLogs(updated);
+      return updated;
+    });
+    if(saveFoodLogEntry) saveFoodLogEntry(entry);   // persist to Supabase so it survives across devices/sessions
     if(newFood.water>0)setWaterLog(w=>w+(newFood.water*250));
     updateBP({food:foods.join(","),symptoms:newFood.symptoms});
     setNewFood({meal:"Lunch",foods:"",note:"",symptoms:[],water:0,waterTiming:null});
     setAiEstimate(null);
+
 
     setView("today");
   }
@@ -4183,51 +4217,51 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
     {
       label:"⚡ Energy & Macros", color:C.accent,
       items:[
-        {k:"cal",l:"Calories",u:"kcal",icon:"??",isMax:false,why:"Total daily energy"},
-        {k:"protein",l:"Protein",u:"g",icon:"??",isMax:false,why:"Hair, skin, hormones, muscle, satiety"},
-        {k:"carbs",l:"Carbs",u:"g",icon:"??",isMax:false,why:"Brain fuel — needs 120g glucose/day"},
-        {k:"fat",l:"Healthy Fat",u:"g",icon:"??",isMax:false,why:"Omega-3, hormones, skin. Focus on quality."},
-        {k:"fibre",l:"Fibre",u:"g",icon:"??",isMax:false,why:"Digestion, gut microbiome, blood sugar"},
+        {k:"cal",l:"Calories",u:"kcal",icon:"🔥",isMax:false,why:"Total daily energy"},
+        {k:"protein",l:"Protein",u:"g",icon:"🥩",isMax:false,why:"Hair, skin, hormones, muscle, satiety"},
+        {k:"carbs",l:"Carbs",u:"g",icon:"🌾",isMax:false,why:"Brain fuel — needs 120g glucose/day"},
+        {k:"fat",l:"Healthy Fat",u:"g",icon:"🥑",isMax:false,why:"Omega-3, hormones, skin. Focus on quality."},
+        {k:"fibre",l:"Fibre",u:"g",icon:"🌿",isMax:false,why:"Digestion, gut microbiome, blood sugar"},
       ]
     },
     {
-      label:"?? Blood Health", color:C.red,
+      label:"🩸 Blood Health", color:C.red,
       items:[
-        {k:"iron",l:"Iron",u:"mg",icon:"??",isMax:false,why:"Critical for menstruating women. Pair with Vit C."},
-        {k:"folate",l:"Folate",u:"μg",icon:"??",isMax:false,why:"Blood formation, DNA repair, essential if pregnant"},
+        {k:"iron",l:"Iron",u:"mg",icon:"⚙",isMax:false,why:"Critical for menstruating women. Pair with Vit C."},
+        {k:"folate",l:"Folate",u:"μg",icon:"🥬",isMax:false,why:"Blood formation, DNA repair, essential if pregnant"},
         {k:"vitB12",l:"Vitamin B12",u:"μg",icon:"⚡",isMax:false,why:"Memory, energy, nerves, hair. Vegetarians often deficient."},
       ]
     },
     {
-      label:"?? Bone Health", color:C.purple,
+      label:"🦴 Bone Health", color:C.purple,
       items:[
-        {k:"calcium",l:"Calcium",u:"mg",icon:"??",isMax:false,why:"Bones, teeth, muscles, hormones"},
+        {k:"calcium",l:"Calcium",u:"mg",icon:"🦴",isMax:false,why:"Bones, teeth, muscles, hormones"},
         {k:"vitD",l:"Vitamin D",u:"IU",icon:"☀️",isMax:false,why:"Absorbs calcium. Most Indian women are deficient."},
-        {k:"magnesium",l:"Magnesium",u:"mg",icon:"??",isMax:false,why:"Sleep, mood, muscle recovery, PMS headaches"},
+        {k:"magnesium",l:"Magnesium",u:"mg",icon:"😴",isMax:false,why:"Sleep, mood, muscle recovery, PMS headaches"},
       ]
     },
     {
       label:"✨ Skin, Hair & Collagen", color:C.warm,
       items:[
-        {k:"vitC",l:"Vitamin C",u:"mg",icon:"??",isMax:false,why:"Critical for collagen synthesis. Boosts iron absorption."},
-        {k:"zinc",l:"Zinc",u:"mg",icon:"??",isMax:false,why:"Hair, skin, immunity, wound healing"},
-        {k:"omega3",l:"Omega-3",u:"g",icon:"??",isMax:false,why:"Anti-inflammatory, skin glow, mood stability"},
-        {k:"vitA",l:"Vitamin A",u:"μg",icon:"??",isMax:false,why:"Skin cell renewal, vision, immunity"},
-        {k:"vitE",l:"Vitamin E",u:"mg",icon:"??",isMax:false,why:"Antioxidant, skin protection, hormonal balance"},
+        {k:"vitC",l:"Vitamin C",u:"mg",icon:"🍊",isMax:false,why:"Critical for collagen synthesis. Boosts iron absorption."},
+        {k:"zinc",l:"Zinc",u:"mg",icon:"🛡",isMax:false,why:"Hair, skin, immunity, wound healing"},
+        {k:"omega3",l:"Omega-3",u:"g",icon:"🐟",isMax:false,why:"Anti-inflammatory, skin glow, mood stability"},
+        {k:"vitA",l:"Vitamin A",u:"μg",icon:"👁",isMax:false,why:"Skin cell renewal, vision, immunity"},
+        {k:"vitE",l:"Vitamin E",u:"mg",icon:"✨",isMax:false,why:"Antioxidant, skin protection, hormonal balance"},
       ]
     },
     {
-      label:"?? Brain & Heart", color:C.accent3,
+      label:"🧠 Brain & Heart", color:C.accent3,
       items:[
-        {k:"choline",l:"Choline",u:"mg",icon:"??",isMax:false,why:"Brain, memory, liver. Eggs are excellent source."},
+        {k:"choline",l:"Choline",u:"mg",icon:"🧠",isMax:false,why:"Brain, memory, liver. Eggs are excellent source."},
         {k:"potassium",l:"Potassium",u:"mg",icon:"❤️",isMax:false,why:"Blood pressure, muscle function, heart health"},
       ]
     },
     {
       label:"⚠️ Limits (keep below)", color:C.gold,
       items:[
-        {k:"addedSugar",l:"Added Sugar",u:"g",icon:"??",isMax:true,why:"Natural sugar from fruits/milk is fine. Added sugar causes inflammation."},
-        {k:"sodium",l:"Sodium",u:"mg",icon:"??",isMax:true,why:"High sodium raises blood pressure. Most Indians overconsume."},
+        {k:"addedSugar",l:"Added Sugar",u:"g",icon:"🍬",isMax:true,why:"Natural sugar from fruits/milk is fine. Added sugar causes inflammation."},
+        {k:"sodium",l:"Sodium",u:"mg",icon:"🧂",isMax:true,why:"High sodium raises blood pressure. Most Indians overconsume."},
       ]
     },
   ];
@@ -4237,10 +4271,10 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
     <div style={{padding:"20px 16px"}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
         <div style={{fontSize:18,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>Food & Nutrition</div>
-        <div style={{fontSize:12,color:C.accent3}}>??{waterLog}ml</div>
+        <div style={{fontSize:12,color:C.accent3}}>💧{waterLog}ml</div>
       </div>
       <div style={{display:"flex",gap:5,marginBottom:18}}>
-        {[{v:"today",l:"Today"},{v:"add",l:"+ Log"},{v:"analysis",l:"Analysis"},{v:"health",l:"?? Insights"}].map(t=><button key={t.v} onClick={()=>setView(t.v)} style={{flex:1,padding:"8px",borderRadius:20,border:`1px solid ${view===t.v?C.accent:C.border}`,background:view===t.v?C.accent+"15":"transparent",cursor:"pointer",fontSize:11,color:view===t.v?C.accent:C.muted}}>{t.l}</button>)}
+        {[{v:"today",l:"Today"},{v:"add",l:"+ Log"},{v:"analysis",l:"Analysis"},{v:"health",l:"🩺 Insights"}].map(t=><button key={t.v} onClick={()=>setView(t.v)} style={{flex:1,padding:"8px",borderRadius:20,border:`1px solid ${view===t.v?C.accent:C.border}`,background:view===t.v?C.accent+"15":"transparent",cursor:"pointer",fontSize:11,color:view===t.v?C.accent:C.muted}}>{t.l}</button>)}
       </div>
 
       {view==="today"&&(
@@ -4283,7 +4317,7 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
           })()}
           {/* Water quick add */}
           <div style={{background:C.card,border:`1px solid ${C.accent3}33`,borderRadius:10,padding:"12px 14px",marginBottom:12}}>
-            <div style={{fontSize:10,color:C.accent3,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>?? WATER INTAKE · {waterLog}ml of {needs.water}ml</div>
+            <div style={{fontSize:10,color:C.accent3,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>💧 WATER INTAKE · {waterLog}ml of {needs.water}ml</div>
             <div style={{background:C.border,borderRadius:6,height:6,marginBottom:10}}><div style={{width:`${Math.min(100,Math.round((waterLog/needs.water)*100))}%`,height:6,background:`linear-gradient(90deg,${C.accent3},#38bdf8)`,borderRadius:6,transition:"width 0.4s"}}/></div>
             <div style={{display:"flex",gap:7}}>
               {[1,2,3,4].map(g=><button key={g} onClick={()=>setWaterLog(w=>w+(g*250))} style={{flex:1,padding:"8px 0",background:C.accent3+"15",border:`1px solid ${C.accent3}44`,borderRadius:8,cursor:"pointer",fontSize:12,color:C.accent3}}>+{g} glass{g>1?"es":""}</button>)}
@@ -4300,7 +4334,7 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
                 </div>
                 <div style={{display:"flex",gap:10,marginTop:5,flexWrap:"wrap"}}>
                   {[["P",n.protein,C.accent2],["C",n.carbs,C.gold],["Fe",n.iron,C.red]].map(([l,v,c],j)=><span key={j} style={{fontSize:11,color:c,fontFamily:"'DM Mono',monospace"}}>{l}:{typeof v==="number"?v.toFixed(1):v}</span>)}
-                  {log.water>0&&<span style={{fontSize:11,color:C.accent3}}>??{log.water} glasses</span>}
+                  {log.water>0&&<span style={{fontSize:11,color:C.accent3}}>💧{log.water} glasses</span>}
                 </div>
                 {log.symptoms?.length>0&&<div style={{marginTop:5,display:"flex",gap:4,flexWrap:"wrap"}}>{log.symptoms.map((s,j)=><span key={j} style={{fontSize:10,padding:"2px 7px",background:C.red+"12",border:`1px solid ${C.red}33`,borderRadius:10,color:C.red}}>{s}</span>)}</div>}
               </div>;
@@ -4326,7 +4360,7 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
             </div>
             {/* Water timing */}
             <div>
-              <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>?? WATER</div>
+              <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>💧 WATER</div>
               <div style={{fontSize:11,color:C.dim,marginBottom:10,padding:"7px 10px",background:C.accent3+"10",border:`1px solid ${C.accent3}22`,borderRadius:7,lineHeight:1.6}}>
                 For best digestion — drink water <strong>20–30 min before meals</strong> or <strong>45–60 min after</strong>. During meals, sip only if needed. Large amounts dilute stomach acid and slow digestion.
               </div>
@@ -4424,7 +4458,7 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
 
             {signals.length===0&&(
               <div style={{textAlign:"center",padding:"40px 20px",color:C.dim}}>
-                <div style={{fontSize:28,marginBottom:10}}>??</div>
+                <div style={{fontSize:28,marginBottom:10}}>🔍</div>
                 <div style={{fontSize:14,fontStyle:"italic",lineHeight:1.7}}>No patterns detected yet. Log meals with symptoms for a few days and the app will start recognising what affects you specifically.</div>
                 <div style={{marginTop:12,fontSize:12,color:C.muted}}>Tip: When logging food, always select the symptoms you feel after eating.</div>
               </div>
@@ -4479,7 +4513,7 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
 
                 {/* Foods to eat */}
                 <div style={{padding:"14px 18px",borderBottom:`1px solid ${C.border}`}}>
-                  <div style={{fontSize:10,color:C.gold,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:8}}>?? EAT MORE OF</div>
+                  <div style={{fontSize:10,color:C.gold,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:8}}>🍽 EAT MORE OF</div>
                   <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
                     {signal.foodsToEat.map((f,i)=>(
                       <span key={i} style={{fontSize:12,padding:"4px 10px",background:C.gold+"15",border:`1px solid ${C.gold}33`,borderRadius:20,color:C.text}}>{f}</span>
@@ -4519,7 +4553,7 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
 
           {/* Sugar clarification */}
           <div style={{background:C.gold+"12",border:`1px solid ${C.gold}33`,borderRadius:10,padding:"10px 14px",marginBottom:14,fontSize:12,color:C.text,lineHeight:1.6}}>
-            ?? <strong>Added sugar vs natural sugar:</strong> Natural sugar in fruits and milk is fine — not tracked as a limit. Only <em>added sugar</em> (from sweets, biscuits, chai sugar, packaged foods) is the limit of 25g/day.
+            💡 <strong>Added sugar vs natural sugar:</strong> Natural sugar in fruits and milk is fine — not tracked as a limit. Only <em>added sugar</em> (from sweets, biscuits, chai sugar, packaged foods) is the limit of 25g/day.
           </div>
 
           {/* Collagen support note */}
@@ -4722,7 +4756,7 @@ function CycleSection({C,profile,setProfile,periodLogs,setPeriodLogs,symptoms,se
                 <div><div style={{fontSize:13,fontWeight:700}}>{new Date(selectedDay+"T12:00:00").toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"})}</div>{day?.phase&&<div style={{fontSize:11,color:pc,marginTop:2}}>{PHASE_INFO[day.phase]?.icon} {PHASE_INFO[day.phase]?.label} · {PHASE_INFO[day.phase]?.desc}</div>}</div>
                 {day?.lp&&<button onClick={()=>{setEditPeriod(day.lp);setNp({...day.lp});setView("log");}} style={{padding:"4px 9px",background:C.red+"15",border:`1px solid ${C.red}44`,borderRadius:20,cursor:"pointer",fontSize:11,color:C.red}}>Edit</button>}
               </div>
-              {day?.lp&&<div style={{padding:"7px 10px",background:FLOW_COLORS[day.lp.flow]+"18",border:`1px solid ${FLOW_COLORS[day.lp.flow]}44`,borderRadius:7,marginBottom:9,fontSize:12}}>?? {FLOW_LABELS[day.lp.flow]} flow{day.lp.endDate?` · ${dur(day.lp)} days`:""}</div>}
+              {day?.lp&&<div style={{padding:"7px 10px",background:FLOW_COLORS[day.lp.flow]+"18",border:`1px solid ${FLOW_COLORS[day.lp.flow]}44`,borderRadius:7,marginBottom:9,fontSize:12}}>🩸 {FLOW_LABELS[day.lp.flow]} flow{day.lp.endDate?` · ${dur(day.lp)} days`:""}</div>}
               <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>LOG SYMPTOMS</div>
               <div style={{display:"flex",flexWrap:"wrap",gap:5}}>
                 {["cramps","bloating","fatigue","mood swings","headache","backache","cravings","spotting","breast tenderness","nausea","no symptoms"].map(s=><button key={s} onClick={()=>setSymptoms(p=>({...p,[selectedDay]:daySym.includes(s)?daySym.filter(x=>x!==s):[...daySym,s]}))} style={{padding:"4px 8px",borderRadius:20,border:`1px solid ${daySym.includes(s)?pc:C.border}`,background:daySym.includes(s)?pc+"18":"transparent",cursor:"pointer",fontSize:10,color:daySym.includes(s)?pc:C.muted}}>{s}</button>)}
@@ -4766,7 +4800,7 @@ function CycleSection({C,profile,setProfile,periodLogs,setPeriodLogs,symptoms,se
         const allSym={};periodLogs.forEach(p=>p.symptoms?.forEach(s=>{allSym[s]=(allSym[s]||0)+1;}));
         const topSym=Object.entries(allSym).sort((a,b)=>b[1]-a[1]).slice(0,5);
         return<div>
-          {!an?<div style={{textAlign:"center",padding:"40px",color:C.dim}}><div style={{fontSize:28,marginBottom:10}}>??</div><div style={{fontStyle:"italic",fontSize:13}}>Log at least 2 periods to see your cycle overview.</div><button onClick={()=>setView("log")} style={{marginTop:12,padding:"10px 20px",background:`linear-gradient(135deg,${PHASE_COLORS.menstrual},#d4855a)`,border:"none",borderRadius:11,color:"#fff",cursor:"pointer",fontSize:12}}>Log First Period</button></div>:
+          {!an?<div style={{textAlign:"center",padding:"40px",color:C.dim}}><div style={{fontSize:28,marginBottom:10}}>🌙</div><div style={{fontStyle:"italic",fontSize:13}}>Log at least 2 periods to see your cycle overview.</div><button onClick={()=>setView("log")} style={{marginTop:12,padding:"10px 20px",background:`linear-gradient(135deg,${PHASE_COLORS.menstrual},#d4855a)`,border:"none",borderRadius:11,color:"#fff",cursor:"pointer",fontSize:12}}>Log First Period</button></div>:
           <div style={{display:"flex",flexDirection:"column",gap:11}}>
             <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
               <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>CYCLE STATS · {an.total} PERIODS</div>
@@ -4824,7 +4858,7 @@ function DayDashboard({C, galaxy, profile, todayFood, needs, completedSteps, jou
   const [expanded, setExpanded] = useState(false);
 
   const MOOD_SCORE = {energised:10,happy:9,good:8,calm:7,neutral:5,confused:4,anxious:3,low:3,sad:2,angry:1};
-  const MOOD_EMOJI = {energised:"??",happy:"??",good:"??",calm:"??",neutral:"??",confused:"??",anxious:"??",low:"??",sad:"??",angry:"??"};
+  const MOOD_EMOJI = {energised:"⚡",happy:"😊",good:"🙂",calm:"😌",neutral:"😐",confused:"😕",anxious:"😰",low:"😔",sad:"😢",angry:"😠"};
 
   // ── Score 0-100 ──────────────────────────────────────────
   function calcScore() {
@@ -4857,10 +4891,10 @@ function DayDashboard({C, galaxy, profile, todayFood, needs, completedSteps, jou
     if (energy >= 7) ups.push("⚡ High energy");
     if (ritual >= 7) ups.push("☀ Full ritual");
     if (ritual >= 4 && ritual < 7) ups.push("☀ Morning done");
-    if (calPct >= 60 && calPct <= 110) ups.push("?? Fed well");
-    if (todayMove.length > 0) ups.push("?? Moved");
+    if (calPct >= 60 && calPct <= 110) ups.push("🍽 Fed well");
+    if (todayMove.length > 0) ups.push("🏃 Moved");
     if (todayJournal?.freeWrite?.toLowerCase().includes("creat")) ups.push("✦ Created");
-    if (todayJournal?.freeWrite?.toLowerCase().includes("grateful")) ups.push("?? Grateful");
+    if (todayJournal?.freeWrite?.toLowerCase().includes("grateful")) ups.push("🙏 Grateful");
 
     return ups.slice(0, 3);
   }
@@ -4875,14 +4909,14 @@ function DayDashboard({C, galaxy, profile, todayFood, needs, completedSteps, jou
     const fw = (todayJournal?.freeWrite||"").toLowerCase();
 
     if (["anxious","low","sad","angry"].includes(mood)) downs.push(MOOD_EMOJI[mood] + " " + mood);
-    if (energy && energy <= 4) downs.push("?? Low energy");
+    if (energy && energy <= 4) downs.push("🔋 Low energy");
     if (ritual === 0) downs.push("⏰ No ritual");
-    if (calPct < 40 && calPct > 0) downs.push("?? Ate too little");
-    if (calPct > 120) downs.push("?? Overate");
-    if (fw.includes("stress") || fw.includes("anxious")) downs.push("?? Stress");
-    if (fw.includes("phone") || fw.includes("scroll")) downs.push("?? Phone");
-    if (fw.includes("sleep") || fw.includes("tired")) downs.push("?? Sleep");
-    if (fw.includes("overthink") || fw.includes("worry")) downs.push("?? Overthinking");
+    if (calPct < 40 && calPct > 0) downs.push("🍽 Ate too little");
+    if (calPct > 120) downs.push("🍽 Overate");
+    if (fw.includes("stress") || fw.includes("anxious")) downs.push("😰 Stress");
+    if (fw.includes("phone") || fw.includes("scroll")) downs.push("📱 Phone");
+    if (fw.includes("sleep") || fw.includes("tired")) downs.push("😴 Sleep");
+    if (fw.includes("overthink") || fw.includes("worry")) downs.push("🌀 Overthinking");
 
     return downs.slice(0, 3);
   }
@@ -4943,7 +4977,7 @@ function DayDashboard({C, galaxy, profile, todayFood, needs, completedSteps, jou
 
       {/* Q1: HOW AM I */}
       <div style={{padding:"20px 18px",background:scoreBg}}>
-        <div style={{fontSize:9,color:scoreColor,fontFamily:"'DM Mono',monospace",letterSpacing:3,marginBottom:12}}>?? HOW AM I?</div>
+        <div style={{fontSize:9,color:scoreColor,fontFamily:"'DM Mono',monospace",letterSpacing:3,marginBottom:12}}>🪞 HOW AM I?</div>
         <div style={{display:"flex",alignItems:"center",gap:16}}>
           <div style={{fontSize:56,fontWeight:800,color:scoreColor,lineHeight:1,fontFamily:"'DM Mono',monospace"}}>{score}</div>
           <div style={{flex:1}}>
@@ -4989,7 +5023,7 @@ function DayDashboard({C, galaxy, profile, todayFood, needs, completedSteps, jou
 
       {/* Q4: NOW WHAT */}
       <div style={{padding:"14px 18px 18px"}}>
-        <div style={{fontSize:9,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:3,marginBottom:10}}>?? NOW WHAT?</div>
+        <div style={{fontSize:9,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:3,marginBottom:10}}>✦ NOW WHAT?</div>
         <div style={{fontSize:15,color:C.text,lineHeight:1.6,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>{action}</div>
       </div>
 
@@ -4997,7 +5031,7 @@ function DayDashboard({C, galaxy, profile, todayFood, needs, completedSteps, jou
 
       {/* Mirror tap */}
       <button onClick={getAIInsight} style={{width:"100%",padding:"14px 18px",background:"transparent",border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
-        <span style={{fontSize:14}}>??</span>
+        <span style={{fontSize:14}}>🪞</span>
         <span style={{fontSize:13,color:C.muted,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>
           {loading?"Reading your day…":insight&&expanded?`"${insight}"`:insight?"Tap to see the mirror insight":"What does today say about you?"}
         </span>
@@ -5014,8 +5048,8 @@ function TodaysMirror({C,galaxy,profile,todayFood,needs,ritualDone,moveMin,compl
   const energy=todayJournal?.energy||null;
   const goals=(profile.goals||[]).filter(g=>!g.done);
 
-  const MOOD_EMOJI={energised:"??",happy:"??",good:"??",calm:"??",neutral:"??",confused:"??",anxious:"??",low:"??",sad:"??",angry:"??"};
-  const ENERGY_BARS=["","??","????","??????","????????","??????????"];
+  const MOOD_EMOJI={energised:"⚡",happy:"😊",good:"🙂",calm:"😌",neutral:"😐",confused:"😕",anxious:"😰",low:"😔",sad:"😢",angry:"😠"};
+  const ENERGY_BARS=["","▮","▮▮","▮▮▮","▮▮▮▮","▮▮▮▮▮"];
 
   // Build day summary for AI
   function buildSummary(){
@@ -5084,13 +5118,13 @@ function TodaysMirror({C,galaxy,profile,todayFood,needs,ritualDone,moveMin,compl
       <div style={{padding:"18px 18px 14px",borderBottom:`1px solid ${borderCol}`}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
           <div style={{display:"flex",gap:8,alignItems:"center"}}>
-            <span style={{fontSize:22}}>??</span>
+            <span style={{fontSize:22}}>🪞</span>
             <div>
               <div style={{fontSize:13,fontWeight:700,fontFamily:"'Cormorant Garamond',serif",letterSpacing:1}}>Today's You</div>
               <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:2}}>{new Date().toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"short"}).toUpperCase()}</div>
             </div>
           </div>
-          <span style={{fontSize:22}}>??</span>
+          <span style={{fontSize:22}}>✨</span>
         </div>
 
         {/* Mood row */}
@@ -5099,7 +5133,7 @@ function TodaysMirror({C,galaxy,profile,todayFood,needs,ritualDone,moveMin,compl
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <div style={{fontSize:11,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1}}>MOOD</div>
               <div style={{display:"flex",gap:5,alignItems:"center"}}>
-                <span style={{fontSize:18}}>{MOOD_EMOJI[mood]||"??"}</span>
+                <span style={{fontSize:18}}>{MOOD_EMOJI[mood]||"🙂"}</span>
                 <span style={{fontSize:12,color:C.text,textTransform:"capitalize"}}>{mood}</span>
               </div>
             </div>
@@ -5107,7 +5141,7 @@ function TodaysMirror({C,galaxy,profile,todayFood,needs,ritualDone,moveMin,compl
           {energy&&(
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
               <div style={{fontSize:11,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1}}>ENERGY</div>
-              <div style={{fontSize:13,letterSpacing:1}}>{ENERGY_BARS[energyBars]||"??"} <span style={{fontSize:11,color:C.muted}}>{energy}/10</span></div>
+              <div style={{fontSize:13,letterSpacing:1}}>{ENERGY_BARS[energyBars]||"▮"} <span style={{fontSize:11,color:C.muted}}>{energy}/10</span></div>
             </div>
           )}
           {identity.length>0&&(
@@ -5156,11 +5190,11 @@ function TodaysMirror({C,galaxy,profile,todayFood,needs,ritualDone,moveMin,compl
             background:"transparent",border:"none",cursor:"pointer",
             display:"flex",alignItems:"center",justifyContent:"center",gap:10,
           }}>
-            <span style={{fontSize:14}}>??</span>
+            <span style={{fontSize:14}}>✦</span>
             <div style={{fontSize:14,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:glowCol}}>
               Tap to see what today says about you
             </div>
-            <span style={{fontSize:14}}>??</span>
+            <span style={{fontSize:14}}>✦</span>
           </button>
         ):(
           <div style={{padding:"18px 20px",textAlign:"center"}}>
@@ -5285,9 +5319,9 @@ function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedS
           {/* Daily scores */}
           <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:9}}>
             {[
-              {icon:"??",label:"Movement",value:`${moveMin}min`,target:30,pct:Math.min(100,Math.round((moveMin/30)*100)),color:C.accent2},
-              {icon:"??",label:"Ritual",value:`${ritualDone}/7`,target:7,pct:Math.min(100,Math.round((ritualDone/7)*100)),color:C.gold},
-              {icon:"??",label:"Water",value:`${Math.round(profile.water||0)+Math.round((foodLogs.filter(l=>l.date===todayStr).reduce((a,l)=>a+(l.water||0),0)*250+parseInt(profile.waterLog||0)))}ml`,target:needs.water,pct:0,color:C.accent3},
+              {icon:"🏃",label:"Movement",value:`${moveMin}min`,target:30,pct:Math.min(100,Math.round((moveMin/30)*100)),color:C.accent2},
+              {icon:"☀",label:"Ritual",value:`${ritualDone}/7`,target:7,pct:Math.min(100,Math.round((ritualDone/7)*100)),color:C.gold},
+              {icon:"💧",label:"Water",value:`${Math.round(profile.water||0)+Math.round((foodLogs.filter(l=>l.date===todayStr).reduce((a,l)=>a+(l.water||0),0)*250+parseInt(profile.waterLog||0)))}ml`,target:needs.water,pct:0,color:C.accent3},
             ].map((item,i)=>(
               <div key={i} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:11,padding:"12px 8px",textAlign:"center"}}>
                 <div style={{fontSize:20,marginBottom:3}}>{item.icon}</div>
@@ -5397,8 +5431,8 @@ function InfoRow({label,value,C,color}){
 // ══════════════════════════════════════════════════════════════
 //  MY SPACE
 // ══════════════════════════════════════════════════════════════
-function MySpaceSection({C,galaxy,profile,foodLogs,setFoodLogs,waterLog,setWaterLog,moveLog,setMoveLog,todayFood,needs,canSendAI,recordAIMsg,todayMsgs,planData,setSection,updateBP,behaviourProfile}){
-  const[msgs,setMsgs]=useState([{role:"assistant",content:`Hey ${profile.name||"there"} ??\n\nThis is your space. Tell me anything — what you ate, how you feel, what's confusing you, what hurts, what's on your mind. I'll listen, help, and log everything automatically.\n\nWhat's going on today?`}]);
+function MySpaceSection({C,galaxy,profile,foodLogs,setFoodLogs,waterLog,setWaterLog,moveLog,setMoveLog,todayFood,needs,canSendAI,recordAIMsg,todayMsgs,planData,setSection,updateBP,behaviourProfile,saveFoodLogEntry}){
+  const[msgs,setMsgs]=useState([{role:"assistant",content:`Hey ${profile.name||"there"} ✨\n\nThis is your space. Tell me anything — what you ate, how you feel, what's confusing you, what hurts, what's on your mind. I'll listen, help, and log everything automatically.\n\nWhat's going on today?`}]);
   const[input,setInput]=useState("");
   const[loading,setLoading]=useState(false);
   const chatRef=useRef(null);
@@ -5441,7 +5475,7 @@ Keep responses warm, direct, 4–6 sentences max unless they ask for more.`;
   async function send(){
     if(!input.trim()||loading)return;
     if(!canSendAI()){
-      setMsgs(p=>[...p,{role:"user",content:input},{role:"assistant",content:profile.plan==="trial"?"Your 7-day free trial doesn't include AI chat. Upgrade from $5/month to unlock My Space companion — I'd love to actually talk with you ??":`You've used all ${planData.aiMsgsPerDay} messages for today. They reset tomorrow morning. Upgrade to Unlimited ($11/month) for unlimited conversations.`,isLimit:true}]);
+      setMsgs(p=>[...p,{role:"user",content:input},{role:"assistant",content:profile.plan==="trial"?"Your 7-day free trial doesn't include AI chat. Upgrade from $5/month to unlock My Space companion — I'd love to actually talk with you 💬":`You've used all ${planData.aiMsgsPerDay} messages for today. They reset tomorrow morning. Upgrade to Unlimited ($11/month) for unlimited conversations.`,isLimit:true}]);
       setInput("");return;
     }
     const msg=input.trim();setInput("");
@@ -5458,7 +5492,9 @@ Keep responses warm, direct, 4–6 sentences max unless they ask for more.`;
         const todayStr=new Date().toISOString().split("T")[0];
         if(autoLog.type==="food_log"){
           const foods=msg.toLowerCase().split(/[,\s]+/).filter(f=>resolveFood(f));
-          setFoodLogs(l=>[{id:Date.now(),date:todayStr,time:new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"}),meal:"My Space",foods:foods.length?foods:[autoLog.food||msg.slice(0,40)],note:"Logged via My Space",symptoms:[],water:Math.round((autoLog.water_ml||0)/250)},...l]);
+          const entry={id:Date.now(),date:todayStr,time:new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"}),meal:"My Space",foods:foods.length?foods:[autoLog.food||msg.slice(0,40)],note:"Logged via My Space",symptoms:[],water:Math.round((autoLog.water_ml||0)/250)};
+          setFoodLogs(l=>[entry,...l]);
+          if(saveFoodLogEntry) saveFoodLogEntry(entry);
           updateBP({food:foods.join(","),symptoms:[]});
         }
         if(autoLog.type==="water_log")setWaterLog(w=>w+(autoLog.water_ml||250));
@@ -5492,7 +5528,7 @@ Keep responses warm, direct, 4–6 sentences max unless they ask for more.`;
       )}
 
       <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:12}}>
-        {["I ate poori chole ??","I drank water ??","I feel anxious ??","I exercised ??","I can't sleep ??","I feel gassy ??"].map((q,i)=><button key={i} onClick={()=>setInput(q)} style={{padding:"5px 10px",background:C.card,border:`1px solid ${C.border}`,borderRadius:20,cursor:"pointer",fontSize:11,color:C.muted}}>{q}</button>)}
+        {["I ate poori chole 🍛","I drank water 💧","I feel anxious 😰","I exercised 🏃","I can't sleep 😴","I feel gassy 🌀"].map((q,i)=><button key={i} onClick={()=>setInput(q)} style={{padding:"5px 10px",background:C.card,border:`1px solid ${C.border}`,borderRadius:20,cursor:"pointer",fontSize:11,color:C.muted}}>{q}</button>)}
       </div>
 
       <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,height:390,overflowY:"auto",padding:14,marginBottom:10,display:"flex",flexDirection:"column",gap:11}}>
@@ -5598,7 +5634,7 @@ function YourManualSection({C, galaxy, profile, journalEntries, behaviourProfile
         <em>"I don't tell you who you are. I learn how your mind works and help you live with it."</em>
       </div>
       <div style={{textAlign:"center",padding:"40px 20px",background:C.card,borderRadius:14,border:`1px solid ${C.border}`}}>
-        <div style={{fontSize:32,marginBottom:12}}>??</div>
+        <div style={{fontSize:32,marginBottom:12}}>📖</div>
         <div style={{fontSize:14,color:C.muted,lineHeight:1.8}}>Your manual builds as you use the app. Journal for a few days, log your mood and energy, and patterns will start to emerge.</div>
         <div style={{fontSize:12,color:C.dim,marginTop:10}}>Need at least 5 journal entries to begin.</div>
       </div>
@@ -5614,7 +5650,7 @@ function YourManualSection({C, galaxy, profile, journalEntries, behaviourProfile
 
       {/* AI-generated manual */}
       <div style={{background:`linear-gradient(135deg,${C.accent}12,${C.warm}08)`,border:`1px solid ${C.accent}44`,borderRadius:16,padding:20,marginBottom:16}}>
-        <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>?? HERE'S HOW YOUR MIND SEEMS TO WORK</div>
+        <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>🧠 HERE'S HOW YOUR MIND SEEMS TO WORK</div>
         {!aiManual&&!loading&&(
           <div>
             <div style={{fontSize:13,color:C.muted,lineHeight:1.7,marginBottom:14}}>Based on {manual.entryCount} journal entries and your patterns, the app can write a personalised operating manual for you.</div>
@@ -5667,7 +5703,7 @@ function YourManualSection({C, galaxy, profile, journalEntries, behaviourProfile
 
       {/* Mirror rule */}
       <div style={{marginTop:16,padding:"16px 18px",background:C.bg,borderRadius:12,border:`1px solid ${C.border}`,textAlign:"center"}}>
-        <div style={{fontSize:22,marginBottom:8}}>??</div>
+        <div style={{fontSize:22,marginBottom:8}}>🪞</div>
         <div style={{fontSize:13,color:C.muted,lineHeight:1.8,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif"}}>
           Missing a goal doesn't make you undisciplined.<br/>
           A hard day doesn't make you broken.<br/>
@@ -5729,7 +5765,7 @@ function ProfileSection({C,profile,up,needs,setSection,resetToday,resetAllLogs})
       <div onClick={()=>setSection("manual")} style={{background:C.card,border:`1px solid ${C.accent}33`,borderRadius:12,padding:"14px 18px",marginBottom:12,cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
         <div>
           <div style={{display:"flex",gap:8,alignItems:"center"}}>
-            <span style={{fontSize:16}}>??</span>
+            <span style={{fontSize:16}}>📖</span>
             <div style={{fontSize:13,fontWeight:600,color:C.accent}}>Your Manual</div>
           </div>
           <div style={{fontSize:11,color:C.muted,marginTop:2}}>How your mind seems to work · Patterns · Not a diagnosis</div>
@@ -5760,7 +5796,7 @@ function ProfileSection({C,profile,up,needs,setSection,resetToday,resetAllLogs})
               resetToday();
             }
           }} style={{padding:"12px 14px",background:"transparent",border:`1px solid ${C.border}`,borderRadius:9,cursor:"pointer",fontSize:13,color:C.text,textAlign:"left",display:"flex",gap:10,alignItems:"center"}}>
-            <span style={{fontSize:18}}>??</span>
+            <span style={{fontSize:18}}>🔄</span>
             <div>
               <div style={{fontWeight:600}}>Reset today</div>
               <div style={{fontSize:11,color:C.muted}}>Clears today\'s food, water and ritual</div>
@@ -5771,7 +5807,7 @@ function ProfileSection({C,profile,up,needs,setSection,resetToday,resetAllLogs})
               resetAllLogs();
             }
           }} style={{padding:"12px 14px",background:C.red+"08",border:`1px solid ${C.red}33`,borderRadius:9,cursor:"pointer",fontSize:13,color:C.text,textAlign:"left",display:"flex",gap:10,alignItems:"center"}}>
-            <span style={{fontSize:18}}>??</span>
+            <span style={{fontSize:18}}>⚠️</span>
             <div>
               <div style={{fontWeight:600,color:C.red}}>Reset all logs</div>
               <div style={{fontSize:11,color:C.muted}}>Clears food, water, journal, ritual · Keeps your profile</div>
@@ -6098,7 +6134,7 @@ function calcDoshas(lagna, moon, sun, birthTime) {
   // This requires full planetary positions — providing interpretation based on Rahu Mahadasha
   doshas.push({
     name: "Kaal Sarp Dosha",
-    icon: "??",
+    icon: "🐍",
     color: "#9060b0",
     present: false, // Cannot determine without full chart — being honest
     severity: "Needs full chart verification",
@@ -6111,7 +6147,7 @@ function calcDoshas(lagna, moon, sun, birthTime) {
   // Pitra Dosha
   doshas.push({
     name: "Pitra Dosha",
-    icon: "??",
+    icon: "🙏",
     color: "#7090a8",
     present: false,
     severity: "Needs Sun-Rahu conjunction check",
@@ -6327,7 +6363,7 @@ Question: ${q || "Give a deep, personalised Vedic reading covering: core persona
           <button onClick={()=>setStep("input")} style={{fontSize:11,color:G.muted,background:"transparent",border:`1px solid ${G.border}`,borderRadius:20,padding:"4px 12px",cursor:"pointer"}}>Edit</button>
         </div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:12}}>
-          {[{sign:chart.lagna,label:"Lagna",icon:"⬆"},{sign:chart.moon,label:"Chandra",icon:"??"},{sign:chart.sun,label:"Surya",icon:"☀"}].map((item,i)=>(
+          {[{sign:chart.lagna,label:"Lagna",icon:"⬆"},{sign:chart.moon,label:"Chandra",icon:"🌙"},{sign:chart.sun,label:"Surya",icon:"☀"}].map((item,i)=>(
             <div key={i} style={{background:G.card,border:`1px solid ${item.sign.color}44`,borderRadius:12,padding:"12px 8px",textAlign:"center",boxShadow:`0 0 20px ${item.sign.color}18`,position:"relative",overflow:"hidden",minHeight:90}}>
               <ConstellationBg sign={item.sign.en} size={120} opacity={0.18}/>
               <div style={{position:"relative",zIndex:1}}>
@@ -6697,19 +6733,19 @@ Question: ${q || "Give a deep, personalised Vedic reading covering: core persona
           <div>
             <div style={{fontSize:13,color:G.muted,marginBottom:16,lineHeight:1.7}}>Auspicious windows for key life decisions — based on your current Dasha and Saturn transits.</div>
             {[
-              {domain:"?? Career & Recognition",color:G.accent3,
+              {domain:"💼 Career & Recognition",color:G.accent3,
                green:{w:"Now — Sep 2026",r:`${chart.md.current?.planet} Mahadasha with ${chart.ad?.current?.planet} Antardasha supports career action. Current energy favours bold moves, portfolio updates, negotiation.`,action:"Update portfolio. Negotiate salary. Apply to target roles. Start the business."},
                yellow:{w:"Oct–Dec 2026",r:"Saturn's influence slows new ventures. Good for consolidation and completion."},
                red:{w:"Jan–Feb 2027",r:"Rahu-Ketu axis shift. Confusing period. Avoid major career decisions."}},
-              {domain:"?? Marriage & Commitment",color:G.warm,
+              {domain:"💍 Marriage & Commitment",color:G.warm,
                green:{w:"Nov 2026 – Feb 2027",r:"Jupiter aspects 7th house during this period. Venus strong. Most auspicious for formal commitment, engagement, nikah.",action:"Engagement, legal commitment, moving in together — all supported."},
                yellow:{w:"Jun–Aug 2026",r:"Mars intensity. Love deepens but avoid legal formalisation."},
                red:{w:"May–Jun 2027",r:"Venus combust + Mercury retrograde. Avoid formalising bonds."}},
-              {domain:"?? Finance & Investment",color:G.gold,
+              {domain:"💰 Finance & Investment",color:G.gold,
                green:{w:"Jul–Oct 2026",r:"Jupiter in Taurus — best window in years for long-term investment in stable assets.",action:"Invest in: land, gold, index funds, long-term instruments. Not speculation."},
                yellow:{w:"Nov 2026–Jan 2027",r:"Markets volatile. Hold existing positions."},
                red:{w:"Feb–Mar 2027",r:"Rahu in Pisces. High risk of financial illusion. Avoid new financial commitments."}},
-              {domain:"?? Business Launch",color:G.accent2,
+              {domain:"🚀 Business Launch",color:G.accent2,
                green:{w:"Now — soft launch is supported",r:"Rahu Mahadasha with Jupiter Antardasha — expansion is the theme. Creative and technology ventures especially supported.",action:"Register, launch, sign partnerships. Build what you've been planning."},
                yellow:{w:"Sep–Nov 2026",r:"Test market but don't invest heavily."},
                red:{w:"Mar–Apr 2027",r:"Saturn-Mars tension. Avoid new capital deployment."}},
@@ -6720,7 +6756,7 @@ Question: ${q || "Give a deep, personalised Vedic reading covering: core persona
             ].map((item,i)=>(
               <div key={i} style={{background:G.card,border:`1px solid ${item.color}44`,borderRadius:14,padding:20,marginBottom:12}}>
                 <div style={{fontSize:14,fontWeight:700,color:item.color,marginBottom:14}}>{item.domain}</div>
-                {[{label:"?? GO",data:item.green,c:"#34d399"},{label:"?? CAUTION",data:item.yellow,c:"#fbbf24"},{label:"?? WAIT",data:item.red,c:G.red}].map((row,j)=>(
+                {[{label:"✅ GO",data:item.green,c:"#34d399"},{label:"⚠️ CAUTION",data:item.yellow,c:"#fbbf24"},{label:"🛑 WAIT",data:item.red,c:G.red}].map((row,j)=>(
                   <div key={j} style={{padding:"9px 12px",background:row.c+"10",border:`1px solid ${row.c}33`,borderRadius:8,marginBottom:8}}>
                     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
                       <div style={{fontSize:10,fontWeight:700,color:row.c,fontFamily:"'DM Mono',monospace"}}>{row.label}</div>
@@ -6815,7 +6851,10 @@ function AuthScreen({ C, onAuth }) {
   async function handleMagicLink() {
     if (!email) return setMsg('Enter your email first.');
     setLoading(true);
-    const { error } = await supabase.auth.signInWithOtp({ email });
+    const { error } = await supabase.auth.signInWithOtp({
+      email,
+      options: { emailRedirectTo: window.location.origin }
+    });
     if (error) setMsg(error.message);
     else setSent(true);
     setLoading(false);
@@ -6840,7 +6879,7 @@ function AuthScreen({ C, onAuth }) {
     }}>
       {/* Logo */}
       <div style={{ textAlign: 'center', marginBottom: 32 }}>
-        <div style={{ fontSize: 36, marginBottom: 8 }}>??</div>
+        <div style={{ fontSize: 36, marginBottom: 8 }}>✦</div>
         <div style={{ fontSize: 28, fontFamily: "'Cormorant Garamond',serif", fontStyle: 'italic', color: '#b5622a' }}>Swadhyāya</div>
         <div style={{ fontSize: 12, color: '#9088a0', letterSpacing: 3, fontFamily: "'DM Mono',monospace", marginTop: 4 }}>स्वाध्याय · KNOW THYSELF</div>
         <div style={{ fontSize: 14, color: '#9088a0', marginTop: 12, fontStyle: 'italic', fontFamily: "'Cormorant Garamond',serif" }}>
@@ -6851,7 +6890,7 @@ function AuthScreen({ C, onAuth }) {
       <div style={{ width: '100%', maxWidth: 380, background: '#fff', borderRadius: 20, padding: 28, boxShadow: '0 4px 40px #b5622a12' }}>
         {sent ? (
           <div style={{ textAlign: 'center', padding: '20px 0' }}>
-            <div style={{ fontSize: 32, marginBottom: 12 }}>??</div>
+            <div style={{ fontSize: 32, marginBottom: 12 }}>📧</div>
             <div style={{ fontSize: 16, fontFamily: "'Cormorant Garamond',serif", fontStyle: 'italic', marginBottom: 8 }}>Check your email</div>
             <div style={{ fontSize: 13, color: '#9088a0', lineHeight: 1.7 }}>We sent a magic link to <strong>{email}</strong>. Tap it to sign in — no password needed.</div>
             <button onClick={() => setSent(false)} style={{ marginTop: 16, fontSize: 12, color: '#9088a0', background: 'transparent', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>Use a different email</button>
