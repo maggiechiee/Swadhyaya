@@ -526,7 +526,7 @@ const FOOD_DB={
   "noodles":{serving:"1 plate",cal:350,protein:9,carbs:55,fat:11,fibre:2.5,iron:2.4,calcium:30,vitC:2,vitB12:0,vitD:0,folate:30,magnesium:25,zinc:0.9,potassium:120,omega3:0,choline:12,addedSugar:0,sodium:850,vitA:5,vitE:0.4},
   "water":{serving:"1 glass",cal:0,protein:0,carbs:0,fat:0,fibre:0,iron:0,calcium:0,vitC:0,vitB12:0,vitD:0,folate:0,magnesium:0,zinc:0,potassium:0,omega3:0,choline:0,addedSugar:0,sodium:0,vitA:0,vitE:0},
 };
-const FOOD_ALIASES={"pohaa":"poha","chapati":"roti","chapatis":"roti","daal":"dal","chawal":"rice","puri":"poori","dahi":"curd","yogurt":"curd","mango":"aam","kela":"banana","anda":"egg","palak":"spinach","gur":"jaggery","pani":"water","paani":"water","sabji":"sabzi","stuffed aloo paratha":"aloo paratha","veg pulao":"pulao","vegetable pulao":"pulao","mixed vegetable sabzi":"sabzi","mixed veg":"sabzi","kala chana":"kala chana curry","boiled egg":"egg","vegetable sandwich":"sandwich","veg sandwich":"sandwich","tea with milk and sugar":"chai","coffee with milk and sugar":"coffee","roasted makhana":"makhana","tea":"chai","bottle gourd":"lauki","bottle ground":"lauki","ghiya":"lauki","doodhi":"lauki"};
+const FOOD_ALIASES={"pohaa":"poha","chapati":"roti","chapatis":"roti","daal":"dal","chawal":"rice","puri":"poori","dahi":"curd","yogurt":"curd","mango":"aam","kela":"banana","anda":"egg","palak":"spinach","gur":"jaggery","pani":"water","paani":"water","sabji":"sabzi","stuffed aloo paratha":"aloo paratha","veg pulao":"pulao","vegetable pulao":"pulao","mixed vegetable sabzi":"sabzi","mixed veg":"sabzi","kala chana":"kala chana curry","boiled egg":"egg","vegetable sandwich":"sandwich","veg sandwich":"sandwich","tea with milk and sugar":"chai","coffee with milk and sugar":"coffee","roasted makhana":"makhana","tea":"chai","bottle gourd":"lauki","bottle ground":"lauki","ghiya":"lauki","doodhi":"lauki","boondi laddoo":"laddu","boondi ladoo":"laddu","besan laddoo":"laddu","besan ladoo":"laddu","ladoo":"laddu","laddoo":"laddu","milk tea":"chai","milk chai":"chai"};
 
 // resolveFood: matches on whole words first (never on raw substrings) to
 // avoid false positives like "buttermilk" matching "milk", or "papaya"
@@ -1476,7 +1476,7 @@ export default function Swadhyaya(){
       <div style={{maxWidth:700,margin:"0 auto",padding:"0 0 120px",position:"relative",zIndex:1}}>
         {safeSection==="home"&&<HomeSection C={C} galaxy={galaxy} profile={profile} needs={needs} todayFood={todayFood} waterLog={waterLog} completedSteps={completedSteps} greeting={greeting} section={section} setSection={setSection} todayPhase={todayPhase} behaviourProfile={behaviourProfile} trialDaysLeft={trialDaysLeft} journalEntries={journalEntries} foodLogs={foodLogs}/>}
         {safeSection==="morning"&&<MorningSection C={C} galaxy={galaxy} completedSteps={completedSteps} setCompletedSteps={setCompletedSteps} gratitude={gratitude} setGratitude={setGratitude} priorities={priorities} setPriorities={setPriorities} meditationLog={meditationLog} setMeditationLog={setMeditationLog} profile={profile}/>}
-        {safeSection==="wellness"&&<WellnessSection C={C} galaxy={galaxy} profile={profile} moveLog={moveLog} setMoveLog={setMoveLog} todayPhase={todayPhase}/>}
+        {safeSection==="wellness"&&<WellnessSection C={C} galaxy={galaxy} profile={profile} moveLog={moveLog} setMoveLog={setMoveLog} todayPhase={todayPhase} meditationLog={meditationLog} setMeditationLog={setMeditationLog}/>}
         {safeSection==="food"&&<FoodSection C={C} galaxy={galaxy} foodLogs={foodLogs} setFoodLogs={setFoodLogs} waterLog={waterLog} setWaterLog={setWaterLog} needs={needs} todayFood={todayFood} updateBP={updateBP} profile={profile} saveFoodLogEntry={saveFoodLogEntry}/>}
         {section==="cycle"&&profile.gender==="female"&&<CycleSection C={C} profile={profile} setProfile={setProfile} periodLogs={periodLogs} setPeriodLogs={setPeriodLogs} symptoms={symptoms} setSymptoms={setSymptoms} savePeriodToCloud={savePeriodToCloud}/>}
         {safeSection==="manual"&&<YourManualSection C={C} galaxy={galaxy} profile={profile} journalEntries={journalEntries} behaviourProfile={behaviourProfile} foodLogs={foodLogs}/>}
@@ -4139,14 +4139,16 @@ function PranayamaTimer({C, galaxy}) {
   );
 }
 
-function WellnessSection({C,galaxy,profile,moveLog,setMoveLog,todayPhase}){
+function WellnessSection({C,galaxy,profile,moveLog,setMoveLog,todayPhase,meditationLog,setMeditationLog}){
   const[view,setView]=useState("home");
   const[selectedCat,setSelectedCat]=useState(null);
   const[openPose,setOpenPose]=useState(null);
   const[medSec,setMedSec]=useState(20*60);
   const[medOn,setMedOn]=useState(false);
   const medRef=useRef(null);
-  const fmt=s=>`${String(Math.floor(s/60)).padStart(2,"0")}:${String(s%60).padStart(2,"0")}`;
+  const medAudioRef=useRef(null);
+  const[medDuration,setMedDuration]=useState(20*60);
+  const fmt=s=>{const sec=Math.floor(s||0);return `${String(Math.floor(sec/60)).padStart(2,"0")}:${String(sec%60).padStart(2,"0")}`;};
 
   const recommendedCats = getYogaForGoal(profile.fitnessGoal+" "+(profile.healthConditions||[]).join(" "), todayPhase);
 
@@ -4207,14 +4209,47 @@ function WellnessSection({C,galaxy,profile,moveLog,setMoveLog,todayPhase}){
       <div style={{fontSize:18,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",marginBottom:16}}>Wellness</div>
       {/* Meditation */}
       <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:14,padding:22,marginBottom:12,textAlign:"center"}}>
-        <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>MEDITATION · 8 AM & 4 PM</div>
+        <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>GUIDED MEDITATION · ANXIETY & QUIET MIND</div>
+
+        <audio
+          ref={medAudioRef}
+          src="/audio/meditation-anxiety-20min.mp3"
+          onLoadedMetadata={e=>{ setMedDuration(e.target.duration); setMedSec(e.target.duration); }}
+          onTimeUpdate={e=>{ setMedSec(Math.max(0, e.target.duration - e.target.currentTime)); }}
+          onEnded={()=>{
+            setMedOn(false);
+            setMedSec(medDuration);
+            setMeditationLog(l=>[...l,{id:Date.now(),duration:Math.round(medDuration/60),type:"Guided meditation",date:new Date().toISOString().split("T")[0],time:new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})}]);
+          }}
+        />
+
         <div style={{fontSize:48,fontWeight:300,fontFamily:"'Cormorant Garamond',serif",color:medOn?C.accent:C.dim,animation:medOn?"slowBreath 4s infinite":"none"}}>{fmt(medSec)}</div>
-        <div style={{fontSize:11,color:C.muted,marginBottom:14}}>{medOn?"Breathe. Just be here.":"20 min meditation + 10 min breathwork"}</div>
+        <div style={{fontSize:11,color:C.muted,marginBottom:14}}>{medOn?"Breathe. Just be here.":"20 min guided meditation for anxiety — mindful movement"}</div>
+
+        {/* Progress bar, scrubbable */}
+        <input
+          type="range" min="0" max={medDuration||1} step="1"
+          value={Math.max(0,(medDuration||1)-medSec)}
+          onChange={e=>{
+            const t=parseFloat(e.target.value);
+            if(medAudioRef.current){ medAudioRef.current.currentTime=t; }
+            setMedSec(Math.max(0,(medDuration||1)-t));
+          }}
+          style={{width:"100%",accentColor:C.accent2,marginBottom:14}}
+        />
+
         <button onClick={()=>{
-          if(medOn){clearInterval(medRef.current);setMedOn(false);setMedSec(20*60);}
-          else{setMedOn(true);medRef.current=setInterval(()=>setMedSec(s=>{if(s<=1){clearInterval(medRef.current);setMedOn(false);setMedSec(20*60);return 0;}return s-1;}),1000);}
+          const audio=medAudioRef.current;
+          if(!audio) return;
+          if(medOn){
+            audio.pause();
+            setMedOn(false);
+          } else {
+            audio.play().catch(()=>{});
+            setMedOn(true);
+          }
         }} style={{padding:"12px 32px",background:medOn?C.border:`linear-gradient(135deg,${C.accent2},${C.accent3})`,border:"none",borderRadius:26,color:medOn?C.muted:"#fff",cursor:"pointer",fontSize:14,fontWeight:600,animation:!medOn?"ringPulse 2s infinite":"none"}}>
-          {medOn?"End Session":"Begin 30 min Session"}
+          {medOn?"Pause":medSec<medDuration&&medSec>0?"Resume":"Begin Guided Session"}
         </button>
       </div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:12}}>
