@@ -532,51 +532,27 @@ const FOOD_DB={
 // delivered per common dose — not the compound weight printed on labels
 // (e.g. "2000mg magnesium glycinate" delivers ~280mg elemental magnesium,
 // since glycinate is roughly 14% elemental magnesium by weight).
-const SUPPLEMENT_TYPES = [
-  { id:"omega3", label:"Omega-3 / Fish Oil", unit:"mg", icon:"\uD83D\uDC1F",
-    note:"Dose entered should be combined EPA+DHA in mg, as printed on the label (not total fish oil weight).",
-    perUnit:{ omega3:1 } },
-  { id:"vitB12", label:"Vitamin B12", unit:"mcg", icon:"\uD83D\uDC8A",
-    note:"High doses are normal and low-risk — B12 is water-soluble and excess is excreted.",
-    perUnit:{ vitB12:1 } },
-  { id:"magnesiumGlycinate", label:"Magnesium Glycinate", unit:"mg (compound)", icon:"\uD83D\uDC8A",
-    note:"Label weight is the compound, not pure magnesium. Glycinate is ~14% elemental magnesium — this is auto-converted.",
-    elementalFactor:0.14, perUnit:{ magnesium:1 } },
-  { id:"magnesiumElemental", label:"Magnesium (elemental)", unit:"mg elemental", icon:"\uD83D\uDC8A",
-    note:"Use this if your label already states elemental magnesium directly.",
-    perUnit:{ magnesium:1 } },
-  { id:"vitD", label:"Vitamin D3", unit:"IU", icon:"\u2600\uFE0F",
-    note:"1 mcg = 40 IU. Entered in IU, converted automatically.",
-    iuToMcg:40, perUnit:{ vitD:1 } },
-  { id:"iron", label:"Iron", unit:"mg", icon:"\u2699",
-    note:"Take with Vitamin C, away from milk/tea/coffee for best absorption.",
-    perUnit:{ iron:1 } },
-  { id:"calcium", label:"Calcium", unit:"mg", icon:"\uD83E\uDDB4",
-    note:"Best absorbed in doses under 500mg at a time.",
-    perUnit:{ calcium:1 } },
-  { id:"zinc", label:"Zinc", unit:"mg", icon:"\uD83D\uDEE1",
-    note:"Take with food to avoid nausea.",
-    perUnit:{ zinc:1 } },
-  { id:"multiNutrient", label:"Multi-Nutrient Combo", unit:"per serving", icon:"\uD83D\uDC8A",
-    note:"For tablets combining several nutrients (e.g. Chelated Iron with Vitamin C, Zinc, Folate, B12). Enter each amount exactly as printed on the label.",
-    isMultiNutrient:true,
-    fields:[
-      {key:"vitC", label:"Vitamin C", unit:"mg"},
-      {key:"iron", label:"Iron", unit:"mg"},
-      {key:"zinc", label:"Zinc", unit:"mg"},
-      {key:"folate", label:"Folate / B9", unit:"mcg"},
-      {key:"vitB12", label:"Vitamin B12", unit:"mcg"},
-      {key:"calcium", label:"Calcium", unit:"mg"},
-      {key:"magnesium", label:"Magnesium (elemental)", unit:"mg"},
-      {key:"vitD", label:"Vitamin D3", unit:"mcg"},
-    ],
-    perUnit:{} },
-  { id:"multivitamin", label:"Multivitamin (general)", unit:"tablet", icon:"\uD83D\uDC8A",
-    note:"Generic — log individual nutrients separately if you know your label's exact amounts for more accurate tracking.",
-    perUnit:{} },
-  { id:"other", label:"Other / Custom", unit:"", icon:"\uD83D\uDC8A",
-    note:"Track adherence only — won't be counted toward nutrient totals unless you specify amounts.",
-    perUnit:{} },
+// Friendly reference list of every trackable nutrient, used for free-text
+// supplement entry. Lets a person type any nutrient (iron, zinc, vitamin C,
+// the small "for absorption" add-ons on a label, etc.) without being
+// restricted to a fixed list of supplement "types".
+const NUTRIENT_FIELDS = [
+  {key:"iron", label:"Iron", unit:"mg"},
+  {key:"vitC", label:"Vitamin C", unit:"mg"},
+  {key:"zinc", label:"Zinc", unit:"mg"},
+  {key:"folate", label:"Folate / B9", unit:"mcg"},
+  {key:"vitB12", label:"Vitamin B12", unit:"mcg"},
+  {key:"calcium", label:"Calcium", unit:"mg"},
+  {key:"magnesium", label:"Magnesium (elemental)", unit:"mg"},
+  {key:"vitD", label:"Vitamin D3", unit:"mcg"},
+  {key:"vitA", label:"Vitamin A", unit:"mcg"},
+  {key:"vitE", label:"Vitamin E", unit:"mg"},
+  {key:"omega3", label:"Omega-3 (EPA+DHA)", unit:"g"},
+  {key:"protein", label:"Protein", unit:"g"},
+  {key:"fibre", label:"Fibre", unit:"g"},
+  {key:"potassium", label:"Potassium", unit:"mg"},
+  {key:"choline", label:"Choline", unit:"mg"},
+  {key:"sodium", label:"Sodium", unit:"mg"},
 ];
 
 const FOOD_ALIASES={"pohaa":"poha","chapati":"roti","chapatis":"roti","daal":"dal","chawal":"rice","puri":"poori","dahi":"curd","yogurt":"curd","mango":"aam","kela":"banana","anda":"egg","palak":"spinach","gur":"jaggery","pani":"water","paani":"water","sabji":"sabzi","stuffed aloo paratha":"aloo paratha","veg pulao":"pulao","vegetable pulao":"pulao","mixed vegetable sabzi":"sabzi","mixed veg":"sabzi","kala chana":"kala chana curry","boiled egg":"egg","vegetable sandwich":"sandwich","veg sandwich":"sandwich","tea with milk and sugar":"chai","coffee with milk and sugar":"coffee","roasted makhana":"makhana","tea":"chai","bottle gourd":"lauki","bottle ground":"lauki","ghiya":"lauki","doodhi":"lauki","boondi laddoo":"laddu","boondi ladoo":"laddu","besan laddoo":"laddu","besan ladoo":"laddu","ladoo":"laddu","laddoo":"laddu","milk tea":"chai","milk chai":"chai"};
@@ -714,36 +690,24 @@ function calcLoggedNutrition(logEntry){
 // nutrient-key shape as food totals, so they can be merged directly and
 // the existing nutrient-gap alerts automatically account for what's
 // already being supplemented rather than re-flagging it.
+// Converts logged supplements into the same nutrient-key shape as food
+// totals. Each supplement stores a free-form list of {key, amount} pairs —
+// entered exactly as printed on the label, one row per nutrient — so any
+// combination (a main ingredient plus small absorption-boosting add-ons)
+// can be logged without being restricted to a fixed supplement "type".
 function calcSupplementNutrition(supplements){
   const b={cal:0,protein:0,carbs:0,fat:0,fibre:0,iron:0,calcium:0,vitC:0,vitB12:0,vitD:0,folate:0,magnesium:0,zinc:0,potassium:0,omega3:0,choline:0,addedSugar:0,sodium:0,vitA:0,vitE:0};
   (supplements||[]).forEach(supp=>{
     if(!supp.takenToday) return;
-    const type=SUPPLEMENT_TYPES.find(t=>t.id===supp.typeId);
-    if(!type) return;
-
-    // Multi-nutrient combos store one amount per field (e.g. {vitC:65, iron:29, zinc:13.2}),
-    // entered exactly as printed on the label — no single "dose" value applies.
-    if(type.isMultiNutrient){
-      const values = supp.multiValues || {};
-      (type.fields||[]).forEach(f=>{
-        let amt = parseFloat(values[f.key])||0;
-        if(amt<=0) return;
-        if(f.unit==="mcg" && (f.key==="vitD")) amt = amt; // already in mcg, matches field unit
-        b[f.key] = (b[f.key]||0) + amt;
-      });
-      return;
-    }
-
-    let dose=parseFloat(supp.dose)||0;
-    if(dose<=0) return;
-    // Unit conversions to bring the dose into the same units the
-    // nutrient fields expect (mg for minerals, mcg for B12/vitD/folate, g for omega3)
-    if(type.iuToMcg) dose = dose/type.iuToMcg; // IU -> mcg for vitD
-    if(type.elementalFactor) dose = dose*type.elementalFactor; // compound -> elemental
-    if(type.id==="omega3") dose = dose/1000; // mg -> g, since FOOD_DB omega3 field is in g
-    for(const [nutrientKey, multiplier] of Object.entries(type.perUnit||{})){
-      b[nutrientKey] = (b[nutrientKey]||0) + dose*multiplier;
-    }
+    (supp.nutrients||[]).forEach(n=>{
+      const amt = parseFloat(n.amount)||0;
+      if(amt<=0 || !n.key) return;
+      // omega3 is stored in grams in the nutrient totals, but supplement
+      // labels list it in mg — convert here, once, in the single place
+      // this matters, rather than asking the person to do mental math.
+      const value = n.key==="omega3" ? amt/1000 : amt;
+      b[n.key] = (b[n.key]||0) + value;
+    });
   });
   return b;
 }
@@ -4703,19 +4667,20 @@ function SupplementsPanel({C, profile, up}){
   const todayWeekday = WEEKDAY_LABELS[(new Date().getDay()+6)%7]; // Monday=0
 
   const [form, setForm] = useState({
-    id:null, name:"", typeId:"multivitamin", dose:"", multiValues:{},
+    id:null, name:"", nutrients:[{key:"", amount:""}],
     frequency:"daily", days:[], timeOfDay:"morning",
   });
 
   function resetForm(){
-    setForm({id:null, name:"", typeId:"multivitamin", dose:"", multiValues:{}, frequency:"daily", days:[], timeOfDay:"morning"});
+    setForm({id:null, name:"", nutrients:[{key:"", amount:""}], frequency:"daily", days:[], timeOfDay:"morning"});
     setEditing(null);
     setShowAdd(false);
   }
 
   function saveSupplement(){
     if(!form.name.trim()) return;
-    const entry = {...form, id: form.id || Date.now(), takenToday:false, lastTakenDate:null};
+    const cleanNutrients = (form.nutrients||[]).filter(n=>n.key && parseFloat(n.amount)>0);
+    const entry = {...form, nutrients:cleanNutrients, id: form.id || Date.now(), takenToday:false, lastTakenDate:null};
     if(editing){
       up("supplements", supplements.map(s=>s.id===entry.id?{...entry, takenToday:s.takenToday, lastTakenDate:s.lastTakenDate}:s));
     } else {
@@ -4736,15 +4701,12 @@ function SupplementsPanel({C, profile, up}){
     }));
   }
 
-  // Whether a supplement is "due" today, based on its frequency setting
   function isDueToday(s){
     if(s.frequency==="daily") return true;
     if(s.frequency==="weekly") return (s.days||[]).includes(todayWeekday);
     return true;
   }
 
-  // Reset takenToday flag if the stored date isn't today (so checkboxes
-  // start unchecked each new day without needing a background job)
   const effectiveSupplements = supplements.map(s=>({
     ...s, takenToday: s.lastTakenDate===todayStr ? s.takenToday : false,
   }));
@@ -4753,8 +4715,22 @@ function SupplementsPanel({C, profile, up}){
   const takenCount = dueToday.filter(s=>s.takenToday).length;
   const accent = C.accent2 || C.accent;
 
+  // Adds a fresh empty nutrient row to the form
+  function addNutrientRow(){
+    setForm(f=>({...f, nutrients:[...(f.nutrients||[]), {key:"", amount:""}]}));
+  }
+  function updateNutrientRow(idx, field, value){
+    setForm(f=>{
+      const next=[...(f.nutrients||[])];
+      next[idx]={...next[idx], [field]:value};
+      return {...f, nutrients:next};
+    });
+  }
+  function removeNutrientRow(idx){
+    setForm(f=>({...f, nutrients:(f.nutrients||[]).filter((_,i)=>i!==idx)}));
+  }
+
   if(showAdd){
-    const selectedType = SUPPLEMENT_TYPES.find(t=>t.id===form.typeId);
     return (
       <div style={{display:"flex",flexDirection:"column",gap:14}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
@@ -4765,56 +4741,37 @@ function SupplementsPanel({C, profile, up}){
         <div>
           <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>NAME</div>
           <input value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))}
-            placeholder="e.g. Arbamide Forte Magnesium Glycinate"
+            placeholder="e.g. Carbamide Forte Chelated Iron"
             style={{width:"100%",boxSizing:"border-box",background:C.card,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:14}}/>
         </div>
 
         <div>
-          <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>TYPE</div>
-          <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
-            {SUPPLEMENT_TYPES.map(t=>(
-              <button key={t.id} onClick={()=>setForm(f=>({...f,typeId:t.id}))} style={{
-                padding:"7px 11px",borderRadius:20,cursor:"pointer",fontSize:11,
-                border:`1px solid ${form.typeId===t.id?accent:C.border}`,
-                background:form.typeId===t.id?accent+"18":"transparent",
-                color:form.typeId===t.id?accent:C.muted,
-              }}>{t.icon} {t.label}</button>
+          <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>WHAT'S IN IT — add one row per nutrient on the label</div>
+          <div style={{display:"flex",flexDirection:"column",gap:8}}>
+            {(form.nutrients||[]).map((row,idx)=>(
+              <div key={idx} style={{display:"flex",gap:8,alignItems:"center"}}>
+                <select value={row.key} onChange={e=>updateNutrientRow(idx,"key",e.target.value)} style={{
+                  flex:1.4,background:C.card,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"9px 10px",fontSize:13,
+                }}>
+                  <option value="">Choose nutrient…</option>
+                  {NUTRIENT_FIELDS.map(nf=><option key={nf.key} value={nf.key}>{nf.label}</option>)}
+                </select>
+                <input value={row.amount} onChange={e=>updateNutrientRow(idx,"amount",e.target.value)}
+                  type="number" placeholder="0"
+                  style={{width:72,background:C.card,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"9px 10px",fontSize:14,fontFamily:"'DM Mono',monospace"}}/>
+                <div style={{fontSize:11,color:C.muted,width:40}}>{NUTRIENT_FIELDS.find(nf=>nf.key===row.key)?.unit||""}</div>
+                <button onClick={()=>removeNutrientRow(idx)} style={{background:"transparent",border:"none",color:C.red||"#e05a5a",cursor:"pointer",fontSize:16,padding:"4px 6px"}}>×</button>
+              </div>
             ))}
           </div>
-          {selectedType?.note&&<div style={{fontSize:11,color:C.dim,marginTop:8,fontStyle:"italic",lineHeight:1.6}}>{selectedType.note}</div>}
+          <button onClick={addNutrientRow} style={{
+            marginTop:8,padding:"8px 14px",borderRadius:9,border:`1px dashed ${C.border}`,
+            background:"transparent",cursor:"pointer",color:C.muted,fontSize:12,
+          }}>+ Add another nutrient</button>
+          <div style={{fontSize:11,color:C.dim,marginTop:8,fontStyle:"italic",lineHeight:1.6}}>
+            Add the main ingredient and any small absorption-boosting add-ons exactly as printed on your label — e.g. Iron 29mg, Vitamin C 65mg, Zinc 13.2mg, all in one supplement.
+          </div>
         </div>
-
-        {selectedType && selectedType.isMultiNutrient && (
-          <div>
-            <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>AMOUNTS PER SERVING (enter exactly as on label)</div>
-            <div style={{display:"flex",flexDirection:"column",gap:8}}>
-              {selectedType.fields.map(f=>(
-                <div key={f.key} style={{display:"flex",alignItems:"center",gap:10}}>
-                  <div style={{width:140,fontSize:12,color:C.text}}>{f.label}</div>
-                  <input
-                    value={(form.multiValues||{})[f.key]||""}
-                    onChange={e=>setForm(prev=>({...prev, multiValues:{...(prev.multiValues||{}), [f.key]:e.target.value}}))}
-                    type="number" placeholder="0"
-                    style={{width:90,background:C.card,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"8px 11px",fontSize:14,fontFamily:"'DM Mono',monospace"}}/>
-                  <div style={{fontSize:11,color:C.muted}}>{f.unit}</div>
-                </div>
-              ))}
-            </div>
-            <div style={{fontSize:11,color:C.dim,marginTop:8,fontStyle:"italic"}}>Leave any field blank or 0 if your label doesn't list it.</div>
-          </div>
-        )}
-
-        {selectedType && !selectedType.isMultiNutrient && selectedType.id!=="other" && (
-          <div>
-            <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>DOSE PER SERVING</div>
-            <div style={{display:"flex",gap:10,alignItems:"center"}}>
-              <input value={form.dose} onChange={e=>setForm(f=>({...f,dose:e.target.value}))}
-                type="number" placeholder="2000"
-                style={{width:110,background:C.card,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:16,fontFamily:"'DM Mono',monospace"}}/>
-              <div style={{fontSize:13,color:C.muted}}>{selectedType.unit}</div>
-            </div>
-          </div>
-        )}
 
         <div>
           <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>HOW OFTEN</div>
@@ -4851,7 +4808,7 @@ function SupplementsPanel({C, profile, up}){
         <div>
           <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>TIME OF DAY (optional)</div>
           <div style={{display:"flex",gap:6}}>
-            {[{v:"morning",l:"☀️ Morning"},{v:"afternoon",l:"🌤 Afternoon"},{v:"evening",l:"🌙 Evening"},{v:"any",l:"Anytime"}].map(o=>(
+            {[{v:"morning",l:"Morning"},{v:"afternoon",l:"Afternoon"},{v:"evening",l:"Evening"},{v:"any",l:"Anytime"}].map(o=>(
               <button key={o.v} onClick={()=>setForm(f=>({...f,timeOfDay:o.v}))} style={{
                 flex:1,padding:"8px 4px",borderRadius:9,cursor:"pointer",fontSize:10,
                 border:`1px solid ${form.timeOfDay===o.v?accent:C.border}`,
@@ -4886,47 +4843,39 @@ function SupplementsPanel({C, profile, up}){
         </div>
       )}
 
-      {dueToday.map(s=>{
-        const type = SUPPLEMENT_TYPES.find(t=>t.id===s.typeId);
-        return (
-          <div key={s.id} style={{
-            display:"flex",alignItems:"center",gap:12,
-            background:C.card,border:`1px solid ${s.takenToday?accent+"55":C.border}`,
-            borderRadius:13,padding:"13px 14px",
-          }}>
-            <button onClick={()=>toggleTakenToday(s.id)} style={{
-              width:30,height:30,borderRadius:"50%",flexShrink:0,cursor:"pointer",
-              border:`2px solid ${s.takenToday?accent:C.border}`,
-              background:s.takenToday?accent:"transparent",
-              display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,color:"#fff",
-            }}>{s.takenToday?"✓":""}</button>
-            <div style={{flex:1}}>
-              <div style={{fontSize:13,fontWeight:600,color:s.takenToday?C.muted:C.text,textDecoration:s.takenToday?"line-through":"none"}}>{type?.icon} {s.name}</div>
-              <div style={{fontSize:11,color:C.muted,marginTop:2}}>
-                {type?.isMultiNutrient
-                  ? `${Object.keys(s.multiValues||{}).filter(k=>parseFloat((s.multiValues||{})[k])>0).length} nutrients · `
-                  : s.dose?`${s.dose} ${type?.unit||""} · `:""}
-                {s.timeOfDay!=="any"?s.timeOfDay:""}
-              </div>
+      {dueToday.map(s=>(
+        <div key={s.id} style={{
+          display:"flex",alignItems:"center",gap:12,
+          background:C.card,border:`1px solid ${s.takenToday?accent+"55":C.border}`,
+          borderRadius:13,padding:"13px 14px",
+        }}>
+          <button onClick={()=>toggleTakenToday(s.id)} style={{
+            width:30,height:30,borderRadius:"50%",flexShrink:0,cursor:"pointer",
+            border:`2px solid ${s.takenToday?accent:C.border}`,
+            background:s.takenToday?accent:"transparent",
+            display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,color:"#fff",
+          }}>{s.takenToday?"✓":""}</button>
+          <div style={{flex:1}}>
+            <div style={{fontSize:13,fontWeight:600,color:s.takenToday?C.muted:C.text,textDecoration:s.takenToday?"line-through":"none"}}>💊 {s.name}</div>
+            <div style={{fontSize:11,color:C.muted,marginTop:2}}>
+              {(s.nutrients||[]).map(n=>NUTRIENT_FIELDS.find(nf=>nf.key===n.key)?.label).filter(Boolean).join(", ")||"No nutrients specified"}
+              {s.timeOfDay!=="any"?` · ${s.timeOfDay}`:""}
             </div>
-            <button onClick={()=>{setForm({...s});setEditing(s);setShowAdd(true);}} style={{background:"transparent",border:"none",color:C.dim,cursor:"pointer",fontSize:11,padding:"4px 8px"}}>Edit</button>
-            <button onClick={()=>deleteSupplement(s.id)} style={{background:"transparent",border:"none",color:C.red||"#e05a5a",cursor:"pointer",fontSize:11,padding:"4px 8px"}}>×</button>
           </div>
-        );
-      })}
+          <button onClick={()=>{setForm({...s, nutrients: s.nutrients?.length?s.nutrients:[{key:"",amount:""}]});setEditing(s);setShowAdd(true);}} style={{background:"transparent",border:"none",color:C.dim,cursor:"pointer",fontSize:11,padding:"4px 8px"}}>Edit</button>
+          <button onClick={()=>deleteSupplement(s.id)} style={{background:"transparent",border:"none",color:C.red||"#e05a5a",cursor:"pointer",fontSize:11,padding:"4px 8px"}}>×</button>
+        </div>
+      ))}
 
       {supplements.filter(s=>!isDueToday(s)).length>0&&(
         <div style={{marginTop:8}}>
           <div style={{fontSize:10,color:C.dim,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>NOT DUE TODAY</div>
-          {supplements.filter(s=>!isDueToday(s)).map(s=>{
-            const type = SUPPLEMENT_TYPES.find(t=>t.id===s.typeId);
-            return (
-              <div key={s.id} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 14px",opacity:0.5}}>
-                <div style={{fontSize:12}}>{type?.icon} {s.name}</div>
-                <div style={{fontSize:10,color:C.dim}}>· {(s.days||[]).join(", ")||"—"}</div>
-              </div>
-            );
-          })}
+          {supplements.filter(s=>!isDueToday(s)).map(s=>(
+            <div key={s.id} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 14px",opacity:0.5}}>
+              <div style={{fontSize:12}}>💊 {s.name}</div>
+              <div style={{fontSize:10,color:C.dim}}>· {(s.days||[]).join(", ")||"—"}</div>
+            </div>
+          ))}
         </div>
       )}
 
