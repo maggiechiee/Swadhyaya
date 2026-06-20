@@ -526,14 +526,20 @@ const FOOD_DB={
   "noodles":{serving:"1 plate",cal:350,protein:9,carbs:55,fat:11,fibre:2.5,iron:2.4,calcium:30,vitC:2,vitB12:0,vitD:0,folate:30,magnesium:25,zinc:0.9,potassium:120,omega3:0,choline:12,addedSugar:0,sodium:850,vitA:5,vitE:0.4},
   "water":{serving:"1 glass",cal:0,protein:0,carbs:0,fat:0,fibre:0,iron:0,calcium:0,vitC:0,vitB12:0,vitD:0,folate:0,magnesium:0,zinc:0,potassium:0,omega3:0,choline:0,addedSugar:0,sodium:0,vitA:0,vitE:0},
 };
-const FOOD_ALIASES={"pohaa":"poha","chapati":"roti","chapatis":"roti","daal":"dal","chawal":"rice","puri":"poori","dahi":"curd","yogurt":"curd","mango":"aam","kela":"banana","anda":"egg","palak":"spinach","gur":"jaggery","pani":"water","paani":"water","sabji":"sabzi","stuffed aloo paratha":"aloo paratha","veg pulao":"pulao","vegetable pulao":"pulao","mixed vegetable sabzi":"sabzi","mixed veg":"sabzi","kala chana":"kala chana curry","boiled egg":"egg","vegetable sandwich":"sandwich","veg sandwich":"sandwich","tea with milk and sugar":"chai","coffee with milk and sugar":"coffee","roasted makhana":"makhana","tea":"chai"};
+const FOOD_ALIASES={"pohaa":"poha","chapati":"roti","chapatis":"roti","daal":"dal","chawal":"rice","puri":"poori","dahi":"curd","yogurt":"curd","mango":"aam","kela":"banana","anda":"egg","palak":"spinach","gur":"jaggery","pani":"water","paani":"water","sabji":"sabzi","stuffed aloo paratha":"aloo paratha","veg pulao":"pulao","vegetable pulao":"pulao","mixed vegetable sabzi":"sabzi","mixed veg":"sabzi","kala chana":"kala chana curry","boiled egg":"egg","vegetable sandwich":"sandwich","veg sandwich":"sandwich","tea with milk and sugar":"chai","coffee with milk and sugar":"coffee","roasted makhana":"makhana","tea":"chai","bottle gourd":"lauki","bottle ground":"lauki","ghiya":"lauki","doodhi":"lauki"};
 
 // resolveFood: matches on whole words first (never on raw substrings) to
 // avoid false positives like "buttermilk" matching "milk", or "papaya"
 // matching "aam". Multi-word food names (e.g. "aloo paratha") are matched
 // against the full cleaned string.
 function resolveFood(raw){
-  const s=raw.toLowerCase().trim().replace(/[^a-z0-9 ]/g,"").replace(/\s+/g," ").trim();
+  let s=raw.toLowerCase().trim().replace(/[^a-z0-9 ]/g,"").replace(/\s+/g," ").trim();
+  if(!s)return null;
+  // Drop a trailing "with <description>" clause — e.g. "lauki with tomato
+  // and spices" should match on "lauki", not the seasoning description.
+  s=s.replace(/\bwith\b.*$/,"").trim();
+  // Strip common filler words that don't affect food identity
+  s=s.split(" ").filter(w=>!["of","the","a","an"].includes(w)).join(" ").trim();
   if(!s)return null;
   if(FOOD_ALIASES[s])return FOOD_ALIASES[s];
   if(FOOD_DB[s])return s;
@@ -574,6 +580,9 @@ function parseQuantity(foodStr) {
       let rest = str.replace(re, "").trim();
       const portionRe = new RegExp(`^(${PORTION_WORDS.join("|")})\\s+`);
       rest = rest.replace(portionRe, "").trim();
+      // strip a leading article left behind, e.g. "half a bowl potato" -> "a bowl potato" -> "potato"
+      rest = rest.replace(/^(a|an)\s+/,"").trim();
+      rest = rest.replace(portionRe, "").trim();
       return { qty: val, food: rest };
     }
   }
@@ -598,6 +607,12 @@ function parseQuantity(foodStr) {
     return { qty, food: remainder };
   }
 
+  // "a bowl of X" / "a cup of X" — no leading digit, just an article + portion word
+  const articleLead = str.match(/^(a|an)\s+([a-z]+)\s+(.+)$/);
+  if (articleLead && PORTION_WORDS.includes(articleLead[2])) {
+    return { qty: 1, food: articleLead[3].trim() };
+  }
+
   // trailing number: "potato 1 bowl", "chapati 2"
   const trailing = str.match(/^(.+?)\s+(\d+(?:\.\d+)?)\s*([a-z]*)?$/);
   if (trailing) {
@@ -610,10 +625,11 @@ function parseQuantity(foodStr) {
 }
 
 // Splits one logged entry like "potato 1 bowl, chapati 2" or "egg and toast"
+// or full-sentence style "half a bowl potato. a bowl of lauki. 1 chapati"
 // into separate items, each handled independently.
 function splitFoodEntries(raw) {
   return (raw||"")
-    .split(/,| and |\+/i)
+    .split(/[.,]| and /i)
     .map(s=>s.trim())
     .filter(Boolean);
 }
