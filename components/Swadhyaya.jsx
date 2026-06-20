@@ -526,6 +526,45 @@ const FOOD_DB={
   "noodles":{serving:"1 plate",cal:350,protein:9,carbs:55,fat:11,fibre:2.5,iron:2.4,calcium:30,vitC:2,vitB12:0,vitD:0,folate:30,magnesium:25,zinc:0.9,potassium:120,omega3:0,choline:12,addedSugar:0,sodium:850,vitA:5,vitE:0.4},
   "water":{serving:"1 glass",cal:0,protein:0,carbs:0,fat:0,fibre:0,iron:0,calcium:0,vitC:0,vitB12:0,vitD:0,folate:0,magnesium:0,zinc:0,potassium:0,omega3:0,choline:0,addedSugar:0,sodium:0,vitA:0,vitE:0},
 };
+
+// Reference nutrient contributions for common supplement types, used by
+// the Supplements tracker. Values represent typical ELEMENTAL nutrient
+// delivered per common dose — not the compound weight printed on labels
+// (e.g. "2000mg magnesium glycinate" delivers ~280mg elemental magnesium,
+// since glycinate is roughly 14% elemental magnesium by weight).
+const SUPPLEMENT_TYPES = [
+  { id:"omega3", label:"Omega-3 / Fish Oil", unit:"mg", icon:"\uD83D\uDC1F",
+    note:"Dose entered should be combined EPA+DHA in mg, as printed on the label (not total fish oil weight).",
+    perUnit:{ omega3:1 } },
+  { id:"vitB12", label:"Vitamin B12", unit:"mcg", icon:"\uD83D\uDC8A",
+    note:"High doses are normal and low-risk — B12 is water-soluble and excess is excreted.",
+    perUnit:{ vitB12:1 } },
+  { id:"magnesiumGlycinate", label:"Magnesium Glycinate", unit:"mg (compound)", icon:"\uD83D\uDC8A",
+    note:"Label weight is the compound, not pure magnesium. Glycinate is ~14% elemental magnesium — this is auto-converted.",
+    elementalFactor:0.14, perUnit:{ magnesium:1 } },
+  { id:"magnesiumElemental", label:"Magnesium (elemental)", unit:"mg elemental", icon:"\uD83D\uDC8A",
+    note:"Use this if your label already states elemental magnesium directly.",
+    perUnit:{ magnesium:1 } },
+  { id:"vitD", label:"Vitamin D3", unit:"IU", icon:"\u2600\uFE0F",
+    note:"1 mcg = 40 IU. Entered in IU, converted automatically.",
+    iuToMcg:40, perUnit:{ vitD:1 } },
+  { id:"iron", label:"Iron", unit:"mg", icon:"\u2699",
+    note:"Take with Vitamin C, away from milk/tea/coffee for best absorption.",
+    perUnit:{ iron:1 } },
+  { id:"calcium", label:"Calcium", unit:"mg", icon:"\uD83E\uDDB4",
+    note:"Best absorbed in doses under 500mg at a time.",
+    perUnit:{ calcium:1 } },
+  { id:"zinc", label:"Zinc", unit:"mg", icon:"\uD83D\uDEE1",
+    note:"Take with food to avoid nausea.",
+    perUnit:{ zinc:1 } },
+  { id:"multivitamin", label:"Multivitamin (general)", unit:"tablet", icon:"\uD83D\uDC8A",
+    note:"Generic — log individual nutrients separately if you know your label's exact amounts for more accurate tracking.",
+    perUnit:{} },
+  { id:"other", label:"Other / Custom", unit:"", icon:"\uD83D\uDC8A",
+    note:"Track adherence only — won't be counted toward nutrient totals unless you specify amounts.",
+    perUnit:{} },
+];
+
 const FOOD_ALIASES={"pohaa":"poha","chapati":"roti","chapatis":"roti","daal":"dal","chawal":"rice","puri":"poori","dahi":"curd","yogurt":"curd","mango":"aam","kela":"banana","anda":"egg","palak":"spinach","gur":"jaggery","pani":"water","paani":"water","sabji":"sabzi","stuffed aloo paratha":"aloo paratha","veg pulao":"pulao","vegetable pulao":"pulao","mixed vegetable sabzi":"sabzi","mixed veg":"sabzi","kala chana":"kala chana curry","boiled egg":"egg","vegetable sandwich":"sandwich","veg sandwich":"sandwich","tea with milk and sugar":"chai","coffee with milk and sugar":"coffee","roasted makhana":"makhana","tea":"chai","bottle gourd":"lauki","bottle ground":"lauki","ghiya":"lauki","doodhi":"lauki","boondi laddoo":"laddu","boondi ladoo":"laddu","besan laddoo":"laddu","besan ladoo":"laddu","ladoo":"laddu","laddoo":"laddu","milk tea":"chai","milk chai":"chai"};
 
 // resolveFood: matches on whole words first (never on raw substrings) to
@@ -655,6 +694,30 @@ function calcLoggedNutrition(logEntry){
     for(const k of Object.keys(local)) local[k]+=logEntry.aiNutrition[k]||0;
   }
   return local;
+}
+
+// Converts a person's logged supplements (taken today) into the same
+// nutrient-key shape as food totals, so they can be merged directly and
+// the existing nutrient-gap alerts automatically account for what's
+// already being supplemented rather than re-flagging it.
+function calcSupplementNutrition(supplements){
+  const b={cal:0,protein:0,carbs:0,fat:0,fibre:0,iron:0,calcium:0,vitC:0,vitB12:0,vitD:0,folate:0,magnesium:0,zinc:0,potassium:0,omega3:0,choline:0,addedSugar:0,sodium:0,vitA:0,vitE:0};
+  (supplements||[]).forEach(supp=>{
+    if(!supp.takenToday) return;
+    const type=SUPPLEMENT_TYPES.find(t=>t.id===supp.typeId);
+    if(!type) return;
+    let dose=parseFloat(supp.dose)||0;
+    if(dose<=0) return;
+    // Unit conversions to bring the dose into the same units the
+    // nutrient fields expect (mg for minerals, mcg for B12/vitD/folate, g for omega3)
+    if(type.iuToMcg) dose = dose/type.iuToMcg; // IU -> mcg for vitD
+    if(type.elementalFactor) dose = dose*type.elementalFactor; // compound -> elemental
+    if(type.id==="omega3") dose = dose/1000; // mg -> g, since FOOD_DB omega3 field is in g
+    for(const [nutrientKey, multiplier] of Object.entries(type.perUnit||{})){
+      b[nutrientKey] = (b[nutrientKey]||0) + dose*multiplier;
+    }
+  });
+  return b;
 }
 
 // ── AI fallback for foods not in FOOD_DB ──────────────────────
@@ -1223,7 +1286,13 @@ export default function Swadhyaya(){
 
   const todayStr=new Date().toISOString().split("T")[0];
   const needs=useMemo(()=>calcNeeds(profile),[profile]);
-  const todayFood=useMemo(()=>foodLogs.filter(l=>l.date===todayStr).reduce((acc,l)=>{const n=calcLoggedNutrition(l);for(const k of Object.keys(acc))acc[k]+=n[k]||0;return acc;},{cal:0,protein:0,carbs:0,fat:0,fibre:0,iron:0,calcium:0,vitC:0,vitB12:0,vitD:0,folate:0,magnesium:0,zinc:0,potassium:0,omega3:0,choline:0,addedSugar:0,sodium:0,vitA:0,vitE:0}),[foodLogs,todayStr]);
+  const todayFoodOnly=useMemo(()=>foodLogs.filter(l=>l.date===todayStr).reduce((acc,l)=>{const n=calcLoggedNutrition(l);for(const k of Object.keys(acc))acc[k]+=n[k]||0;return acc;},{cal:0,protein:0,carbs:0,fat:0,fibre:0,iron:0,calcium:0,vitC:0,vitB12:0,vitD:0,folate:0,magnesium:0,zinc:0,potassium:0,omega3:0,choline:0,addedSugar:0,sodium:0,vitA:0,vitE:0}),[foodLogs,todayStr]);
+  const todaySupplements=useMemo(()=>calcSupplementNutrition(profile.supplements),[profile.supplements]);
+  const todayFood=useMemo(()=>{
+    const combined={...todayFoodOnly};
+    for(const k of Object.keys(combined)) combined[k]+=todaySupplements[k]||0;
+    return combined;
+  },[todayFoodOnly,todaySupplements]);
   const todayPhase=profile.gender==="female"?getPhase(profile.lastPeriodStart,parseInt(profile.cycleLength),parseInt(profile.periodLength),todayStr):null;
 
   // Trial days remaining
@@ -1477,7 +1546,7 @@ export default function Swadhyaya(){
         {safeSection==="home"&&<HomeSection C={C} galaxy={galaxy} profile={profile} needs={needs} todayFood={todayFood} waterLog={waterLog} completedSteps={completedSteps} greeting={greeting} section={section} setSection={setSection} todayPhase={todayPhase} behaviourProfile={behaviourProfile} trialDaysLeft={trialDaysLeft} journalEntries={journalEntries} foodLogs={foodLogs}/>}
         {safeSection==="morning"&&<MorningSection C={C} galaxy={galaxy} completedSteps={completedSteps} setCompletedSteps={setCompletedSteps} gratitude={gratitude} setGratitude={setGratitude} priorities={priorities} setPriorities={setPriorities} meditationLog={meditationLog} setMeditationLog={setMeditationLog} profile={profile}/>}
         {safeSection==="wellness"&&<WellnessSection C={C} galaxy={galaxy} profile={profile} moveLog={moveLog} setMoveLog={setMoveLog} todayPhase={todayPhase} meditationLog={meditationLog} setMeditationLog={setMeditationLog}/>}
-        {safeSection==="food"&&<FoodSection C={C} galaxy={galaxy} foodLogs={foodLogs} setFoodLogs={setFoodLogs} waterLog={waterLog} setWaterLog={setWaterLog} needs={needs} todayFood={todayFood} updateBP={updateBP} profile={profile} saveFoodLogEntry={saveFoodLogEntry}/>}
+        {safeSection==="food"&&<FoodSection C={C} galaxy={galaxy} foodLogs={foodLogs} setFoodLogs={setFoodLogs} waterLog={waterLog} setWaterLog={setWaterLog} needs={needs} todayFood={todayFood} updateBP={updateBP} profile={profile} saveFoodLogEntry={saveFoodLogEntry} up={up}/>}
         {section==="cycle"&&profile.gender==="female"&&<CycleSection C={C} profile={profile} setProfile={setProfile} periodLogs={periodLogs} setPeriodLogs={setPeriodLogs} symptoms={symptoms} setSymptoms={setSymptoms} savePeriodToCloud={savePeriodToCloud}/>}
         {safeSection==="manual"&&<YourManualSection C={C} galaxy={galaxy} profile={profile} journalEntries={journalEntries} behaviourProfile={behaviourProfile} foodLogs={foodLogs}/>}
         {safeSection==="goals"&&<GoalsSection C={C} galaxy={galaxy} profile={profile} up={up} journalEntries={journalEntries}/>}
@@ -4591,7 +4660,238 @@ function checkFoodCombos(foods) {
   return { warnings, tips };
 }
 
-function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,todayFood,updateBP,profile,saveFoodLogEntry}){
+// ══════════════════════════════════════════════════════════════
+//  SUPPLEMENTS TRACKER
+//  Set up each supplement once (name, dose, frequency). After that,
+//  daily use is just tapping a checkbox — no retyping ever.
+// ══════════════════════════════════════════════════════════════
+const WEEKDAY_LABELS=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+
+function SupplementsPanel({C, profile, up}){
+  const [showAdd, setShowAdd] = useState(false);
+  const [editing, setEditing] = useState(null);
+  const supplements = profile.supplements || [];
+  const todayStr = new Date().toISOString().split("T")[0];
+  const todayWeekday = WEEKDAY_LABELS[(new Date().getDay()+6)%7]; // Monday=0
+
+  const [form, setForm] = useState({
+    id:null, name:"", typeId:"multivitamin", dose:"",
+    frequency:"daily", days:[], timeOfDay:"morning",
+  });
+
+  function resetForm(){
+    setForm({id:null, name:"", typeId:"multivitamin", dose:"", frequency:"daily", days:[], timeOfDay:"morning"});
+    setEditing(null);
+    setShowAdd(false);
+  }
+
+  function saveSupplement(){
+    if(!form.name.trim()) return;
+    const entry = {...form, id: form.id || Date.now(), takenToday:false, lastTakenDate:null};
+    if(editing){
+      up("supplements", supplements.map(s=>s.id===entry.id?{...entry, takenToday:s.takenToday, lastTakenDate:s.lastTakenDate}:s));
+    } else {
+      up("supplements", [...supplements, entry]);
+    }
+    resetForm();
+  }
+
+  function deleteSupplement(id){
+    up("supplements", supplements.filter(s=>s.id!==id));
+  }
+
+  function toggleTakenToday(id){
+    up("supplements", supplements.map(s=>{
+      if(s.id!==id) return s;
+      const takenToday = s.lastTakenDate===todayStr ? !s.takenToday : true;
+      return {...s, takenToday, lastTakenDate: takenToday ? todayStr : s.lastTakenDate};
+    }));
+  }
+
+  // Whether a supplement is "due" today, based on its frequency setting
+  function isDueToday(s){
+    if(s.frequency==="daily") return true;
+    if(s.frequency==="weekly") return (s.days||[]).includes(todayWeekday);
+    return true;
+  }
+
+  // Reset takenToday flag if the stored date isn't today (so checkboxes
+  // start unchecked each new day without needing a background job)
+  const effectiveSupplements = supplements.map(s=>({
+    ...s, takenToday: s.lastTakenDate===todayStr ? s.takenToday : false,
+  }));
+
+  const dueToday = effectiveSupplements.filter(isDueToday);
+  const takenCount = dueToday.filter(s=>s.takenToday).length;
+  const accent = C.accent2 || C.accent;
+
+  if(showAdd){
+    const selectedType = SUPPLEMENT_TYPES.find(t=>t.id===form.typeId);
+    return (
+      <div style={{display:"flex",flexDirection:"column",gap:14}}>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+          <div style={{fontSize:15,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>{editing?"Edit Supplement":"Add Supplement"}</div>
+          <button onClick={resetForm} style={{background:"transparent",border:"none",color:C.muted,cursor:"pointer",fontSize:13}}>Cancel</button>
+        </div>
+
+        <div>
+          <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>NAME</div>
+          <input value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))}
+            placeholder="e.g. Arbamide Forte Magnesium Glycinate"
+            style={{width:"100%",boxSizing:"border-box",background:C.card,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:14}}/>
+        </div>
+
+        <div>
+          <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>TYPE</div>
+          <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
+            {SUPPLEMENT_TYPES.map(t=>(
+              <button key={t.id} onClick={()=>setForm(f=>({...f,typeId:t.id}))} style={{
+                padding:"7px 11px",borderRadius:20,cursor:"pointer",fontSize:11,
+                border:`1px solid ${form.typeId===t.id?accent:C.border}`,
+                background:form.typeId===t.id?accent+"18":"transparent",
+                color:form.typeId===t.id?accent:C.muted,
+              }}>{t.icon} {t.label}</button>
+            ))}
+          </div>
+          {selectedType?.note&&<div style={{fontSize:11,color:C.dim,marginTop:8,fontStyle:"italic",lineHeight:1.6}}>{selectedType.note}</div>}
+        </div>
+
+        {selectedType && selectedType.id!=="other" && (
+          <div>
+            <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>DOSE PER SERVING</div>
+            <div style={{display:"flex",gap:10,alignItems:"center"}}>
+              <input value={form.dose} onChange={e=>setForm(f=>({...f,dose:e.target.value}))}
+                type="number" placeholder="2000"
+                style={{width:110,background:C.card,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:16,fontFamily:"'DM Mono',monospace"}}/>
+              <div style={{fontSize:13,color:C.muted}}>{selectedType.unit}</div>
+            </div>
+          </div>
+        )}
+
+        <div>
+          <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>HOW OFTEN</div>
+          <div style={{display:"flex",gap:6,marginBottom:10}}>
+            {[{v:"daily",l:"Every day"},{v:"weekly",l:"Specific days"}].map(o=>(
+              <button key={o.v} onClick={()=>setForm(f=>({...f,frequency:o.v}))} style={{
+                flex:1,padding:"9px 8px",borderRadius:9,cursor:"pointer",fontSize:12,
+                border:`1.5px solid ${form.frequency===o.v?accent:C.border}`,
+                background:form.frequency===o.v?accent+"15":"transparent",
+                color:form.frequency===o.v?accent:C.muted,
+              }}>{o.l}</button>
+            ))}
+          </div>
+          {form.frequency==="weekly"&&(
+            <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
+              {WEEKDAY_LABELS.map(d=>{
+                const selected=(form.days||[]).includes(d);
+                return (
+                  <button key={d} onClick={()=>setForm(f=>{
+                    const days=f.days||[];
+                    return {...f, days: selected ? days.filter(x=>x!==d) : [...days,d]};
+                  })} style={{
+                    width:42,height:36,borderRadius:9,cursor:"pointer",fontSize:11,fontWeight:600,
+                    border:`1.5px solid ${selected?accent:C.border}`,
+                    background:selected?accent:"transparent",
+                    color:selected?"#fff":C.muted,
+                  }}>{d.slice(0,2)}</button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+
+        <div>
+          <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>TIME OF DAY (optional)</div>
+          <div style={{display:"flex",gap:6}}>
+            {[{v:"morning",l:"☀️ Morning"},{v:"afternoon",l:"🌤 Afternoon"},{v:"evening",l:"🌙 Evening"},{v:"any",l:"Anytime"}].map(o=>(
+              <button key={o.v} onClick={()=>setForm(f=>({...f,timeOfDay:o.v}))} style={{
+                flex:1,padding:"8px 4px",borderRadius:9,cursor:"pointer",fontSize:10,
+                border:`1px solid ${form.timeOfDay===o.v?accent:C.border}`,
+                background:form.timeOfDay===o.v?accent+"15":"transparent",
+                color:form.timeOfDay===o.v?accent:C.muted,
+              }}>{o.l}</button>
+            ))}
+          </div>
+        </div>
+
+        <button onClick={saveSupplement} disabled={!form.name.trim()} style={{
+          padding:"13px",borderRadius:11,border:"none",cursor:form.name.trim()?"pointer":"not-allowed",
+          background:form.name.trim()?`linear-gradient(135deg,${accent},${C.accent})`:C.border,
+          color:"#fff",fontSize:14,fontWeight:600,marginTop:4,
+        }}>{editing?"Save Changes":"Add Supplement"}</button>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:12}}>
+      {dueToday.length>0 && (
+        <div style={{fontSize:11,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1}}>
+          TODAY · {takenCount}/{dueToday.length} taken
+        </div>
+      )}
+
+      {dueToday.length===0 && supplements.length===0 && (
+        <div style={{textAlign:"center",padding:"30px 20px",color:C.dim}}>
+          <div style={{fontSize:28,marginBottom:10}}>💊</div>
+          <div style={{fontSize:13,fontStyle:"italic",lineHeight:1.7}}>No supplements added yet. Set them up once, then just check them off each day.</div>
+        </div>
+      )}
+
+      {dueToday.map(s=>{
+        const type = SUPPLEMENT_TYPES.find(t=>t.id===s.typeId);
+        return (
+          <div key={s.id} style={{
+            display:"flex",alignItems:"center",gap:12,
+            background:C.card,border:`1px solid ${s.takenToday?accent+"55":C.border}`,
+            borderRadius:13,padding:"13px 14px",
+          }}>
+            <button onClick={()=>toggleTakenToday(s.id)} style={{
+              width:30,height:30,borderRadius:"50%",flexShrink:0,cursor:"pointer",
+              border:`2px solid ${s.takenToday?accent:C.border}`,
+              background:s.takenToday?accent:"transparent",
+              display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,color:"#fff",
+            }}>{s.takenToday?"✓":""}</button>
+            <div style={{flex:1}}>
+              <div style={{fontSize:13,fontWeight:600,color:s.takenToday?C.muted:C.text,textDecoration:s.takenToday?"line-through":"none"}}>{type?.icon} {s.name}</div>
+              <div style={{fontSize:11,color:C.muted,marginTop:2}}>
+                {s.dose?`${s.dose} ${type?.unit||""} · `:""}{s.timeOfDay!=="any"?s.timeOfDay:""}
+              </div>
+            </div>
+            <button onClick={()=>{setForm({...s});setEditing(s);setShowAdd(true);}} style={{background:"transparent",border:"none",color:C.dim,cursor:"pointer",fontSize:11,padding:"4px 8px"}}>Edit</button>
+            <button onClick={()=>deleteSupplement(s.id)} style={{background:"transparent",border:"none",color:C.red||"#e05a5a",cursor:"pointer",fontSize:11,padding:"4px 8px"}}>×</button>
+          </div>
+        );
+      })}
+
+      {supplements.filter(s=>!isDueToday(s)).length>0&&(
+        <div style={{marginTop:8}}>
+          <div style={{fontSize:10,color:C.dim,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>NOT DUE TODAY</div>
+          {supplements.filter(s=>!isDueToday(s)).map(s=>{
+            const type = SUPPLEMENT_TYPES.find(t=>t.id===s.typeId);
+            return (
+              <div key={s.id} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 14px",opacity:0.5}}>
+                <div style={{fontSize:12}}>{type?.icon} {s.name}</div>
+                <div style={{fontSize:10,color:C.dim}}>· {(s.days||[]).join(", ")||"—"}</div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+
+      <button onClick={()=>setShowAdd(true)} style={{
+        padding:"12px",borderRadius:11,border:`1px dashed ${C.border}`,
+        background:"transparent",cursor:"pointer",color:C.muted,fontSize:13,marginTop:4,
+      }}>+ Add a supplement</button>
+
+      <div style={{fontSize:11,color:C.dim,lineHeight:1.7,fontStyle:"italic",marginTop:6}}>
+        What you check off here counts toward today's nutrient totals on the Today and Insights tabs — so the app won't tell you you're "low" on something you're already supplementing.
+      </div>
+    </div>
+  );
+}
+
+function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,todayFood,updateBP,profile,saveFoodLogEntry,up}){
   const[view,setView]=useState("today");
   const[newFood,setNewFood]=useState({meal:"Lunch",foods:"",note:"",symptoms:[],water:0});
   const[range,setRange]=useState("daily");
@@ -4711,7 +5011,7 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
         <div style={{fontSize:12,color:C.accent3}}>💧{waterLog}ml</div>
       </div>
       <div style={{display:"flex",gap:5,marginBottom:18}}>
-        {[{v:"today",l:"Today"},{v:"add",l:"+ Log"},{v:"analysis",l:"Analysis"},{v:"health",l:"🩺 Insights"}].map(t=><button key={t.v} onClick={()=>setView(t.v)} style={{flex:1,padding:"8px",borderRadius:20,border:`1px solid ${view===t.v?C.accent:C.border}`,background:view===t.v?C.accent+"15":"transparent",cursor:"pointer",fontSize:11,color:view===t.v?C.accent:C.muted}}>{t.l}</button>)}
+        {[{v:"today",l:"Today"},{v:"add",l:"+ Log"},{v:"analysis",l:"Analysis"},{v:"health",l:"🩺 Insights"},{v:"supplements",l:"💊 Supps"}].map(t=><button key={t.v} onClick={()=>setView(t.v)} style={{flex:1,padding:"8px",borderRadius:20,border:`1px solid ${view===t.v?C.accent:C.border}`,background:view===t.v?C.accent+"15":"transparent",cursor:"pointer",fontSize:11,color:view===t.v?C.accent:C.muted}}>{t.l}</button>)}
       </div>
 
       {view==="today"&&(
@@ -5059,6 +5359,8 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
           ))}
         </div>
       )}
+
+      {view==="supplements"&&<SupplementsPanel C={C} profile={profile} up={up}/>}
     </div>
   );
 }
