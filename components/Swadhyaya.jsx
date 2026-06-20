@@ -710,9 +710,56 @@ function calcSupplementNutrition(supplements){
     });
   });
   return b;
+
 }
 
-// ── AI fallback for foods not in FOOD_DB ──────────────────────
+// Interprets free-text supplement label lines (e.g. "Magnesium Glycinate
+// 2000mg", "Carbamide Forte B12 1500mcg", "Omega-3 fish oil 2500mg") and
+// returns the corresponding ELEMENTAL/active nutrient amount for each line,
+// in the units the app's nutrient tracking expects. This is what lets a
+// person type exactly what's on their label — including specific compound
+// forms like glycinate, bisglycinate, citrate — without picking from a
+// fixed list; Claude handles the form-specific conversion (e.g. glycinate
+// is ~14% elemental magnesium by weight) the same way a pharmacist would.
+async function estimateSupplementAI(rawLines){
+  const empty=()=>({cal:0,protein:0,carbs:0,fat:0,fibre:0,iron:0,calcium:0,vitC:0,vitB12:0,vitD:0,folate:0,magnesium:0,zinc:0,potassium:0,omega3:0,choline:0,addedSugar:0,sodium:0,vitA:0,vitE:0});
+  if(!rawLines||rawLines.length===0) return {totals:empty(), items:[]};
+  const system=`You are a supplement label interpreter. Given lines of text exactly as a person typed them from a supplement label (e.g. "Magnesium Glycinate 2000mg", "Vitamin B12 (Cyanocobalamin) 1500mcg", "Omega-3 fish oil 2500mg", "Iron from Ferrous Bisglycinate 29mg"), figure out which nutrient each line refers to and convert the stated amount to the ELEMENTAL or biologically active amount, exactly the way a pharmacist or nutritionist would read a label.
+
+Key conversions you must apply correctly:
+- Magnesium glycinate / bisglycinate is ~14% elemental magnesium by weight (2000mg glycinate ≈ 280mg elemental magnesium)
+- Magnesium citrate is ~16% elemental magnesium by weight
+- Magnesium oxide is ~60% elemental magnesium by weight
+- Ferrous bisglycinate, ferrous sulfate, ferrous fumarate labels in India typically already state ELEMENTAL iron directly (read the line carefully — if it says "Iron (from Ferrous Bisglycinate) 29mg" the 29mg IS the elemental iron amount, not the compound weight)
+- Calcium carbonate is ~40% elemental calcium; calcium citrate is ~21% elemental calcium
+- Vitamin D in IU: divide by 40 to get mcg
+- B12, folate, and other vitamins are typically already stated as the active amount — no conversion needed
+- If a line clearly already states an elemental/active amount (common on Indian supplement labels, which often pre-calculate this), do NOT apply a compound-conversion on top of it — only convert when the line names a compound form AND states the compound's total weight, not the elemental content
+
+Return ONLY valid JSON, no markdown, no explanation, in this exact shape:
+{"items":[{"input":"<original line>","matched":"<which nutrient field this maps to: iron|vitC|zinc|folate|vitB12|calcium|magnesium|vitD|vitA|vitE|omega3|protein|fibre|potassium|choline|sodium|unknown>","amount":0,"unit":"<unit of the returned amount: mg|mcg|g>","note":"<one short sentence explaining any conversion applied, or empty string if none>"}]}
+
+If a line is genuinely unclear or doesn't match any tracked nutrient, set matched to "unknown" and amount to 0.`;
+  try{
+    const res=await askAI(system,[{role:"user",content:JSON.stringify(rawLines)}],900);
+    const cleaned=res.replace(/```json|```/g,"").trim();
+    const parsed=JSON.parse(cleaned);
+    const totals=empty();
+    const items=(parsed.items||[]).map(item=>{
+      let amt=parseFloat(item.amount)||0;
+      // normalize units to what calcSupplementNutrition expects (mg for most, mcg for B12/folate/vitD/vitA, g for omega3)
+      if(item.unit==="g" && item.matched!=="omega3" && item.matched!=="protein" && item.matched!=="fibre") amt=amt*1000; // g -> mg for minerals if AI returned g by mistake
+      if(item.matched && item.matched!=="unknown") totals[item.matched]=(totals[item.matched]||0)+(item.matched==="omega3"?amt/1000:amt);
+      return item;
+    });
+    return {totals, items};
+  }catch(e){
+    console.error("Supplement AI estimate failed:", e);
+    return {totals:empty(), items:rawLines.map(l=>({input:l, matched:"unknown", amount:0, unit:"", note:"Couldn't interpret — try rephrasing or pick a simpler nutrient name."}))};
+  }
+}
+
+
 // Returns the list of raw entries that resolveFood could NOT match,
 // so the caller knows which ones need an AI estimate.
 function getUnresolvedFoods(foods){
@@ -4662,19 +4709,32 @@ const WEEKDAY_LABELS=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
 function SupplementsPanel({C, profile, up}){
   const [showAdd, setShowAdd] = useState(false);
   const [editing, setEditing] = useState(null);
+  const [aiLoading, setAiLoading] = useState(false);
   const supplements = profile.supplements || [];
   const todayStr = new Date().toISOString().split("T")[0];
   const todayWeekday = WEEKDAY_LABELS[(new Date().getDay()+6)%7]; // Monday=0
 
   const [form, setForm] = useState({
-    id:null, name:"", nutrients:[{key:"", amount:""}],
+    id:null, name:"", rawText:"", nutrients:[],
     frequency:"daily", days:[], timeOfDay:"morning",
   });
 
   function resetForm(){
-    setForm({id:null, name:"", nutrients:[{key:"", amount:""}], frequency:"daily", days:[], timeOfDay:"morning"});
+    setForm({id:null, name:"", rawText:"", nutrients:[], frequency:"daily", days:[], timeOfDay:"morning"});
     setEditing(null);
     setShowAdd(false);
+  }
+
+  async function interpretLabel(){
+    const lines = (form.rawText||"").split("\n").map(l=>l.trim()).filter(Boolean);
+    if(lines.length===0) return;
+    setAiLoading(true);
+    const {items} = await estimateSupplementAI(lines);
+    const nutrients = items
+      .filter(it=>it.matched && it.matched!=="unknown" && parseFloat(it.amount)>0)
+      .map(it=>({key:it.matched, amount:it.amount, note:it.note||""}));
+    setForm(f=>({...f, nutrients}));
+    setAiLoading(false);
   }
 
   function saveSupplement(){
@@ -4715,10 +4775,6 @@ function SupplementsPanel({C, profile, up}){
   const takenCount = dueToday.filter(s=>s.takenToday).length;
   const accent = C.accent2 || C.accent;
 
-  // Adds a fresh empty nutrient row to the form
-  function addNutrientRow(){
-    setForm(f=>({...f, nutrients:[...(f.nutrients||[]), {key:"", amount:""}]}));
-  }
   function updateNutrientRow(idx, field, value){
     setForm(f=>{
       const next=[...(f.nutrients||[])];
@@ -4746,28 +4802,37 @@ function SupplementsPanel({C, profile, up}){
         </div>
 
         <div>
-          <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>WHAT'S IN IT — add one row per nutrient on the label</div>
-          <div style={{display:"flex",flexDirection:"column",gap:8}}>
-            {(form.nutrients||[]).map((row,idx)=>(
-              <div key={idx} style={{display:"flex",gap:8,alignItems:"center"}}>
-                <select value={row.key} onChange={e=>updateNutrientRow(idx,"key",e.target.value)} style={{
-                  flex:1.4,background:C.card,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"9px 10px",fontSize:13,
-                }}>
-                  <option value="">Choose nutrient…</option>
-                  {NUTRIENT_FIELDS.map(nf=><option key={nf.key} value={nf.key}>{nf.label}</option>)}
-                </select>
-                <input value={row.amount} onChange={e=>updateNutrientRow(idx,"amount",e.target.value)}
-                  type="number" placeholder="0"
-                  style={{width:72,background:C.card,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"9px 10px",fontSize:14,fontFamily:"'DM Mono',monospace"}}/>
-                <div style={{fontSize:11,color:C.muted,width:40}}>{NUTRIENT_FIELDS.find(nf=>nf.key===row.key)?.unit||""}</div>
-                <button onClick={()=>removeNutrientRow(idx)} style={{background:"transparent",border:"none",color:C.red||"#e05a5a",cursor:"pointer",fontSize:16,padding:"4px 6px"}}>×</button>
-              </div>
-            ))}
-          </div>
-          <button onClick={addNutrientRow} style={{
-            marginTop:8,padding:"8px 14px",borderRadius:9,border:`1px dashed ${C.border}`,
-            background:"transparent",cursor:"pointer",color:C.muted,fontSize:12,
-          }}>+ Add another nutrient</button>
+          <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>WHAT'S IN IT — type exactly what's on the label, one line each</div>
+          <textarea
+            value={form.rawText||""}
+            onChange={e=>setForm(f=>({...f, rawText:e.target.value}))}
+            placeholder={"Iron (from Ferrous Bisglycinate) 29mg\nVitamin C (Ascorbic Acid) 65mg\nZinc (from Zinc Gluconate) 13.2mg\nVitamin B9 (Folic Acid) 129.41mcg\nVitamin B12 (Cyanocobalamin) 2.2mcg"}
+            rows={5}
+            style={{width:"100%",boxSizing:"border-box",background:C.card,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:13,fontFamily:"'DM Mono',monospace",lineHeight:1.6,resize:"vertical"}}/>
+          <button onClick={interpretLabel} disabled={!form.rawText?.trim()||aiLoading} style={{
+            marginTop:8,padding:"9px 16px",borderRadius:9,border:"none",cursor:form.rawText?.trim()?"pointer":"not-allowed",
+            background:form.rawText?.trim()?accent:C.border,color:"#fff",fontSize:12,fontWeight:600,
+          }}>{aiLoading?"Reading label…":"Read this label →"}</button>
+
+          {form.nutrients?.length>0 && (
+            <div style={{marginTop:12,display:"flex",flexDirection:"column",gap:6}}>
+              <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1}}>UNDERSTOOD AS</div>
+              {form.nutrients.map((row,idx)=>(
+                <div key={idx} style={{display:"flex",alignItems:"center",gap:8,background:C.bg,borderRadius:9,padding:"8px 10px"}}>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:12,color:C.text}}>{NUTRIENT_FIELDS.find(nf=>nf.key===row.key)?.label || row.key}</div>
+                    {row.note&&<div style={{fontSize:10,color:C.dim,fontStyle:"italic",marginTop:1}}>{row.note}</div>}
+                  </div>
+                  <input value={row.amount} onChange={e=>updateNutrientRow(idx,"amount",e.target.value)}
+                    type="number"
+                    style={{width:64,background:C.card,border:`1px solid ${C.border}`,borderRadius:7,color:C.text,padding:"5px 8px",fontSize:13,fontFamily:"'DM Mono',monospace"}}/>
+                  <div style={{fontSize:10,color:C.muted,width:32}}>{NUTRIENT_FIELDS.find(nf=>nf.key===row.key)?.unit||""}</div>
+                  <button onClick={()=>removeNutrientRow(idx)} style={{background:"transparent",border:"none",color:C.red||"#e05a5a",cursor:"pointer",fontSize:15,padding:"2px 4px"}}>×</button>
+                </div>
+              ))}
+              <div style={{fontSize:11,color:C.dim,marginTop:2,fontStyle:"italic"}}>Edit any amount above if something looks off before saving.</div>
+            </div>
+          )}
           <div style={{fontSize:11,color:C.dim,marginTop:8,fontStyle:"italic",lineHeight:1.6}}>
             Add the main ingredient and any small absorption-boosting add-ons exactly as printed on your label — e.g. Iron 29mg, Vitamin C 65mg, Zinc 13.2mg, all in one supplement.
           </div>
@@ -4862,7 +4927,7 @@ function SupplementsPanel({C, profile, up}){
               {s.timeOfDay!=="any"?` · ${s.timeOfDay}`:""}
             </div>
           </div>
-          <button onClick={()=>{setForm({...s, nutrients: s.nutrients?.length?s.nutrients:[{key:"",amount:""}]});setEditing(s);setShowAdd(true);}} style={{background:"transparent",border:"none",color:C.dim,cursor:"pointer",fontSize:11,padding:"4px 8px"}}>Edit</button>
+          <button onClick={()=>{setForm({...s, rawText:""});setEditing(s);setShowAdd(true);}} style={{background:"transparent",border:"none",color:C.dim,cursor:"pointer",fontSize:11,padding:"4px 8px"}}>Edit</button>
           <button onClick={()=>deleteSupplement(s.id)} style={{background:"transparent",border:"none",color:C.red||"#e05a5a",cursor:"pointer",fontSize:11,padding:"4px 8px"}}>×</button>
         </div>
       ))}
