@@ -727,6 +727,10 @@ function calcNeeds(profile){
 
   const isGain=goal.includes("gain")||goal.includes("muscle")||goal.includes("bulk")||goal.includes("build")||goal.includes("put on")||goal.includes("increase weight");
   const isLoss=goal.includes("lose")||goal.includes("loss")||goal.includes("reduc")||goal.includes("slim")||goal.includes("cut");
+  // Skin/longevity-focused goals get nutrient emphasis, NOT a calorie change —
+  // restricting calories in the name of "looking young" is a real risk path,
+  // so this only ever adjusts which micronutrients get highlighted.
+  const isSkinFocus=goal.includes("young")||goal.includes("skin")||goal.includes("aging")||goal.includes("ageing")||goal.includes("glow")||goal.includes("anti-aging")||goal.includes("anti-ageing");
 
   const kgMatch=goal.match(/([0-9]+[.]?[0-9]*)\s*kg/);
   const moMatch=goal.match(/([0-9]+)\s*month/);
@@ -808,7 +812,7 @@ function calcNeeds(profile){
     folate,magnesium,zinc,potassium,
     omega3,choline,vitA,vitE,
     addedSugar:25,sodium:2300,water,
-    tdee,isLoss,isGain,goalKg,goalDays,
+    tdee,isLoss,isGain,isSkinFocus,goalKg,goalDays,
     dailyDeficit,weeklyChange:parseFloat(weeklyChange.toFixed(2)),realisticWeeks,
   };
 }
@@ -1048,7 +1052,7 @@ export default function Swadhyaya(){
       const { data: foods } = await supabase.from("food_logs").select("*").eq("user_id", userId).order("created_at", { ascending: false }).limit(200);
       if (foods?.length) setFoodLogs(foods.map(f => ({...f, foods: f.foods || [], symptoms: f.symptoms || []})));
       const { data: journals } = await supabase.from("journal_entries").select("*").eq("user_id", userId).order("date", { ascending: false }).limit(365);
-      if (journals?.length) setJournalEntries(journals.map(j => ({...j, freeWrite: j.free_write, prompts: j.prompts || {}, goals: j.goals || {}})));
+      if (journals?.length) setJournalEntries(journals.map(j => ({...j, freeWrite: j.free_write, prompts: j.prompts || {}, goals: j.goals || {}, bedtime: j.bedtime || "", wakeTime: j.wake_time || "", sleepQuality: j.sleep_quality || null})));
       const { data: periods } = await supabase.from("period_logs").select("*").eq("user_id", userId).order("created_at", { ascending: false });
       if (periods?.length) setPeriodLogs(periods.map(p => ({...p, startDate: p.start_date, endDate: p.end_date})));
       const { data: weights } = await supabase.from("weight_logs").select("*").eq("user_id", userId).order("date", { ascending: false });
@@ -1119,6 +1123,9 @@ export default function Swadhyaya(){
       goals: entry.goals || {},
       ritual_done: entry.ritualDone || 0,
       cycle_phase: entry.cyclePhase,
+      bedtime: entry.bedtime || null,
+      wake_time: entry.wakeTime || null,
+      sleep_quality: entry.sleepQuality || null,
       updated_at: new Date().toISOString(),
     }, { onConflict: "user_id,date" });
   }
@@ -2074,8 +2081,49 @@ function GoalPlanCard({profile,C}){
 
 
 function HomeSection({C,galaxy,profile,needs,todayFood,waterLog,completedSteps,greeting,section,setSection,todayPhase,behaviourProfile,trialDaysLeft,journalEntries=[],foodLogs=[]}){
-  const QUOTES=[{t:"The secret of your future is hidden in your daily routine.",a:"Mike Murdock"},{t:"Swadhyaya — know thyself. This is the highest study.",a:"Patanjali"},{t:"You don't rise to your goals. You fall to your systems.",a:"James Clear"},{t:"Take care of your body. It's the only place you have to live.",a:"Jim Rohn"}];
-  const q=QUOTES[new Date().getDay()%QUOTES.length];
+  const QUOTES=[
+    {t:"The secret of your future is hidden in your daily routine.",a:"Mike Murdock"},
+    {t:"Swadhyaya — know thyself. This is the highest study.",a:"Patanjali"},
+    {t:"You don't rise to your goals. You fall to your systems.",a:"James Clear"},
+    {t:"Take care of your body. It's the only place you have to live.",a:"Jim Rohn"},
+    {t:"What you do every day matters more than what you do once in a while.",a:"Gretchen Rubin"},
+    {t:"The mind is everything. What you think, you become.",a:"Buddha"},
+    {t:"Discipline is choosing between what you want now and what you want most.",a:"Abraham Lincoln"},
+    {t:"You are not your thoughts. You are the awareness behind them.",a:"Eckhart Tolle"},
+    {t:"Small disciplines repeated with consistency lead to great achievements.",a:"John Maxwell"},
+    {t:"The body achieves what the mind believes.",a:"Napoleon Hill"},
+    {t:"Yoga is the journey of the self, through the self, to the self.",a:"The Bhagavad Gita"},
+    {t:"Where attention goes, energy flows.",a:"James Redfield"},
+    {t:"Healing takes time, and asking for help is a courageous step.",a:"Mariska Hargitay"},
+    {t:"Rest is not idleness. It is the soil in which growth happens.",a:"Unknown"},
+    {t:"The cave you fear to enter holds the treasure you seek.",a:"Joseph Campbell"},
+    {t:"You cannot pour from an empty cup. Take care of yourself first.",a:"Unknown"},
+    {t:"Slow progress is still progress.",a:"Unknown"},
+    {t:"Energy flows where attention goes — and rest is part of that flow.",a:"Unknown"},
+    {t:"What we plant in the soil of contemplation, we shall reap in action.",a:"Meister Eckhart"},
+    {t:"Peace is the result of retraining your mind to process life as it is.",a:"Wayne Dyer"},
+    {t:"You are the sky. Everything else is just the weather.",a:"Pema Chödrön"},
+    {t:"Between stimulus and response, there is a space. In that space lies our power.",a:"Viktor Frankl"},
+    {t:"The wound is the place where the light enters you.",a:"Rumi"},
+    {t:"Self-care is not selfish. You cannot serve from an empty vessel.",a:"Eleanor Brown"},
+    {t:"What is not started today is never finished tomorrow.",a:"Goethe"},
+    {t:"Sleep is the best meditation.",a:"Dalai Lama"},
+    {t:"The quieter you become, the more you can hear.",a:"Ram Dass"},
+    {t:"Almost everything will work again if you unplug it for a few minutes, including you.",a:"Anne Lamott"},
+    {t:"The best time to plant a tree was 20 years ago. The second best time is now.",a:"Chinese proverb",note:"A reminder that regret is less useful than starting."},
+    {t:"Do not wait to strike till the iron is hot; but make it hot by striking.",a:"William Butler Yeats",note:"Motivation often follows action, not the other way around."},
+    {t:"Comparison is the thief of joy.",a:"Commonly attributed to Theodore Roosevelt",note:"In an age of social media, this feels more relevant than ever."},
+    {t:"You can be scared and still do the thing.",a:"Unknown",note:"Not a famous quote, but a practical truth. Courage isn't the absence of fear; it's acting despite it."},
+    {t:"We are what we repeatedly do. Excellence, then, is not an act but a habit.",a:"Often attributed to Aristotle",note:"The exact wording is modern. The idea remains powerful: your daily habits shape your future."},
+    {t:"You don't have to believe every thought you think.",a:"Unknown",note:"In a world of anxiety and information overload, this is a useful principle."},
+    {t:"You have a right to your actions, but never to the fruits of your actions.",a:"Bhagavad Gita (2.47)",note:"It doesn't say outcomes don't matter. It says that your control lies in effort, not in guaranteeing results."},
+    {t:"The work you avoid contains the life you want.",a:"Unknown"},
+    {t:"Holding on to anger is like grasping a hot coal with the intent of throwing it at someone else; you are the one who gets burned.",a:"Often attributed to Buddha",note:"No canonical source traces this to the Buddhist sutras, but the truth in it holds regardless of where it came from."},
+  ];
+  // Cycles by day-of-year, not day-of-week, so it shows a different quote
+  // each day across a much longer rotation instead of repeating weekly.
+  const dayOfYear=Math.floor((new Date()-new Date(new Date().getFullYear(),0,0))/86400000);
+  const q=QUOTES[dayOfYear%QUOTES.length];
   const hour=new Date().getHours();
   const calPct=Math.round((todayFood.cal/needs.cal)*100);
   const ritualDone=completedSteps.length;
@@ -2128,6 +2176,7 @@ function HomeSection({C,galaxy,profile,needs,todayFood,waterLog,completedSteps,g
           <div style={{fontSize:11,color:C.dim,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:8}}>TODAY'S REMINDER</div>
           <div style={{fontSize:15,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",lineHeight:1.7,marginBottom:4}}>"{q.t}"</div>
           <div style={{fontSize:11,color:C.muted}}>— {q.a}</div>
+          {q.note&&<div style={{fontSize:12,color:C.muted,marginTop:8,lineHeight:1.6,fontStyle:"italic"}}>{q.note}</div>}
         </div>
 
         {/* Behaviour insight */}
@@ -2225,7 +2274,8 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
   const [newGoal, setNewGoal] = useState({
     id: null, title:"", category:"personal", type:"milestone",
     why:"", targetDate:"", targetNumber:"", targetUnit:"",
-    currentNumber:"", milestones:[], habitDays:[], color:"",
+    currentNumber:"", milestones:[], habitDays:[], weekLogs:[],
+    weeklyMode:"count", weeklyDays:[], color:"",
     createdAt:"", notes:"",
   });
   const [newMilestone, setNewMilestone] = useState("");
@@ -2250,7 +2300,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
   }
 
   function resetForm() {
-    setNewGoal({id:null,title:"",category:"personal",type:"milestone",why:"",targetDate:"",targetNumber:"",targetUnit:"",currentNumber:"",milestones:[],habitDays:[],color:"",createdAt:"",notes:""});
+    setNewGoal({id:null,title:"",category:"personal",type:"milestone",why:"",targetDate:"",targetNumber:"",targetUnit:"",currentNumber:"",milestones:[],habitDays:[],weekLogs:[],weeklyMode:"count",weeklyDays:[],color:"",createdAt:"",notes:""});
     setNewMilestone("");
   }
 
@@ -2286,6 +2336,58 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
       if (days.includes(today)) return {...g, habitDays: days.filter(d=>d!==today)};
       return {...g, habitDays: [...days, today]};
     }));
+  }
+
+  // Returns a key identifying the current ISO week (year + week number),
+  // so weekly goals reset automatically every Monday without needing a
+  // background job — the key itself just changes once Monday arrives.
+  function getWeekKey(dateStr) {
+    const d = dateStr ? new Date(dateStr+"T12:00:00") : new Date();
+    const target = new Date(d.valueOf());
+    const dayNr = (d.getDay()+6)%7; // Monday=0 .. Sunday=6
+    target.setDate(target.getDate()-dayNr+3);
+    const firstThursday = new Date(target.getFullYear(),0,4);
+    const weekNum = 1+Math.round(((target-firstThursday)/86400000-3+((firstThursday.getDay()+6)%7))/7);
+    return `${target.getFullYear()}-W${String(weekNum).padStart(2,"0")}`;
+  }
+
+  // Logs one completion for a weekly goal, tagged to this week's key.
+  function markWeeklyDone(goalId) {
+    const wk = getWeekKey();
+    const today = new Date().toISOString().split("T")[0];
+    up("goals", goals.map(g => {
+      if (g.id !== goalId) return g;
+      const logs = g.weekLogs || [];
+      return {...g, weekLogs: [...logs, {week:wk, date:today}]};
+    }));
+  }
+
+  // Removes the most recent log for this week (undo last tap).
+  function undoWeeklyDone(goalId) {
+    const wk = getWeekKey();
+    up("goals", goals.map(g => {
+      if (g.id !== goalId) return g;
+      const logs = g.weekLogs || [];
+      const idx = logs.map(l=>l.week).lastIndexOf(wk);
+      if (idx===-1) return g;
+      return {...g, weekLogs: logs.filter((_,i)=>i!==idx)};
+    }));
+  }
+
+  function getWeeklyCount(goal, weekKey) {
+    const wk = weekKey || getWeekKey();
+    return (goal.weekLogs||[]).filter(l=>l.week===wk).length;
+  }
+
+  // Counts how many of the last N weeks hit the target — used for a
+  // light "consistency" indicator on weekly goals, similar in spirit to
+  // a habit streak but week-sized instead of day-sized.
+  function getWeeklyConsistency(goal) {
+    const logs = goal.weekLogs||[];
+    if(!logs.length) return 0;
+    const weeksSeen = [...new Set(logs.map(l=>l.week))];
+    const target = parseInt(goal.targetNumber)||1;
+    return weeksSeen.filter(wk=>getWeeklyCount(goal,wk)>=target).length;
   }
 
   function getHabitStreak(goal) {
@@ -2324,6 +2426,11 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
       const target = parseInt(goal.targetNumber)||30;
       return Math.min(100, Math.round((streak/target)*100));
     }
+    if (goal.type==="weekly") {
+      const count = getWeeklyCount(goal);
+      const target = parseInt(goal.targetNumber)||1;
+      return Math.min(100, Math.round((count/target)*100));
+    }
     return 0;
   }
 
@@ -2352,6 +2459,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
               {v:"number",l:"Number Goal",d:"Track a specific number — savings amount, kg to lose, videos to post, books to read",icon:"123"},
               {v:"milestone",l:"Milestone Goal",d:"Track steps toward a big dream — become an actress, launch a brand, write a book",icon:"◈"},
               {v:"habit",l:"Habit Goal",d:"Build a daily practice — meditate, walk, journal, cold shower, no sugar",icon:"🔁"},
+              {v:"weekly",l:"Weekly Goal",d:"A target for the week, not every day — gym 3x, call mom, post 2 reels. Resets every Monday.",icon:"📅"},
             ].map(t=>(
               <button key={t.v} onClick={()=>setNewGoal(g=>({...g,type:t.v}))} style={{
                 padding:"12px 14px",borderRadius:10,textAlign:"left",cursor:"pointer",
@@ -2419,6 +2527,64 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
           </div>
         )}
 
+        {/* Weekly target for weekly goals */}
+        {newGoal.type==="weekly"&&(
+          <div>
+            <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>HOW SHOULD THIS WEEK WORK?</div>
+            <div style={{display:"flex",gap:6,marginBottom:14}}>
+              {[{v:"count",l:"Any days — just a count"},{v:"days",l:"Specific days"}].map(o=>(
+                <button key={o.v} onClick={()=>setNewGoal(g=>({...g,weeklyMode:o.v}))} style={{flex:1,padding:"9px 8px",borderRadius:9,border:`1.5px solid ${(newGoal.weeklyMode||"count")===o.v?getCatColor(newGoal.category):C.border}`,background:(newGoal.weeklyMode||"count")===o.v?getCatColor(newGoal.category)+"15":"transparent",cursor:"pointer",fontSize:12,color:(newGoal.weeklyMode||"count")===o.v?getCatColor(newGoal.category):C.muted}}>{o.l}</button>
+              ))}
+            </div>
+
+            {(newGoal.weeklyMode||"count")==="count"&&(
+              <div>
+                <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>TIMES PER WEEK</div>
+                <div style={{display:"flex",gap:10,alignItems:"center"}}>
+                  <input value={newGoal.targetNumber} onChange={e=>setNewGoal(g=>({...g,targetNumber:e.target.value}))}
+                    placeholder="3" type="number"
+                    style={{width:80,background:C.card,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:16,fontFamily:"'DM Mono',monospace"}}/>
+                  <div style={{fontSize:13,color:C.muted}}>times this week</div>
+                </div>
+                <div style={{display:"flex",gap:8,flexWrap:"wrap",marginTop:10}}>
+                  {[1,2,3,4,5,6,7].map(n=>(
+                    <button key={n} onClick={()=>setNewGoal(g=>({...g,targetNumber:String(n)}))} style={{padding:"5px 11px",borderRadius:20,border:`1px solid ${newGoal.targetNumber===String(n)?getCatColor(newGoal.category):C.border}`,background:newGoal.targetNumber===String(n)?getCatColor(newGoal.category)+"18":"transparent",cursor:"pointer",fontSize:12,color:newGoal.targetNumber===String(n)?getCatColor(newGoal.category):C.muted}}>{n}x/week</button>
+                  ))}
+                </div>
+                <div style={{fontSize:11,color:C.dim,marginTop:8,fontStyle:"italic"}}>Resets every Monday. Tap to log each time you complete it, any day that suits you.</div>
+              </div>
+            )}
+
+            {(newGoal.weeklyMode==="days")&&(
+              <div>
+                <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>WHICH DAYS?</div>
+                <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
+                  {[{v:"Mon",l:"M"},{v:"Tue",l:"T"},{v:"Wed",l:"W"},{v:"Thu",l:"T"},{v:"Fri",l:"F"},{v:"Sat",l:"S"},{v:"Sun",l:"S"}].map(d=>{
+                    const selected=(newGoal.weeklyDays||[]).includes(d.v);
+                    return(
+                      <button key={d.v} onClick={()=>setNewGoal(g=>{
+                        const days=g.weeklyDays||[];
+                        const next=selected?days.filter(x=>x!==d.v):[...days,d.v];
+                        return {...g, weeklyDays:next, targetNumber:String(next.length)};
+                      })} style={{
+                        width:38,height:38,borderRadius:10,
+                        border:`1.5px solid ${selected?getCatColor(newGoal.category):C.border}`,
+                        background:selected?getCatColor(newGoal.category):"transparent",
+                        color:selected?"#fff":C.muted,cursor:"pointer",fontSize:13,fontWeight:600,
+                      }}>{d.l}</button>
+                    );
+                  })}
+                </div>
+                <div style={{fontSize:11,color:C.dim,marginTop:8,fontStyle:"italic"}}>
+                  {(newGoal.weeklyDays||[]).length>0
+                    ? `Scheduled for ${(newGoal.weeklyDays||[]).join(", ")}. You'll see this on those days specifically.`
+                    : "Pick the days this task happens — e.g. face mask on Mon, Wed, Fri."}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
         {/* Milestones for milestone goals */}
         {newGoal.type==="milestone"&&(
           <div>
@@ -2479,6 +2645,8 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
     const streak = goal.type==="habit" ? getHabitStreak(goal) : 0;
     const today = new Date().toISOString().split("T")[0];
     const doneToday = goal.type==="habit" && goal.habitDays?.includes(today);
+    const weeklyCount = goal.type==="weekly" ? getWeeklyCount(goal) : 0;
+    const weeklyConsistency = goal.type==="weekly" ? getWeeklyConsistency(goal) : 0;
     const daysLeft = goal.targetDate ? Math.ceil((new Date(goal.targetDate)-new Date())/86400000) : null;
 
     return (
@@ -2514,6 +2682,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
             <div>
               {goal.type==="number"&&<div style={{fontSize:20,fontWeight:700,color:catColor}}>{parseFloat(goal.currentNumber)||0} <span style={{fontSize:12,color:C.muted,fontWeight:400}}>/ {goal.targetNumber} {goal.targetUnit}</span></div>}
               {goal.type==="habit"&&<div><div style={{fontSize:20,fontWeight:700,color:catColor}}>{streak} day streak 🔥</div><div style={{fontSize:11,color:C.muted}}>Target: {goal.targetNumber} days</div></div>}
+              {goal.type==="weekly"&&<div><div style={{fontSize:20,fontWeight:700,color:catColor}}>{weeklyCount}/{goal.targetNumber} <span style={{fontSize:12,color:C.muted,fontWeight:400}}>this week</span></div><div style={{fontSize:11,color:C.muted}}>{weeklyConsistency} week{weeklyConsistency===1?"":"s"} hit target</div></div>}
               {goal.type==="milestone"&&<div style={{fontSize:20,fontWeight:700,color:catColor}}>{(goal.milestones||[]).filter(m=>m.done).length}/{(goal.milestones||[]).length} <span style={{fontSize:12,color:C.muted,fontWeight:400}}>milestones</span></div>}
               {daysLeft!==null&&<div style={{fontSize:11,color:daysLeft<30?C.red:daysLeft<90?C.gold:C.muted,marginTop:3}}>{daysLeft>0?`${daysLeft} days left`:daysLeft===0?"Due today!":"Overdue by "+Math.abs(daysLeft)+" days"}</div>}
             </div>
@@ -2571,6 +2740,78 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
           </div>
         )}
 
+        {/* Weekly goal check-in */}
+        {goal.type==="weekly"&&(
+          <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:18,marginBottom:12}}>
+            <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>THIS WEEK</div>
+
+            {(goal.weeklyMode||"count")==="count"&&(
+              <>
+                <div style={{display:"flex",gap:8,marginBottom:10}}>
+                  <button onClick={()=>markWeeklyDone(goal.id)} style={{
+                    flex:1,padding:"16px",
+                    background:weeklyCount>=parseInt(goal.targetNumber||1)?C.accent2:`linear-gradient(135deg,${catColor},${catColor}88)`,
+                    border:"none",borderRadius:12,color:"#fff",cursor:"pointer",
+                    fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontStyle:"italic",
+                    boxShadow:`0 0 16px ${catColor}33`,
+                  }}>
+                    {weeklyCount>=parseInt(goal.targetNumber||1)?`✓ ${weeklyCount}/${goal.targetNumber} — target hit!`:`Log this week (${weeklyCount}/${goal.targetNumber}) →`}
+                  </button>
+                  {weeklyCount>0&&<button onClick={()=>undoWeeklyDone(goal.id)} style={{padding:"16px 14px",background:"transparent",border:`1px solid ${C.border}`,borderRadius:12,color:C.muted,cursor:"pointer",fontSize:13}}>Undo</button>}
+                </div>
+                <div style={{display:"flex",gap:4}}>
+                  {Array.from({length:parseInt(goal.targetNumber)||1},(_,i)=>(
+                    <div key={i} style={{flex:1,height:8,borderRadius:4,background:i<weeklyCount?catColor:C.bg,border:`1px solid ${i<weeklyCount?catColor:C.border}`}}/>
+                  ))}
+                </div>
+              </>
+            )}
+
+            {goal.weeklyMode==="days"&&(()=>{
+              const todayD=new Date();
+              const dayNr=(todayD.getDay()+6)%7; // Monday=0
+              const monday=new Date(todayD); monday.setDate(todayD.getDate()-dayNr);
+              const dayLabels=["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+              const wk=getWeekKey();
+              return (
+                <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                  {dayLabels.filter(d=>(goal.weeklyDays||[]).includes(d)).map((d,i)=>{
+                    const dIdx=dayLabels.indexOf(d);
+                    const thisDate=new Date(monday); thisDate.setDate(monday.getDate()+dIdx);
+                    const ds=thisDate.toISOString().split("T")[0];
+                    const isToday=ds===todayD.toISOString().split("T")[0];
+                    const isPast=thisDate<todayD && !isToday;
+                    const done=(goal.weekLogs||[]).some(l=>l.week===wk&&l.date===ds);
+                    return (
+                      <button key={d} onClick={()=>{
+                        up("goals", goals.map(g=>{
+                          if(g.id!==goal.id) return g;
+                          const logs=g.weekLogs||[];
+                          if(done) return {...g, weekLogs: logs.filter(l=>!(l.week===wk&&l.date===ds))};
+                          return {...g, weekLogs:[...logs, {week:wk, date:ds}]};
+                        }));
+                      }} style={{
+                        display:"flex",justifyContent:"space-between",alignItems:"center",
+                        padding:"12px 14px",borderRadius:10,cursor:"pointer",textAlign:"left",
+                        border:`1.5px solid ${done?C.accent2:isToday?catColor:C.border}`,
+                        background:done?C.accent2+"15":isToday?catColor+"10":"transparent",
+                        opacity:isPast&&!done?0.5:1,
+                      }}>
+                        <div style={{display:"flex",alignItems:"center",gap:10}}>
+                          <div style={{width:24,height:24,borderRadius:"50%",border:`1.5px solid ${done?C.accent2:C.border}`,background:done?C.accent2:"transparent",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,color:"#fff",flexShrink:0}}>{done?"✓":""}</div>
+                          <div style={{fontSize:13,color:done?C.accent2:C.text,fontWeight:isToday?600:400}}>{d}{isToday?" · Today":""}</div>
+                        </div>
+                        <div style={{fontSize:11,color:C.muted}}>{thisDate.toLocaleDateString("en-IN",{day:"numeric",month:"short"})}</div>
+                      </button>
+                    );
+                  })}
+                  <div style={{fontSize:11,color:C.dim,marginTop:4,fontStyle:"italic"}}>{weeklyCount}/{(goal.weeklyDays||[]).length} done this week</div>
+                </div>
+              );
+            })()}
+          </div>
+        )}
+
         {/* Milestones */}
         {goal.type==="milestone"&&(
           <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:18,marginBottom:12}}>
@@ -2622,6 +2863,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
             const pct=getGoalProgress(goal);
             const catColor=getCatColor(goal.category);
             const streak=goal.type==="habit"?getHabitStreak(goal):0;
+            const weeklyCountList=goal.type==="weekly"?getWeeklyCount(goal):0;
             const today=new Date().toISOString().split("T")[0];
             const doneToday=goal.type==="habit"&&(goal.habitDays||[]).includes(today);
             const daysLeft=goal.targetDate?Math.ceil((new Date(goal.targetDate)-new Date())/86400000):null;
@@ -2640,6 +2882,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
                   <div style={{textAlign:"right",flexShrink:0}}>
                     <div style={{fontSize:16,fontWeight:700,color:catColor}}>{pct}%</div>
                     {goal.type==="habit"&&<div style={{fontSize:10,color:C.muted}}>{streak}🔥</div>}
+                    {goal.type==="weekly"&&<div style={{fontSize:10,color:C.muted}}>{weeklyCountList}/{goal.targetNumber} wk</div>}
                   </div>
                 </div>
                 {/* Progress bar */}
@@ -2993,11 +3236,97 @@ function EmotionalGraph({C, galaxy, journalEntries, profile}) {
   );
 }
 
+// Calculates hours slept from "HH:MM" bedtime/wake-time strings, handling
+// the normal case where bedtime is at night and wake time is the next
+// morning (e.g. bedtime 23:00, wake 07:00 -> 8 hours, not -16).
+function sleepHoursFromTimes(bedtime, wakeTime){
+  if(!bedtime||!wakeTime) return null;
+  const [bH,bM]=bedtime.split(":").map(Number);
+  const [wH,wM]=wakeTime.split(":").map(Number);
+  if(isNaN(bH)||isNaN(wH)) return null;
+  let bedMinutes=bH*60+bM;
+  let wakeMinutes=wH*60+wM;
+  let diff=wakeMinutes-bedMinutes;
+  if(diff<=0) diff+=24*60; // wrapped past midnight
+  return Math.round((diff/60)*10)/10; // one decimal place
+}
+
+// Short, honest, expandable explainer on why sleep affects mind and mood —
+// kept factual and calm, not alarmist.
+function SleepEducationNote({C}){
+  const [open,setOpen]=useState(false);
+  return (
+    <div style={{marginTop:12}}>
+      <button onClick={()=>setOpen(o=>!o)} style={{
+        background:"transparent",border:"none",cursor:"pointer",padding:0,
+        fontSize:11,color:C.accent3,fontFamily:"'DM Mono',monospace",letterSpacing:0.5,
+        display:"flex",alignItems:"center",gap:5,
+      }}>
+        {open?"▾":"▸"} Why does sleep affect mood so much?
+      </button>
+      {open&&(
+        <div style={{marginTop:8,fontSize:12,color:C.muted,lineHeight:1.8}}>
+          <p style={{margin:"0 0 8px 0"}}>
+            Sleep is when the brain restores the part responsible for slowing down big reactions before they turn into snapping or shutting down — that part gets noticeably weaker after a short night.
+          </p>
+          <p style={{margin:"0 0 8px 0"}}>
+            Sleep loss also makes the emotional, reactive part of the brain fire more easily, while the connection between the two weakens. That combination — quicker to react, slower to calm — is exactly the pattern many people describe as "snapping" or "getting carried away."
+          </p>
+          <p style={{margin:"0 0 8px 0"}}>
+            Poor sleep is also linked to more rumination — thoughts looping instead of resolving. If overthinking spirals tend to happen at night or after a bad night's sleep, that's a known, common pattern, not a personal failing.
+          </p>
+          <p style={{margin:0}}>
+            None of this means sleep is the only factor in how you feel — it's one lever, but it's one of the most consistently powerful ones, and unlike many things in life, it's one you have real influence over most nights.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// In-the-moment pause prompt: shown only when the person's own logged
+// history shows a real low-sleep streak happening right now. This is
+// reflective, not a notification — it only appears while they're already
+// inside the journal, looking at their own day.
+function SleepPausePrompt({todayEntry, journalEntries, C}){
+  const streak = useMemo(()=>{
+    const entries = (journalEntries||[])
+      .map(e=>({...e, sleepHours: sleepHoursFromTimes(e.bedtime,e.wakeTime)}))
+      .filter(e=>e.sleepHours!=null)
+      .sort((a,b)=>new Date(a.date)-new Date(b.date));
+    // include today's in-progress entry if it has sleep logged
+    const todayHours = sleepHoursFromTimes(todayEntry.bedtime, todayEntry.wakeTime);
+    if(todayHours!=null) entries.push({date:todayEntry.date, sleepHours:todayHours});
+    let count=0;
+    for(let i=entries.length-1;i>=0;i--){
+      if(entries[i].sleepHours<6) count++;
+      else break;
+    }
+    return count;
+  },[todayEntry.bedtime, todayEntry.wakeTime, todayEntry.date, journalEntries]);
+
+  const [dismissed,setDismissed]=useState(false);
+  if(streak<2 || dismissed) return null;
+
+  return (
+    <div style={{marginTop:12,padding:"13px 14px",background:C.accent3+"10",border:`1px solid ${C.accent3}40`,borderRadius:10}}>
+      <div style={{fontSize:13,color:C.text,lineHeight:1.7,marginBottom:10}}>
+        You've logged under 6 hours for {streak} nights in a row. On stretches like this, your own data tends to show harder moods — more snapping, more spiraling. No need to do anything with this right now — just a moment to notice before the day moves on.
+      </div>
+      <button onClick={()=>setDismissed(true)} style={{
+        background:"transparent",border:`1px solid ${C.accent3}44`,borderRadius:8,
+        padding:"6px 12px",fontSize:11,color:C.accent3,cursor:"pointer",
+      }}>Got it</button>
+    </div>
+  );
+}
+
 function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, foodLogs, moveLog, completedSteps, periodLogs, behaviourProfile, updateBP}) {
   const [view, setView] = useState("today"); // today | history | weekly | monthly | highlights
   const [todayEntry, setTodayEntry] = useState({
     mood: "", energy: 5, freeWrite: "",
-    prompts: {}, goals: {}, date: new Date().toISOString().split("T")[0]
+    prompts: {}, goals: {}, date: new Date().toISOString().split("T")[0],
+    bedtime: "", wakeTime: "", sleepQuality: null
   });
   const [saving, setSaving] = useState(false);
   const [selectedPrompts, setSelectedPrompts] = useState([0,5,4]); // 3 random prompts
@@ -3019,7 +3348,13 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
       cyclePhase: profile.cyclePhase || null,
       ritualDone: completedSteps.length,
       movementMin: moveLog.filter(m=>{
+        // m.time is a locale time string like "2:30 pm", not a parseable
+        // date — new Date() on it produces an Invalid Date, and calling
+        // toISOString() on that throws. Use m.date if present, otherwise
+        // safely skip rather than crash.
+        if(m.date) return m.date===todayStr;
         const d=new Date(m.time||"");
+        if(isNaN(d.getTime())) return false;
         return d.toISOString().split("T")[0]===todayStr;
       }).reduce((a,m)=>a+(m.duration||0),0),
     };
@@ -3119,6 +3454,51 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
             <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>ENERGY LEVEL TODAY · {todayEntry.energy}/10</div>
             <input type="range" min="1" max="10" value={todayEntry.energy||5} onChange={e=>setTodayEntry(en=>({...en,energy:parseInt(e.target.value)}))} style={{width:"100%",accentColor:C.accent}}/>
             <div style={{display:"flex",justifyContent:"space-between",fontSize:10,color:C.dim,marginTop:4}}><span>Drained</span><span>Alive</span></div>
+          </div>
+
+          {/* Sleep */}
+          <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+            <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>
+              🌙 SLEEP {(()=>{
+                const h=sleepHoursFromTimes(todayEntry.bedtime,todayEntry.wakeTime);
+                return h!=null?` · ${h}h`:"";
+              })()}
+            </div>
+            <div style={{display:"flex",gap:10,marginBottom:12}}>
+              <div style={{flex:1}}>
+                <div style={{fontSize:10,color:C.muted,marginBottom:5}}>Bedtime</div>
+                <input type="time" value={todayEntry.bedtime||""} onChange={e=>setTodayEntry(en=>({...en,bedtime:e.target.value}))} style={{width:"100%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 10px",fontSize:13,boxSizing:"border-box"}}/>
+              </div>
+              <div style={{flex:1}}>
+                <div style={{fontSize:10,color:C.muted,marginBottom:5}}>Wake time</div>
+                <input type="time" value={todayEntry.wakeTime||""} onChange={e=>setTodayEntry(en=>({...en,wakeTime:e.target.value}))} style={{width:"100%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 10px",fontSize:13,boxSizing:"border-box"}}/>
+              </div>
+            </div>
+            <div style={{fontSize:10,color:C.muted,marginBottom:8}}>Sleep quality</div>
+            <div style={{display:"flex",gap:6}}>
+              {[{v:"poor",l:"Poor",emoji:"😴"},{v:"restless",l:"Restless",emoji:"😣"},{v:"okay",l:"Okay",emoji:"😐"},{v:"good",l:"Good",emoji:"🙂"},{v:"great",l:"Great",emoji:"😌"}].map(q=>(
+                <button key={q.v} onClick={()=>setTodayEntry(en=>({...en,sleepQuality:q.v}))} style={{
+                  flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:3,
+                  padding:"7px 4px",borderRadius:8,cursor:"pointer",
+                  border:`1.5px solid ${todayEntry.sleepQuality===q.v?C.accent3:C.border}`,
+                  background:todayEntry.sleepQuality===q.v?C.accent3+"15":"transparent",
+                }}>
+                  <span style={{fontSize:16}}>{q.emoji}</span>
+                  <span style={{fontSize:8,color:todayEntry.sleepQuality===q.v?C.accent3:C.muted}}>{q.l}</span>
+                </button>
+              ))}
+            </div>
+            {(()=>{
+              const h=sleepHoursFromTimes(todayEntry.bedtime,todayEntry.wakeTime);
+              if(h!=null&&h<6)return<div style={{marginTop:10,fontSize:11,color:C.gold,fontStyle:"italic"}}>Under 6 hours — this often shows up as low energy, cravings, and mood dips the next day.</div>;
+              return null;
+            })()}
+
+            {/* Why sleep matters — educational, collapsible */}
+            <SleepEducationNote C={C}/>
+
+            {/* In-the-moment pause prompt — only shown when there's a real low-sleep streak */}
+            <SleepPausePrompt todayEntry={todayEntry} journalEntries={journalEntries} C={C}/>
           </div>
 
           {/* Goal check-in */}
@@ -3463,6 +3843,7 @@ function MorningSection({C,galaxy,completedSteps,setCompletedSteps,gratitude,set
   const STEPS=[
     {id:"water",icon:"💧",title:"Drink Water",dur:120,color:C.accent3,inst:"Two glasses. Slow. Before anything else.",why:"Rehydrates organs after sleep. Signals the brain that the day has begun.",cue:"Feel the water move through you. Notice how your body receives it."},
     {id:"sun",icon:"☀️",title:"Morning Light",dur:300,color:C.gold,inst:"Stand near a window or step outside. Face the sun.",why:"5–10 min of morning light sets your circadian rhythm and boosts serotonin.",cue:"No sunglasses. No phone. Just light on your face. Breathe."},
+    {id:"spf",icon:"🧴",title:"Apply Sunscreen",dur:60,color:C.gold,inst:"Apply SPF 30+ to face and neck before you leave the house — even if it's cloudy.",why:"This is the single most evidence-backed thing for keeping skin looking young. UV exposure causes most visible skin aging — far more than any cream or supplement.",cue:"A full fingertip's worth for the face. Don't forget the neck and ears."},
     {id:"stretch",icon:"🤸",title:"Move Your Body",dur:300,color:C.accent2,inst:"5 minutes of stretch, walk in place, or gentle yoga.",why:"Circulation starts. Even 5 min movement beats coffee for energy.",cue:"Neck rolls → shoulder circles → forward fold → cat-cow → child's pose."},
     {id:"meditate",icon:"🧘",title:"Quiet Reflection",dur:300,color:C.purple,inst:"Sit still. Close your eyes. Nothing to do for 5 minutes.",why:"5 min stillness before the world gets its hooks in you shapes the whole day.",cue:"Spine upright. Hands in lap. Watch the breath."},
     {id:"gratitude",icon:"🙏",title:"Gratitude + Intention",dur:180,color:C.warm,inst:"Three things you're grateful for. One intention for today.",why:"Naming what's good trains the brain out of its default negativity bias.",cue:"Small things count more. Warmth of bed. Someone who texted."},
@@ -3895,7 +4276,7 @@ function MoveLogger({moveLog,setMoveLog,C}){
         <select value={dur} onChange={e=>setDur(e.target.value)} style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.muted,padding:"9px 7px",fontSize:12}}>
           {["15","20","30","45","60","90"].map(d=><option key={d}>{d} min</option>)}
         </select>
-        <button onClick={()=>{if(!act.trim())return;setMoveLog(l=>[...l,{id:Date.now(),activity:act,duration:parseInt(dur),time:new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})}]);setAct("");}} style={{padding:"9px 14px",background:C.accent2,border:"none",borderRadius:8,color:"#fff",cursor:"pointer",fontSize:13}}>+</button>
+        <button onClick={()=>{if(!act.trim())return;setMoveLog(l=>[...l,{id:Date.now(),activity:act,duration:parseInt(dur),date:new Date().toISOString().split("T")[0],time:new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})}]);setAct("");}} style={{padding:"9px 14px",background:C.accent2,border:"none",borderRadius:8,color:"#fff",cursor:"pointer",fontSize:13}}>+</button>
       </div>
       {moveLog.length===0?<div style={{fontSize:12,color:C.dim,fontStyle:"italic"}}>No movement logged today.</div>:
         moveLog.map((m,i)=><div key={m.id} style={{display:"flex",justifyContent:"space-between",fontSize:12,padding:"5px 0",borderBottom:i<moveLog.length-1?`1px solid ${C.border}`:"none"}}>
@@ -4281,6 +4662,11 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
       ]
     },
   ];
+  // If the person's goal is skin/youth/longevity-focused, surface the
+  // skin/hair/collagen nutrient category first instead of buried in the middle.
+  const ORDERED_CATEGORIES = needs.isSkinFocus
+    ? [...NUTRIENT_CATEGORIES].sort((a,b)=>(a.label.includes("Skin")?-1:b.label.includes("Skin")?1:0))
+    : NUTRIENT_CATEGORIES;
   const NUTRIENTS = NUTRIENT_CATEGORIES.flatMap(cat => cat.items.map(item => ({...item, c:cat.color})));
 
   return(
@@ -4577,7 +4963,7 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
             ✨ <strong>Collagen Support Score:</strong> Collagen production drops ~1%/year after 25. You can't eat collagen directly — but Protein + Vitamin C + Zinc together stimulate your body to make it. Watch those three.
           </div>
 
-          {NUTRIENT_CATEGORIES.map((cat,ci)=>(
+          {ORDERED_CATEGORIES.map((cat,ci)=>(
             <div key={ci} style={{marginBottom:20}}>
               <div style={{fontSize:11,color:cat.color,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>{cat.label}</div>
               <div style={{display:"flex",flexDirection:"column",gap:8}}>
@@ -5416,6 +5802,7 @@ function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedS
 
       {view==="insights"&&(
         <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          <SleepMoodAnalysis journalEntries={journalEntries} C={C}/>
           <div style={{background:C.card,border:`1px solid ${C.accent}33`,borderRadius:13,padding:18}}>
             <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>◉ PATTERNS YOU'VE SHOWN</div>
             {Object.keys(behaviourProfile).length===0?(
@@ -5442,6 +5829,227 @@ function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedS
 
 function InfoRow({label,value,C,color}){
   return<div style={{padding:"9px 12px",background:color+"10",border:`1px solid ${color}33`,borderRadius:8}}><div style={{fontSize:10,color:color,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:3}}>{label.toUpperCase()}</div><div style={{fontSize:13,color:C.text}}>{value}</div></div>;
+}
+
+// ══════════════════════════════════════════════════════════════
+//  SLEEP × MOOD PATTERN ANALYSIS
+//  Looks at logged journal entries (mood + sleep) over time and
+//  finds real, honest correlations — not diagnoses, not therapy,
+//  just a clear mirror of the person's own data.
+// ══════════════════════════════════════════════════════════════
+
+const HARD_MOODS = ["angry","sad","anxious","low"];
+const EASE_MOODS = ["calm","good","happy","energised"];
+
+function analyzeSleepMoodPatterns(journalEntries){
+  const entries = (journalEntries||[])
+    .filter(e=>e.mood && sleepHoursFromTimes(e.bedtime,e.wakeTime)!=null)
+    .map(e=>({...e, sleepHours: sleepHoursFromTimes(e.bedtime,e.wakeTime)}))
+    .sort((a,b)=>new Date(a.date)-new Date(b.date));
+
+  if(entries.length < 3) return { enoughData:false, count: entries.length };
+
+  // Split into low-sleep (<6h) vs adequate-sleep (>=7h) days
+  const lowSleepDays = entries.filter(e=>e.sleepHours<6);
+  const okSleepDays  = entries.filter(e=>e.sleepHours>=7);
+
+  function moodRate(days, moodList){
+    if(days.length===0) return null;
+    const hits = days.filter(d=>moodList.includes(d.mood)).length;
+    return Math.round((hits/days.length)*100);
+  }
+
+  const lowSleepHardRate = moodRate(lowSleepDays, HARD_MOODS);
+  const okSleepHardRate  = moodRate(okSleepDays, HARD_MOODS);
+  const lowSleepEaseRate = moodRate(lowSleepDays, EASE_MOODS);
+  const okSleepEaseRate  = moodRate(okSleepDays, EASE_MOODS);
+
+  // Mood frequency overall
+  const moodCounts = {};
+  entries.forEach(e=>{ moodCounts[e.mood] = (moodCounts[e.mood]||0)+1; });
+  const totalDays = entries.length;
+  const moodFrequency = Object.entries(moodCounts)
+    .map(([mood,count])=>({mood,count,pct:Math.round((count/totalDays)*100)}))
+    .sort((a,b)=>b.count-a.count);
+
+  // Average sleep on hard-mood days vs ease-mood days
+  const hardDays = entries.filter(e=>HARD_MOODS.includes(e.mood));
+  const easeDays = entries.filter(e=>EASE_MOODS.includes(e.mood));
+  const avgSleep = days => days.length ? Math.round((days.reduce((s,d)=>s+d.sleepHours,0)/days.length)*10)/10 : null;
+  const avgSleepOnHardDays = avgSleep(hardDays);
+  const avgSleepOnEaseDays = avgSleep(easeDays);
+
+  // Quality correlation — poor/restless quality vs mood
+  const poorQualityDays = entries.filter(e=>["poor","restless"].includes(e.sleepQuality));
+  const poorQualityHardRate = moodRate(poorQualityDays, HARD_MOODS);
+
+  // Streak detection — consecutive low-sleep days right now (most recent end of array)
+  let currentLowSleepStreak = 0;
+  for(let i=entries.length-1;i>=0;i--){
+    if(entries[i].sleepHours<6) currentLowSleepStreak++;
+    else break;
+  }
+
+  // Specific mood-by-mood average sleep (so "angry" and "sad" can be looked at separately,
+  // since the person specifically wants to see what precedes anger vs sadness)
+  const sleepByMood = {};
+  HARD_MOODS.concat(EASE_MOODS).forEach(m=>{
+    const days = entries.filter(e=>e.mood===m);
+    if(days.length>=2) sleepByMood[m] = { avgSleep: avgSleep(days), count: days.length };
+  });
+
+  return {
+    enoughData: true,
+    count: totalDays,
+    lowSleepHardRate, okSleepHardRate,
+    lowSleepEaseRate, okSleepEaseRate,
+    avgSleepOnHardDays, avgSleepOnEaseDays,
+    poorQualityDays: poorQualityDays.length,
+    poorQualityHardRate,
+    currentLowSleepStreak,
+    moodFrequency,
+    sleepByMood,
+    hardDaysCount: hardDays.length,
+    easeDaysCount: easeDays.length,
+  };
+}
+
+// Generates honest, plain-language reflections from the analysis above.
+// No diagnosis, no clinical labels — just what the data actually shows.
+function buildSleepMoodReflections(a){
+  if(!a.enoughData) return [];
+  const lines=[];
+
+  if(a.avgSleepOnHardDays!=null && a.avgSleepOnEaseDays!=null){
+    const gap = a.avgSleepOnEaseDays - a.avgSleepOnHardDays;
+    if(gap >= 0.8){
+      lines.push({
+        type:"correlation",
+        text:`On days you logged as calm, happy, or good, you'd slept an average of ${a.avgSleepOnEaseDays}h. On days you logged as angry, sad, anxious, or low, that average drops to ${a.avgSleepOnHardDays}h. That's a real gap — about ${Math.round(gap*60)} minutes of difference, consistently.`
+      });
+    }
+  }
+
+  if(a.lowSleepHardRate!=null && a.okSleepHardRate!=null && a.lowSleepHardRate > a.okSleepHardRate+15){
+    lines.push({
+      type:"correlation",
+      text:`On days with under 6 hours of sleep, a hard mood (angry, sad, anxious, or low) showed up ${a.lowSleepHardRate}% of the time. On days with 7+ hours, that drops to ${a.okSleepHardRate}%. Sleep looks like one of the strongest levers you have.`
+    });
+  }
+
+  if(a.poorQualityHardRate!=null && a.poorQualityDays>=3){
+    lines.push({
+      type:"correlation",
+      text:`Even on nights where you got enough hours but rated the sleep itself as poor or restless, a hard mood followed ${a.poorQualityHardRate}% of the time. Quality matters as much as quantity for you.`
+    });
+  }
+
+  if(a.sleepByMood.angry && a.sleepByMood.angry.count>=2){
+    lines.push({
+      type:"specific",
+      text:`On days you logged "angry" specifically, average sleep was ${a.sleepByMood.angry.avgSleep}h. Anger tends to show up on your most sleep-deprived days, not your most "stressed" ones — worth noticing next time you feel the snap coming.`
+    });
+  }
+
+  if(a.sleepByMood.sad && a.sleepByMood.sad.count>=2){
+    lines.push({
+      type:"specific",
+      text:`On days you logged "sad", average sleep was ${a.sleepByMood.sad.avgSleep}h. If sadness for you tends to come with overthinking spirals, low sleep is a known amplifier of rumination — the brain's ability to let a thought go weakens significantly under sleep debt.`
+    });
+  }
+
+  if(a.currentLowSleepStreak>=2){
+    lines.push({
+      type:"warning",
+      text:`You're currently on ${a.currentLowSleepStreak} days in a row under 6 hours of sleep. Based on your own pattern, this is the kind of stretch where snapping or spiraling tends to show up. Worth protecting tonight's sleep specifically, not as a rule, but because it's what your own data points to.`
+    });
+  }
+
+  return lines;
+}
+
+function SleepMoodAnalysis({journalEntries, C}){
+  const analysis = useMemo(()=>analyzeSleepMoodPatterns(journalEntries), [journalEntries]);
+  const reflections = useMemo(()=>buildSleepMoodReflections(analysis), [analysis]);
+
+  if(!analysis.enoughData){
+    return (
+      <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+        <div style={{fontSize:10,color:C.accent3,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>🌙 SLEEP & MOOD PATTERNS</div>
+        <div style={{fontSize:13,color:C.muted,lineHeight:1.7,fontStyle:"italic"}}>
+          Log your sleep (bedtime + wake time) alongside your mood for a few more days — at least 3 days with both logged — and real patterns will start to show up here. So far you have {analysis.count} day{analysis.count===1?"":"s"} with both logged.
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:10}}>
+      <div style={{background:C.card,border:`1px solid ${C.accent3}33`,borderRadius:13,padding:18}}>
+        <div style={{fontSize:10,color:C.accent3,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>🌙 SLEEP & MOOD PATTERNS · {analysis.count} days tracked</div>
+
+        {/* Current streak warning, if active */}
+        {analysis.currentLowSleepStreak>=2&&(
+          <div style={{padding:"11px 14px",background:C.gold+"12",border:`1px solid ${C.gold}44`,borderRadius:10,marginBottom:12,fontSize:13,color:C.text,lineHeight:1.6}}>
+            ⚠ {analysis.currentLowSleepStreak} nights in a row under 6 hours. This is the kind of stretch your own data links to harder days.
+          </div>
+        )}
+
+        {/* Quick comparison stats */}
+        {analysis.avgSleepOnHardDays!=null && analysis.avgSleepOnEaseDays!=null && (
+          <div style={{display:"flex",gap:10,marginBottom:14}}>
+            <div style={{flex:1,background:C.bg,borderRadius:10,padding:"12px 10px",textAlign:"center"}}>
+              <div style={{fontSize:20,fontWeight:700,color:"#71b478"}}>{analysis.avgSleepOnEaseDays}h</div>
+              <div style={{fontSize:9,color:C.muted,marginTop:2}}>avg sleep on calm/happy/good days</div>
+            </div>
+            <div style={{flex:1,background:C.bg,borderRadius:10,padding:"12px 10px",textAlign:"center"}}>
+              <div style={{fontSize:20,fontWeight:700,color:"#e05a5a"}}>{analysis.avgSleepOnHardDays}h</div>
+              <div style={{fontSize:9,color:C.muted,marginTop:2}}>avg sleep on angry/sad/anxious/low days</div>
+            </div>
+          </div>
+        )}
+
+        {/* Mood frequency breakdown */}
+        <div style={{marginBottom:14}}>
+          <div style={{fontSize:10,color:C.muted,marginBottom:8,fontFamily:"'DM Mono',monospace"}}>HOW OFTEN EACH MOOD SHOWS UP</div>
+          {analysis.moodFrequency.map((m,i)=>{
+            const opt = MOOD_OPTIONS.find(o=>o.val===m.mood);
+            return (
+              <div key={i} style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
+                <span style={{fontSize:14,width:20}}>{opt?.emoji||"·"}</span>
+                <div style={{width:64,fontSize:11,color:C.muted}}>{opt?.label||m.mood}</div>
+                <div style={{flex:1,height:6,background:C.border,borderRadius:3,overflow:"hidden"}}>
+                  <div style={{width:`${m.pct}%`,height:"100%",background:opt?.color||C.muted,borderRadius:3}}/>
+                </div>
+                <div style={{fontSize:11,color:C.text,width:50,textAlign:"right"}}>{m.count}x · {m.pct}%</div>
+              </div>
+            );
+          })}
+        </div>
+
+        {/* Honest reflections */}
+        {reflections.length>0&&(
+          <div style={{display:"flex",flexDirection:"column",gap:8}}>
+            <div style={{fontSize:10,color:C.muted,marginBottom:2,fontFamily:"'DM Mono',monospace"}}>WHAT YOUR DATA SHOWS</div>
+            {reflections.map((r,i)=>(
+              <div key={i} style={{
+                padding:"11px 14px",borderRadius:10,fontSize:13,lineHeight:1.7,color:C.text,
+                background: r.type==="warning" ? C.gold+"10" : C.accent3+"08",
+                border: `1px solid ${r.type==="warning" ? C.gold : C.accent3}30`,
+              }}>
+                {r.text}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Gentle, non-clinical note about deeper support */}
+        <div style={{marginTop:14,padding:"11px 14px",background:C.bg,borderRadius:10,fontSize:12,color:C.muted,lineHeight:1.7,fontStyle:"italic"}}>
+          This is a mirror, not a diagnosis — it shows you patterns in your own data so you can notice them sooner. If anger, sadness, or wanting to end things keeps showing up, that's worth bringing to a therapist too. Self-awareness and outside support work better together than either alone.
+        </div>
+      </div>
+    </div>
+  );
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -5514,7 +6122,7 @@ Keep responses warm, direct, 4–6 sentences max unless they ask for more.`;
           updateBP({food:foods.join(","),symptoms:[]});
         }
         if(autoLog.type==="water_log")setWaterLog(w=>w+(autoLog.water_ml||250));
-        if(autoLog.type==="move_log")setMoveLog(l=>[...l,{id:Date.now(),activity:autoLog.activity||"activity",duration:autoLog.duration_min||30,time:new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})}]);
+        if(autoLog.type==="move_log")setMoveLog(l=>[...l,{id:Date.now(),activity:autoLog.activity||"activity",duration:autoLog.duration_min||30,date:new Date().toISOString().split("T")[0],time:new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})}]);
       }
       recordAIMsg();
       setMsgs(p=>[...p,{role:"assistant",content:display,logged:autoLog}]);
@@ -6187,6 +6795,28 @@ function fmtDateShort(d) {
 }
 
 // ── Main Birth Chart Section ───────────────────────────────────
+// Decorative starfield background used behind each sign card in the birth
+// chart header. This was referenced in the chart view but never defined,
+// causing a ReferenceError crash every time the chart rendered.
+function ConstellationBg({sign, size=120, opacity=0.18}){
+  // Deterministic pseudo-random star positions seeded by the sign name,
+  // so each sign gets a consistent (not re-randomized every render) pattern.
+  const seed = (sign||"").split("").reduce((a,c)=>a+c.charCodeAt(0),0);
+  const stars = Array.from({length:8},(_,i)=>{
+    const x = ((seed*7+i*53)%100);
+    const y = ((seed*13+i*37)%100);
+    const r = (i%3===0)?1.6:0.9;
+    return {x,y,r};
+  });
+  return (
+    <svg width={size} height={size} viewBox="0 0 100 100" style={{position:"absolute",top:0,left:0,opacity,pointerEvents:"none"}}>
+      {stars.map((s,i)=>(
+        <circle key={i} cx={s.x} cy={s.y} r={s.r} fill="#e8e0ff"/>
+      ))}
+    </svg>
+  );
+}
+
 function BirthChartSection({C, profile, up}) {
   const G = C; // galaxy palette
   const [step, setStep] = useState(profile.dob ? "chart" : "input");
@@ -6340,12 +6970,13 @@ Question: ${q || "Give a deep, personalised Vedic reading covering: core persona
     if(!bd.dob) return;
     setStep("chart");
     // Save birth details to profile
-    if(profile.up) {
-      profile.up("birthTime", bd.time);
-      profile.up("birthPlace", bd.place);
-      profile.up("manualLagna", bd.manualLagna);
-      profile.up("manualMoon", bd.manualMoon);
-      profile.up("manualSun", bd.manualSun);
+    if(up) {
+      up("dob", bd.dob);
+      up("birthTime", bd.time);
+      up("birthPlace", bd.place);
+      up("manualLagna", bd.manualLagna);
+      up("manualMoon", bd.manualMoon);
+      up("manualSun", bd.manualSun);
     }
   }} disabled={!bd.dob} style={{padding:"15px",background:bd.dob?`linear-gradient(135deg,${G.accent},${G.warm})`:G.border,border:"none",borderRadius:12,color:"#fff",cursor:bd.dob?"pointer":"not-allowed",fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontStyle:"italic",marginTop:6}}>
           {bd.dob?"Read My Chart →":"Enter date of birth to continue"}
