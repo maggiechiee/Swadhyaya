@@ -557,6 +557,20 @@ const SUPPLEMENT_TYPES = [
   { id:"zinc", label:"Zinc", unit:"mg", icon:"\uD83D\uDEE1",
     note:"Take with food to avoid nausea.",
     perUnit:{ zinc:1 } },
+  { id:"multiNutrient", label:"Multi-Nutrient Combo", unit:"per serving", icon:"\uD83D\uDC8A",
+    note:"For tablets combining several nutrients (e.g. Chelated Iron with Vitamin C, Zinc, Folate, B12). Enter each amount exactly as printed on the label.",
+    isMultiNutrient:true,
+    fields:[
+      {key:"vitC", label:"Vitamin C", unit:"mg"},
+      {key:"iron", label:"Iron", unit:"mg"},
+      {key:"zinc", label:"Zinc", unit:"mg"},
+      {key:"folate", label:"Folate / B9", unit:"mcg"},
+      {key:"vitB12", label:"Vitamin B12", unit:"mcg"},
+      {key:"calcium", label:"Calcium", unit:"mg"},
+      {key:"magnesium", label:"Magnesium (elemental)", unit:"mg"},
+      {key:"vitD", label:"Vitamin D3", unit:"mcg"},
+    ],
+    perUnit:{} },
   { id:"multivitamin", label:"Multivitamin (general)", unit:"tablet", icon:"\uD83D\uDC8A",
     note:"Generic — log individual nutrients separately if you know your label's exact amounts for more accurate tracking.",
     perUnit:{} },
@@ -706,6 +720,20 @@ function calcSupplementNutrition(supplements){
     if(!supp.takenToday) return;
     const type=SUPPLEMENT_TYPES.find(t=>t.id===supp.typeId);
     if(!type) return;
+
+    // Multi-nutrient combos store one amount per field (e.g. {vitC:65, iron:29, zinc:13.2}),
+    // entered exactly as printed on the label — no single "dose" value applies.
+    if(type.isMultiNutrient){
+      const values = supp.multiValues || {};
+      (type.fields||[]).forEach(f=>{
+        let amt = parseFloat(values[f.key])||0;
+        if(amt<=0) return;
+        if(f.unit==="mcg" && (f.key==="vitD")) amt = amt; // already in mcg, matches field unit
+        b[f.key] = (b[f.key]||0) + amt;
+      });
+      return;
+    }
+
     let dose=parseFloat(supp.dose)||0;
     if(dose<=0) return;
     // Unit conversions to bring the dose into the same units the
@@ -4675,12 +4703,12 @@ function SupplementsPanel({C, profile, up}){
   const todayWeekday = WEEKDAY_LABELS[(new Date().getDay()+6)%7]; // Monday=0
 
   const [form, setForm] = useState({
-    id:null, name:"", typeId:"multivitamin", dose:"",
+    id:null, name:"", typeId:"multivitamin", dose:"", multiValues:{},
     frequency:"daily", days:[], timeOfDay:"morning",
   });
 
   function resetForm(){
-    setForm({id:null, name:"", typeId:"multivitamin", dose:"", frequency:"daily", days:[], timeOfDay:"morning"});
+    setForm({id:null, name:"", typeId:"multivitamin", dose:"", multiValues:{}, frequency:"daily", days:[], timeOfDay:"morning"});
     setEditing(null);
     setShowAdd(false);
   }
@@ -4756,7 +4784,27 @@ function SupplementsPanel({C, profile, up}){
           {selectedType?.note&&<div style={{fontSize:11,color:C.dim,marginTop:8,fontStyle:"italic",lineHeight:1.6}}>{selectedType.note}</div>}
         </div>
 
-        {selectedType && selectedType.id!=="other" && (
+        {selectedType && selectedType.isMultiNutrient && (
+          <div>
+            <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>AMOUNTS PER SERVING (enter exactly as on label)</div>
+            <div style={{display:"flex",flexDirection:"column",gap:8}}>
+              {selectedType.fields.map(f=>(
+                <div key={f.key} style={{display:"flex",alignItems:"center",gap:10}}>
+                  <div style={{width:140,fontSize:12,color:C.text}}>{f.label}</div>
+                  <input
+                    value={(form.multiValues||{})[f.key]||""}
+                    onChange={e=>setForm(prev=>({...prev, multiValues:{...(prev.multiValues||{}), [f.key]:e.target.value}}))}
+                    type="number" placeholder="0"
+                    style={{width:90,background:C.card,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"8px 11px",fontSize:14,fontFamily:"'DM Mono',monospace"}}/>
+                  <div style={{fontSize:11,color:C.muted}}>{f.unit}</div>
+                </div>
+              ))}
+            </div>
+            <div style={{fontSize:11,color:C.dim,marginTop:8,fontStyle:"italic"}}>Leave any field blank or 0 if your label doesn't list it.</div>
+          </div>
+        )}
+
+        {selectedType && !selectedType.isMultiNutrient && selectedType.id!=="other" && (
           <div>
             <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>DOSE PER SERVING</div>
             <div style={{display:"flex",gap:10,alignItems:"center"}}>
@@ -4855,7 +4903,10 @@ function SupplementsPanel({C, profile, up}){
             <div style={{flex:1}}>
               <div style={{fontSize:13,fontWeight:600,color:s.takenToday?C.muted:C.text,textDecoration:s.takenToday?"line-through":"none"}}>{type?.icon} {s.name}</div>
               <div style={{fontSize:11,color:C.muted,marginTop:2}}>
-                {s.dose?`${s.dose} ${type?.unit||""} · `:""}{s.timeOfDay!=="any"?s.timeOfDay:""}
+                {type?.isMultiNutrient
+                  ? `${Object.keys(s.multiValues||{}).filter(k=>parseFloat((s.multiValues||{})[k])>0).length} nutrients · `
+                  : s.dose?`${s.dose} ${type?.unit||""} · `:""}
+                {s.timeOfDay!=="any"?s.timeOfDay:""}
               </div>
             </div>
             <button onClick={()=>{setForm({...s});setEditing(s);setShowAdd(true);}} style={{background:"transparent",border:"none",color:C.dim,cursor:"pointer",fontSize:11,padding:"4px 8px"}}>Edit</button>
@@ -4961,7 +5012,7 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
       items:[
         {k:"iron",l:"Iron",u:"mg",icon:"⚙",isMax:false,why:"Critical for menstruating women. Pair with Vit C."},
         {k:"folate",l:"Folate",u:"μg",icon:"🥬",isMax:false,why:"Blood formation, DNA repair, essential if pregnant"},
-        {k:"vitB12",l:"Vitamin B12",u:"μg",icon:"⚡",isMax:false,why:"Memory, energy, nerves, hair. Vegetarians often deficient."},
+        {k:"vitB12",l:"Vitamin B12",u:"μg",icon:"⚡",isMax:false,noUpperConcern:true,why:"Memory, energy, nerves, hair. Vegetarians often deficient. Water-soluble — high supplemental doses aren't a safety concern."},
       ]
     },
     {
@@ -5307,8 +5358,8 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
                   const intake=(todayFood[n.k]||0)*mult;
                   const target=(needs[n.k]||1)*mult;
                   const pct=Math.round((intake/target)*100);
-                  const color=sc(pct,n.isMax);
-                  const statusLabel=n.isMax?(pct>100?"Over limit":pct>80?"Near limit":"OK"):(pct<40?"Low":pct<70?"Below target":pct<=110?"Good":"Over");
+                  const color=n.noUpperConcern&&pct>110?C.accent2:sc(pct,n.isMax);
+                  const statusLabel=n.noUpperConcern&&pct>110?"Well above target — fine":n.isMax?(pct>100?"Over limit":pct>80?"Near limit":"OK"):(pct<40?"Low":pct<70?"Below target":pct<=110?"Good":"Over");
                   const FOOD_SOURCES={
                     iron:"+ Vit C to absorb better. Eat: dal, chole, spinach, jaggery, ragi, sesame, eggs",
                     calcium:"Eat: curd, paneer, milk, ragi, til, tofu",
@@ -5338,7 +5389,7 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
                           </div>
                         </div>
                         <div style={{textAlign:"right",flexShrink:0}}>
-                          <div style={{fontSize:14,fontWeight:700,color}}>{pct}%</div>
+                          <div style={{fontSize:14,fontWeight:700,color}}>{n.noUpperConcern&&pct>999?"999+":pct}%</div>
                           <div style={{fontSize:9,color,padding:"2px 7px",background:color+"15",borderRadius:10}}>{statusLabel}</div>
                         </div>
                       </div>
