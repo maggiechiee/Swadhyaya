@@ -624,10 +624,16 @@ function parseQuantity(foodStr) {
     }
   }
 
-  // explicit gram/ml amount: "500 ml buttermilk", "500g paneer"
+  // explicit gram/ml amount, amount first: "500 ml buttermilk", "500g paneer"
   const gramLead = str.match(/^(\d+(?:\.\d+)?)\s*(g|gram|grams|ml)\b\s*(.*)$/);
   if (gramLead) {
-    return { qty: parseFloat(gramLead[1])/100, food: gramLead[3].trim() };
+    return { qty: 1, gramsStated: parseFloat(gramLead[1]), food: gramLead[3].trim() };
+  }
+
+  // explicit gram/ml amount, amount trailing: "dry fruits 20 grams", "paneer 500g"
+  const gramTrail = str.match(/^(.+?)\s+(\d+(?:\.\d+)?)\s*(g|gram|grams|ml)\b\s*$/);
+  if (gramTrail) {
+    return { qty: 1, gramsStated: parseFloat(gramTrail[2]), food: gramTrail[1].trim() };
   }
 
   // leading plain number followed by rest of string: "2 bowls dal", "2 roti"
@@ -685,14 +691,33 @@ function getLocalDateStr(d){
   return `${year}-${month}-${day}`;
 }
 
+// Extracts the reference gram weight a FOOD_DB entry's nutrition values
+// are based on, by reading the number out of its "serving" text (e.g.
+// "100g" -> 100, "20g mixed" -> 20). Falls back to 100g for entries with
+// no explicit gram weight (servings measured by volume/count instead,
+// like "1 glass" or "1 medium") — those simply don't support gram-based
+// logging precisely, so 100g is a reasonable generic assumption rather
+// than guessing a count-based weight.
+function getServingGrams(foodEntry){
+  if(!foodEntry || !foodEntry.serving) return 100;
+  const match = foodEntry.serving.match(/(\d+(?:\.\d+)?)\s*g\b/i);
+  return match ? parseFloat(match[1]) : 100;
+}
+
 function calcNutrition(foods){
   const b={cal:0,protein:0,carbs:0,fat:0,fibre:0,iron:0,calcium:0,vitC:0,vitB12:0,vitD:0,folate:0,magnesium:0,zinc:0,potassium:0,omega3:0,choline:0,addedSugar:0,sodium:0,vitA:0,vitE:0};
   (foods||[]).forEach(rawEntry=>{
     splitFoodEntries(rawEntry).forEach(entry=>{
-      const {qty, food} = parseQuantity(entry);
+      const {qty, gramsStated, food} = parseQuantity(entry);
       const k=resolveFood(food);
       const d=k?FOOD_DB[k]:null;
-      if(d) for(const n of Object.keys(b)) b[n]+=(d[n]||0)*qty;
+      if(!d) return;
+      // If a specific gram/ml amount was stated, scale against THIS
+      // food's actual reference serving weight, not a fixed 100g
+      // assumption — fixes cases like "dry fruits 20 grams" where the
+      // database entry's own serving is defined as 20g, not 100g.
+      const effectiveQty = gramsStated!=null ? gramsStated/getServingGrams(d) : qty;
+      for(const n of Object.keys(b)) b[n]+=(d[n]||0)*effectiveQty;
     });
   });
   return b;
