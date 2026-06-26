@@ -1,5 +1,5 @@
 // Server-side proxy for Claude API calls used throughout Swadhyaya.
-// Keeps the Anthropic API key on the server — never sent to the browser.
+// Keeps the Anthropic API key on the server - never sent to the browser.
 // Every client-side call in components/Swadhyaya.jsx should hit this
 // route ("/api/ask-ai") instead of calling api.anthropic.com directly.
 
