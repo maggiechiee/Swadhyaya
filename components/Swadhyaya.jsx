@@ -939,8 +939,9 @@ function Stars(){
 
 // ── AI call ───────────────────────────────────────────────────
 async function askAI(system,messages,maxTokens=600){
-  const r=await fetch("https://api.anthropic.com/v1/messages",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({model:"claude-sonnet-4-20250514",max_tokens:maxTokens,system,messages})});
+  const r=await fetch("/api/ask-ai",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({system,messages,max_tokens:maxTokens})});
   const d=await r.json();
+  if(!r.ok || d.error) throw new Error(d.error||"AI request failed");
   return d.content?.map(b=>b.text||"").join("")||"Try again.";
 }
 
@@ -1035,36 +1036,19 @@ export default function Swadhyaya(){
         // Try loading cloud data first
         loadUserData(session.user.id).then(hasCloudData => {
           if (!hasCloudData) {
-            // No cloud data — push local profile to cloud immediately
-            setProfile(p => {
-              const toSave = {...p, onboardingDone: true};
-              // Save directly with user id since userRef might not be set yet
-              supabase.from("profiles").upsert({
-                id: session.user.id,
-                email: session.user.email,
-                name: p.name || "",
-                gender: p.gender || "female",
-                age: p.age || "",
-                weight: p.weight || "",
-                height: p.height || "",
-                activity_level: p.activityLevel || "light",
-                fitness_goal: p.fitnessGoal || "",
-                dob: p.dob || "",
-                birth_time: p.birthTime || "",
-                birth_place: p.birthPlace || "",
-                cycle_length: p.cycleLength || "28",
-                period_length: p.periodLength || "5",
-                last_period_start: p.lastPeriodStart || "",
-                health_conditions: p.healthConditions || [],
-                goals: p.goals || [],
-                plan: p.plan || "trial",
-                trial_start_date: p.trialStartDate || new Date().toISOString().split("T")[0],
-                onboarding_done: true,
-                updated_at: new Date().toISOString(),
-              }).then(() => console.log("Profile saved to cloud"));
-              return toSave;
-            });
-            setOnboarded(true);
+            // Genuinely new user — do NOT auto-mark onboarding as done.
+            // Just create a minimal account record (id/email) so the
+            // profile row exists, and let the Onboarding screen collect
+            // their actual name, age, weight, goals, etc. normally.
+            supabase.from("profiles").upsert({
+              id: session.user.id,
+              email: session.user.email,
+              plan: "trial",
+              trial_start_date: new Date().toISOString().split("T")[0],
+              onboarding_done: false,
+              updated_at: new Date().toISOString(),
+            }).then(() => console.log("New account created — awaiting onboarding"));
+            setOnboarded(false);
           }
         });
       } else if (event === "SIGNED_OUT") {
@@ -5761,10 +5745,10 @@ function DayDashboard({C, galaxy, profile, todayFood, needs, completedSteps, jou
     setLoading(true);
     const summary = `Score ${score}/100. Mood: ${mood||"not logged"}. Energy: ${todayJournal?.energy||"not logged"}/10. Ups: ${ups.join(", ")||"none"}. Downs: ${downs.join(", ")||"none"}. Journal: "${(todayJournal?.freeWrite||"").slice(0,100)}". Goal: ${profile?.fitnessGoal||"none"}.`;
     try {
-      const r = await fetch("https://api.anthropic.com/v1/messages", {
+      const r = await fetch("/api/ask-ai", {
         method:"POST", headers:{"Content-Type":"application/json"},
         body: JSON.stringify({
-          model:"claude-sonnet-4-20250514", max_tokens:60,
+          max_tokens:60,
           system:"One sentence, max 12 words. True, specific, warm. Not advice — an observation. Like a wise friend.",
           messages:[{role:"user", content:`My day: ${summary}. What does today say about me?`}]
         })
@@ -6043,10 +6027,10 @@ function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedS
     setMirrorLoading(true);
     setMirrorOpen(true);
     try{
-      const r=await fetch("https://api.anthropic.com/v1/messages",{
+      const r=await fetch("/api/ask-ai",{
         method:"POST",headers:{"Content-Type":"application/json"},
         body:JSON.stringify({
-          model:"claude-sonnet-4-20250514",max_tokens:80,
+          max_tokens:80,
           system:"You are a wise, warm mirror. The user shares their day. You respond with ONE sentence — 10-15 words maximum. It must feel deeply true, not generic. Like a friend who really sees them. No fluff, no affirmations, no advice. Just truth. Examples: 'You're tired, not lazy.' / 'The person you're becoming showed up today.' / 'You took care of everyone except yourself.' / 'Today, you chose creativity over comfort.' / 'You did more than you gave yourself credit for.'",
           messages:[{role:"user",content:`My day: ${summary}. Give me one true sentence about today.`}]
         })
@@ -6639,10 +6623,10 @@ function YourManualSection({C, galaxy, profile, journalEntries, behaviourProfile
     const summary = manual.observations.join(" ") + " " +
       `Profile: ${profile.gender}, age ${profile.age}, goal: ${profile.fitnessGoal||"none"}.`;
     try {
-      const r = await fetch("https://api.anthropic.com/v1/messages", {
+      const r = await fetch("/api/ask-ai", {
         method:"POST", headers:{"Content-Type":"application/json"},
         body: JSON.stringify({
-          model:"claude-sonnet-4-20250514", max_tokens:300,
+          max_tokens:300,
           system:`You are writing a person's "operating manual" — a compassionate, non-diagnostic summary of how their mind and body seem to work, based on observed patterns. Never diagnose. Never label. Use "you seem to", "you tend to", "your patterns suggest". Be warm, specific, and end with one practical suggestion. Max 120 words.`,
           messages:[{role:"user", content:`Observed patterns: ${summary}. Write their personal operating manual.`}]
         })
@@ -7312,9 +7296,9 @@ function BirthChartSection({C, profile, up}) {
 
 Question: ${q || "Give a deep, personalised Vedic reading covering: core personality synthesis of these three signs, current life phase interpretation (Mahadasha + Antardasha), what this person needs to know right now, shadow work, and dharma. Be specific and personal. Reference the actual planets and signs. Max 250 words."}`;
     try {
-      const r = await fetch("https://api.anthropic.com/v1/messages", {
+      const r = await fetch("/api/ask-ai", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ model: "claude-sonnet-4-20250514", max_tokens: 700,
+        body: JSON.stringify({ max_tokens: 700,
           system: "You are a deeply knowledgeable Vedic astrologer combining Jyotish with psychology. Be precise, specific to this exact chart, speak directly to the person. Warm but honest. Reference specific planet names, signs, and current dasha period.",
           messages: [{ role: "user", content: prompt }] }),
       });
