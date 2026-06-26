@@ -521,6 +521,14 @@ const FOOD_DB={
   "ragi":{serving:"1 cup cooked",cal:160,protein:3.6,carbs:33,fat:1,fibre:1.8,iron:2,calcium:182,vitC:0,vitB12:0,vitD:0,folate:9,magnesium:68,zinc:0.7,potassium:204,omega3:0,choline:0,addedSugar:0,sodium:6,vitA:0,vitE:0.2},
   "moong":{serving:"1 bowl",cal:105,protein:7,carbs:18,fat:0.4,fibre:4,iron:1.4,calcium:27,vitC:2,vitB12:0,vitD:0,folate:159,magnesium:48,zinc:0.8,potassium:270,omega3:0,choline:25,addedSugar:0,sodium:4,vitA:3,vitE:0.3},
   "sweet potato":{serving:"1 medium",cal:112,protein:2,carbs:26,fat:0.1,fibre:4,iron:0.8,calcium:38,vitC:25,vitB12:0,vitD:0,folate:15,magnesium:33,zinc:0.4,potassium:438,omega3:0,choline:17,addedSugar:0,sodium:72,vitA:1250,vitE:0.4},
+  "sambar":{serving:"1 bowl",cal:140,protein:6,carbs:20,fat:4,fibre:5,iron:2,calcium:40,vitC:6,vitB12:0,vitD:0,folate:60,magnesium:30,zinc:0.8,potassium:320,omega3:0,choline:18,addedSugar:0,sodium:380,vitA:30,vitE:0.5},
+  "appe":{serving:"4 pieces",cal:200,protein:5,carbs:32,fat:6,fibre:1.5,iron:1,calcium:20,vitC:0,vitB12:0,vitD:0,folate:10,magnesium:18,zinc:0.5,potassium:90,omega3:0,choline:8,addedSugar:0,sodium:250,vitA:0,vitE:0.3},
+  "appam":{serving:"1",cal:120,protein:2,carbs:24,fat:1.5,fibre:0.8,iron:0.6,calcium:8,vitC:0,vitB12:0,vitD:0,folate:6,magnesium:10,zinc:0.3,potassium:60,omega3:0,choline:5,addedSugar:0,sodium:150,vitA:0,vitE:0.1},
+  "semolina appam":{serving:"5 pieces",cal:300,protein:5,carbs:60,fat:3.5,fibre:2,iron:1.5,calcium:20,vitC:0,vitB12:0,vitD:0,folate:15,magnesium:25,zinc:0.8,potassium:150,omega3:0,choline:12,addedSugar:0,sodium:375,vitA:0,vitE:0.3},
+  "cucumber":{serving:"1 bowl chopped",cal:16,protein:0.7,carbs:3.6,fat:0.1,fibre:0.5,iron:0.3,calcium:16,vitC:2.8,vitB12:0,vitD:0,folate:7,magnesium:13,zinc:0.2,potassium:147,omega3:0,choline:6,addedSugar:0,sodium:2,vitA:5,vitE:0},
+  "dry fruits":{serving:"20g mixed",cal:115,protein:3,carbs:9,fat:8,fibre:1.8,iron:0.8,calcium:30,vitC:0,vitB12:0,vitD:0,folate:8,magnesium:35,zinc:0.6,potassium:160,omega3:0,choline:8,addedSugar:0,sodium:1,vitA:0,vitE:1.5},
+  "green tea":{serving:"1 cup",cal:2,protein:0.2,carbs:0,fat:0,fibre:0,iron:0,calcium:0,vitC:0,vitB12:0,vitD:0,folate:0,magnesium:1,zinc:0,potassium:8,omega3:0,choline:0,addedSugar:0,sodium:2,vitA:0,vitE:0},
+  "cold coffee":{serving:"1 glass",cal:150,protein:4,carbs:20,fat:6,fibre:0,iron:0.1,calcium:120,vitC:0,vitB12:0.2,vitD:2,folate:5,magnesium:15,zinc:0.3,potassium:200,omega3:0,choline:10,addedSugar:18,sodium:60,vitA:30,vitE:0.1},
   "biryani":{serving:"1 plate",cal:450,protein:14,carbs:60,fat:16,fibre:2.5,iron:2.5,calcium:50,vitC:3,vitB12:0.2,vitD:0,folate:25,magnesium:35,zinc:1.5,potassium:300,omega3:0,choline:20,addedSugar:0,sodium:600,vitA:30,vitE:0.6},
   "pizza":{serving:"2 slices",cal:430,protein:18,carbs:50,fat:18,fibre:3,iron:3,calcium:300,vitC:2,vitB12:0.6,vitD:0,folate:35,magnesium:30,zinc:2,potassium:260,omega3:0.1,choline:35,addedSugar:5,sodium:900,vitA:180,vitE:0.7},
   "noodles":{serving:"1 plate",cal:350,protein:9,carbs:55,fat:11,fibre:2.5,iron:2.4,calcium:30,vitC:2,vitB12:0,vitD:0,folate:30,magnesium:25,zinc:0.9,potassium:120,omega3:0,choline:12,addedSugar:0,sodium:850,vitA:5,vitE:0.4},
@@ -555,7 +563,7 @@ const NUTRIENT_FIELDS = [
   {key:"sodium", label:"Sodium", unit:"mg"},
 ];
 
-const FOOD_ALIASES={"pohaa":"poha","chapati":"roti","chapatis":"roti","daal":"dal","chawal":"rice","puri":"poori","dahi":"curd","yogurt":"curd","mango":"aam","kela":"banana","anda":"egg","palak":"spinach","gur":"jaggery","pani":"water","paani":"water","sabji":"sabzi","stuffed aloo paratha":"aloo paratha","veg pulao":"pulao","vegetable pulao":"pulao","mixed vegetable sabzi":"sabzi","mixed veg":"sabzi","kala chana":"kala chana curry","boiled egg":"egg","vegetable sandwich":"sandwich","veg sandwich":"sandwich","tea with milk and sugar":"chai","coffee with milk and sugar":"coffee","roasted makhana":"makhana","tea":"chai","bottle gourd":"lauki","bottle ground":"lauki","ghiya":"lauki","doodhi":"lauki","boondi laddoo":"laddu","boondi ladoo":"laddu","besan laddoo":"laddu","besan ladoo":"laddu","ladoo":"laddu","laddoo":"laddu","milk tea":"chai","milk chai":"chai"};
+const FOOD_ALIASES={"pohaa":"poha","chapati":"roti","chapatis":"roti","daal":"dal","chawal":"rice","puri":"poori","dahi":"curd","yogurt":"curd","mango":"aam","kela":"banana","anda":"egg","palak":"spinach","gur":"jaggery","pani":"water","paani":"water","sabji":"sabzi","stuffed aloo paratha":"aloo paratha","veg pulao":"pulao","vegetable pulao":"pulao","mixed vegetable sabzi":"sabzi","mixed veg":"sabzi","kala chana":"kala chana curry","boiled egg":"egg","vegetable sandwich":"sandwich","veg sandwich":"sandwich","tea with milk and sugar":"chai","coffee with milk and sugar":"coffee","roasted makhana":"makhana","tea":"chai","bottle gourd":"lauki","bottle ground":"lauki","ghiya":"lauki","doodhi":"lauki","boondi laddoo":"laddu","boondi ladoo":"laddu","besan laddoo":"laddu","besan ladoo":"laddu","ladoo":"laddu","laddoo":"laddu","milk tea":"chai","milk chai":"chai","sambhar":"sambar","paniyaram":"appe","appey":"appe","kuzhi paniyaram":"appe"};
 
 // resolveFood: matches on whole words first (never on raw substrings) to
 // avoid false positives like "buttermilk" matching "milk", or "papaya"
@@ -738,32 +746,56 @@ function calcSupplementNutrition(supplements){
 async function estimateSupplementAI(rawLines){
   const empty=()=>({cal:0,protein:0,carbs:0,fat:0,fibre:0,iron:0,calcium:0,vitC:0,vitB12:0,vitD:0,folate:0,magnesium:0,zinc:0,potassium:0,omega3:0,choline:0,addedSugar:0,sodium:0,vitA:0,vitE:0});
   if(!rawLines||rawLines.length===0) return {totals:empty(), items:[]};
-  const system=`You are a supplement label interpreter. Given lines of text exactly as a person typed them from a supplement label (e.g. "Magnesium Glycinate 2000mg", "Vitamin B12 (Cyanocobalamin) 1500mcg", "Omega-3 fish oil 2500mg", "Iron from Ferrous Bisglycinate 29mg"), figure out which nutrient each line refers to and convert the stated amount to the ELEMENTAL or biologically active amount, exactly the way a pharmacist or nutritionist would read a label.
+  const system=`You are a supplement label interpreter. Given lines of text exactly as a person typed them from a supplement label, figure out which nutrient each line refers to and convert the stated amount to the ELEMENTAL or biologically active amount, exactly the way a pharmacist or nutritionist would read a label. Accuracy matters enormously here — the person is using this to know exactly what they're putting in their body, so never double-count and never get units wrong.
 
-Key conversions you must apply correctly:
-- Magnesium glycinate / bisglycinate is ~14% elemental magnesium by weight (2000mg glycinate ≈ 280mg elemental magnesium)
-- Magnesium citrate is ~16% elemental magnesium by weight
-- Magnesium oxide is ~60% elemental magnesium by weight
-- Ferrous bisglycinate, ferrous sulfate, ferrous fumarate labels in India typically already state ELEMENTAL iron directly (read the line carefully — if it says "Iron (from Ferrous Bisglycinate) 29mg" the 29mg IS the elemental iron amount, not the compound weight)
-- Calcium carbonate is ~40% elemental calcium; calcium citrate is ~21% elemental calcium
+CRITICAL — avoid double-counting on compound/multi-ingredient products:
+Many labels list a carrier/source weight AND its active components on separate lines, e.g.:
+  Fish Oil          1,250 mg
+  EPA (Eicosapentaenoic Acid)   446 mg
+  DHA (Docosahexaenoic Acid)    297 mg
+  Total EPA + DHA   743 mg
+These four lines describe ONE fact (how much omega-3 is in this dose), not four separate facts. You must:
+- Mark the carrier/raw-source line (e.g. "Fish Oil 1250mg") as matched:"unknown" with note explaining it's the carrier oil weight, not the active omega-3 amount — do NOT count fish oil/krill oil weight as omega-3.
+- Mark the individual EPA line and individual DHA line as matched:"unknown" with a note saying "covered by the combined EPA+DHA total below" — do NOT give them their own omega3 entry.
+- Only the explicit combined "Total EPA + DHA" (or "EPA+DHA") line should be matched to "omega3" with its stated amount.
+- If a label does NOT provide an explicit combined total line, then and only then add the individual EPA and DHA amounts together yourself and return ONE omega3 entry with the summed amount — never both the parts AND a sum.
+This same "don't double count parts and wholes" logic applies to any nutrient given in multiple overlapping lines, not just omega-3.
+
+UNITS — be extremely careful, this is the most common source of error:
+- Always return amounts in the units the field already expects: mg for iron/calcium/magnesium/zinc/vitE/sodium/potassium/choline; mcg for vitB12/vitD/folate/vitA; g for omega3/protein/fibre.
+- omega3 is tracked in GRAMS in this app, but supplement labels almost always state it in MILLIGRAMS. If the label says "743 mg", you must convert: return amount as 0.743 with unit "g" — do NOT return 743 with unit "g", and do NOT return 743 with unit "mg" expecting the caller to convert; YOU do the mg-to-g division yourself for omega3 specifically, since this is the single highest-risk mistake for this field.
+- Double-check every returned (amount, unit) pair makes physical sense before responding — a daily omega-3 dose is virtually always under 5 grams; if your number is in the hundreds or thousands for omega3, you have not converted units correctly.
+
+Other key conversions:
+- Magnesium glycinate / bisphenol forms: glycinate/bisglycinate ~14% elemental magnesium by weight; citrate ~16%; oxide ~60%
+- Ferrous bisglycinate, ferrous sulfate, ferrous fumarate on Indian labels typically already state ELEMENTAL iron directly — read carefully; "Iron (from Ferrous Bisglycinate) 29mg" means 29mg IS the elemental iron, not the compound weight
+- Calcium carbonate ~40% elemental calcium; calcium citrate ~21% elemental calcium
 - Vitamin D in IU: divide by 40 to get mcg
-- B12, folate, and other vitamins are typically already stated as the active amount — no conversion needed
-- If a line clearly already states an elemental/active amount (common on Indian supplement labels, which often pre-calculate this), do NOT apply a compound-conversion on top of it — only convert when the line names a compound form AND states the compound's total weight, not the elemental content
+- B12, folate, and most vitamins are already stated as the active amount — no conversion needed
+- If a line already states an elemental/active amount directly (common on Indian labels which often pre-calculate this), do not apply a compound-conversion on top of it
+
+For every line that successfully matches a tracked nutrient (matched is not "unknown"), also write a short, plain-language explanation of what that nutrient actually does in the body and mind — accurate, evidence-based, no hype, no marketing language. One to two sentences, written for someone with no science background. Skip this for excluded/unknown lines.
 
 Return ONLY valid JSON, no markdown, no explanation, in this exact shape:
-{"items":[{"input":"<original line>","matched":"<which nutrient field this maps to: iron|vitC|zinc|folate|vitB12|calcium|magnesium|vitD|vitA|vitE|omega3|protein|fibre|potassium|choline|sodium|unknown>","amount":0,"unit":"<unit of the returned amount: mg|mcg|g>","note":"<one short sentence explaining any conversion applied, or empty string if none>"}]}
+{"items":[{"input":"<original line>","matched":"<field this maps to: iron|vitC|zinc|folate|vitB12|calcium|magnesium|vitD|vitA|vitE|omega3|protein|fibre|potassium|choline|sodium|unknown>","amount":0,"unit":"<mg|mcg|g>","note":"<one short sentence: what conversion was applied, or why this line was marked unknown/excluded, or empty string if nothing notable>","whatItDoes":"<1-2 plain-language sentences on what this nutrient does in the body/mind, or empty string for excluded/unknown lines>"}]}
 
 If a line is genuinely unclear or doesn't match any tracked nutrient, set matched to "unknown" and amount to 0.`;
   try{
-    const res=await askAI(system,[{role:"user",content:JSON.stringify(rawLines)}],900);
+    const res=await askAI(system,[{role:"user",content:JSON.stringify(rawLines)}],1100);
     const cleaned=res.replace(/```json|```/g,"").trim();
     const parsed=JSON.parse(cleaned);
     const totals=empty();
     const items=(parsed.items||[]).map(item=>{
       let amt=parseFloat(item.amount)||0;
-      // normalize units to what calcSupplementNutrition expects (mg for most, mcg for B12/folate/vitD/vitA, g for omega3)
-      if(item.unit==="g" && item.matched!=="omega3" && item.matched!=="protein" && item.matched!=="fibre") amt=amt*1000; // g -> mg for minerals if AI returned g by mistake
-      if(item.matched && item.matched!=="unknown") totals[item.matched]=(totals[item.matched]||0)+(item.matched==="omega3"?amt/1000:amt);
+      if(item.matched && item.matched!=="unknown"){
+        // omega3, protein, and fibre are tracked in grams; everything else
+        // (minerals/vitamins) is tracked in mg or mcg as already specified
+        // by the prompt. The model is instructed to do the mg->g
+        // conversion itself for omega3, so we trust its returned amount
+        // directly rather than re-converting here (re-converting was the
+        // bug that caused the original 743mg entry to display as 743g).
+        totals[item.matched]=(totals[item.matched]||0)+amt;
+      }
       return item;
     });
     return {totals, items};
@@ -830,6 +862,80 @@ async function calcNutritionWithAI(foods){
 
 // ── BMR + goal-adaptive targets ───────────────────────────────
 const MONTH_NAMES=["January","February","March","April","May","June","July","August","September","October","November","December"];
+
+// Analyzes real progress toward a stated weight goal (e.g. "lose 10kg in
+// 2 months") using what the person has ACTUALLY logged — weight entries,
+// real calorie intake vs target, and actual movement minutes — rather
+// than just restating the original optimistic ask. This is deliberately
+// honest: if someone isn't exercising and is overeating relative to
+// their target, the projected date should visibly push out, not pretend
+// the original 2-month estimate still holds.
+function analyzeGoalProgress({profile, needs, weightLog, foodLogs, moveLog}){
+  const goal=(profile.fitnessGoal||"").toLowerCase();
+  const kgMatch=goal.match(/([0-9]+[.]?[0-9]*)\s*kg/);
+  const moMatch=goal.match(/([0-9]+)\s*month/);
+  const wkMatch=goal.match(/([0-9]+)\s*week/);
+  const goalKg=kgMatch?parseFloat(kgMatch[1]):null;
+  const originalGoalDays=moMatch?parseInt(moMatch[1])*30:wkMatch?parseInt(wkMatch[1])*7:null;
+  const isLoss=needs.isLoss;
+  const isGain=needs.isGain;
+
+  if(!goalKg || (!isLoss && !isGain) || weightLog.length<2){
+    return { hasEnoughData:false, goalKg, originalGoalDays, isLoss, isGain };
+  }
+
+  const sorted=[...weightLog].sort((a,b)=>new Date(a.date)-new Date(b.date));
+  const firstEntry=sorted[0];
+  const lastEntry=sorted[sorted.length-1];
+  const daysElapsed=Math.max(1, Math.round((new Date(lastEntry.date)-new Date(firstEntry.date))/86400000));
+  const weightChange=lastEntry.weight-firstEntry.weight; // negative for loss
+  const actualKgPerWeek=(weightChange/daysElapsed)*7;
+  const progressKg=Math.abs(weightChange);
+  const progressPct=Math.min(100, Math.round((progressKg/goalKg)*100));
+
+  // Behavioral context: how closely has actual eating matched the target,
+  // and how much movement has actually been logged — these explain WHY
+  // the pace is what it is, not just what the pace is.
+  const recentLogs=foodLogs.filter(l=>{
+    const d=new Date(l.date);
+    const cutoff=new Date(lastEntry.date); cutoff.setDate(cutoff.getDate()-14);
+    return d>=cutoff;
+  });
+  const loggedDays=[...new Set(recentLogs.map(l=>l.date))];
+  const avgCalVsTarget = loggedDays.length>0
+    ? Math.round(loggedDays.reduce((sum,d)=>{
+        const dayTotal=recentLogs.filter(l=>l.date===d).reduce((s,l)=>s+(calcLoggedNutrition(l).cal||0),0);
+        return sum+(dayTotal-needs.cal);
+      },0)/loggedDays.length)
+    : null;
+  const totalMoveMin = (moveLog||[]).reduce((a,m)=>a+(m.duration||0),0);
+  const avgMoveMinPerWeek = totalMoveMin>0 ? Math.round((totalMoveMin/Math.max(1,daysElapsed))*7) : 0;
+
+  // Realistic remaining time, projected from ACTUAL pace, not the
+  // original ask. If there's been no real movement yet (actualKgPerWeek
+  // is ~0 or wrong-direction), we can't honestly project a date — say so
+  // plainly rather than showing a misleading number.
+  const remainingKg=Math.max(0, goalKg-progressKg);
+  let projectedDaysRemaining=null;
+  let onPace=null;
+  if(Math.abs(actualKgPerWeek)>0.05){
+    const movingInRightDirection = isLoss ? actualKgPerWeek<0 : actualKgPerWeek>0;
+    if(movingInRightDirection){
+      projectedDaysRemaining=Math.ceil((remainingKg/Math.abs(actualKgPerWeek))*7);
+      onPace = originalGoalDays ? (daysElapsed+projectedDaysRemaining) <= originalGoalDays*1.15 : null;
+    }
+  }
+
+  return {
+    hasEnoughData:true, goalKg, originalGoalDays, isLoss, isGain,
+    daysElapsed, progressKg:Math.round(progressKg*10)/10, progressPct,
+    actualKgPerWeek:Math.round(actualKgPerWeek*100)/100,
+    remainingKg:Math.round(remainingKg*10)/10,
+    projectedDaysRemaining, onPace,
+    avgCalVsTarget, avgMoveMinPerWeek,
+    startWeight:firstEntry.weight, currentWeight:lastEntry.weight,
+  };
+}
 
 function calcNeeds(profile){
   const w=parseFloat(profile.weight)||60;
@@ -4708,6 +4814,7 @@ function SupplementsPanel({C, profile, up}){
   const [showAdd, setShowAdd] = useState(false);
   const [editing, setEditing] = useState(null);
   const [aiLoading, setAiLoading] = useState(false);
+  const [expandedId, setExpandedId] = useState(null);
   const supplements = profile.supplements || [];
   const todayStr = getLocalDateStr();
   const todayWeekday = WEEKDAY_LABELS[(new Date().getDay()+6)%7]; // Monday=0
@@ -4730,8 +4837,9 @@ function SupplementsPanel({C, profile, up}){
     const {items} = await estimateSupplementAI(lines);
     const nutrients = items
       .filter(it=>it.matched && it.matched!=="unknown" && parseFloat(it.amount)>0)
-      .map(it=>({key:it.matched, amount:it.amount, note:it.note||""}));
-    setForm(f=>({...f, nutrients}));
+      .map(it=>({key:it.matched, amount:it.amount, note:it.note||"", whatItDoes:it.whatItDoes||""}));
+    const excluded = items.filter(it=>!it.matched || it.matched==="unknown" || !(parseFloat(it.amount)>0));
+    setForm(f=>({...f, nutrients, excludedLines:excluded}));
     setAiLoading(false);
   }
 
@@ -4816,19 +4924,33 @@ function SupplementsPanel({C, profile, up}){
             <div style={{marginTop:12,display:"flex",flexDirection:"column",gap:6}}>
               <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1}}>UNDERSTOOD AS</div>
               {form.nutrients.map((row,idx)=>(
-                <div key={idx} style={{display:"flex",alignItems:"center",gap:8,background:C.bg,borderRadius:9,padding:"8px 10px"}}>
-                  <div style={{flex:1}}>
-                    <div style={{fontSize:12,color:C.text}}>{NUTRIENT_FIELDS.find(nf=>nf.key===row.key)?.label || row.key}</div>
-                    {row.note&&<div style={{fontSize:10,color:C.dim,fontStyle:"italic",marginTop:1}}>{row.note}</div>}
+                <div key={idx} style={{background:C.bg,borderRadius:9,padding:"10px"}}>
+                  <div style={{display:"flex",alignItems:"center",gap:8}}>
+                    <div style={{flex:1}}>
+                      <div style={{fontSize:12,color:C.text,fontWeight:600}}>{NUTRIENT_FIELDS.find(nf=>nf.key===row.key)?.label || row.key}</div>
+                      {row.note&&<div style={{fontSize:10,color:C.dim,fontStyle:"italic",marginTop:1}}>{row.note}</div>}
+                    </div>
+                    <input value={row.amount} onChange={e=>updateNutrientRow(idx,"amount",e.target.value)}
+                      type="number"
+                      style={{width:64,background:C.card,border:`1px solid ${C.border}`,borderRadius:7,color:C.text,padding:"5px 8px",fontSize:13,fontFamily:"'DM Mono',monospace"}}/>
+                    <div style={{fontSize:10,color:C.muted,width:32}}>{NUTRIENT_FIELDS.find(nf=>nf.key===row.key)?.unit||""}</div>
+                    <button onClick={()=>removeNutrientRow(idx)} style={{background:"transparent",border:"none",color:C.red||"#e05a5a",cursor:"pointer",fontSize:15,padding:"2px 4px"}}>×</button>
                   </div>
-                  <input value={row.amount} onChange={e=>updateNutrientRow(idx,"amount",e.target.value)}
-                    type="number"
-                    style={{width:64,background:C.card,border:`1px solid ${C.border}`,borderRadius:7,color:C.text,padding:"5px 8px",fontSize:13,fontFamily:"'DM Mono',monospace"}}/>
-                  <div style={{fontSize:10,color:C.muted,width:32}}>{NUTRIENT_FIELDS.find(nf=>nf.key===row.key)?.unit||""}</div>
-                  <button onClick={()=>removeNutrientRow(idx)} style={{background:"transparent",border:"none",color:C.red||"#e05a5a",cursor:"pointer",fontSize:15,padding:"2px 4px"}}>×</button>
+                  {row.whatItDoes&&<div style={{fontSize:11,color:C.muted,marginTop:6,lineHeight:1.6,paddingTop:6,borderTop:`1px solid ${C.border}`}}>{row.whatItDoes}</div>}
                 </div>
               ))}
               <div style={{fontSize:11,color:C.dim,marginTop:2,fontStyle:"italic"}}>Edit any amount above if something looks off before saving.</div>
+            </div>
+          )}
+
+          {form.excludedLines?.length>0 && (
+            <div style={{marginTop:10,padding:"10px 12px",background:C.bg,borderRadius:9,border:`1px solid ${C.border}`}}>
+              <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>NOT COUNTED SEPARATELY</div>
+              {form.excludedLines.map((it,i)=>(
+                <div key={i} style={{fontSize:11,color:C.dim,marginBottom:i<form.excludedLines.length-1?4:0,lineHeight:1.5}}>
+                  <span style={{color:C.muted}}>{it.input}</span>{it.note?` — ${it.note}`:" — not a tracked nutrient"}
+                </div>
+              ))}
             </div>
           )}
           <div style={{fontSize:11,color:C.dim,marginTop:8,fontStyle:"italic",lineHeight:1.6}}>
@@ -4906,29 +5028,55 @@ function SupplementsPanel({C, profile, up}){
         </div>
       )}
 
-      {dueToday.map(s=>(
+      {dueToday.map(s=>{
+        const isExpanded = expandedId===s.id;
+        return (
         <div key={s.id} style={{
-          display:"flex",alignItems:"center",gap:12,
           background:C.card,border:`1px solid ${s.takenToday?accent+"55":C.border}`,
-          borderRadius:13,padding:"13px 14px",
+          borderRadius:13,overflow:"hidden",
         }}>
-          <button onClick={()=>toggleTakenToday(s.id)} style={{
-            width:30,height:30,borderRadius:"50%",flexShrink:0,cursor:"pointer",
-            border:`2px solid ${s.takenToday?accent:C.border}`,
-            background:s.takenToday?accent:"transparent",
-            display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,color:"#fff",
-          }}>{s.takenToday?"✓":""}</button>
-          <div style={{flex:1}}>
-            <div style={{fontSize:13,fontWeight:600,color:s.takenToday?C.muted:C.text,textDecoration:s.takenToday?"line-through":"none"}}>💊 {s.name}</div>
-            <div style={{fontSize:11,color:C.muted,marginTop:2}}>
-              {(s.nutrients||[]).map(n=>NUTRIENT_FIELDS.find(nf=>nf.key===n.key)?.label).filter(Boolean).join(", ")||"No nutrients specified"}
-              {s.timeOfDay!=="any"?` · ${s.timeOfDay}`:""}
+          <div style={{display:"flex",alignItems:"center",gap:12,padding:"13px 14px"}}>
+            <button onClick={()=>toggleTakenToday(s.id)} style={{
+              width:30,height:30,borderRadius:"50%",flexShrink:0,cursor:"pointer",
+              border:`2px solid ${s.takenToday?accent:C.border}`,
+              background:s.takenToday?accent:"transparent",
+              display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,color:"#fff",
+            }}>{s.takenToday?"✓":""}</button>
+            <div style={{flex:1}}>
+              <div style={{fontSize:13,fontWeight:600,color:s.takenToday?C.muted:C.text,textDecoration:s.takenToday?"line-through":"none"}}>💊 {s.name}</div>
+              <div style={{fontSize:11,color:C.muted,marginTop:2}}>
+                {(s.nutrients||[]).map(n=>NUTRIENT_FIELDS.find(nf=>nf.key===n.key)?.label).filter(Boolean).join(", ")||"No nutrients specified"}
+                {s.timeOfDay!=="any"?` · ${s.timeOfDay}`:""}
+              </div>
             </div>
+            {(s.nutrients||[]).some(n=>n.whatItDoes)&&(
+              <button onClick={()=>setExpandedId(isExpanded?null:s.id)} style={{
+                background:isExpanded?accent+"15":"transparent",border:`1px solid ${isExpanded?accent:C.border}`,
+                color:isExpanded?accent:C.dim,cursor:"pointer",fontSize:13,width:26,height:26,borderRadius:"50%",
+                display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,
+              }}>ⓘ</button>
+            )}
+            <button onClick={()=>{setForm({...s, rawText:""});setEditing(s);setShowAdd(true);}} style={{background:"transparent",border:"none",color:C.dim,cursor:"pointer",fontSize:11,padding:"4px 8px"}}>Edit</button>
+            <button onClick={()=>deleteSupplement(s.id)} style={{background:"transparent",border:"none",color:C.red||"#e05a5a",cursor:"pointer",fontSize:11,padding:"4px 8px"}}>×</button>
           </div>
-          <button onClick={()=>{setForm({...s, rawText:""});setEditing(s);setShowAdd(true);}} style={{background:"transparent",border:"none",color:C.dim,cursor:"pointer",fontSize:11,padding:"4px 8px"}}>Edit</button>
-          <button onClick={()=>deleteSupplement(s.id)} style={{background:"transparent",border:"none",color:C.red||"#e05a5a",cursor:"pointer",fontSize:11,padding:"4px 8px"}}>×</button>
+
+          {isExpanded && (
+            <div style={{padding:"4px 14px 14px",display:"flex",flexDirection:"column",gap:10,borderTop:`1px solid ${C.border}`,paddingTop:12}}>
+              <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1}}>WHAT'S ACTUALLY IN THIS</div>
+              {(s.nutrients||[]).map((n,i)=>{
+                const field = NUTRIENT_FIELDS.find(nf=>nf.key===n.key);
+                return (
+                  <div key={i}>
+                    <div style={{fontSize:12,fontWeight:600,color:C.text}}>{field?.label||n.key} — {n.amount}{field?.unit||""}</div>
+                    {n.whatItDoes&&<div style={{fontSize:11,color:C.muted,marginTop:3,lineHeight:1.6}}>{n.whatItDoes}</div>}
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
-      ))}
+        );
+      })}
 
       {supplements.filter(s=>!isDueToday(s)).length>0&&(
         <div style={{marginTop:8}}>
@@ -5181,7 +5329,6 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
             <div>
               <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>WHAT DID YOU EAT? (comma separated)</div>
               <textarea value={newFood.foods} onChange={e=>setNewFood(f=>({...f,foods:e.target.value}))} rows={2} placeholder="Be specific — e.g. masala chai with milk and 1 tsp sugar, 2 whole wheat rotis with dal makhani, banana, nimbu paani" style={{width:"100%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"11px 13px",fontSize:13,resize:"none",boxSizing:"border-box"}}/>
-              {newFood.foods&&<div style={{fontSize:11,color:C.accent2,marginTop:3}}>✓ Recognised: {newFood.foods.split(",").map(f=>f.trim()).filter(f=>resolveFood(f)).map(f=>{const k=resolveFood(f);return k!==f.toLowerCase().trim()?`${f}→${k}`:f;}).join(", ")||"—"}</div>}
             </div>
             {/* Water timing */}
             <div>
@@ -6173,6 +6320,76 @@ function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedS
             </div>
           </div>
 
+          {/* Goal-specific progress — honest, adaptive ETA based on actual logged behavior */}
+          {(()=>{
+            const gp=analyzeGoalProgress({profile, needs, weightLog, foodLogs, moveLog});
+            if(!gp.goalKg || (!gp.isLoss && !gp.isGain)) return null;
+            if(!gp.hasEnoughData){
+              return (
+                <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+                  <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>GOAL PROGRESS · {gp.goalKg}KG {gp.isLoss?"LOSS":"GAIN"}</div>
+                  <div style={{fontSize:13,color:C.muted,lineHeight:1.7,fontStyle:"italic"}}>Log your weight at least twice — a few days apart — and this will show your real progress and a realistic timeline based on how things are actually going.</div>
+                </div>
+              );
+            }
+            const goalLabel = gp.isLoss ? "lose" : "gain";
+            const paceColor = gp.onPace===true ? C.accent2 : gp.onPace===false ? C.gold : C.muted;
+            return (
+              <div style={{background:C.card,border:`1px solid ${C.accent}33`,borderRadius:13,padding:18}}>
+                <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>GOAL PROGRESS · {goalLabel} {gp.goalKg}kg</div>
+
+                <div style={{marginBottom:14}}>
+                  <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
+                    <div style={{fontSize:12,color:C.muted}}>{gp.progressKg}kg of {gp.goalKg}kg</div>
+                    <div style={{fontSize:12,color:C.accent,fontWeight:600}}>{gp.progressPct}%</div>
+                  </div>
+                  <div style={{height:8,borderRadius:8,background:C.bg,overflow:"hidden"}}>
+                    <div style={{width:`${gp.progressPct}%`,height:"100%",background:`linear-gradient(90deg,${C.accent},${C.accent2})`,borderRadius:8}}/>
+                  </div>
+                </div>
+
+                <div style={{display:"flex",gap:14,marginBottom:14}}>
+                  <div><div style={{fontSize:11,color:C.muted}}>Started</div><div style={{fontSize:16,fontWeight:700}}>{gp.startWeight}<span style={{fontSize:10,color:C.dim}}>{profile.weightUnit}</span></div></div>
+                  <div style={{width:1,background:C.border}}/>
+                  <div><div style={{fontSize:11,color:C.muted}}>Now</div><div style={{fontSize:16,fontWeight:700}}>{gp.currentWeight}<span style={{fontSize:10,color:C.dim}}>{profile.weightUnit}</span></div></div>
+                  <div style={{width:1,background:C.border}}/>
+                  <div><div style={{fontSize:11,color:C.muted}}>Pace</div><div style={{fontSize:16,fontWeight:700,color:paceColor}}>{gp.actualKgPerWeek>0?"+":""}{gp.actualKgPerWeek}<span style={{fontSize:10,color:C.dim}}>kg/wk</span></div></div>
+                </div>
+
+                {/* The honest part: real projected timeline vs the original ask */}
+                <div style={{padding:"12px 14px",background:paceColor+"12",border:`1px solid ${paceColor}44`,borderRadius:10,marginBottom:12}}>
+                  {gp.projectedDaysRemaining===null ? (
+                    <div style={{fontSize:13,color:C.text,lineHeight:1.7}}>
+                      At your current logged pace, there isn't enough movement toward the goal yet to project a realistic date. That's not a failure — it's just what the numbers say so far.
+                    </div>
+                  ) : (
+                    <div style={{fontSize:13,color:C.text,lineHeight:1.7}}>
+                      At this actual pace, reaching {gp.goalKg}kg will take about <strong>{Math.round(gp.projectedDaysRemaining/30*10)/10} more months</strong> ({gp.remainingKg}kg to go).
+                      {gp.originalGoalDays && (
+                        gp.onPace
+                          ? " That's roughly on track with your original goal."
+                          : ` Your original goal was ${Math.round(gp.originalGoalDays/30)} months — at this pace it'll take longer than planned.`
+                      )}
+                    </div>
+                  )}
+                </div>
+
+                {/* Behavioral context: why the pace is what it is */}
+                <div style={{display:"flex",flexDirection:"column",gap:6}}>
+                  <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1}}>WHAT'S DRIVING THIS PACE</div>
+                  {gp.avgCalVsTarget!==null && (
+                    <div style={{fontSize:12,color:C.muted,lineHeight:1.6}}>
+                      • Average intake over logged days: <strong style={{color:gp.avgCalVsTarget<=0?C.accent2:C.gold}}>{gp.avgCalVsTarget>0?"+":""}{gp.avgCalVsTarget} kcal/day</strong> vs your target{gp.isLoss && gp.avgCalVsTarget>0?" — eating above target slows weight loss, regardless of what the scale says it 'should' do":""}
+                    </div>
+                  )}
+                  <div style={{fontSize:12,color:C.muted,lineHeight:1.6}}>
+                    • Movement logged: <strong style={{color:gp.avgMoveMinPerWeek>=60?C.accent2:C.gold}}>{gp.avgMoveMinPerWeek} min/week</strong>{gp.avgMoveMinPerWeek<60?" — very little exercise logged; this alone can meaningfully push out the timeline even with good eating":""}
+                  </div>
+                </div>
+              </div>
+            );
+          })()}
+
           {/* Weight trend */}
           {weightTrend&&(
             <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
@@ -6575,10 +6792,6 @@ Keep responses warm, direct, 4–6 sentences max unless they ask for more.`;
           <button onClick={()=>setSection("upgrade")} style={{padding:"6px 13px",background:`linear-gradient(135deg,${C.accent},${C.warm})`,border:"none",borderRadius:20,color:"#fff",cursor:"pointer",fontSize:11,fontWeight:600}}>Upgrade $5/mo →</button>
         </div>
       )}
-
-      <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:12}}>
-        {["I ate poori chole 🍛","I drank water 💧","I feel anxious 😰","I exercised 🏃","I can't sleep 😴","I feel gassy 🌀"].map((q,i)=><button key={i} onClick={()=>setInput(q)} style={{padding:"5px 10px",background:C.card,border:`1px solid ${C.border}`,borderRadius:20,cursor:"pointer",fontSize:11,color:C.muted}}>{q}</button>)}
-      </div>
 
       <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,height:390,overflowY:"auto",padding:14,marginBottom:10,display:"flex",flexDirection:"column",gap:11}}>
         {msgs.map((m,i)=>(
