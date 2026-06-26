@@ -663,6 +663,20 @@ function splitFoodEntries(raw) {
     .filter(Boolean);
 }
 
+// Returns today's date as "YYYY-MM-DD" using the browser's LOCAL
+// timezone, not UTC. Using `new Date().toISOString()` for this is a
+// common bug: it converts to UTC first, so anyone in a timezone ahead
+// of UTC (e.g. India, UTC+5:30) gets entries logged after midnight but
+// before ~5:30am misdated to the PREVIOUS day. This caused logs to
+// silently vanish from "today" right when someone needed them most.
+function getLocalDateStr(d){
+  const date = d ? new Date(d) : new Date();
+  const year = date.getFullYear();
+  const month = String(date.getMonth()+1).padStart(2,"0");
+  const day = String(date.getDate()).padStart(2,"0");
+  return `${year}-${month}-${day}`;
+}
+
 function calcNutrition(foods){
   const b={cal:0,protein:0,carbs:0,fat:0,fibre:0,iron:0,calcium:0,vitC:0,vitB12:0,vitD:0,folate:0,magnesium:0,zinc:0,potassium:0,omega3:0,choline:0,addedSugar:0,sodium:0,vitA:0,vitE:0};
   (foods||[]).forEach(rawEntry=>{
@@ -965,7 +979,7 @@ function updateBehaviourProfile(existing, newData) {
     profile.chatHistory = [...(profile.chatHistory||[]), newData.chatMsg].slice(-20);
   }
   if (newData.weight) {
-    profile.weightHistory = [...(profile.weightHistory||[]), { weight:newData.weight, date:new Date().toISOString().split("T")[0] }].slice(-90);
+    profile.weightHistory = [...(profile.weightHistory||[]), { weight:newData.weight, date:getLocalDateStr() }].slice(-90);
   }
   // Derive top patterns
   const neg = profile.negativePatterns||{};
@@ -1044,7 +1058,7 @@ export default function Swadhyaya(){
               id: session.user.id,
               email: session.user.email,
               plan: "trial",
-              trial_start_date: new Date().toISOString().split("T")[0],
+              trial_start_date: getLocalDateStr(),
               onboarding_done: false,
               updated_at: new Date().toISOString(),
             }).then(() => console.log("New account created — awaiting onboarding"));
@@ -1119,7 +1133,7 @@ export default function Swadhyaya(){
           healthConditions: prof.health_conditions || [],
           goals: prof.goals || [],
           plan: prof.plan || "trial",
-          trialStartDate: prof.trial_start_date || new Date().toISOString().split("T")[0],
+          trialStartDate: prof.trial_start_date || getLocalDateStr(),
           onboardingDone: prof.onboarding_done || false,
           manualLagna: prof.manual_lagna || "",
           manualMoon: prof.manual_moon || "",
@@ -1145,7 +1159,7 @@ export default function Swadhyaya(){
       if (weights?.length) setWeightLog(weights);
 
       // Load today's daily log (ritual steps, water)
-      const todayStr = new Date().toISOString().split("T")[0];
+      const todayStr = getLocalDateStr();
       const { data: dailyLog } = await supabase.from("daily_logs").select("*").eq("user_id", userId).eq("date", todayStr).single();
       if (dailyLog) {
         if (dailyLog.completed_steps) setCompletedSteps(dailyLog.completed_steps);
@@ -1248,13 +1262,13 @@ export default function Swadhyaya(){
       const saved = localStorage.getItem("sw_profile");
       if (saved) return JSON.parse(saved);
     } catch(e) {}
-    return {name:"",gender:"female",age:"28",weight:"58",height:"162",weightUnit:"kg",heightUnit:"cm",activityLevel:"light",pregnant:"no",lactating:false,lastPeriodStart:"",cycleLength:"28",periodLength:"5",cyclePhase:"follicular",zodiac:"Scorpio",dob:"",fitnessGoal:"",healthConditions:[],plan:"trial",trialStartDate:new Date().toISOString().split("T")[0]};
+    return {name:"",gender:"female",age:"28",weight:"58",height:"162",weightUnit:"kg",heightUnit:"cm",activityLevel:"light",pregnant:"no",lactating:false,lastPeriodStart:"",cycleLength:"28",periodLength:"5",cyclePhase:"follicular",zodiac:"Scorpio",dob:"",fitnessGoal:"",healthConditions:[],plan:"trial",trialStartDate:getLocalDateStr()};
   });
 
   const[behaviourProfile,setBehaviourProfile]=useState({});
   const[foodLogs,setFoodLogs]=useState(()=>{
     try {
-      const today = new Date().toISOString().split("T")[0];
+      const today = getLocalDateStr();
       const saved = localStorage.getItem("sw_food_"+today);
       return saved ? JSON.parse(saved) : [];
     } catch(e) { return []; }
@@ -1264,14 +1278,14 @@ export default function Swadhyaya(){
   // even if the caller forgets to persist explicitly.
   useEffect(()=>{
     try{
-      const today=new Date().toISOString().split("T")[0];
+      const today=getLocalDateStr();
       const todaysEntries=foodLogs.filter(l=>l.date===today);
       localStorage.setItem("sw_food_"+today, JSON.stringify(todaysEntries));
     }catch(e){}
   },[foodLogs]);
   const[waterLog,setWaterLog]=useState(()=>{
     try {
-      const today=new Date().toISOString().split("T")[0];
+      const today=getLocalDateStr();
       return parseInt(localStorage.getItem("sw_water_"+today)||"0");
     } catch(e){return 0;}
   });
@@ -1280,7 +1294,7 @@ export default function Swadhyaya(){
   // React state only and was lost on refresh.
   useEffect(()=>{
     try{
-      const today=new Date().toISOString().split("T")[0];
+      const today=getLocalDateStr();
       localStorage.setItem("sw_water_"+today, String(waterLog));
     }catch(e){}
   },[waterLog]);
@@ -1290,7 +1304,7 @@ export default function Swadhyaya(){
   const[symptoms,setSymptoms]=useState({});
   const[completedSteps,setCompletedSteps]=useState(()=>{
     try {
-      const today=new Date().toISOString().split("T")[0];
+      const today=getLocalDateStr();
       const saved=localStorage.getItem("sw_steps_"+today);
       return saved ? JSON.parse(saved) : [];
     } catch(e){return [];}
@@ -1307,7 +1321,7 @@ export default function Swadhyaya(){
   const[todayMsgs,setTodayMsgs]=useState(0);
   const[lastMsgDate,setLastMsgDate]=useState("");
 
-  const todayStr=new Date().toISOString().split("T")[0];
+  const todayStr=getLocalDateStr();
   const needs=useMemo(()=>calcNeeds(profile),[profile]);
   const todayFoodOnly=useMemo(()=>foodLogs.filter(l=>l.date===todayStr).reduce((acc,l)=>{const n=calcLoggedNutrition(l);for(const k of Object.keys(acc))acc[k]+=n[k]||0;return acc;},{cal:0,protein:0,carbs:0,fat:0,fibre:0,iron:0,calcium:0,vitC:0,vitB12:0,vitD:0,folate:0,magnesium:0,zinc:0,potassium:0,omega3:0,choline:0,addedSugar:0,sodium:0,vitA:0,vitE:0}),[foodLogs,todayStr]);
   const todaySupplements=useMemo(()=>calcSupplementNutrition(profile.supplements),[profile.supplements]);
@@ -1392,7 +1406,7 @@ export default function Swadhyaya(){
   // ── Auto-save daily ritual + movement ───────────────────
   const saveDailyLog = async (data) => {
     if (!userRef.current) return;
-    const todayStr = new Date().toISOString().split("T")[0];
+    const todayStr = getLocalDateStr();
     try {
       await supabase.from("daily_logs").upsert({
         user_id: userRef.current.id,
@@ -1747,7 +1761,7 @@ function Onboarding({profile,up,onDone,C}){
 // ══════════════════════════════════════════════════════════════
 
 function detectDailyState(profile, journalEntries, completedSteps, foodLogs, behaviourProfile) {
-  const todayStr = new Date().toISOString().split("T")[0];
+  const todayStr = getLocalDateStr();
   const todayJournal = (journalEntries||[]).find(e => e.date === todayStr);
   const recentEntries = (journalEntries||[]).slice(0, 7);
 
@@ -1948,7 +1962,7 @@ function buildYourManual(journalEntries, profile, behaviourProfile, foodLogs) {
 
 function ThreeThingsCard({C, profile, journalEntries, completedSteps, galaxy}) {
   const [items, setItems] = useState(() => {
-    const todayStr = new Date().toISOString().split("T")[0];
+    const todayStr = getLocalDateStr();
     const todayEntry = (journalEntries||[]).find(e => e.date === todayStr);
     return todayEntry?.threeThings || ["", "", ""];
   });
@@ -2379,7 +2393,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
     const goal = {
       ...newGoal,
       id: newGoal.id || Date.now(),
-      createdAt: newGoal.createdAt || new Date().toISOString().split("T")[0],
+      createdAt: newGoal.createdAt || getLocalDateStr(),
       color: getCatColor(newGoal.category),
     };
     if (newGoal.id) {
@@ -2406,7 +2420,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
     up("goals", goals.map(g => {
       if (g.id !== goalId) return g;
       const ms = [...(g.milestones||[])];
-      ms[mIdx] = {...ms[mIdx], done: !ms[mIdx].done, doneDate: !ms[mIdx].done ? new Date().toISOString().split("T")[0] : null};
+      ms[mIdx] = {...ms[mIdx], done: !ms[mIdx].done, doneDate: !ms[mIdx].done ? getLocalDateStr() : null};
       return {...g, milestones: ms};
     }));
   }
@@ -2415,13 +2429,13 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
     up("goals", goals.map(g => {
       if (g.id !== goalId) return g;
       const newCurrent = (parseFloat(g.currentNumber)||0) + parseFloat(amount||0);
-      return {...g, currentNumber: String(newCurrent), lastLogged: new Date().toISOString().split("T")[0]};
+      return {...g, currentNumber: String(newCurrent), lastLogged: getLocalDateStr()};
     }));
     setLogAmount("");
   }
 
   function markHabitToday(goalId) {
-    const today = new Date().toISOString().split("T")[0];
+    const today = getLocalDateStr();
     up("goals", goals.map(g => {
       if (g.id !== goalId) return g;
       const days = g.habitDays || [];
@@ -2446,7 +2460,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
   // Logs one completion for a weekly goal, tagged to this week's key.
   function markWeeklyDone(goalId) {
     const wk = getWeekKey();
-    const today = new Date().toISOString().split("T")[0];
+    const today = getLocalDateStr();
     up("goals", goals.map(g => {
       if (g.id !== goalId) return g;
       const logs = g.weekLogs || [];
@@ -2735,7 +2749,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
     const pct = getGoalProgress(goal);
     const catColor = getCatColor(goal.category);
     const streak = goal.type==="habit" ? getHabitStreak(goal) : 0;
-    const today = new Date().toISOString().split("T")[0];
+    const today = getLocalDateStr();
     const doneToday = goal.type==="habit" && goal.habitDays?.includes(today);
     const weeklyCount = goal.type==="weekly" ? getWeeklyCount(goal) : 0;
     const weeklyConsistency = goal.type==="weekly" ? getWeeklyConsistency(goal) : 0;
@@ -2822,7 +2836,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
               <div style={{display:"flex",gap:3,flexWrap:"wrap"}}>
                 {Array.from({length:21},(_,i)=>{
                   const d=new Date(); d.setDate(d.getDate()-20+i);
-                  const ds=d.toISOString().split("T")[0];
+                  const ds=getLocalDateStr(d);
                   const done=(goal.habitDays||[]).includes(ds);
                   const isToday=ds===today;
                   return <div key={i} style={{width:28,height:28,borderRadius:6,background:done?catColor:C.bg,border:`1px solid ${isToday?catColor:done?catColor+"88":C.border}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,color:done?"#fff":C.dim,fontFamily:"'DM Mono',monospace"}}>{d.getDate()}</div>;
@@ -2870,8 +2884,8 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
                   {dayLabels.filter(d=>(goal.weeklyDays||[]).includes(d)).map((d,i)=>{
                     const dIdx=dayLabels.indexOf(d);
                     const thisDate=new Date(monday); thisDate.setDate(monday.getDate()+dIdx);
-                    const ds=thisDate.toISOString().split("T")[0];
-                    const isToday=ds===todayD.toISOString().split("T")[0];
+                    const ds=getLocalDateStr(thisDate);
+                    const isToday=ds===getLocalDateStr(todayD);
                     const isPast=thisDate<todayD && !isToday;
                     const done=(goal.weekLogs||[]).some(l=>l.week===wk&&l.date===ds);
                     return (
@@ -2956,7 +2970,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
             const catColor=getCatColor(goal.category);
             const streak=goal.type==="habit"?getHabitStreak(goal):0;
             const weeklyCountList=goal.type==="weekly"?getWeeklyCount(goal):0;
-            const today=new Date().toISOString().split("T")[0];
+            const today=getLocalDateStr();
             const doneToday=goal.type==="habit"&&(goal.habitDays||[]).includes(today);
             const daysLeft=goal.targetDate?Math.ceil((new Date(goal.targetDate)-new Date())/86400000):null;
             return(
@@ -3417,12 +3431,12 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
   const [view, setView] = useState("today"); // today | history | weekly | monthly | highlights
   const [todayEntry, setTodayEntry] = useState({
     mood: "", energy: 5, freeWrite: "",
-    prompts: {}, goals: {}, date: new Date().toISOString().split("T")[0],
+    prompts: {}, goals: {}, date: getLocalDateStr(),
     bedtime: "", wakeTime: "", sleepQuality: null
   });
   const [saving, setSaving] = useState(false);
   const [selectedPrompts, setSelectedPrompts] = useState([0,5,4]); // 3 random prompts
-  const todayStr = new Date().toISOString().split("T")[0];
+  const todayStr = getLocalDateStr();
 
   // Check if today already has an entry
   const todayExisting = journalEntries.find(e => e.date === todayStr);
@@ -3447,7 +3461,7 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
         if(m.date) return m.date===todayStr;
         const d=new Date(m.time||"");
         if(isNaN(d.getTime())) return false;
-        return d.toISOString().split("T")[0]===todayStr;
+        return getLocalDateStr(d)===todayStr;
       }).reduce((a,m)=>a+(m.duration||0),0),
     };
     setJournalEntries(prev => {
@@ -3727,7 +3741,7 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
                 <div style={{display:"flex",gap:6,alignItems:"flex-end",height:80}}>
                   {Array.from({length:7},(_,i)=>{
                     const d=new Date(); d.setDate(d.getDate()-6+i);
-                    const ds=d.toISOString().split("T")[0];
+                    const ds=getLocalDateStr(d);
                     const entry=journalEntries.find(e=>e.date===ds);
                     const h=entry?.energy?`${(entry.energy/10)*70}px`:"4px";
                     const isToday=ds===todayStr;
@@ -4311,7 +4325,7 @@ function WellnessSection({C,galaxy,profile,moveLog,setMoveLog,todayPhase,meditat
           onEnded={()=>{
             setMedOn(false);
             setMedSec(medDuration);
-            setMeditationLog(l=>[...l,{id:Date.now(),duration:Math.round(medDuration/60),type:"Guided meditation",date:new Date().toISOString().split("T")[0],time:new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})}]);
+            setMeditationLog(l=>[...l,{id:Date.now(),duration:Math.round(medDuration/60),type:"Guided meditation",date:getLocalDateStr(),time:new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})}]);
           }}
         />
 
@@ -4403,7 +4417,7 @@ function MoveLogger({moveLog,setMoveLog,C}){
         <select value={dur} onChange={e=>setDur(e.target.value)} style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.muted,padding:"9px 7px",fontSize:12}}>
           {["15","20","30","45","60","90"].map(d=><option key={d}>{d} min</option>)}
         </select>
-        <button onClick={()=>{if(!act.trim())return;setMoveLog(l=>[...l,{id:Date.now(),activity:act,duration:parseInt(dur),date:new Date().toISOString().split("T")[0],time:new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})}]);setAct("");}} style={{padding:"9px 14px",background:C.accent2,border:"none",borderRadius:8,color:"#fff",cursor:"pointer",fontSize:13}}>+</button>
+        <button onClick={()=>{if(!act.trim())return;setMoveLog(l=>[...l,{id:Date.now(),activity:act,duration:parseInt(dur),date:getLocalDateStr(),time:new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})}]);setAct("");}} style={{padding:"9px 14px",background:C.accent2,border:"none",borderRadius:8,color:"#fff",cursor:"pointer",fontSize:13}}>+</button>
       </div>
       {moveLog.length===0?<div style={{fontSize:12,color:C.dim,fontStyle:"italic"}}>No movement logged today.</div>:
         moveLog.map((m,i)=><div key={m.id} style={{display:"flex",justifyContent:"space-between",fontSize:12,padding:"5px 0",borderBottom:i<moveLog.length-1?`1px solid ${C.border}`:"none"}}>
@@ -4695,7 +4709,7 @@ function SupplementsPanel({C, profile, up}){
   const [editing, setEditing] = useState(null);
   const [aiLoading, setAiLoading] = useState(false);
   const supplements = profile.supplements || [];
-  const todayStr = new Date().toISOString().split("T")[0];
+  const todayStr = getLocalDateStr();
   const todayWeekday = WEEKDAY_LABELS[(new Date().getDay()+6)%7]; // Monday=0
 
   const [form, setForm] = useState({
@@ -4942,11 +4956,11 @@ function SupplementsPanel({C, profile, up}){
 
 function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,todayFood,updateBP,profile,saveFoodLogEntry,up}){
   const[view,setView]=useState("today");
-  const[newFood,setNewFood]=useState({meal:"Lunch",foods:"",note:"",symptoms:[],water:0});
+  const[newFood,setNewFood]=useState({meal:"Lunch",foods:"",note:"",symptoms:[],water:0,logDate:""});
   const[range,setRange]=useState("daily");
   const[aiEstimate,setAiEstimate]=useState(null);     // {totals, items} for unrecognized foods
   const[aiLoading,setAiLoading]=useState(false);
-  const todayStr=new Date().toISOString().split("T")[0];
+  const todayStr=getLocalDateStr();
 
   // Debounced AI lookup: whenever the typed foods contain items the local
   // FOOD_DB can't resolve, ask Claude for an estimate after a short pause.
@@ -4969,22 +4983,31 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
     try{
       const todaysEntries=updatedLogs.filter(l=>l.date===todayStr);
       localStorage.setItem("sw_food_"+todayStr, JSON.stringify(todaysEntries));
+      // If a backdated entry was just added, also persist it under its
+      // own date key so a refresh before the Supabase sync completes
+      // doesn't lose it for that earlier day.
+      const otherDates=[...new Set(updatedLogs.filter(l=>l.date!==todayStr).map(l=>l.date))];
+      otherDates.forEach(d=>{
+        const entriesForDate=updatedLogs.filter(l=>l.date===d);
+        localStorage.setItem("sw_food_"+d, JSON.stringify(entriesForDate));
+      });
     }catch(e){}
   }
 
   function addFood(){
     const foods=newFood.foods.split(",").map(f=>f.trim()).filter(Boolean);
     if(!foods.length)return;
-    const entry={id:Date.now(),date:todayStr,time:new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"}),meal:newFood.meal,foods,note:newFood.note,symptoms:newFood.symptoms,water:newFood.water||0,waterTiming:newFood.waterTiming||null,aiNutrition:aiEstimate?aiEstimate.totals:null};
+    const entryDate = newFood.logDate || todayStr;
+    const entry={id:Date.now(),date:entryDate,time:new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"}),meal:newFood.meal,foods,note:newFood.note,symptoms:newFood.symptoms,water:newFood.water||0,waterTiming:newFood.waterTiming||null,aiNutrition:aiEstimate?aiEstimate.totals:null};
     setFoodLogs(l=>{
       const updated=[entry,...l];
       persistTodayFoodLogs(updated);
       return updated;
     });
     if(saveFoodLogEntry) saveFoodLogEntry(entry);   // persist to Supabase so it survives across devices/sessions
-    if(newFood.water>0)setWaterLog(w=>w+(newFood.water*250));
+    if(newFood.water>0 && entryDate===todayStr)setWaterLog(w=>w+(newFood.water*250));
     updateBP({food:foods.join(","),symptoms:newFood.symptoms});
-    setNewFood({meal:"Lunch",foods:"",note:"",symptoms:[],water:0,waterTiming:null});
+    setNewFood({meal:"Lunch",foods:"",note:"",symptoms:[],water:0,waterTiming:null,logDate:""});
     setAiEstimate(null);
 
 
@@ -5133,6 +5156,22 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
       {view==="add"&&(
         <div>
           <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:14,padding:20,display:"flex",flexDirection:"column",gap:14}}>
+            <div>
+              <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>WHICH DAY?</div>
+              <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
+                {(()=>{
+                  const yesterday=getLocalDateStr(new Date(Date.now()-86400000));
+                  return [
+                    {l:"Today",v:""},
+                    {l:"Yesterday",v:yesterday},
+                  ].map(o=><button key={o.l} onClick={()=>setNewFood(f=>({...f,logDate:o.v}))} style={{padding:"6px 12px",borderRadius:20,border:`1px solid ${newFood.logDate===o.v?C.accent:C.border}`,background:newFood.logDate===o.v?C.accent+"15":"transparent",cursor:"pointer",fontSize:11,color:newFood.logDate===o.v?C.accent:C.muted}}>{o.l}</button>);
+                })()}
+                <input type="date" value={newFood.logDate||todayStr} max={todayStr}
+                  onChange={e=>setNewFood(f=>({...f,logDate:e.target.value===todayStr?"":e.target.value}))}
+                  style={{padding:"6px 10px",borderRadius:20,border:`1px solid ${newFood.logDate&&newFood.logDate!==getLocalDateStr(new Date(Date.now()-86400000))?C.accent:C.border}`,background:"transparent",color:C.text,fontSize:11,fontFamily:"'DM Mono',monospace"}}/>
+              </div>
+              {newFood.logDate && <div style={{fontSize:11,color:C.gold,marginTop:6,fontStyle:"italic"}}>Logging for {new Date(newFood.logDate+"T12:00:00").toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"short"})} — this won't count toward today's totals.</div>}
+            </div>
             <div>
               <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>MEAL</div>
               <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
@@ -5423,7 +5462,7 @@ function CycleSection({C,profile,setProfile,periodLogs,setPeriodLogs,symptoms,se
   const[selectedDay,setSelectedDay]=useState(null);
   const[editPeriod,setEditPeriod]=useState(null);
   const[np,setNp]=useState({startDate:"",endDate:"",flow:"medium",notes:"",symptoms:[]});
-  const todayStr=new Date().toISOString().split("T")[0];
+  const todayStr=getLocalDateStr();
   // MONTH_NAMES available globally
   const FLOW_COLORS={spotting:"#f4a07a",light:"#e8a0a0",medium:"#e05a5a",heavy:"#c03030",very_heavy:"#8b0000"};
   const FLOW_LABELS={spotting:"Spotting",light:"Light",medium:"Medium",heavy:"Heavy",very_heavy:"Very Heavy"};
@@ -5639,7 +5678,7 @@ function CycleSection({C,profile,setProfile,periodLogs,setPeriodLogs,symptoms,se
 // ══════════════════════════════════════════════════════════════
 
 function DayDashboard({C, galaxy, profile, todayFood, needs, completedSteps, journalEntries, behaviourProfile, moveLog}) {
-  const todayStr = new Date().toISOString().split("T")[0];
+  const todayStr = getLocalDateStr();
   const todayJournal = (journalEntries||[]).find(e => e.date === todayStr);
   const [insight, setInsight] = useState("");
   const [loading, setLoading] = useState(false);
@@ -5830,7 +5869,7 @@ function DayDashboard({C, galaxy, profile, todayFood, needs, completedSteps, jou
 }
 
 function TodaysMirror({C,galaxy,profile,todayFood,needs,ritualDone,moveMin,completedSteps,behaviourProfile,mirrorOpen,setMirrorOpen,mirrorInsight,mirrorLoading,getMirrorInsight,journalEntries}){
-  const todayStr=new Date().toISOString().split("T")[0];
+  const todayStr=getLocalDateStr();
   const todayJournal=(journalEntries||[]).find(e=>e.date===todayStr);
   const mood=todayJournal?.mood||null;
   const energy=todayJournal?.energy||null;
@@ -6013,7 +6052,7 @@ function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedS
   const[mirrorOpen,setMirrorOpen]=useState(false);
   const[mirrorInsight,setMirrorInsight]=useState("");
   const[mirrorLoading,setMirrorLoading]=useState(false);
-  const todayStr=new Date().toISOString().split("T")[0];
+  const todayStr=getLocalDateStr();
 
   const goal=(profile.fitnessGoal||"").toLowerCase();
   const isLoss=goal.includes("lose")||goal.includes("weight loss");
@@ -6063,7 +6102,7 @@ function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedS
 
   // Weekly calorie average
   const weekAvg=useMemo(()=>{
-    const days7=Array.from({length:7},(_,i)=>{const d=new Date();d.setDate(d.getDate()-i);return d.toISOString().split("T")[0];});
+    const days7=Array.from({length:7},(_,i)=>{const d=new Date();d.setDate(d.getDate()-i);return getLocalDateStr(d);});
     const totals=days7.map(ds=>foodLogs.filter(l=>l.date===ds).reduce((a,l)=>{const n=calcLoggedNutrition(l);return a+n.cal;},0));
     return Math.round(totals.reduce((a,b)=>a+b,0)/7);
   },[foodLogs]);
@@ -6460,7 +6499,7 @@ User profile:
 - Health conditions: ${(profile.healthConditions||[]).join(", ")||"none"}
 - Behavioural patterns noticed: ${bpSummary||"still building — keep logging"}
 
-Today's food: ${foodLogs.filter(l=>l.date===new Date().toISOString().split("T")[0]).map(l=>l.foods?.join(",")).join("; ")||"nothing logged yet"}
+Today's food: ${foodLogs.filter(l=>l.date===getLocalDateStr()).map(l=>l.foods?.join(",")).join("; ")||"nothing logged yet"}
 Water today: ${waterLog}ml of ${needs.water}ml target
 Daily calorie target: ${needs.cal} kcal
 
@@ -6499,7 +6538,7 @@ Keep responses warm, direct, 4–6 sentences max unless they ask for more.`;
       let autoLog=null;
       if(actionMatch){try{autoLog=JSON.parse(actionMatch[1]);}catch(e){}}
       if(autoLog){
-        const todayStr=new Date().toISOString().split("T")[0];
+        const todayStr=getLocalDateStr();
         if(autoLog.type==="food_log"){
           const foods=msg.toLowerCase().split(/[,\s]+/).filter(f=>resolveFood(f));
           const entry={id:Date.now(),date:todayStr,time:new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"}),meal:"My Space",foods:foods.length?foods:[autoLog.food||msg.slice(0,40)],note:"Logged via My Space",symptoms:[],water:Math.round((autoLog.water_ml||0)/250)};
@@ -6508,7 +6547,7 @@ Keep responses warm, direct, 4–6 sentences max unless they ask for more.`;
           updateBP({food:foods.join(","),symptoms:[]});
         }
         if(autoLog.type==="water_log")setWaterLog(w=>w+(autoLog.water_ml||250));
-        if(autoLog.type==="move_log")setMoveLog(l=>[...l,{id:Date.now(),activity:autoLog.activity||"activity",duration:autoLog.duration_min||30,date:new Date().toISOString().split("T")[0],time:new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})}]);
+        if(autoLog.type==="move_log")setMoveLog(l=>[...l,{id:Date.now(),activity:autoLog.activity||"activity",duration:autoLog.duration_min||30,date:getLocalDateStr(),time:new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})}]);
       }
       recordAIMsg();
       setMsgs(p=>[...p,{role:"assistant",content:display,logged:autoLog}]);
