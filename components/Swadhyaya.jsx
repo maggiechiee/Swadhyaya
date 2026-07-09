@@ -5436,12 +5436,7 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
             <input value={newFood.note} onChange={e=>setNewFood(f=>({...f,note:e.target.value}))} placeholder="Notes (optional)…" style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 11px",fontSize:12}}/>
             <button onClick={addFood} style={{padding:"13px",background:`linear-gradient(135deg,${C.accent},${C.warm})`,border:"none",borderRadius:11,color:"#fff",cursor:"pointer",fontSize:14,fontWeight:600}}>Save Entry ✓</button>
           </div>
-          <div style={{marginTop:12,background:C.card,border:`1px solid ${C.border}`,borderRadius:11,padding:"14px 16px"}}>
-            <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:9}}>RECOGNISED FOODS — tap to add</div>
-            <div style={{display:"flex",flexWrap:"wrap",gap:5}}>
-              {Object.keys(FOOD_DB).map(f=><span key={f} onClick={()=>setNewFood(n=>({...n,foods:n.foods?n.foods+", "+f:f}))} style={{fontSize:11,padding:"3px 9px",background:C.bg,border:`1px solid ${C.border}`,borderRadius:20,color:C.muted,cursor:"pointer"}}>{f}</span>)}
-            </div>
-          </div>
+          
         </div>
       )}
 
@@ -8288,3 +8283,4 @@ function AuthScreen({ C, onAuth }) {
     </div>
   );
 }
+
