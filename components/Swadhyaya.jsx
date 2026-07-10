@@ -1694,7 +1694,7 @@ export default function Swadhyaya(){
   });
 
   if (authLoading) return (
-    <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"linear-gradient(180deg,#faf6ef,#f5f0e6)"}}>
+    <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"transparent"}}>
       <div style={{textAlign:"center"}}>
         <div style={{fontSize:28,marginBottom:8}}>✦</div>
         <div style={{fontSize:14,color:"#9088a0",fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>Loading…</div>
@@ -2468,12 +2468,13 @@ function HomeSection({C,galaxy,profile,needs,todayFood,waterLog,completedSteps,g
   const stateInfo=DAY_STATES[dailyState]||DAY_STATES.normal;
   return(
     <div>
-      <div style={{background:galaxy?"linear-gradient(180deg,#0a0520,#04020e)":hour<9?"linear-gradient(180deg,#fff3e0,#faf6ef)":hour<20?"linear-gradient(180deg,#faf6ef,#f5f0e6)":"linear-gradient(180deg,#1a1530,#0f0c1a)",padding:"32px 20px 24px",textAlign:"center",position:"relative",overflow:"hidden"}}>
+      <div style={{background:"rgba(0,0,0,0.2)",backdropFilter:"blur(12px)",padding:"32px 20px 24px",textAlign:"center",position:"relative",overflow:"hidden",borderBottom:"1px solid rgba(255,255,255,0.1)"}}>
         {galaxy&&<div style={{position:"absolute",inset:0,pointerEvents:"none"}}>{[...Array(20)].map((_,i)=><div key={i} style={{position:"absolute",left:`${(i*37)%100}%`,top:`${(i*53)%100}%`,width:i%5===0?2:1,height:i%5===0?2:1,borderRadius:"50%",background:"#e8e0ff",opacity:0.2+Math.sin(i)*0.1}}/>)}</div>}
         <div style={{position:"relative",zIndex:1}}>
         <div style={{fontSize:34,marginBottom:6,animation:"sunrise 0.6s ease"}}>{galaxy?(hour<9?"✦":hour<16?"☀":hour<20?"✦":"🌙"):(hour<9?"🌅":hour<16?"☀️":hour<20?"🌇":"🌙")}</div>
-        <div style={{fontSize:26,fontWeight:300,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:galaxy?"#ede8ff":hour>=20?"#ede8ff":C.text}}>{greeting}{profile.name?`, ${profile.name}`:""}.</div>
-        <div style={{fontSize:13,color:galaxy?"#7a6fa8":hour>=20?"#7a6fa8":C.muted,marginTop:4}}>{profile.fitnessGoal?`Goal: ${profile.fitnessGoal.slice(0,50)}${profile.fitnessGoal.length>50?"…":""}`:galaxy?"Your inner life, made visible.":""}</div>
+        <div style={{fontSize:26,fontWeight:300,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:"#fff",textShadow:"0 2px 16px rgba(0,0,0,0.4)"}}>{greeting}{profile.name?`, ${profile.name}`:""}.
+        </div>
+        <div style={{fontSize:12,color:"rgba(255,255,255,0.6)",marginTop:4,letterSpacing:0.5}}>{profile.fitnessGoal?`Goal: ${profile.fitnessGoal.slice(0,50)}${profile.fitnessGoal.length>50?"…":""}`:galaxy?"Your inner life, made visible.":""}</div>
         </div>
       </div>
       <div style={{padding:"16px 16px",display:"flex",flexDirection:"column",gap:12}}>
@@ -8830,7 +8831,7 @@ function AuthScreen({ C, onAuth }) {
     <div style={{
       minHeight: '100vh', display: 'flex', flexDirection: 'column',
       alignItems: 'center', justifyContent: 'center',
-      background: 'linear-gradient(180deg,#faf6ef,#f5f0e6)',
+      background: 'transparent',
       padding: '20px',
     }}>
       {/* Logo */}
@@ -8855,7 +8856,7 @@ function AuthScreen({ C, onAuth }) {
           <>
             <button onClick={handleGoogle} disabled={loading} style={{
               width: '100%', padding: '12px 14px', background: '#fff',
-              border: '1.5px solid #e2d8c8', borderRadius: 12, color: '#3f372f',
+              border: '1px solid rgba(255,255,255,0.18)', borderRadius: 12, color: '#3f372f',
               cursor: 'pointer', fontSize: 14, marginBottom: 14, fontWeight: 500,
             }}>
               {loading ? 'Opening Google...' : 'Continue with Google'}
@@ -8876,7 +8877,7 @@ function AuthScreen({ C, onAuth }) {
                 value={email} onChange={e => setEmail(e.target.value)}
                 placeholder="Email address"
                 type="email"
-                style={{ padding: '12px 14px', borderRadius: 10, border: '1.5px solid #e2d8c8', fontSize: 14, outline: 'none', background: '#faf6ef' }}
+                style={{ padding: '12px 14px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.18)', fontSize: 14, outline: 'none', background: 'rgba(0,0,0,0.25)' }}
               />
               {mode !== 'magic' && (
                 <input
@@ -8884,7 +8885,7 @@ function AuthScreen({ C, onAuth }) {
                   placeholder="Password"
                   type="password"
                   onKeyDown={e => e.key === 'Enter' && handleEmailAuth()}
-                  style={{ padding: '12px 14px', borderRadius: 10, border: '1.5px solid #e2d8c8', fontSize: 14, outline: 'none', background: '#faf6ef' }}
+                  style={{ padding: '12px 14px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.18)', fontSize: 14, outline: 'none', background: 'rgba(0,0,0,0.25)' }}
                 />
               )}
             </div>
