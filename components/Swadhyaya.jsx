@@ -265,23 +265,22 @@ function WatercolourNav({NAV, section, setSection, C, galaxy}) {
 
 
 const EARTHY={
-  bg:"#f0ece4",
-  surface:"rgba(240,236,228,0.85)",
-  card:"rgba(255,255,255,0.18)",
-  border:"rgba(255,255,255,0.32)",
-  borderDark:"rgba(200,180,150,0.4)",
+  bg:"rgba(0,0,0,0.25)",
+  surface:"rgba(0,0,0,0.3)",
+  card:"rgba(255,255,255,0.1)",
+  border:"rgba(255,255,255,0.18)",
+  borderDark:"rgba(255,255,255,0.3)",
   text:"#fff",
   muted:"rgba(255,255,255,0.65)",
-  dim:"rgba(255,255,255,0.38)",
+  dim:"rgba(255,255,255,0.35)",
   accent:"#c084fc",
   accent2:"#34d399",
   accent3:"#38bdf8",
   gold:"#fbbf24",
   warm:"#fb923c",
-  cream:"rgba(255,255,255,0.12)",
+  cream:"rgba(255,255,255,0.08)",
   red:"#f87171",
   purple:"#a78bfa",
-  // gradient block backgrounds for each card type
   cardQuote:"linear-gradient(135deg,rgba(70,30,110,0.82),rgba(100,45,140,0.72))",
   cardGreen:"linear-gradient(135deg,rgba(15,70,50,0.82),rgba(25,100,70,0.72))",
   cardBlue:"linear-gradient(135deg,rgba(15,35,90,0.82),rgba(30,50,140,0.72))",
@@ -1741,7 +1740,7 @@ export default function Swadhyaya(){
   // Auth gate
 
   return(
-    <div style={{background:C.bg,minHeight:"100vh",fontFamily:"'Jost',sans-serif",color:C.text}}>
+    <div style={{background:"transparent",minHeight:"100vh",fontFamily:"'Jost',sans-serif",color:C.text}}>
       {/* Login modal */}
       {showLogin&&!user&&(
         <div style={{position:"fixed",inset:0,zIndex:1000,background:"rgba(0,0,0,0.5)",display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
