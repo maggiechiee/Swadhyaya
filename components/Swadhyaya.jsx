@@ -1167,8 +1167,42 @@ function getPhase(lp,cl,pl,ds){
 
 // ── Stars ─────────────────────────────────────────────────────
 function Stars(){
-  const stars=useRef(Array.from({length:80},()=>({x:Math.random()*100,y:Math.random()*100,s:Math.random()*2+0.3,d:Math.random()*5,dur:2+Math.random()*4}))).current;
-  return <div style={{position:"fixed",inset:0,pointerEvents:"none",zIndex:0}}>{stars.map((st,i)=><div key={i} style={{position:"absolute",left:`${st.x}%`,top:`${st.y}%`,width:st.s,height:st.s,borderRadius:"50%",background:i%5===0?"#f472b6":i%7===0?"#38bdf8":"#e8e0ff",animation:`twinkle ${st.dur}s ${st.d}s infinite ease-in-out`}}/>)}</div>;
+  const stars=useRef(Array.from({length:120},()=>({x:Math.random()*100,y:Math.random()*100,s:Math.random()*2.5+0.4,d:Math.random()*6,dur:1.5+Math.random()*4,type:Math.floor(Math.random()*10)}))).current;
+  // Scorpio constellation points (approximate screen positions as percentages)
+  const scorpio=[
+    [72,15],[74,18],[76,20],[78,22],[80,25],
+    [80,28],[82,30],[84,28],[86,26],
+    [84,32],[82,35],[80,38],[78,40],[76,42],[74,44]
+  ];
+  return(
+    <div style={{position:"fixed",inset:0,pointerEvents:"none",zIndex:1,overflow:"hidden"}}>
+      {/* Milky Way band — diagonal hazy glow */}
+      <div style={{position:"absolute",top:"-20%",left:"-10%",width:"120%",height:"140%",
+        background:"linear-gradient(135deg,transparent 30%,rgba(120,80,255,0.06) 45%,rgba(180,140,255,0.09) 50%,rgba(100,160,255,0.06) 55%,transparent 70%)",
+        transform:"rotate(-15deg)",pointerEvents:"none"}}/>
+      {/* Stars */}
+      {stars.map((st,i)=>(
+        <div key={i} style={{
+          position:"absolute",left:`${st.x}%`,top:`${st.y}%`,
+          width:st.s,height:st.s,borderRadius:"50%",
+          background:st.type===0?"#f8c0ff":st.type===1?"#a0d8ff":st.type===2?"#fff8c0":st.type===3?"#c0e8ff":"#fff",
+          animation:`twinkle ${st.dur}s ${st.d}s infinite ease-in-out`,
+          boxShadow:st.s>1.8?`0 0 ${st.s*2}px ${st.s}px rgba(255,255,255,0.4)`:"none",
+        }}/>
+      ))}
+      {/* Scorpio constellation — subtle connected dots */}
+      <svg style={{position:"absolute",inset:0,width:"100%",height:"100%",opacity:0.35}} viewBox="0 0 100 100" preserveAspectRatio="none">
+        <polyline points={scorpio.map(([x,y])=>`${x},${y}`).join(" ")} fill="none" stroke="rgba(200,160,255,0.5)" strokeWidth="0.3"/>
+        {scorpio.map(([x,y],i)=>(
+          <circle key={i} cx={x} cy={y} r={i===0||i===scorpio.length-1?"0.6":"0.4"}
+            fill={i===0?"#f8c0ff":"rgba(220,200,255,0.8)"}
+            style={{filter:i===0?"drop-shadow(0 0 1px rgba(248,192,255,0.8))":"none"}}/>
+        ))}
+        {/* Label */}
+        <text x="88" y="24" fill="rgba(200,160,255,0.5)" fontSize="2" fontFamily="serif" fontStyle="italic">♏</text>
+      </svg>
+    </div>
+  );
 }
 
 // ── AI call ───────────────────────────────────────────────────
@@ -1780,7 +1814,7 @@ export default function Swadhyaya(){
         <div style={{maxWidth:700,margin:"0 auto",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <div onClick={()=>setSection("home")} style={{cursor:"pointer"}}>
             <div style={{fontSize:18,fontWeight:600,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>Swadhyāya</div>
-            <div style={{fontSize:9,color:C.dim,fontFamily:"'DM Mono',monospace",letterSpacing:2}}>
+            <div style={{fontSize:9,color:"rgba(255,255,255,0.7)",fontFamily:"'DM Mono',monospace",fontWeight:700,letterSpacing:2}}>
               {profile.plan==="trial"?`TRIAL · ${trialDaysLeft} DAYS LEFT`:planData.name.toUpperCase()}
             </div>
           </div>
@@ -3412,7 +3446,7 @@ function MonthlyTimeline({C, journalEntries, todayStr}) {
         <button onClick={()=>setViewMonth(m=>{const d=new Date(m.year,m.month+1);return{year:d.getFullYear(),month:d.getMonth()};})} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:"6px 12px",cursor:"pointer",fontSize:13,color:C.muted}}>›</button>
       </div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2,marginBottom:6}}>
-        {["Su","Mo","Tu","We","Th","Fr","Sa"].map(d=><div key={d} style={{textAlign:"center",fontSize:9,color:C.dim,fontFamily:"'DM Mono',monospace"}}>{d}</div>)}
+        {["Su","Mo","Tu","We","Th","Fr","Sa"].map(d=><div key={d} style={{textAlign:"center",fontSize:9,color:"rgba(255,255,255,0.7)",fontFamily:"'DM Mono',monospace",fontWeight:700}}>{d}</div>)}
       </div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2}}>
         {Array(new Date(viewMonth.year,viewMonth.month,1).getDay()).fill(null).map((_,i)=><div key={"e"+i}/>)}
@@ -5960,7 +5994,7 @@ function CycleSection({C,profile,setProfile,periodLogs,setPeriodLogs,symptoms,se
           <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:12}}>
             {Object.entries(PHASE_INFO).map(([k,v])=>{
               const isCurrent=profile.cyclePhase===k;
-              return<div key={k} style={{display:"flex",alignItems:"center",gap:4,padding:isCurrent?"6px 12px":"4px 10px",background:isCurrent?PHASE_COLORS[k]+"44":PHASE_COLORS[k]+"22",borderRadius:20,border:`${isCurrent?"2.5px":"1.5px"} solid ${PHASE_COLORS[k]}${isCurrent?"cc":"77"}`,transition:"all 0.2s",backdropFilter:"blur(12px)"}}>
+              return<div key={k} style={{display:"flex",alignItems:"center",gap:4,padding:"5px 11px",background:PHASE_COLORS[k]+(isCurrent?"44":"18"),borderRadius:20,border:`1.5px solid ${PHASE_COLORS[k]}88`,transition:"all 0.2s",backdropFilter:"blur(12px)",boxShadow:isCurrent?`0 0 10px ${PHASE_COLORS[k]}99, 0 0 20px ${PHASE_COLORS[k]}44`:"none"}}>
                 <div style={{width:isCurrent?8:5,height:isCurrent?8:5,borderRadius:"50%",background:PHASE_COLORS[k],boxShadow:isCurrent?`0 0 6px ${PHASE_COLORS[k]}`:"none"}}/>
                 <div style={{fontSize:isCurrent?10:9,color:PHASE_COLORS[k],fontWeight:isCurrent?700:400}}>{v.icon} {v.label}{isCurrent?" ← you":""}</div>
               </div>;
@@ -5981,7 +6015,7 @@ function CycleSection({C,profile,setProfile,periodLogs,setPeriodLogs,symptoms,se
             </div>;
           })()}
           <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:11,marginBottom:12}}>
-            <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2,marginBottom:5}}>{["Su","Mo","Tu","We","Th","Fr","Sa"].map(d=><div key={d} style={{textAlign:"center",fontSize:9,color:C.dim,fontFamily:"'DM Mono',monospace"}}>{d}</div>)}</div>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2,marginBottom:5}}>{["Su","Mo","Tu","We","Th","Fr","Sa"].map(d=><div key={d} style={{textAlign:"center",fontSize:9,color:"rgba(255,255,255,0.7)",fontFamily:"'DM Mono',monospace",fontWeight:700}}>{d}</div>)}</div>
             <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2}}>
               {calDays.map((day,i)=>{
                 if(!day)return<div key={i}/>;
@@ -5994,10 +6028,10 @@ function CycleSection({C,profile,setProfile,periodLogs,setPeriodLogs,symptoms,se
                   background:day.lp?fc+"66":pc?pc+"38":"rgba(255,255,255,0.04)",
                   boxShadow:isToday?`0 0 0 2px ${C.accent}`:pc?`inset 0 0 0 1px ${pc}44`:"none",
                 }}>
-                  <div style={{fontSize:11,fontWeight:isToday?700:400,color:day.lp?fc:isToday?C.accent:pc?pc:C.text,textAlign:"center"}}>{day.d}</div>
+                  <div style={{fontSize:12,fontWeight:700,color:"#fff",textAlign:"center",textShadow:"0 1px 4px rgba(0,0,0,0.6)"}}>{day.d}</div>
                   {day.lp
                     ?<div style={{width:6,height:6,borderRadius:"50%",background:fc,margin:"1px auto 0",boxShadow:`0 0 4px ${fc}`}}/>
-                    :pc?<div style={{width:5,height:5,borderRadius:"50%",background:pc,margin:"1px auto 0",opacity:0.8}}/>
+                    :pc?<div style={{width:5,height:5,borderRadius:"50%",background:pc,margin:"1px auto 0",opacity:0.9,boxShadow:`0 0 3px ${pc}`}}/>
                     :null}
                 </button>;
               })}
