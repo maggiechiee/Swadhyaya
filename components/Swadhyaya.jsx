@@ -849,25 +849,53 @@ function getUnresolvedFoods(foods){
 // recognize (e.g. "lions mane mushroom powder 1 tsp", "moringa powder").
 // Returns the SAME shape as a FOOD_DB entry per item logged, so results
 // can be summed directly into the running totals.
-async function estimateFoodAI(rawEntries){
-  if(!rawEntries||rawEntries.length===0) return {cal:0,protein:0,carbs:0,fat:0,fibre:0,iron:0,calcium:0,vitC:0,vitB12:0,vitD:0,folate:0,magnesium:0,zinc:0,potassium:0,omega3:0,choline:0,addedSugar:0,sodium:0,vitA:0,vitE:0};
+async function estimateFoodAI(rawEntries, learnedFoods={}){
+  const empty=()=>({cal:0,protein:0,carbs:0,fat:0,fibre:0,iron:0,calcium:0,vitC:0,vitB12:0,vitD:0,folate:0,magnesium:0,zinc:0,potassium:0,omega3:0,choline:0,addedSugar:0,sodium:0,vitA:0,vitE:0});
+  if(!rawEntries||rawEntries.length===0) return {totals:empty(), newlyLearned:{}};
+
+  // Check learned foods first -- skip AI for anything already known
+  const toEstimate = [];
+  const learnedTotals = empty();
+  rawEntries.forEach(entry=>{
+    const key = entry.toLowerCase().trim();
+    if(learnedFoods[key]){
+      for(const n of Object.keys(learnedTotals)) learnedTotals[n]+=(learnedFoods[key][n]||0);
+    } else {
+      toEstimate.push(entry);
+    }
+  });
+
+  if(toEstimate.length===0) return {totals:learnedTotals, newlyLearned:{}};
+
   const system=`You are a nutrition estimation engine for Indian foods, supplements, and herbs. Given a list of food/supplement entries exactly as a person logged them (including quantity if given, e.g. "1 tsp moringa powder", "lions mane mushroom powder", "half lemon with salt"), estimate realistic nutrition totals for EACH entry as actually consumed (respecting any stated quantity; assume one typical serving if no quantity given).
 Return ONLY valid JSON, no markdown, no explanation, in this exact shape:
 {"items":[{"input":"<original entry text>","cal":0,"protein":0,"carbs":0,"fat":0,"fibre":0,"iron":0,"calcium":0,"vitC":0,"vitB12":0,"vitD":0,"folate":0,"magnesium":0,"zinc":0,"potassium":0,"omega3":0,"choline":0,"addedSugar":0,"sodium":0,"vitA":0,"vitE":0}]}
 Units: cal=kcal, protein/carbs/fat/fibre=g, iron/zinc/vitE=mg, calcium/magnesium/potassium/sodium/choline/vitC=mg, vitB12/vitD/folate/vitA=mcg, omega3=g, addedSugar=g.
-Be realistic — supplements like mushroom powders or moringa are typically taken in small (gram-level) amounts with low calories (5-20 kcal) but can carry meaningful micronutrients. If something is truly unidentifiable, return all zeros for it rather than guessing wildly.`;
+Be realistic -- supplements like mushroom powders or moringa are typically taken in small (gram-level) amounts with low calories (5-20 kcal) but can carry meaningful micronutrients. If something is truly unidentifiable, return all zeros for it rather than guessing wildly.`;
   try{
-    const res=await askAI(system,[{role:"user",content:JSON.stringify(rawEntries)}],800);
+    const res=await askAI(system,[{role:"user",content:JSON.stringify(toEstimate)}],800);
     const cleaned=res.replace(/```json|```/g,"").trim();
     const parsed=JSON.parse(cleaned);
-    const totals={cal:0,protein:0,carbs:0,fat:0,fibre:0,iron:0,calcium:0,vitC:0,vitB12:0,vitD:0,folate:0,magnesium:0,zinc:0,potassium:0,omega3:0,choline:0,addedSugar:0,sodium:0,vitA:0,vitE:0};
+    const aiTotals=empty();
+    const newlyLearned={};
     (parsed.items||[]).forEach(item=>{
-      for(const n of Object.keys(totals)) totals[n]+=parseFloat(item[n])||0;
+      const itemTotals={};
+      for(const n of Object.keys(aiTotals)){
+        const v=parseFloat(item[n])||0;
+        aiTotals[n]+=v;
+        itemTotals[n]=v;
+      }
+      // Save this food so we never call AI for it again
+      if(item.input && (itemTotals.cal>0||itemTotals.protein>0)){
+        newlyLearned[item.input.toLowerCase().trim()]=itemTotals;
+      }
     });
-    return totals;
+    const combined={...aiTotals};
+    for(const n of Object.keys(combined)) combined[n]+=learnedTotals[n]||0;
+    return {totals:combined, newlyLearned};
   }catch(e){
     console.error("AI nutrition estimate failed:",e);
-    return {cal:0,protein:0,carbs:0,fat:0,fibre:0,iron:0,calcium:0,vitC:0,vitB12:0,vitD:0,folate:0,magnesium:0,zinc:0,potassium:0,omega3:0,choline:0,addedSugar:0,sodium:0,vitA:0,vitE:0};
+    return {totals:learnedTotals, newlyLearned:{}};
   }
 }
 
@@ -875,14 +903,14 @@ Be realistic — supplements like mushroom powders or moringa are typically take
 // fills in any unresolved items using the AI estimate. This is the
 // function the food-logging UI should call (it's async because of the
 // AI fallback — show a brief loading state while it resolves).
-async function calcNutritionWithAI(foods){
+async function calcNutritionWithAI(foods, learnedFoods={}){
   const localTotals=calcNutrition(foods);
   const unresolved=getUnresolvedFoods(foods);
-  if(unresolved.length===0) return {totals:localTotals, aiUsed:false};
-  const aiTotals=await estimateFoodAI(unresolved);
+  if(unresolved.length===0) return {totals:localTotals, aiUsed:false, newlyLearned:{}};
+  const {totals:aiTotals, newlyLearned}=await estimateFoodAI(unresolved, learnedFoods);
   const combined={...localTotals};
   for(const n of Object.keys(combined)) combined[n]+=aiTotals[n]||0;
-  return {totals:combined, aiUsed:true, aiItems:unresolved};
+  return {totals:combined, aiUsed:true, aiItems:unresolved, newlyLearned};
 }
 
 // ── BMR + goal-adaptive targets ───────────────────────────────
@@ -2505,6 +2533,102 @@ function getCatIcon(catId) {
   return GOAL_CATEGORIES.find(c=>c.id===catId)?.icon || "◎";
 }
 
+// Elevated color palette for habit dot grids — works in both Earth (light)
+// and Galaxy (dark) modes since these are saturated enough to pop on both.
+const HABIT_DOT_COLORS = [
+  "#c084fc", // purple
+  "#34d399", // emerald
+  "#fb923c", // orange
+  "#f472b6", // pink
+  "#38bdf8", // sky blue
+  "#a3e635", // lime
+  "#fbbf24", // amber
+  "#f87171", // rose
+  "#4ade80", // green
+  "#e879f9", // fuchsia
+];
+
+function HabitDotGrid({goal, C, colorIndex=0}){
+  const [open, setOpen] = useState(false);
+  if(goal.type!=="habit" && goal.type!=="weekly") return null;
+
+  const color = HABIT_DOT_COLORS[colorIndex % HABIT_DOT_COLORS.length];
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const today = now.getDate();
+  const daysInMonth = new Date(year, month+1, 0).getDate();
+  const monthStr = `${year}-${String(month+1).padStart(2,"0")}`;
+
+  // Build array of which days this month are done
+  const doneDays = new Set();
+  if(goal.type==="habit"){
+    (goal.habitDays||[]).forEach(d=>{
+      if(d && d.startsWith(monthStr)){
+        const day = parseInt(d.split("-")[2]);
+        if(day) doneDays.add(day);
+      }
+    });
+  } else if(goal.type==="weekly"){
+    (goal.weekLogs||[]).forEach(l=>{
+      if(l.date && l.date.startsWith(monthStr)){
+        const day = parseInt(l.date.split("-")[2]);
+        if(day) doneDays.add(day);
+      }
+    });
+  }
+
+  const doneCount = doneDays.size;
+  const possibleDays = today;
+  const pct = possibleDays>0 ? Math.round((doneCount/possibleDays)*100) : 0;
+
+  // Best streak this month
+  let bestStreak=0, cur=0;
+  for(let d=1;d<=today;d++){
+    if(doneDays.has(d)){ cur++; bestStreak=Math.max(bestStreak,cur); } else { cur=0; }
+  }
+
+  return (
+    <div style={{marginTop:8}}>
+      <button
+        onClick={e=>{e.stopPropagation();setOpen(o=>!o);}}
+        style={{background:"transparent",border:"none",cursor:"pointer",padding:0,fontSize:11,color:open?color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:0.5,display:"flex",alignItems:"center",gap:4}}>
+        {open?"▾":"▸"} See progress
+      </button>
+
+      {open&&(
+        <div onClick={e=>e.stopPropagation()} style={{marginTop:8,padding:"12px",background:C.bg,borderRadius:10,border:`1px solid ${color}33`}}>
+          {/* Dot grid */}
+          <div style={{display:"flex",flexWrap:"wrap",gap:3,marginBottom:8}}>
+            {Array.from({length:daysInMonth},(_,i)=>{
+              const day=i+1;
+              const isDone=doneDays.has(day);
+              const isFuture=day>today;
+              return(
+                <div key={day} style={{
+                  width:8,height:8,borderRadius:2,
+                  background:isFuture?"transparent":isDone?color:C.border,
+                  border:isFuture?`1px solid ${C.border}`:isDone?`1px solid ${color}`:
+                    day===today?`1px solid ${C.muted}`:"none",
+                  opacity:isFuture?0.3:isDone?1:0.4,
+                  boxShadow:isDone?`0 0 4px ${color}88`:"none",
+                }}/>
+              );
+            })}
+          </div>
+
+          {/* Stats row */}
+          <div style={{display:"flex",gap:14,flexWrap:"wrap"}}>
+            <div style={{fontSize:10,color:C.muted}}>Done <strong style={{color}}>{doneCount}/{today}</strong></div>
+            <div style={{fontSize:10,color:C.muted}}>Month <strong style={{color}}>{pct}%</strong></div>
+            <div style={{fontSize:10,color:C.muted}}>Best streak <strong style={{color}}>{bestStreak}d</strong></div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function GoalsSection({C, galaxy, profile, up, journalEntries}) {
   const [view, setView] = useState("list"); // list | add | detail
   const [selectedGoal, setSelectedGoal] = useState(null);
@@ -3096,7 +3220,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
         </div>
       ):(
         <div style={{display:"flex",flexDirection:"column",gap:12}}>
-          {goals.map(goal=>{
+          {goals.map((goal,goalIdx)=>{
             const pct=getGoalProgress(goal);
             const catColor=getCatColor(goal.category);
             const streak=goal.type==="habit"?getHabitStreak(goal):0;
@@ -3137,6 +3261,9 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
                   )}
                   <div style={{marginLeft:"auto",fontSize:11,color:C.dim}}>tap to open →</div>
                 </div>
+                {(goal.type==="habit"||goal.type==="weekly")&&(
+                  <HabitDotGrid goal={goal} C={C} colorIndex={goalIdx}/>
+                )}
               </div>
             );
           })}
@@ -3563,7 +3690,8 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
   const [todayEntry, setTodayEntry] = useState({
     mood: "", energy: 5, freeWrite: "",
     prompts: {}, goals: {}, date: getLocalDateStr(),
-    bedtime: "", wakeTime: "", sleepQuality: null
+    bedtime: "", wakeTime: "", sleepQuality: null,
+    screenTime: "", eyeStrain: null, exhaustion: null
   });
   const [saving, setSaving] = useState(false);
   const [selectedPrompts, setSelectedPrompts] = useState([0,5,4]); // 3 random prompts
@@ -3737,6 +3865,61 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
             {/* In-the-moment pause prompt — only shown when there's a real low-sleep streak */}
             <SleepPausePrompt todayEntry={todayEntry} journalEntries={journalEntries} C={C}/>
           </div>
+
+          {/* Screen time + eye/exhaustion tracking */}
+          <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+            <div style={{fontSize:10,color:C.accent2,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>📱 SCREEN TIME & EYE HEALTH</div>
+
+            <div style={{marginBottom:14}}>
+              <div style={{fontSize:11,color:C.muted,marginBottom:8}}>Hours on screens today <span style={{color:C.dim}}>(check Settings → Screen Time on your phone)</span></div>
+              <div style={{display:"flex",gap:8,alignItems:"center"}}>
+                <input
+                  type="number" min="0" max="24" step="0.5"
+                  value={todayEntry.screenTime||""}
+                  onChange={e=>setTodayEntry(en=>({...en,screenTime:e.target.value}))}
+                  placeholder="e.g. 6.5"
+                  style={{width:90,background:C.bg,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"9px 12px",fontSize:16,fontFamily:"'DM Mono',monospace"}}/>
+                <div style={{fontSize:13,color:C.muted}}>hours</div>
+              </div>
+              {parseFloat(todayEntry.screenTime)>8&&(
+                <div style={{fontSize:11,color:C.gold,marginTop:6,fontStyle:"italic"}}>Over 8 hours — eye strain and disrupted sleep are well-documented at this level.</div>
+              )}
+            </div>
+
+            <div style={{marginBottom:14}}>
+              <div style={{fontSize:11,color:C.muted,marginBottom:8}}>Eyes feel…</div>
+              <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+                {[{v:"fine",l:"😊 Fine"},{v:"tired",l:"😔 Tired"},{v:"strained",l:"😫 Strained"},{v:"dry",l:"🔥 Dry/burning"},{v:"blurry",l:"😵 Blurry"}].map(o=>(
+                  <button key={o.v} onClick={()=>setTodayEntry(en=>({...en,eyeStrain:en.eyeStrain===o.v?null:o.v}))} style={{
+                    padding:"6px 12px",borderRadius:20,cursor:"pointer",fontSize:12,
+                    border:`1px solid ${todayEntry.eyeStrain===o.v?C.accent2:C.border}`,
+                    background:todayEntry.eyeStrain===o.v?C.accent2+"15":"transparent",
+                    color:todayEntry.eyeStrain===o.v?C.accent2:C.muted,
+                  }}>{o.l}</button>
+                ))}
+              </div>
+            </div>
+
+            <div>
+              <div style={{fontSize:11,color:C.muted,marginBottom:8}}>Energy / exhaustion level</div>
+              <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+                {[{v:"energised",l:"⚡ Energised"},{v:"okay",l:"😐 Okay"},{v:"tired",l:"😴 Tired"},{v:"exhausted",l:"😩 Exhausted"},{v:"drained",l:"🪫 Completely drained"}].map(o=>(
+                  <button key={o.v} onClick={()=>setTodayEntry(en=>({...en,exhaustion:en.exhaustion===o.v?null:o.v}))} style={{
+                    padding:"6px 12px",borderRadius:20,cursor:"pointer",fontSize:12,
+                    border:`1px solid ${todayEntry.exhaustion===o.v?C.accent:C.border}`,
+                    background:todayEntry.exhaustion===o.v?C.accent+"15":"transparent",
+                    color:todayEntry.exhaustion===o.v?C.accent:C.muted,
+                  }}>{o.l}</button>
+                ))}
+              </div>
+              {(todayEntry.exhaustion==="exhausted"||todayEntry.exhaustion==="drained")&&(
+                <div style={{fontSize:11,color:C.gold,marginTop:8,lineHeight:1.6,fontStyle:"italic"}}>
+                  Exhaustion this persistent is worth tracking against your sleep hours and screen time — patterns usually become visible within a week of consistent logging.
+                </div>
+              )}
+            </div>
+          </div>
+
 
           {/* Goal check-in */}
           {(profile.goals||[]).length>0&&(
@@ -5137,15 +5320,23 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
 
   // Debounced AI lookup: whenever the typed foods contain items the local
   // FOOD_DB can't resolve, ask Claude for an estimate after a short pause.
+  // Checks profile.learnedFoods first so previously estimated foods don't
+  // need another API call — they're remembered permanently.
   useEffect(()=>{
     const foods=newFood.foods.split(",").map(f=>f.trim()).filter(Boolean);
     const unresolved=getUnresolvedFoods(foods);
     if(unresolved.length===0){ setAiEstimate(null); return; }
     setAiLoading(true);
     const t=setTimeout(async()=>{
-      const totals=await estimateFoodAI(unresolved);
+      const learnedFoods = profile.learnedFoods || {};
+      const {totals, newlyLearned}=await estimateFoodAI(unresolved, learnedFoods);
       setAiEstimate({totals, items:unresolved});
       setAiLoading(false);
+      // Save any newly learned foods permanently to profile so next time
+      // the same food is logged, no AI call is needed at all.
+      if(Object.keys(newlyLearned).length>0 && up){
+        up("learnedFoods", {...learnedFoods, ...newlyLearned});
+      }
     },900);
     return ()=>clearTimeout(t);
   },[newFood.foods]);
@@ -5436,7 +5627,6 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
             <input value={newFood.note} onChange={e=>setNewFood(f=>({...f,note:e.target.value}))} placeholder="Notes (optional)…" style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 11px",fontSize:12}}/>
             <button onClick={addFood} style={{padding:"13px",background:`linear-gradient(135deg,${C.accent},${C.warm})`,border:"none",borderRadius:11,color:"#fff",cursor:"pointer",fontSize:14,fontWeight:600}}>Save Entry ✓</button>
           </div>
-          
         </div>
       )}
 
@@ -6213,6 +6403,263 @@ function TodaysMirror({C,galaxy,profile,todayFood,needs,ritualDone,moveMin,compl
   );
 }
 
+// ══════════════════════════════════════════════════════════════
+//  HONEST MIRROR
+//  A cumulative AI reflection that grows smarter over time.
+//  Reads all available data — journal free-writes, mood, sleep,
+//  food, movement, goals, weight — and synthesizes an honest,
+//  specific, poetic mirror of who the person actually is right
+//  now, where they keep getting stuck, what's working, and what
+//  the gap is between who they are and who they want to be.
+//  Never resets. Accumulates context via a rolling summary stored
+//  in profile.mirrorSummary, updated each time it generates.
+// ══════════════════════════════════════════════════════════════
+function HonestMirror({C, galaxy, profile, up, journalEntries, foodLogs, weightLog, moveLog, needs}){
+  const [loading, setLoading] = useState(false);
+  const [mirror, setMirror] = useState(profile.lastMirror || null);
+  const [expanded, setExpanded] = useState(false);
+  const accent = galaxy ? "#c084fc" : C.accent;
+
+  function buildDataSnapshot(){
+    const now = new Date();
+    const todayStr = getLocalDateStr();
+
+    // Last 14 days of journals — full detail
+    const recentJournals = (journalEntries||[])
+      .filter(e => e.date && e.freeWrite)
+      .sort((a,b) => new Date(b.date)-new Date(a.date))
+      .slice(0,14)
+      .map(e => `[${e.date}] Mood:${e.mood||"?"} Energy:${e.energy||"?"}/10 Sleep:${e.bedtime||"?"}→${e.wakeTime||"?"} Screen:${e.screenTime||"?"}h Eyes:${e.eyeStrain||"?"} Exhaustion:${e.exhaustion||"?"}\nFreewrite: "${e.freeWrite}"`);
+
+    // Sleep averages
+    const sleepEntries = (journalEntries||[]).filter(e=>e.bedtime&&e.wakeTime).slice(0,30);
+    const avgSleep = sleepEntries.length > 0
+      ? (sleepEntries.reduce((sum,e)=>{
+          const [bh,bm] = (e.bedtime||"23:00").split(":").map(Number);
+          const [wh,wm] = (e.wakeTime||"6:00").split(":").map(Number);
+          let hrs = wh + wm/60 - (bh + bm/60);
+          if(hrs < 0) hrs += 24;
+          return sum + hrs;
+        },0) / sleepEntries.length).toFixed(1)
+      : "unknown";
+
+    // Mood pattern
+    const moodEntries = (journalEntries||[]).filter(e=>e.mood).slice(0,30);
+    const moodCounts = {};
+    moodEntries.forEach(e=>{ moodCounts[e.mood] = (moodCounts[e.mood]||0)+1; });
+    const topMood = Object.entries(moodCounts).sort((a,b)=>b[1]-a[1])[0];
+
+    // Recurring words/themes in free-writes (simple frequency)
+    const allWords = (journalEntries||[])
+      .flatMap(e=>(e.freeWrite||"").toLowerCase().split(/\s+/))
+      .filter(w=>w.length>4 && !["about","their","there","these","those","would","could","should","which","where","when","that","this","have","been","with","from","just","like","feel","felt"].includes(w));
+    const wordFreq = {};
+    allWords.forEach(w=>{ wordFreq[w]=(wordFreq[w]||0)+1; });
+    const recurringThemes = Object.entries(wordFreq)
+      .filter(([,c])=>c>=3)
+      .sort((a,b)=>b[1]-a[1])
+      .slice(0,10)
+      .map(([w,c])=>`"${w}" (${c}x)`)
+      .join(", ");
+
+    // Weight trend
+    const sortedWeight = [...(weightLog||[])].sort((a,b)=>new Date(a.date)-new Date(b.date));
+    const weightTrend = sortedWeight.length >= 2
+      ? `${sortedWeight[0].weight}${profile.weightUnit} → ${sortedWeight[sortedWeight.length-1].weight}${profile.weightUnit} over ${sortedWeight.length} entries`
+      : "no weight data";
+
+    // Food behaviour
+    const recentFood = (foodLogs||[]).filter(l=>{
+      const d = new Date(l.date);
+      const cutoff = new Date(); cutoff.setDate(cutoff.getDate()-14);
+      return d >= cutoff;
+    });
+    const loggedDays = [...new Set(recentFood.map(l=>l.date))];
+    const avgCal = loggedDays.length > 0
+      ? Math.round(loggedDays.reduce((sum,d)=>{
+          const dayLogs = recentFood.filter(l=>l.date===d);
+          const dayTotal = dayLogs.reduce((s,l)=>s+(calcLoggedNutrition(l).cal||0),0);
+          return sum+dayTotal;
+        },0)/loggedDays.length)
+      : 0;
+
+    // Movement
+    const totalMove = (moveLog||[]).slice(0,30).reduce((s,m)=>s+(m.duration||0),0);
+    const movePerWeek = Math.round((totalMove / 30) * 7);
+
+    // Goals
+    const goals = (profile.goals||[]).map(g=>`${g.text} (${g.type})`).join(", ");
+
+    return {
+      previousSummary: profile.mirrorSummary || "No previous summary — this is the first reflection.",
+      recentJournals: recentJournals.join("\n\n"),
+      avgSleep,
+      topMood: topMood ? `${topMood[0]} (${topMood[1]} times)` : "not enough data",
+      recurringThemes: recurringThemes || "none detected yet",
+      weightTrend,
+      avgCalVsTarget: avgCal > 0 ? `${avgCal} kcal/day actual vs ${needs.cal} kcal/day target (${avgCal>needs.cal?"+":""}${avgCal-needs.cal} kcal/day)` : "food data limited",
+      movePerWeek: `${movePerWeek} min/week logged`,
+      goals: goals || "no goals set",
+      totalJournalDays: (journalEntries||[]).filter(e=>e.freeWrite).length,
+      name: profile.name || "you",
+    };
+  }
+
+  async function generateMirror(){
+    setLoading(true);
+    const data = buildDataSnapshot();
+
+    const system = `You are an honest, deeply perceptive mirror — not a wellness coach, not a cheerleader, not a therapist. You are the clearest possible reflection of who this person actually is, based entirely on their own data and words. You speak directly to them, warmly but without softening the truth.
+
+Your job is to synthesize ALL of the following into a single coherent reflection:
+1. Who they actually are right now (based on patterns in their data and words)
+2. What keeps coming up unresolved (recurring themes, frustrations, emotional threads they mention but don't address)
+3. The gap between who they say they want to be and what their actual behaviour shows
+4. What IS working — genuine, specific, not generic praise
+5. One honest question back to them — not advice, a question that might unlock something
+
+Rules:
+— Never say "you're doing great" unless the data actually shows it
+— Reference their ACTUAL words from their journals when relevant — quote them back
+— Be specific, not general. "You mentioned feeling stuck 4 times" not "you seem to feel stuck sometimes"
+— If they keep mentioning the same problem without resolving it, name it clearly: "This keeps coming up. It's not going away on its own."
+— The tone should feel like someone who has read everything they've ever written and genuinely cares — not clinical, not distant, not preachy
+— End with ONE question. Not multiple. The most important one.
+— Length: 200-280 words. Dense, poetic, specific. Every sentence should earn its place.
+— After the reflection, on a new line write: UPDATED_SUMMARY: [a concise 150-word summary of this person's patterns, unresolved threads, what's working, and behavioural gaps — this will be used as context for the NEXT mirror so it accumulates over time]`;
+
+    const userContent = `Previous accumulated summary of this person:
+${data.previousSummary}
+
+Recent journal entries (last 14 days):
+${data.recentJournals || "No recent journal entries."}
+
+Data snapshot:
+- Average sleep: ${data.avgSleep} hours/night
+- Most common mood logged: ${data.topMood}
+- Recurring words/themes across ALL journals: ${data.recurringThemes}
+- Weight trend: ${data.weightTrend}
+- Food: ${data.avgCalVsTarget}
+- Movement: ${data.movePerWeek}
+- Stated goals: ${data.goals}
+- Total days journaled: ${data.totalJournalDays}
+- Name: ${data.name}
+
+Generate the honest mirror reflection.`;
+
+    try{
+      const res = await askAI(system, [{role:"user", content:userContent}], 800);
+
+      // Split mirror text from updated summary
+      const summaryMatch = res.match(/UPDATED_SUMMARY:\s*([\s\S]+)$/);
+      const mirrorText = res.replace(/UPDATED_SUMMARY:[\s\S]+$/, "").trim();
+      const newSummary = summaryMatch ? summaryMatch[1].trim() : profile.mirrorSummary;
+
+      const entry = {
+        text: mirrorText,
+        date: getLocalDateStr(),
+        generatedAt: new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"}),
+      };
+
+      // Save mirror and updated summary to profile
+      const history = [entry, ...(profile.mirrorHistory||[])].slice(0,12); // keep last 12
+      up("lastMirror", entry);
+      up("mirrorHistory", history);
+      if(newSummary) up("mirrorSummary", newSummary);
+
+      setMirror(entry);
+      setExpanded(true);
+    }catch(e){
+      console.error("Mirror generation failed:", e);
+    }
+    setLoading(false);
+  }
+
+  const history = profile.mirrorHistory || [];
+
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:14}}>
+
+      {/* Header */}
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
+        <div>
+          <div style={{fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",fontSize:22,color:C.text}}>The Mirror</div>
+          <div style={{fontSize:10,color:C.muted,marginTop:3,letterSpacing:1}}>
+            {history.length > 0
+              ? `${history.length} reflection${history.length>1?"s":""} · built from all your data`
+              : "Reflects everything you've logged, accumulated over time"}
+          </div>
+        </div>
+        <button onClick={generateMirror} disabled={loading} style={{
+          padding:"9px 16px",borderRadius:20,border:`1px solid ${accent}`,
+          background:loading?C.border:`${accent}15`,cursor:loading?"not-allowed":"pointer",
+          fontSize:11,color:loading?C.muted:accent,fontWeight:500,
+          whiteSpace:"nowrap",
+        }}>
+          {loading ? "Reading..." : mirror ? "Regenerate" : "Generate mirror"}
+        </button>
+      </div>
+
+      {/* Current mirror */}
+      {mirror && (
+        <div style={{background:C.card,border:`1px solid ${accent}33`,borderRadius:16,padding:22,position:"relative"}}>
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+            <div style={{fontSize:9,color:C.muted,letterSpacing:2}}>{mirror.date} · {mirror.generatedAt}</div>
+            <button onClick={()=>setExpanded(e=>!e)} style={{background:"transparent",border:"none",color:C.muted,cursor:"pointer",fontSize:11}}>
+              {expanded?"collapse":"read"}
+            </button>
+          </div>
+
+          {expanded ? (
+            <div style={{fontSize:14,color:C.text,lineHeight:1.85,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",whiteSpace:"pre-wrap"}}>
+              {mirror.text}
+            </div>
+          ) : (
+            <div style={{fontSize:14,color:C.text,lineHeight:1.85,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",overflow:"hidden",display:"-webkit-box",WebkitLineClamp:3,WebkitBoxOrient:"vertical"}}>
+              {mirror.text}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* No data state */}
+      {!mirror && !loading && (
+        <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:16,padding:24,textAlign:"center"}}>
+          <div style={{fontSize:28,marginBottom:12}}>🪞</div>
+          <div style={{fontSize:13,color:C.muted,lineHeight:1.75,marginBottom:8}}>
+            The mirror reads everything — your journal entries, mood, sleep, food, goals, movement, the words you keep using. The more you log, the deeper it sees.
+          </div>
+          <div style={{fontSize:11,color:C.dim,fontStyle:"italic"}}>
+            Journal a few honest entries first, then generate your first reflection.
+          </div>
+        </div>
+      )}
+
+      {/* Past reflections */}
+      {history.length > 1 && (
+        <div>
+          <div style={{fontSize:10,color:C.muted,letterSpacing:2,marginBottom:10}}>PAST REFLECTIONS</div>
+          <div style={{display:"flex",flexDirection:"column",gap:8}}>
+            {history.slice(1,5).map((h,i)=>(
+              <div key={i} style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:12,padding:"12px 14px",cursor:"pointer"}}
+                onClick={()=>setMirror(h)}>
+                <div style={{fontSize:9,color:C.dim,letterSpacing:1,marginBottom:6}}>{h.date}</div>
+                <div style={{fontSize:12,color:C.muted,lineHeight:1.6,overflow:"hidden",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>
+                  {h.text}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      <div style={{fontSize:11,color:C.dim,lineHeight:1.7,fontStyle:"italic",marginTop:4}}>
+        This mirror accumulates. Each reflection builds on everything before it — your patterns, unresolved threads, what's shifting. The longer you use it, the more it knows.
+      </div>
+    </div>
+  );
+}
+
 function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedSteps,weightLog,setWeightLog,foodLogs,behaviourProfile,updateBP,journalEntries=[]}){
   const[view,setView]=useState("today");
   const[weightInput,setWeightInput]=useState("");
@@ -6464,6 +6911,7 @@ function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedS
 
       {view==="insights"&&(
         <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          <HonestMirror C={C} galaxy={galaxy} profile={profile} up={up} journalEntries={journalEntries} foodLogs={foodLogs} weightLog={weightLog} moveLog={moveLog} needs={needs}/>
           <SleepMoodAnalysis journalEntries={journalEntries} C={C}/>
           <div style={{background:C.card,border:`1px solid ${C.accent}33`,borderRadius:13,padding:18}}>
             <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>◉ PATTERNS YOU'VE SHOWN</div>
@@ -7109,6 +7557,138 @@ function ProfileSection({C,profile,up,needs,setSection,resetToday,resetAllLogs})
           </button>
         </div>
       </div>
+
+      <NotificationSettings C={C} profile={profile}/>
+
+    </div>
+  );
+}
+
+// ── Push Notification Settings ─────────────────────────────────
+const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY || "BBUxScgQJt0GZOczFQ3KF2gHqvUJoZ_oRa9TtMq4Sw7zyIuhFGUoLGts4k6cTc-yiMAr_Zn-86ctsLahHYjt43A";
+
+function urlBase64ToUint8Array(base64String) {
+  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const base64 = (base64String + padding).replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  const outputArray = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; ++i) outputArray[i] = rawData.charCodeAt(i);
+  return outputArray;
+}
+
+function NotificationSettings({C, profile}){
+  const [status, setStatus] = useState("idle"); // idle | requesting | granted | denied | unsupported
+  const [settings, setSettings] = useState(profile.reminderSettings || {morning:true, lunch:true, evening:true, night:true});
+  const [saved, setSaved] = useState(false);
+
+  useEffect(()=>{
+    if(!("Notification" in window) || !("serviceWorker" in navigator)){
+      setStatus("unsupported"); return;
+    }
+    if(Notification.permission === "granted") setStatus("granted");
+    else if(Notification.permission === "denied") setStatus("denied");
+  },[]);
+
+  async function enableNotifications(){
+    try{
+      setStatus("requesting");
+      const permission = await Notification.requestPermission();
+      if(permission !== "granted"){ setStatus("denied"); return; }
+      const reg = await navigator.serviceWorker.register("/sw.js");
+      await navigator.serviceWorker.ready;
+      const sub = await reg.pushManager.subscribe({
+        userVisibleOnly: true,
+        applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY),
+      });
+      const userId = (await import("@supabase/supabase-js").then(m=>
+        m.createClient(process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY).auth.getUser()
+      ))?.data?.user?.id;
+      await fetch("/api/subscribe",{
+        method:"POST", headers:{"Content-Type":"application/json"},
+        body: JSON.stringify({ subscription: sub, userId, reminderSettings: settings }),
+      });
+      setStatus("granted");
+    }catch(e){
+      console.error("Push setup failed:", e);
+      setStatus("denied");
+    }
+  }
+
+  async function saveSettings(){
+    try{
+      const reg = await navigator.serviceWorker.getRegistration("/sw.js");
+      if(reg){
+        const sub = await reg.pushManager.getSubscription();
+        const { data: { user } } = await (await import("@supabase/supabase-js")).createClient(
+          process.env.NEXT_PUBLIC_SUPABASE_URL, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+        ).auth.getUser();
+        if(sub && user){
+          await fetch("/api/subscribe",{
+            method:"POST", headers:{"Content-Type":"application/json"},
+            body: JSON.stringify({ subscription: sub, userId: user.id, reminderSettings: settings }),
+          });
+        }
+      }
+      setSaved(true); setTimeout(()=>setSaved(false), 2000);
+    }catch(e){ console.error(e); }
+  }
+
+  const REMINDER_TYPES = [
+    {k:"morning", l:"Morning ritual & supplements", time:"~8am"},
+    {k:"lunch", l:"Log your lunch", time:"~1pm"},
+    {k:"evening", l:"Evening food & mood log", time:"~8pm"},
+    {k:"night", l:"Bedtime sleep log", time:"~10pm"},
+  ];
+
+  return(
+    <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:20,marginTop:14}}>
+      <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>REMINDERS</div>
+
+      {status==="unsupported"&&(
+        <div style={{fontSize:13,color:C.muted,lineHeight:1.7}}>Push notifications aren't supported on this browser. Try Chrome or Edge on Android for full notification support.</div>
+      )}
+
+      {status==="denied"&&(
+        <div style={{fontSize:13,color:C.muted,lineHeight:1.7}}>Notifications were blocked. Go to your browser settings → Site permissions → Notifications → allow for this site, then come back here.</div>
+      )}
+
+      {(status==="idle"||status==="requesting")&&(
+        <div>
+          <div style={{fontSize:13,color:C.muted,lineHeight:1.7,marginBottom:12}}>Get nudged at the right time — morning ritual, food log, bedtime. Reminders reach your phone even when the app is closed.</div>
+          <button onClick={enableNotifications} disabled={status==="requesting"} style={{padding:"11px 20px",borderRadius:11,border:"none",background:status==="requesting"?C.border:`linear-gradient(135deg,${C.accent},${C.accent2})`,color:"#fff",cursor:"pointer",fontSize:13,fontWeight:600}}>
+            {status==="requesting"?"Setting up…":"Enable reminders"}
+          </button>
+        </div>
+      )}
+
+      {status==="granted"&&(
+        <div>
+          <div style={{fontSize:11,color:C.accent2,marginBottom:14}}>✓ Notifications enabled</div>
+          <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:14}}>
+            {REMINDER_TYPES.map(r=>(
+              <div key={r.k} style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+                <div>
+                  <div style={{fontSize:13,color:C.text}}>{r.l}</div>
+                  <div style={{fontSize:11,color:C.muted}}>{r.time}</div>
+                </div>
+                <button onClick={()=>setSettings(s=>({...s,[r.k]:!s[r.k]}))} style={{
+                  width:44,height:24,borderRadius:12,border:"none",cursor:"pointer",
+                  background:settings[r.k]?C.accent2:C.border,transition:"background 0.2s",
+                  position:"relative",
+                }}>
+                  <div style={{
+                    width:18,height:18,borderRadius:"50%",background:"#fff",
+                    position:"absolute",top:3,left:settings[r.k]?23:3,transition:"left 0.2s",
+                  }}/>
+                </button>
+              </div>
+            ))}
+          </div>
+          <button onClick={saveSettings} style={{padding:"9px 20px",borderRadius:9,border:`1px solid ${C.border}`,background:"transparent",cursor:"pointer",fontSize:12,color:C.muted}}>
+            {saved?"✓ Saved":"Save preferences"}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -8283,4 +8863,3 @@ function AuthScreen({ C, onAuth }) {
     </div>
   );
 }
-
