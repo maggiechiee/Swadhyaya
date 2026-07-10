@@ -2509,11 +2509,11 @@ function HomeSection({C,galaxy,profile,needs,todayFood,waterLog,completedSteps,g
           <ThreeThingsCard C={C} profile={profile} journalEntries={journalEntries} completedSteps={completedSteps} galaxy={galaxy}/>
         )}
 
-        <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:14,padding:"16px 18px"}}>
-          <div style={{fontSize:11,color:C.dim,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:8}}>TODAY'S REMINDER</div>
-          <div style={{fontSize:15,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",lineHeight:1.7,marginBottom:4}}>"{q.t}"</div>
-          <div style={{fontSize:11,color:C.muted}}>— {q.a}</div>
-          {q.note&&<div style={{fontSize:12,color:C.muted,marginTop:8,lineHeight:1.6,fontStyle:"italic"}}>{q.note}</div>}
+        <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:14,padding:"18px 20px",backdropFilter:"blur(20px)"}}>
+          <div style={{fontSize:9,color:"rgba(255,255,255,0.45)",fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>TODAY'S REMINDER</div>
+          <div style={{fontSize:19,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",lineHeight:1.7,marginBottom:6,color:"#fff",textShadow:"0 1px 12px rgba(0,0,0,0.3)"}}>"{q.t}"</div>
+          <div style={{fontSize:11,color:"rgba(255,255,255,0.55)"}}>— {q.a}</div>
+          {q.note&&<div style={{fontSize:12,color:"rgba(255,255,255,0.5)",marginTop:8,lineHeight:1.6,fontStyle:"italic"}}>{q.note}</div>}
         </div>
 
         {/* Behaviour insight */}
@@ -5960,7 +5960,7 @@ function CycleSection({C,profile,setProfile,periodLogs,setPeriodLogs,symptoms,se
           <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:12}}>
             {Object.entries(PHASE_INFO).map(([k,v])=>{
               const isCurrent=profile.cyclePhase===k;
-              return<div key={k} style={{display:"flex",alignItems:"center",gap:4,padding:isCurrent?"5px 10px":"3px 8px",background:isCurrent?PHASE_COLORS[k]+"30":PHASE_COLORS[k]+"12",borderRadius:20,border:`${isCurrent?"2px":"1px"} solid ${PHASE_COLORS[k]}${isCurrent?"88":"33"}`,transition:"all 0.2s"}}>
+              return<div key={k} style={{display:"flex",alignItems:"center",gap:4,padding:isCurrent?"6px 12px":"4px 10px",background:isCurrent?PHASE_COLORS[k]+"44":PHASE_COLORS[k]+"22",borderRadius:20,border:`${isCurrent?"2.5px":"1.5px"} solid ${PHASE_COLORS[k]}${isCurrent?"cc":"77"}`,transition:"all 0.2s",backdropFilter:"blur(12px)"}}>
                 <div style={{width:isCurrent?8:5,height:isCurrent?8:5,borderRadius:"50%",background:PHASE_COLORS[k],boxShadow:isCurrent?`0 0 6px ${PHASE_COLORS[k]}`:"none"}}/>
                 <div style={{fontSize:isCurrent?10:9,color:PHASE_COLORS[k],fontWeight:isCurrent?700:400}}>{v.icon} {v.label}{isCurrent?" ← you":""}</div>
               </div>;
@@ -5990,9 +5990,9 @@ function CycleSection({C,profile,setProfile,periodLogs,setPeriodLogs,symptoms,se
                 const pc=day.phase?PHASE_COLORS[day.phase]:null;
                 return<button key={i} onClick={()=>setSelectedDay(isSel?null:day.ds)} style={{
                   padding:"4px 1px",borderRadius:6,minHeight:36,cursor:"pointer",position:"relative",
-                  border:`2px solid ${isToday?C.accent:isSel?pc||"#555":"transparent"}`,
-                  background:day.lp?fc+"55":pc?pc+"28":"transparent",
-                  boxShadow:isToday?`0 0 0 2px ${C.accent}`:"none",
+                  border:`2px solid ${isToday?C.accent:isSel?pc||"#555":pc?pc+"66":"rgba(255,255,255,0.08)"}`,
+                  background:day.lp?fc+"66":pc?pc+"38":"rgba(255,255,255,0.04)",
+                  boxShadow:isToday?`0 0 0 2px ${C.accent}`:pc?`inset 0 0 0 1px ${pc}44`:"none",
                 }}>
                   <div style={{fontSize:11,fontWeight:isToday?700:400,color:day.lp?fc:isToday?C.accent:pc?pc:C.text,textAlign:"center"}}>{day.d}</div>
                   {day.lp
