@@ -14,13 +14,28 @@ const supabase = createClient(
 ═══════════════════════════════════════════════════════════ */
 
 const FONTS = `
-  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=DM+Mono:wght@300;400;500&family=Jost:wght@300;400;500;600&display=swap');
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600&family=DM+Mono:wght@300;400;500&family=Jost:wght@200;300;400;500;600&display=swap');
   *{box-sizing:border-box;margin:0;padding:0;}
   html{scroll-behavior:smooth;}
   ::-webkit-scrollbar{width:3px;}
-  ::-webkit-scrollbar-thumb{background:#c4a882;border-radius:2px;}
+  ::-webkit-scrollbar-thumb{background:rgba(180,140,255,0.4);border-radius:2px;}
   textarea,input,select{outline:none;font-family:inherit;}
   button{font-family:inherit;}
+  /* Artwork background */
+  body{font-family:'Jost',sans-serif;}
+  .sw-app-bg{position:fixed;inset:0;z-index:0;background-size:cover;background-position:center;background-repeat:no-repeat;}
+  .sw-app-bg::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,0.22);}
+  .sw-app-galaxy-bg{position:fixed;inset:0;z-index:0;background:#02010a;}
+  .sw-content{position:relative;z-index:1;}
+  /* Glassmorphic card base */
+  .glass-card{backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.22);border-radius:20px;}
+  /* Galaxy nebula blobs */
+  .nebula{position:fixed;border-radius:50%;filter:blur(60px);pointer-events:none;z-index:0;animation:nebulaPulse 8s ease-in-out infinite;}
+  .nebula-1{width:350px;height:350px;top:-80px;left:-80px;background:radial-gradient(circle,rgba(90,0,180,0.45),transparent 70%);animation-delay:0s;}
+  .nebula-2{width:300px;height:300px;top:200px;right:-80px;background:radial-gradient(circle,rgba(0,100,220,0.4),transparent 70%);animation-delay:2s;}
+  .nebula-3{width:320px;height:320px;bottom:-60px;left:20px;background:radial-gradient(circle,rgba(160,0,110,0.35),transparent 70%);animation-delay:4s;}
+  .nebula-4{width:250px;height:250px;bottom:100px;right:0px;background:radial-gradient(circle,rgba(0,180,160,0.3),transparent 70%);animation-delay:6s;}
+  @keyframes nebulaPulse{0%,100%{opacity:0.6;transform:scale(1)}50%{opacity:1;transform:scale(1.12)}}
   @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
   @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
   @keyframes slowBreath{0%,100%{transform:scale(1)}50%{transform:scale(1.08)}}
@@ -221,8 +236,8 @@ function WatercolourNav({NAV, section, setSection, C, galaxy}) {
 
   return (
     <div style={{position:"fixed",bottom:0,left:0,right:0,zIndex:200,
-      background:galaxy?"rgba(4,2,14,0.94)":"rgba(255,255,255,0.94)",
-      borderTop:`1px solid ${C.border}`,backdropFilter:"blur(20px)",padding:"6px 0 10px"}}>
+      background:"rgba(0,0,0,0.3)",
+      borderTop:`1px solid rgba(255,255,255,0.12)`,backdropFilter:"blur(24px)",padding:"6px 0 10px"}}>
       <div style={{maxWidth:700,margin:"0 auto",display:"flex",justifyContent:"space-around"}}>
         {NAV.map(n => {
           const active = section === n.id;
@@ -249,8 +264,55 @@ function WatercolourNav({NAV, section, setSection, C, galaxy}) {
 }
 
 
-const EARTHY={bg:"#faf6ef",surface:"#f5f0e6",card:"#ffffff",border:"#e2d8c8",borderDark:"#c4a882",text:"#1e1508",muted:"#7a6a52",dim:"#b0a090",accent:"#b5622a",accent2:"#71b478",accent3:"#4a6e8a",gold:"#c49a2a",warm:"#d4855a",cream:"#f0e8d8",red:"#c94040",purple:"#7a5fa5"};
-const GALAXY={bg:"#04020e",surface:"#0a0720",card:"#0f0b28",border:"#221d42",borderDark:"#3d3570",text:"#ede8ff",muted:"#7a6fa8",dim:"#4a4470",accent:"#c084fc",accent2:"#34d399",accent3:"#38bdf8",gold:"#fbbf24",warm:"#f472b6",cream:"#1a1540",red:"#f87171",purple:"#a78bfa"};
+const EARTHY={
+  bg:"#f0ece4",
+  surface:"rgba(240,236,228,0.85)",
+  card:"rgba(255,255,255,0.18)",
+  border:"rgba(255,255,255,0.32)",
+  borderDark:"rgba(200,180,150,0.4)",
+  text:"#fff",
+  muted:"rgba(255,255,255,0.65)",
+  dim:"rgba(255,255,255,0.38)",
+  accent:"#c084fc",
+  accent2:"#34d399",
+  accent3:"#38bdf8",
+  gold:"#fbbf24",
+  warm:"#fb923c",
+  cream:"rgba(255,255,255,0.12)",
+  red:"#f87171",
+  purple:"#a78bfa",
+  // gradient block backgrounds for each card type
+  cardQuote:"linear-gradient(135deg,rgba(70,30,110,0.82),rgba(100,45,140,0.72))",
+  cardGreen:"linear-gradient(135deg,rgba(15,70,50,0.82),rgba(25,100,70,0.72))",
+  cardBlue:"linear-gradient(135deg,rgba(15,35,90,0.82),rgba(30,50,140,0.72))",
+  cardTeal:"linear-gradient(135deg,rgba(8,55,65,0.82),rgba(12,80,90,0.72))",
+  cardDark:"linear-gradient(135deg,rgba(25,8,45,0.82),rgba(40,12,70,0.72))",
+  cardAmber:"linear-gradient(135deg,rgba(80,45,8,0.82),rgba(120,70,12,0.72))",
+};
+const GALAXY={
+  bg:"#02010a",
+  surface:"rgba(10,7,32,0.85)",
+  card:"rgba(255,255,255,0.07)",
+  border:"rgba(255,255,255,0.14)",
+  borderDark:"rgba(120,90,255,0.3)",
+  text:"#fff",
+  muted:"rgba(255,255,255,0.6)",
+  dim:"rgba(255,255,255,0.3)",
+  accent:"#c084fc",
+  accent2:"#34d399",
+  accent3:"#38bdf8",
+  gold:"#fbbf24",
+  warm:"#f472b6",
+  cream:"rgba(255,255,255,0.05)",
+  red:"#f87171",
+  purple:"#a78bfa",
+  cardQuote:"linear-gradient(135deg,rgba(50,0,90,0.92),rgba(90,0,130,0.82))",
+  cardGreen:"linear-gradient(135deg,rgba(0,50,55,0.92),rgba(0,75,80,0.82))",
+  cardBlue:"linear-gradient(135deg,rgba(0,35,80,0.92),rgba(0,55,130,0.82))",
+  cardTeal:"linear-gradient(135deg,rgba(0,50,55,0.92),rgba(0,75,80,0.82))",
+  cardDark:"linear-gradient(135deg,rgba(20,0,40,0.92),rgba(38,0,65,0.82))",
+  cardAmber:"linear-gradient(135deg,rgba(60,25,0,0.92),rgba(100,50,0,0.82))",
+};
 
 const PHASE_COLORS={menstrual:"#e05a5a",follicular:"#c49a2a",ovulation:"#71b478",luteal:"#7a5fa5",pms:"#d4855a"};
 const PHASE_INFO={
@@ -1702,10 +1764,20 @@ export default function Swadhyaya(){
         </div>
       )}
       {galaxy&&<Stars/>}
-      {!galaxy&&<div style={{position:"fixed",inset:0,background:"radial-gradient(ellipse at 30% 20%, #d4a57812 0%, transparent 60%)",pointerEvents:"none",zIndex:0}}/>}
+      {/* Background layer — artwork for earth, deep space for galaxy */}
+      {!galaxy&&<div className="sw-app-bg" style={{backgroundImage:`url(/artwork-earth.png)`,opacity:1}}/>}
+      {galaxy&&(
+        <>
+          <div className="sw-app-galaxy-bg"/>
+          <div className="nebula nebula-1"/>
+          <div className="nebula nebula-2"/>
+          <div className="nebula nebula-3"/>
+          <div className="nebula nebula-4"/>
+        </>
+      )}
 
       {/* TOP BAR */}
-      <div style={{position:"sticky",top:0,zIndex:200,background:galaxy?GALAXY.surface+"f4":EARTHY.surface+"f8",borderBottom:`1px solid ${C.border}`,backdropFilter:"blur(16px)",padding:"10px 16px"}}>
+      <div style={{position:"sticky",top:0,zIndex:200,background:"rgba(0,0,0,0.25)",borderBottom:`1px solid rgba(255,255,255,0.12)`,backdropFilter:"blur(24px)",padding:"10px 16px"}}>
         <div style={{maxWidth:700,margin:"0 auto",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <div onClick={()=>setSection("home")} style={{cursor:"pointer"}}>
             <div style={{fontSize:18,fontWeight:600,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>Swadhyāya</div>
