@@ -2641,21 +2641,23 @@ function getCatIcon(catId) {
 
 // Elevated color palette for habit dot grids — works in both Earth (light)
 // and Galaxy (dark) modes since these are saturated enough to pop on both.
+// Colors pulled from Mb's background artwork image:
+// deep purples, indigos, olive-gold, forest greens, teal, amber
 const HABIT_DOT_COLORS = [
-  "#c084fc", // purple
-  "#34d399", // emerald
-  "#fb923c", // orange
-  "#f472b6", // pink
-  "#38bdf8", // sky blue
-  "#a3e635", // lime
-  "#fbbf24", // amber
-  "#f87171", // rose
-  "#4ade80", // green
-  "#e879f9", // fuchsia
+  "#7c5fd4", // deep violet-purple
+  "#96b41e", // olive-gold
+  "#3c9650", // forest green
+  "#5a3cd2", // indigo
+  "#b4781e", // warm amber
+  "#3c7878", // teal-slate
+  "#9632a0", // magenta-purple
+  "#4878c8", // muted blue
+  "#d45a3c", // rust-coral
+  "#5a9632", // lime-green
 ];
 
 function HabitDotGrid({goal, C, colorIndex=0}){
-  const [open, setOpen] = useState(false);
+  const [expanded, setExpanded] = React.useState(false);
   if(goal.type!=="habit" && goal.type!=="weekly") return null;
 
   const color = HABIT_DOT_COLORS[colorIndex % HABIT_DOT_COLORS.length];
@@ -2665,8 +2667,8 @@ function HabitDotGrid({goal, C, colorIndex=0}){
   const today = now.getDate();
   const daysInMonth = new Date(year, month+1, 0).getDate();
   const monthStr = `${year}-${String(month+1).padStart(2,"0")}`;
+  const monthName = now.toLocaleString("en-IN",{month:"long"});
 
-  // Build array of which days this month are done
   const doneDays = new Set();
   if(goal.type==="habit"){
     (goal.habitDays||[]).forEach(d=>{
@@ -2675,7 +2677,7 @@ function HabitDotGrid({goal, C, colorIndex=0}){
         if(day) doneDays.add(day);
       }
     });
-  } else if(goal.type==="weekly"){
+  } else {
     (goal.weekLogs||[]).forEach(l=>{
       if(l.date && l.date.startsWith(monthStr)){
         const day = parseInt(l.date.split("-")[2]);
@@ -2685,49 +2687,78 @@ function HabitDotGrid({goal, C, colorIndex=0}){
   }
 
   const doneCount = doneDays.size;
-  const possibleDays = today;
-  const pct = possibleDays>0 ? Math.round((doneCount/possibleDays)*100) : 0;
-
-  // Best streak this month
+  const pct = today>0 ? Math.round((doneCount/today)*100) : 0;
   let bestStreak=0, cur=0;
   for(let d=1;d<=today;d++){
     if(doneDays.has(d)){ cur++; bestStreak=Math.max(bestStreak,cur); } else { cur=0; }
   }
 
+  // Dark background for the grid so colors pop regardless of Earth/Galaxy mode
+  const gridBg = "#13111a";
+  const emptyDot = "#252235";
+  const futureDot = "#1c1a28";
+
   return (
-    <div style={{marginTop:8}}>
+    <div style={{marginTop:10}}>
       <button
-        onClick={e=>{e.stopPropagation();setOpen(o=>!o);}}
-        style={{background:"transparent",border:"none",cursor:"pointer",padding:0,fontSize:11,color:open?color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:0.5,display:"flex",alignItems:"center",gap:4}}>
-        {open?"▾":"▸"} See progress
+        onClick={e=>{e.stopPropagation();setExpanded(x=>!x);}}
+        style={{
+          width:"100%", background:"transparent", border:"none",
+          cursor:"pointer", display:"flex", alignItems:"center",
+          justifyContent:"space-between", padding:0,
+        }}>
+        <div style={{fontSize:10,color:C.dim,fontFamily:"'DM Mono',monospace"}}>
+          {doneCount}/{today} · <span style={{color}}>{pct}%</span> · 🔥{bestStreak}d streak
+        </div>
+        <div style={{fontSize:10,color:color,opacity:0.7}}>{expanded?"▾ hide":"▸ view month"}</div>
       </button>
 
-      {open&&(
-        <div onClick={e=>e.stopPropagation()} style={{marginTop:8,padding:"12px",background:C.bg,borderRadius:10,border:`1px solid ${color}33`}}>
-          {/* Dot grid */}
-          <div style={{display:"flex",flexWrap:"wrap",gap:3,marginBottom:8}}>
+      {expanded&&(
+        <div onClick={e=>e.stopPropagation()} style={{
+          marginTop:8, background:gridBg,
+          borderRadius:10, padding:"10px 10px 8px",
+          border:`1px solid ${color}22`,
+        }}>
+          <div style={{fontSize:9,color:color,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7,opacity:0.8}}>
+            {monthName.toUpperCase()} {year}
+          </div>
+          <div style={{
+            display:"grid",
+            gridTemplateColumns:`repeat(${daysInMonth},1fr)`,
+            gap:"2.5px",
+          }}>
             {Array.from({length:daysInMonth},(_,i)=>{
               const day=i+1;
               const isDone=doneDays.has(day);
               const isFuture=day>today;
+              const isToday=day===today;
               return(
                 <div key={day} style={{
-                  width:8,height:8,borderRadius:2,
-                  background:isFuture?"transparent":isDone?color:C.border,
-                  border:isFuture?`1px solid ${C.border}`:isDone?`1px solid ${color}`:
-                    day===today?`1px solid ${C.muted}`:"none",
-                  opacity:isFuture?0.3:isDone?1:0.4,
-                  boxShadow:isDone?`0 0 4px ${color}88`:"none",
+                  aspectRatio:"1/1",
+                  borderRadius:"2px",
+                  background:isFuture?futureDot:isDone?color:emptyDot,
+                  opacity:isFuture?0.3:1,
+                  boxShadow:isDone?`0 0 4px ${color}66`:"none",
+                  outline:isToday&&!isDone?`1px solid ${color}44`:"none",
                 }}/>
               );
             })}
           </div>
-
-          {/* Stats row */}
-          <div style={{display:"flex",gap:14,flexWrap:"wrap"}}>
-            <div style={{fontSize:10,color:C.muted}}>Done <strong style={{color}}>{doneCount}/{today}</strong></div>
-            <div style={{fontSize:10,color:C.muted}}>Month <strong style={{color}}>{pct}%</strong></div>
-            <div style={{fontSize:10,color:C.muted}}>Best streak <strong style={{color}}>{bestStreak}d</strong></div>
+          <div style={{
+            display:"grid",
+            gridTemplateColumns:`repeat(${daysInMonth},1fr)`,
+            gap:"2.5px",
+            marginTop:"3px",
+          }}>
+            {Array.from({length:daysInMonth},(_,i)=>{
+              const d=i+1;
+              const show=d===1||d===7||d===14||d===21||d===28||d===daysInMonth;
+              return(
+                <div key={d} style={{fontSize:"5px",color:show?color+"55":"transparent",textAlign:"center",fontFamily:"monospace"}}>
+                  {show?d:"·"}
+                </div>
+              );
+            })}
           </div>
         </div>
       )}
