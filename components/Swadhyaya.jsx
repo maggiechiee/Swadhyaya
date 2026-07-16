@@ -2657,7 +2657,7 @@ const HABIT_DOT_COLORS = [
 ];
 
 function HabitDotGrid({goal, C, colorIndex=0}){
-  const [expanded, setExpanded] = React.useState(false);
+  const [expanded, setExpanded] = useState(false);
   if(goal.type!=="habit" && goal.type!=="weekly") return null;
 
   const color = HABIT_DOT_COLORS[colorIndex % HABIT_DOT_COLORS.length];
