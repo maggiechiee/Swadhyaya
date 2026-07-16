@@ -3366,7 +3366,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
             const doneToday=goal.type==="habit"&&(goal.habitDays||[]).includes(today);
             const daysLeft=goal.targetDate?Math.ceil((new Date(goal.targetDate)-new Date())/86400000):null;
             return(
-              <div key={goal.id} onClick={()=>{setSelectedGoal(goal.id);setView("detail");}} style={{background:C.card,border:`1px solid ${catColor}44`,borderRadius:14,padding:18,cursor:"pointer",transition:"all 0.2s",boxShadow:`0 2px 12px ${catColor}12`}}>
+              <div key={goal.id} style={{background:C.card,border:`1px solid ${catColor}44`,borderRadius:14,padding:18,transition:"all 0.2s",boxShadow:`0 2px 12px ${catColor}12`}}>
                 <div style={{display:"flex",gap:12,alignItems:"flex-start",marginBottom:10}}>
                   <div style={{width:38,height:38,borderRadius:10,background:catColor+"22",border:`1px solid ${catColor}44`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>{getCatIcon(goal.category)}</div>
                   <div style={{flex:1}}>
@@ -3388,7 +3388,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
                   <div style={{width:`${pct}%`,height:5,background:`linear-gradient(90deg,${catColor},${catColor}88)`,borderRadius:4,transition:"width 0.6s ease",minWidth:pct>0?4:0}}/>
                 </div>
                 {/* Quick actions */}
-                <div style={{marginTop:10,display:"flex",gap:8,alignItems:"center"}}>
+                <div style={{marginTop:10,display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
                   {goal.type==="number"&&<div style={{fontSize:12,color:C.muted}}>{parseFloat(goal.currentNumber)||0} / {goal.targetNumber} {goal.targetUnit}</div>}
                   {goal.type==="milestone"&&<div style={{fontSize:12,color:C.muted}}>{(goal.milestones||[]).filter(m=>m.done).length}/{(goal.milestones||[]).length} steps done</div>}
                   {goal.type==="habit"&&(
@@ -3396,7 +3396,10 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
                       {doneToday?"✓ Done today":"Mark today"}
                     </button>
                   )}
-                  <div style={{marginLeft:"auto",fontSize:11,color:C.dim}}>tap to open →</div>
+                  <div style={{marginLeft:"auto",display:"flex",gap:6}}>
+                    <button onClick={()=>{setNewGoal({...goal});setView("add");}} style={{fontSize:10,color:C.muted,background:"transparent",border:`1px solid ${C.border}`,borderRadius:20,padding:"4px 10px",cursor:"pointer"}}>Edit</button>
+                    <button onClick={()=>deleteGoal(goal.id)} style={{fontSize:10,color:C.red,background:"transparent",border:`1px solid ${C.red}33`,borderRadius:20,padding:"4px 10px",cursor:"pointer"}}>Delete</button>
+                  </div>
                 </div>
                 {(goal.type==="habit"||goal.type==="weekly")&&(
                   <HabitDotGrid goal={goal} C={C} colorIndex={goalIdx}/>
