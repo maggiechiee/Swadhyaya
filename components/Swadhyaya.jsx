@@ -1853,7 +1853,7 @@ export default function Swadhyaya(){
         {safeSection==="goals"&&<GoalsSection C={C} galaxy={galaxy} profile={profile} up={up} journalEntries={journalEntries}/>}
         {safeSection==="journal"&&<JournalSection C={C} galaxy={galaxy} profile={profile} journalEntries={journalEntries} setJournalEntries={setJournalEntries} foodLogs={foodLogs} moveLog={moveLog} completedSteps={completedSteps} periodLogs={periodLogs} behaviourProfile={behaviourProfile} updateBP={updateBP}/>}
         {safeSection==="progress"&&<ProgressSection C={C} profile={profile} up={up} needs={needs} todayFood={todayFood} moveLog={moveLog} completedSteps={completedSteps} weightLog={weightLog} setWeightLog={setWeightLog} foodLogs={foodLogs} behaviourProfile={behaviourProfile} updateBP={updateBP}/>}
-        {safeSection==="myspace"&&<MySpaceSection C={C} galaxy={galaxy} profile={profile} foodLogs={foodLogs} setFoodLogs={setFoodLogs} waterLog={waterLog} setWaterLog={setWaterLog} moveLog={moveLog} setMoveLog={setMoveLog} todayFood={todayFood} needs={needs} canSendAI={canSendAI} recordAIMsg={recordAIMsg} todayMsgs={todayMsgs} planData={planData} setSection={setSection} updateBP={updateBP} behaviourProfile={behaviourProfile} saveFoodLogEntry={saveFoodLogEntry}/>}
+        {safeSection==="myspace"&&<MySpaceSection C={C} galaxy={galaxy} profile={profile} foodLogs={foodLogs} setFoodLogs={setFoodLogs} waterLog={waterLog} setWaterLog={setWaterLog} moveLog={moveLog} setMoveLog={setMoveLog} todayFood={todayFood} needs={needs} canSendAI={canSendAI} recordAIMsg={recordAIMsg} todayMsgs={todayMsgs} planData={planData} setSection={setSection} updateBP={updateBP} behaviourProfile={behaviourProfile} saveFoodLogEntry={saveFoodLogEntry} journalEntries={journalEntries}/>}
         {safeSection==="profile"&&<ProfileSection C={C} profile={profile} up={up} needs={needs} setSection={setSection}
           resetToday={()=>{setFoodLogs([]);setWaterLog(0);setCompletedSteps([]);}}
           resetAllLogs={()=>{setFoodLogs([]);setWaterLog(0);setCompletedSteps([]);setJournalEntries([]);setWeightLog([]);setMoveLog([]);setMeditationLog([]);setPeriodLogs([]);}}
@@ -3895,12 +3895,15 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
 
   // Find highlights — best moments
   function findHighlights() {
-    const positive = journalEntries.filter(e =>
+    // Best moment prompt index
+    const bestMomentIdx = JOURNAL_PROMPTS.indexOf("What was the best moment of today?");
+    return journalEntries.filter(e =>
       ["happy","energised","good","calm"].includes(e.mood) ||
-      (e.energy && e.energy >= 8) ||
-      (e.freeWrite && (e.freeWrite.toLowerCase().includes("proud") || e.freeWrite.toLowerCase().includes("great") || e.freeWrite.toLowerCase().includes("amazing") || e.freeWrite.toLowerCase().includes("achieved") || e.freeWrite.toLowerCase().includes("happy")))
-    ).slice(0, 10);
-    return positive;
+      (e.energy && e.energy >= 7) ||
+      (e.freeWrite && (e.freeWrite.toLowerCase().includes("proud") || e.freeWrite.toLowerCase().includes("great") || e.freeWrite.toLowerCase().includes("amazing") || e.freeWrite.toLowerCase().includes("achieved") || e.freeWrite.toLowerCase().includes("happy") || e.freeWrite.toLowerCase().includes("loved") || e.freeWrite.toLowerCase().includes("grateful"))) ||
+      (bestMomentIdx>=0 && e.prompts?.[bestMomentIdx] && e.prompts[bestMomentIdx].trim().length>5) ||
+      Object.values(e.prompts||{}).some(v=>typeof v==="string"&&v.trim().length>10)
+    ).slice(0, 15);
   }
 
   // Build monthly data
@@ -4060,25 +4063,6 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
             </div>
           </div>
 
-
-          {/* Goal check-in */}
-          {(profile.goals||[]).length>0&&(
-            <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
-              <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>GOAL CHECK-IN</div>
-              {(profile.goals||[]).filter(g=>!g.done).slice(0,4).map((goal,i)=>(
-                <div key={goal.id} style={{display:"flex",gap:10,padding:"8px 0",borderBottom:i<Math.min(3,(profile.goals||[]).length-1)?`1px solid ${C.border}`:"none",alignItems:"center"}}>
-                  <button onClick={()=>setTodayEntry(e=>({...e,goals:{...e.goals,[goal.id]:!e.goals?.[goal.id]}}))} style={{
-                    width:22,height:22,borderRadius:6,flexShrink:0,
-                    border:`2px solid ${todayEntry.goals?.[goal.id]?C.accent2:C.border}`,
-                    background:todayEntry.goals?.[goal.id]?C.accent2:"transparent",
-                    cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,color:"#fff",
-                  }}>{todayEntry.goals?.[goal.id]?"✓":""}</button>
-                  <div style={{flex:1,fontSize:13,color:C.text,opacity:todayEntry.goals?.[goal.id]?0.5:1}}>{goal.title||goal.title||goal.text||"Unnamed goal"}</div>
-                  <div style={{fontSize:10,color:C.muted,padding:"2px 7px",background:C.bg,borderRadius:20,textTransform:"capitalize"}}>{goal.category||goal.type||""}</div>
-                </div>
-              ))}
-            </div>
-          )}
 
           {/* Structured prompts */}
           <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
@@ -4269,7 +4253,18 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
                 </div>
               </div>
               {entry.freeWrite&&<div style={{fontSize:14,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",color:C.text,lineHeight:1.8,marginBottom:8}}>"{entry.freeWrite}"</div>}
-              {Object.entries(entry.prompts||{}).filter(([,v])=>v).map(([k,v])=>(
+              {(()=>{
+                const bestMomentIdx = JOURNAL_PROMPTS.indexOf("What was the best moment of today?");
+                const bestMoment = bestMomentIdx>=0 ? entry.prompts?.[bestMomentIdx] : null;
+                if(bestMoment && bestMoment.trim()) return (
+                  <div style={{background:C.gold+"12",border:`1px solid ${C.gold}33`,borderRadius:8,padding:"8px 12px",marginBottom:8}}>
+                    <div style={{fontSize:9,color:C.gold,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:3}}>BEST MOMENT</div>
+                    <div style={{fontSize:13,color:C.text,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",lineHeight:1.7}}>"{bestMoment}"</div>
+                  </div>
+                );
+                return null;
+              })()}
+              {Object.entries(entry.prompts||{}).filter(([k,v])=>v&&JOURNAL_PROMPTS.indexOf("What was the best moment of today?")!==parseInt(k)).map(([k,v])=>(
                 <div key={k} style={{fontSize:12,color:C.muted,lineHeight:1.6,marginBottom:4}}>
                   <span style={{color:C.accent}}>{JOURNAL_PROMPTS[parseInt(k)]?.slice(0,35)}…</span> {String(v)}
                 </div>
@@ -7305,7 +7300,7 @@ function SleepMoodAnalysis({journalEntries, C}){
 // ══════════════════════════════════════════════════════════════
 //  MY SPACE
 // ══════════════════════════════════════════════════════════════
-function MySpaceSection({C,galaxy,profile,foodLogs,setFoodLogs,waterLog,setWaterLog,moveLog,setMoveLog,todayFood,needs,canSendAI,recordAIMsg,todayMsgs,planData,setSection,updateBP,behaviourProfile,saveFoodLogEntry}){
+function MySpaceSection({C,galaxy,profile,foodLogs,setFoodLogs,waterLog,setWaterLog,moveLog,setMoveLog,todayFood,needs,canSendAI,recordAIMsg,todayMsgs,planData,setSection,updateBP,behaviourProfile,saveFoodLogEntry,journalEntries=[]}){
   const[msgs,setMsgs]=useState([{role:"assistant",content:`Hey ${profile.name||"there"} ✨\n\nThis is your space. Tell me anything — what you ate, how you feel, what's confusing you, what hurts, what's on your mind. I'll listen, help, and log everything automatically.\n\nWhat's going on today?`}]);
   const[input,setInput]=useState("");
   const[loading,setLoading]=useState(false);
