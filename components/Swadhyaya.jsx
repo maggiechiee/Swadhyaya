@@ -2656,8 +2656,7 @@ const HABIT_DOT_COLORS = [
   "#5a9632", // lime-green
 ];
 
-function HabitDotGrid({goal, C, colorIndex=0}){
-  const [expanded, setExpanded] = useState(false);
+function HabitDotGrid({goal, C, colorIndex=0, expanded, onToggle}){
   if(goal.type!=="habit" && goal.type!=="weekly") return null;
 
   const color = HABIT_DOT_COLORS[colorIndex % HABIT_DOT_COLORS.length];
@@ -2693,33 +2692,23 @@ function HabitDotGrid({goal, C, colorIndex=0}){
     if(doneDays.has(d)){ cur++; bestStreak=Math.max(bestStreak,cur); } else { cur=0; }
   }
 
-  // Dark background for the grid so colors pop regardless of Earth/Galaxy mode
-  const gridBg = "#13111a";
-  const emptyDot = "#252235";
-  const futureDot = "#1c1a28";
-
   return (
     <div style={{marginTop:10}}>
-      <button
-        onClick={e=>{e.stopPropagation();setExpanded(x=>!x);}}
-        style={{
-          width:"100%", background:"transparent", border:"none",
-          cursor:"pointer", display:"flex", alignItems:"center",
-          justifyContent:"space-between", padding:0,
-        }}>
-        <div style={{fontSize:10,color:C.dim,fontFamily:"'DM Mono',monospace"}}>
-          {doneCount}/{today} · <span style={{color}}>{pct}%</span> · 🔥{bestStreak}d streak
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:expanded?8:0}}>
+        <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace"}}>
+          {doneCount}/{today} · <span style={{color}}>{pct}%</span> · 🔥{bestStreak}d
         </div>
-        <div style={{fontSize:10,color:color,opacity:0.7}}>{expanded?"▾ hide":"▸ view month"}</div>
-      </button>
+        <div style={{fontSize:10,color:color,opacity:0.7}}>{expanded?"▾ hide":"▸ month"}</div>
+      </div>
 
       {expanded&&(
         <div onClick={e=>e.stopPropagation()} style={{
-          marginTop:8, background:gridBg,
+          background:"transparent",
           borderRadius:10, padding:"10px 10px 8px",
-          border:`1px solid ${color}22`,
+          border:`1px solid ${color}33`,
+          backdropFilter:"blur(8px)",
         }}>
-          <div style={{fontSize:9,color:color,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7,opacity:0.8}}>
+          <div style={{fontSize:9,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>
             {monthName.toUpperCase()} {year}
           </div>
           <div style={{
@@ -2736,10 +2725,11 @@ function HabitDotGrid({goal, C, colorIndex=0}){
                 <div key={day} style={{
                   aspectRatio:"1/1",
                   borderRadius:"2px",
-                  background:isFuture?futureDot:isDone?color:emptyDot,
-                  opacity:isFuture?0.3:1,
-                  boxShadow:isDone?`0 0 4px ${color}66`:"none",
-                  outline:isToday&&!isDone?`1px solid ${color}44`:"none",
+                  background:isFuture?"transparent":isDone?color:`${C.border}`,
+                  opacity:isFuture?0.2:isDone?1:0.5,
+                  boxShadow:isDone?`0 0 4px ${color}88`:"none",
+                  outline:isToday?`1px solid ${color}88`:"none",
+                  border:isFuture?`1px solid ${C.border}`:"none",
                 }}/>
               );
             })}
@@ -2752,9 +2742,9 @@ function HabitDotGrid({goal, C, colorIndex=0}){
           }}>
             {Array.from({length:daysInMonth},(_,i)=>{
               const d=i+1;
-              const show=d===1||d===7||d===14||d===21||d===28||d===daysInMonth;
+              const show=[1,7,14,21,28,daysInMonth].includes(d);
               return(
-                <div key={d} style={{fontSize:"5px",color:show?color+"55":"transparent",textAlign:"center",fontFamily:"monospace"}}>
+                <div key={d} style={{fontSize:"5px",color:show?C.muted:"transparent",textAlign:"center",fontFamily:"monospace"}}>
                   {show?d:"·"}
                 </div>
               );
@@ -2766,9 +2756,11 @@ function HabitDotGrid({goal, C, colorIndex=0}){
   );
 }
 
+
 function GoalsSection({C, galaxy, profile, up, journalEntries}) {
-  const [view, setView] = useState("list"); // list | add | detail
+  const [view, setView] = useState("list");
   const [selectedGoal, setSelectedGoal] = useState(null);
+  const [expandedGoalId, setExpandedGoalId] = useState(null);
   const [newGoal, setNewGoal] = useState({
     id: null, title:"", category:"personal", type:"milestone",
     why:"", targetDate:"", targetNumber:"", targetUnit:"",
@@ -3365,8 +3357,12 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
             const today=getLocalDateStr();
             const doneToday=goal.type==="habit"&&(goal.habitDays||[]).includes(today);
             const daysLeft=goal.targetDate?Math.ceil((new Date(goal.targetDate)-new Date())/86400000):null;
+            const isExpanded = expandedGoalId===goal.id;
+            const isHabitType = goal.type==="habit"||goal.type==="weekly";
             return(
-              <div key={goal.id} style={{background:C.card,border:`1px solid ${catColor}44`,borderRadius:14,padding:18,transition:"all 0.2s",boxShadow:`0 2px 12px ${catColor}12`}}>
+              <div key={goal.id}
+                onClick={()=>isHabitType&&setExpandedGoalId(isExpanded?null:goal.id)}
+                style={{background:C.card,border:`1px solid ${catColor}44`,borderRadius:14,padding:18,transition:"all 0.2s",boxShadow:`0 2px 12px ${catColor}12`,cursor:isHabitType?"pointer":"default"}}>
                 <div style={{display:"flex",gap:12,alignItems:"flex-start",marginBottom:10}}>
                   <div style={{width:38,height:38,borderRadius:10,background:catColor+"22",border:`1px solid ${catColor}44`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>{getCatIcon(goal.category)}</div>
                   <div style={{flex:1}}>
@@ -3383,11 +3379,9 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
                     {goal.type==="weekly"&&<div style={{fontSize:10,color:C.muted}}>{weeklyCountList}/{goal.targetNumber} wk</div>}
                   </div>
                 </div>
-                {/* Progress bar */}
                 <div style={{background:C.border,borderRadius:4,height:5}}>
                   <div style={{width:`${pct}%`,height:5,background:`linear-gradient(90deg,${catColor},${catColor}88)`,borderRadius:4,transition:"width 0.6s ease",minWidth:pct>0?4:0}}/>
                 </div>
-                {/* Quick actions */}
                 <div style={{marginTop:10,display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
                   {goal.type==="number"&&<div style={{fontSize:12,color:C.muted}}>{parseFloat(goal.currentNumber)||0} / {goal.targetNumber} {goal.targetUnit}</div>}
                   {goal.type==="milestone"&&<div style={{fontSize:12,color:C.muted}}>{(goal.milestones||[]).filter(m=>m.done).length}/{(goal.milestones||[]).length} steps done</div>}
@@ -3397,12 +3391,12 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
                     </button>
                   )}
                   <div style={{marginLeft:"auto",display:"flex",gap:6}}>
-                    <button onClick={()=>{setNewGoal({...goal});setView("add");}} style={{fontSize:10,color:C.muted,background:"transparent",border:`1px solid ${C.border}`,borderRadius:20,padding:"4px 10px",cursor:"pointer"}}>Edit</button>
-                    <button onClick={()=>deleteGoal(goal.id)} style={{fontSize:10,color:C.red,background:"transparent",border:`1px solid ${C.red}33`,borderRadius:20,padding:"4px 10px",cursor:"pointer"}}>Delete</button>
+                    <button onClick={e=>{e.stopPropagation();setNewGoal({...goal});setView("add");}} style={{fontSize:10,color:C.muted,background:"transparent",border:`1px solid ${C.border}`,borderRadius:20,padding:"4px 10px",cursor:"pointer"}}>Edit</button>
+                    <button onClick={e=>{e.stopPropagation();deleteGoal(goal.id);}} style={{fontSize:10,color:C.red,background:"transparent",border:`1px solid ${C.red}33`,borderRadius:20,padding:"4px 10px",cursor:"pointer"}}>Delete</button>
                   </div>
                 </div>
-                {(goal.type==="habit"||goal.type==="weekly")&&(
-                  <HabitDotGrid goal={goal} C={C} colorIndex={goalIdx}/>
+                {isHabitType&&(
+                  <HabitDotGrid goal={goal} C={C} colorIndex={goalIdx} expanded={isExpanded} onToggle={()=>setExpandedGoalId(isExpanded?null:goal.id)}/>
                 )}
               </div>
             );
