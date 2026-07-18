@@ -2334,10 +2334,10 @@ function GoalPlanCard({profile,C}){
 
       {timelineText&&(
         <div style={{background:timelineText.onTrack?"#71b47815":"#e05a5a15",border:`1px solid ${timelineText.onTrack?"#71b478":"#e05a5a"}30`,borderRadius:10,padding:"10px 14px",marginBottom:16}}>
-          <div style={{fontSize:12,color:timelineText.onTrack?"#71b478":"#e05a5a",lineHeight:1.6}}>
+          <div style={{fontSize:13,color:timelineText.onTrack?"#71b478":"#e05a5a",lineHeight:1.6,fontWeight:700}}>
             {timelineText.onTrack
-              ?`Goal is achievable. At ${Math.abs(n.weeklyChange)}kg/week you will reach it in ~${timelineText.months} months.`
-              :`Realistic timeline is ~${timelineText.months} months, not ${timelineText.goalMonths}. Plan adjusted to be safe and sustainable.`
+              ?`✓ Goal achievable. At ${Math.abs(n.weeklyChange)}kg/week you'll reach it in ~${timelineText.months} months.`
+              :`⚠ Realistic timeline: ~${timelineText.months} months, not ${timelineText.goalMonths}. Plan adjusted to be safe and sustainable.`
             }
           </div>
         </div>
@@ -2588,7 +2588,7 @@ function HomeSection({C,galaxy,profile,needs,todayFood,waterLog,completedSteps,g
               return(
               <button key={i} onClick={()=>setSection(item.s)} style={{padding:"12px",background:C.bg,border:`1px solid ${C.border}`,borderRadius:10,cursor:"pointer",textAlign:"left"}}>
                 <div style={{marginBottom:6}}><ItemIcon a={isActive}/></div>
-                <div style={{fontSize:12,fontWeight:600}}>{item.label}</div>
+                <div style={{fontSize:12,fontWeight:600,color:C.text}}>{item.label}</div>
                 <div style={{fontSize:10,color:C.muted}}>{item.sub}</div>
               </button>
               );
@@ -3470,7 +3470,7 @@ function MonthlyTimeline({C, journalEntries, todayStr}) {
     <div>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
         <button onClick={()=>setViewMonth(m=>{const d=new Date(m.year,m.month-1);return{year:d.getFullYear(),month:d.getMonth()};})} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:"6px 12px",cursor:"pointer",fontSize:13,color:C.muted}}>‹</button>
-        <div style={{fontSize:15,fontWeight:600}}>{MONTH_NAMES[viewMonth.month]} {viewMonth.year}</div>
+        <div style={{fontSize:15,fontWeight:600,color:C.text}}>{MONTH_NAMES[viewMonth.month]} {viewMonth.year}</div>
         <button onClick={()=>setViewMonth(m=>{const d=new Date(m.year,m.month+1);return{year:d.getFullYear(),month:d.getMonth()};})} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:"6px 12px",cursor:"pointer",fontSize:13,color:C.muted}}>›</button>
       </div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2,marginBottom:6}}>
@@ -3686,7 +3686,7 @@ function EmotionalGraph({C, galaxy, journalEntries, profile}) {
           <div style={{display:"flex",gap:10,alignItems:"center",marginBottom:10}}>
             <span style={{fontSize:28}}>{MOOD_EMOJI[selectedEntry.mood]||"◎"}</span>
             <div>
-              <div style={{fontSize:14,fontWeight:600}}>{new Date(selectedEntry.date+"T12:00:00").toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}</div>
+              <div style={{fontSize:14,fontWeight:600,color:C.text}}>{new Date(selectedEntry.date+"T12:00:00").toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}</div>
               <div style={{fontSize:12,color:lineColor}}>Energy {selectedEntry.score}/10 · {selectedEntry.mood||"no mood logged"}</div>
             </div>
             <button onClick={()=>setSelectedEntry(null)} style={{marginLeft:"auto",background:"none",border:"none",cursor:"pointer",color:C.muted,fontSize:16}}>×</button>
@@ -4116,7 +4116,7 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
             <div key={entry.date} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:18,marginBottom:10,borderLeft:`4px solid ${getMoodColor(entry.mood)}`}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
                 <div>
-                  <div style={{fontSize:13,fontWeight:600}}>{new Date(entry.date+"T12:00:00").toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}</div>
+                  <div style={{fontSize:13,fontWeight:600,color:C.text}}>{new Date(entry.date+"T12:00:00").toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}</div>
                   <div style={{display:"flex",gap:8,marginTop:4,alignItems:"center"}}>
                     {entry.mood&&<span style={{fontSize:18}}>{MOOD_OPTIONS.find(m=>m.val===entry.mood)?.emoji}</span>}
                     {entry.energy&&<span style={{fontSize:11,color:C.muted}}>Energy {entry.energy}/10</span>}
@@ -4804,12 +4804,12 @@ function WellnessSection({C,galaxy,profile,moveLog,setMoveLog,todayPhase,meditat
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:12}}>
         <button onClick={()=>setView("breathe")} style={{padding:"18px",background:C.card,border:`1px solid ${C.border}`,borderRadius:14,cursor:"pointer",textAlign:"left"}}>
           <div style={{fontSize:26,marginBottom:6}}>🌬️️</div>
-          <div style={{fontSize:13,fontWeight:600}}>Pranayama</div>
+          <div style={{fontSize:13,fontWeight:600,color:C.text}}>Pranayama</div>
           <div style={{fontSize:11,color:C.muted}}>4 breathwork techniques</div>
         </button>
         <button onClick={()=>setView("yoga")} style={{padding:"18px",background:C.card,border:`1px solid ${C.border}`,borderRadius:14,cursor:"pointer",textAlign:"left"}}>
           <div style={{fontSize:26,marginBottom:6}}>🧘</div>
-          <div style={{fontSize:13,fontWeight:600}}>Yoga Asanas</div>
+          <div style={{fontSize:13,fontWeight:600,color:C.text}}>Yoga Asanas</div>
           <div style={{fontSize:11,color:C.muted}}>{Object.values(YOGA_LIBRARY).reduce((a,l)=>a+(l.poses?.length||0),0)} poses · {Object.keys(YOGA_LIBRARY).length} categories</div>
         </button>
       </div>
@@ -5420,7 +5420,7 @@ function SupplementsPanel({C, profile, up}){
           <div style={{fontSize:10,color:C.dim,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>NOT DUE TODAY</div>
           {supplements.filter(s=>!isDueToday(s)).map(s=>(
             <div key={s.id} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 14px",opacity:0.5}}>
-              <div style={{fontSize:12}}>💊 {s.name}</div>
+              <div style={{fontSize:12,color:C.text}}>💊 {s.name}</div>
               <div style={{fontSize:10,color:C.dim}}>· {(s.days||[]).join(", ")||"—"}</div>
             </div>
           ))}
@@ -5907,7 +5907,7 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
                         <div style={{display:"flex",gap:7,alignItems:"center"}}>
                           <span style={{fontSize:14}}>{n.icon}</span>
                           <div>
-                            <div style={{fontSize:12,fontWeight:600}}>{n.l}</div>
+                            <div style={{fontSize:12,fontWeight:600,color:C.text}}>{n.l}</div>
                             <div style={{fontSize:10,color:C.muted}}>{intake.toFixed(1)} / {target} {n.u} {n.isMax?"(limit)":"(target)"}</div>
                           </div>
                         </div>
@@ -6010,7 +6010,7 @@ function CycleSection({C,profile,setProfile,periodLogs,setPeriodLogs,symptoms,se
         <div>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
             <button onClick={()=>setCalMonth(m=>{const d=new Date(m.year,m.month-1,1);return{year:d.getFullYear(),month:d.getMonth()};})} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:7,padding:"6px 12px",cursor:"pointer",fontSize:13,color:C.muted}}>‹</button>
-            <div style={{fontSize:15,fontWeight:600}}>{MONTH_NAMES[calMonth.month]} {calMonth.year}</div>
+            <div style={{fontSize:15,fontWeight:600,color:C.text}}>{MONTH_NAMES[calMonth.month]} {calMonth.year}</div>
             <button onClick={()=>setCalMonth(m=>{const d=new Date(m.year,m.month+1,1);return{year:d.getFullYear(),month:d.getMonth()};})} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:7,padding:"6px 12px",cursor:"pointer",fontSize:13,color:C.muted}}>›</button>
           </div>
           {/* Phase legend — current phase highlighted */}
@@ -7019,6 +7019,104 @@ function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedS
       )}
 
       {view==="weekly"&&(
+        <div style={{display:"flex",flexDirection:"column",gap:12}}>
+
+        {/* Goals consistency feedback */}
+        {(()=>{
+          const goals = (profile.goals||[]);
+          if(goals.length===0) return null;
+
+          const now = new Date();
+          const todayDay = now.getDate();
+          const year = now.getFullYear();
+          const month = now.getMonth();
+          const monthStr = `${year}-${String(month+1).padStart(2,"0")}`;
+
+          // Calculate consistency per goal this month
+          const goalStats = goals.map(g=>{
+            let doneDays = 0;
+            if(g.type==="habit"){
+              doneDays = (g.habitDays||[]).filter(d=>d&&d.startsWith(monthStr)).length;
+            } else if(g.type==="weekly"){
+              doneDays = (g.weekLogs||[]).filter(l=>l.date&&l.date.startsWith(monthStr)).length;
+            } else if(g.type==="number"){
+              const pct = g.targetNumber>0?(parseFloat(g.currentNumber)||0)/parseFloat(g.targetNumber)*100:0;
+              return {title:g.title, pct:Math.round(pct), type:g.type, doneDays:0, possible:0};
+            }
+            const possible = todayDay;
+            const pct = possible>0?Math.round((doneDays/possible)*100):0;
+            return {title:g.title, pct, type:g.type, doneDays, possible};
+          });
+
+          const habitGoals = goalStats.filter(g=>g.type==="habit"||g.type==="weekly");
+          const overallPct = habitGoals.length>0
+            ? Math.round(habitGoals.reduce((s,g)=>s+g.pct,0)/habitGoals.length)
+            : null;
+
+          // Honest feedback based on real numbers
+          let feedbackColor = C.accent2;
+          let feedbackEmoji = "✦";
+          let headline = "";
+          let detail = "";
+
+          if(overallPct===null){
+            headline = "No habit goals set yet.";
+            detail = "Add habit or weekly goals to start tracking consistency here.";
+          } else if(overallPct>=80){
+            feedbackColor = C.accent2;
+            feedbackEmoji = "🔥";
+            headline = `${overallPct}% consistent this month — you're showing up.`;
+            detail = "Strong consistency. Keep the same approach and results will follow.";
+          } else if(overallPct>=50){
+            feedbackColor = C.gold;
+            feedbackEmoji = "〰";
+            headline = `${overallPct}% consistent this month — good but uneven.`;
+            detail = "More than half the days are covered. The gap is in the missed days — what usually gets in the way?";
+          } else if(overallPct>=25){
+            feedbackColor = C.gold;
+            feedbackEmoji = "↓";
+            headline = `${overallPct}% consistent this month — below where you want to be.`;
+            detail = "Less than half the days. This is honest data, not judgment. What's one goal you could commit to doing every single day this week?";
+          } else {
+            feedbackColor = C.red||"#e05a5a";
+            feedbackEmoji = "·";
+            headline = `${overallPct}% consistent this month — the gap is real.`;
+            detail = "Very few days marked. Either the goals are too ambitious for your current routine, or something is consistently getting in the way. Consider reducing to just 1-2 daily goals and building from there.";
+          }
+
+          return (
+            <div style={{background:C.card,border:`1px solid ${feedbackColor}44`,borderRadius:13,padding:18}}>
+              <div style={{fontSize:10,color:feedbackColor,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>GOAL CONSISTENCY · {now.toLocaleString("en-IN",{month:"long"}).toUpperCase()}</div>
+
+              <div style={{fontSize:18,fontWeight:700,color:feedbackColor,marginBottom:6,lineHeight:1.4}}>
+                {feedbackEmoji} {headline}
+              </div>
+              <div style={{fontSize:13,color:C.muted,lineHeight:1.7,marginBottom:14}}>{detail}</div>
+
+              {/* Per-goal breakdown */}
+              <div style={{display:"flex",flexDirection:"column",gap:8}}>
+                {goalStats.map((g,i)=>(
+                  <div key={i}>
+                    <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:3}}>
+                      <div style={{fontSize:12,color:C.text}}>{g.title}</div>
+                      <div style={{fontSize:11,fontWeight:600,color:g.pct>=70?C.accent2:g.pct>=40?C.gold:C.red||"#e05a5a"}}>{g.pct}%</div>
+                    </div>
+                    <div style={{height:4,borderRadius:4,background:C.border,overflow:"hidden"}}>
+                      <div style={{
+                        width:`${g.pct}%`,height:4,borderRadius:4,
+                        background:g.pct>=70?C.accent2:g.pct>=40?C.gold:C.red||"#e05a5a",
+                        transition:"width 0.5s ease",
+                      }}/>
+                    </div>
+                    {g.type==="habit"||g.type==="weekly"?
+                      <div style={{fontSize:10,color:C.dim,marginTop:2}}>{g.doneDays} of {g.possible} days this month</div>:null}
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
+
         <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
           <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>7-DAY AVERAGES</div>
           {[
@@ -7028,13 +7126,15 @@ function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedS
           ].map((item,i)=>(
             <div key={i} style={{padding:"12px 0",borderBottom:i<2?`1px solid ${C.border}`:"none"}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
-                <div style={{fontSize:13,fontWeight:600}}>{item.label}</div>
+                <div style={{fontSize:13,fontWeight:600,color:C.text}}>{item.label}</div>
                 <div style={{fontSize:12,color:item.on?C.accent2:C.gold,padding:"2px 8px",background:(item.on?C.accent2:C.gold)+"15",borderRadius:20}}>{item.on?"On track":"Adjust"}</div>
               </div>
               <div style={{fontSize:16,fontWeight:700,color:item.color}}>{item.value}</div>
               <div style={{fontSize:11,color:C.muted}}>{item.target}</div>
             </div>
           ))}
+        </div>
+
         </div>
       )}
 
@@ -7657,7 +7757,7 @@ function ProfileSection({C,profile,up,needs,setSection,resetToday,resetAllLogs})
           }} style={{padding:"12px 14px",background:"transparent",border:`1px solid ${C.border}`,borderRadius:9,cursor:"pointer",fontSize:13,color:C.text,textAlign:"left",display:"flex",gap:10,alignItems:"center"}}>
             <span style={{fontSize:18}}>🔄</span>
             <div>
-              <div style={{fontWeight:600}}>Reset today</div>
+              <div style={{fontWeight:600,color:C.text}}>Reset today</div>
               <div style={{fontSize:11,color:C.muted}}>Clears today\'s food, water and ritual</div>
             </div>
           </button>
@@ -8656,7 +8756,7 @@ Question: ${q || "Give a deep, personalised Vedic reading covering: core persona
                     <div style={{display:"flex",gap:10,alignItems:"center"}}>
                       <span style={{fontSize:22}}>{dosha.icon}</span>
                       <div>
-                        <div style={{fontSize:14,fontWeight:700}}>{dosha.name}</div>
+                        <div style={{fontSize:14,fontWeight:700,color:C.text}}>{dosha.name}</div>
                         <div style={{fontSize:11,padding:"2px 9px",background:dosha.present?dosha.color+"22":"#71b47822",border:`1px solid ${dosha.present?dosha.color:"#71b47844"}`,borderRadius:20,color:dosha.present?dosha.color:"#71b478",display:"inline-block",marginTop:3}}>
                           {dosha.severity}
                         </div>
