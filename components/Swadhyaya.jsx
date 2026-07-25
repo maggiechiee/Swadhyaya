@@ -7,6 +7,11 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
 );
 
+// Bump this any time you replace /public/artwork-earth.png with a new image
+// under the SAME filename — otherwise browsers and Vercel's CDN keep serving
+// the old cached copy indefinitely, which is exactly what you just hit.
+const ARTWORK_VERSION = "2";
+
 /* ═══════════════════════════════════════════════════════════
    SWADHYĀYA v2.0
    Goal-adaptive · Behavioural memory · Usage limits
@@ -29,6 +34,10 @@ const FONTS = `
   .sw-content{position:relative;z-index:1;}
   /* Glassmorphic card base */
   .glass-card{backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.22);border-radius:20px;}
+  /* Translucent bars (top header, bottom nav) — heavier blur + film grain so text stays readable over any background artwork */
+  .glass-bar{position:relative;backdrop-filter:blur(30px) saturate(1.1);-webkit-backdrop-filter:blur(30px) saturate(1.1);}
+  .glass-bar::before{content:'';position:absolute;inset:0;pointer-events:none;opacity:0.05;mix-blend-mode:overlay;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
   /* Galaxy nebula blobs */
   .nebula{position:fixed;border-radius:50%;filter:blur(60px);pointer-events:none;z-index:0;animation:nebulaPulse 8s ease-in-out infinite;}
   .nebula-1{width:350px;height:350px;top:-80px;left:-80px;background:radial-gradient(circle,rgba(90,0,180,0.45),transparent 70%);animation-delay:0s;}
@@ -43,6 +52,8 @@ const FONTS = `
   @keyframes checkPop{0%{transform:scale(0)}70%{transform:scale(1.2)}100%{transform:scale(1)}}
   @keyframes sunrise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
   @keyframes ringPulse{0%{box-shadow:0 0 0 0 rgba(113,180,120,0.5)}70%{box-shadow:0 0 0 14px rgba(113,180,120,0)}100%{box-shadow:0 0 0 0 rgba(113,180,120,0)}}
+  @keyframes mirrorShakeOnce{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+  @keyframes mirrorGlow{0%,100%{box-shadow:0 0 0px rgba(212,168,92,0)}50%{box-shadow:0 0 22px rgba(212,168,92,0.35)}}
   .fade{animation:fadeUp 0.45s ease both;}
 `;
 
@@ -235,9 +246,9 @@ function WatercolourNav({NAV, section, setSection, C, galaxy}) {
   };
 
   return (
-    <div style={{position:"fixed",bottom:0,left:0,right:0,zIndex:200,
-      background:"rgba(0,0,0,0.3)",
-      borderTop:`1px solid rgba(255,255,255,0.12)`,backdropFilter:"blur(24px)",padding:"6px 0 10px"}}>
+    <div className="glass-bar" style={{position:"fixed",bottom:0,left:0,right:0,zIndex:200,
+      background:"rgba(0,0,0,0.45)",
+      borderTop:`1px solid rgba(255,255,255,0.12)`,padding:"6px 0 10px"}}>
       <div style={{maxWidth:700,margin:"0 auto",display:"flex",justifyContent:"space-around"}}>
         {NAV.map(n => {
           const active = section === n.id;
@@ -1165,6 +1176,28 @@ function getPhase(lp,cl,pl,ds){
   return"pms";
 }
 
+// Phase calc that trusts actual logged periods over the static profile date —
+// keeps the Home/Wellness phase indicator in sync with what's really been logged.
+function getTodayPhaseFromLogs(periodLogs, cycleLength, periodLength, lastPeriodStart, todayStr){
+  const logs = (periodLogs||[]).filter(p=>p.startDate);
+  const inPeriod=(ds,p)=>{const d=new Date(ds),s=new Date(p.startDate),e=p.endDate?new Date(p.endDate):new Date(p.startDate);return d>=s&&d<=e;};
+  if(logs.some(p=>inPeriod(todayStr,p))) return "menstrual";
+  const sorted=[...logs].sort((a,b)=>new Date(b.startDate)-new Date(a.startDate));
+  const mostRecent=sorted.find(p=>new Date(p.startDate)<=new Date(todayStr));
+  const basisDate = mostRecent ? mostRecent.startDate : lastPeriodStart;
+  if(!basisDate) return null;
+  let cl = parseInt(cycleLength)||28;
+  if(sorted.length>=2){
+    const gaps=[];
+    for(let i=0;i<sorted.length-1;i++){
+      const g=Math.round((new Date(sorted[i].startDate)-new Date(sorted[i+1].startDate))/86400000);
+      if(g>10&&g<60)gaps.push(g);
+    }
+    if(gaps.length) cl=Math.round(gaps.slice(0,3).reduce((a,b)=>a+b,0)/Math.min(3,gaps.length));
+  }
+  return getPhase(basisDate, cl, parseInt(periodLength)||5, todayStr);
+}
+
 // ── Stars ─────────────────────────────────────────────────────
 function Stars(){
   const stars=useRef(Array.from({length:120},()=>({x:Math.random()*100,y:Math.random()*100,s:Math.random()*2.5+0.4,d:Math.random()*6,dur:1.5+Math.random()*4,type:Math.floor(Math.random()*10)}))).current;
@@ -1369,7 +1402,7 @@ export default function Swadhyaya(){
         setProfile(p => {
           const restored = {...p,
           name: prof.name || "",
-          gender: prof.gender || "female",
+          gender: prof.gender || p.gender || "",
           age: prof.age || "",
           weight: prof.weight || "",
           height: prof.height || "",
@@ -1584,7 +1617,7 @@ export default function Swadhyaya(){
     for(const k of Object.keys(combined)) combined[k]+=todaySupplements[k]||0;
     return combined;
   },[todayFoodOnly,todaySupplements]);
-  const todayPhase=profile.gender==="female"?getPhase(profile.lastPeriodStart,parseInt(profile.cycleLength),parseInt(profile.periodLength),todayStr):null;
+  const todayPhase=profile.gender==="female"?getTodayPhaseFromLogs(periodLogs,profile.cycleLength,profile.periodLength,profile.lastPeriodStart,todayStr):null;
 
   // Trial days remaining
   const trialDaysLeft=useMemo(()=>{
@@ -1798,7 +1831,7 @@ export default function Swadhyaya(){
       )}
       {galaxy&&<Stars/>}
       {/* Background layer — artwork for earth, deep space for galaxy */}
-      {!galaxy&&<div className="sw-app-bg" style={{backgroundImage:`url(/artwork-earth.png)`,opacity:1}}/>}
+      {!galaxy&&<div className="sw-app-bg" style={{backgroundImage:`url(/artwork-earth.png?v=${ARTWORK_VERSION})`,opacity:1}}/>}
       {galaxy&&(
         <>
           <div className="sw-app-galaxy-bg"/>
@@ -1810,7 +1843,7 @@ export default function Swadhyaya(){
       )}
 
       {/* TOP BAR */}
-      <div style={{position:"sticky",top:0,zIndex:200,background:"rgba(0,0,0,0.25)",borderBottom:`1px solid rgba(255,255,255,0.12)`,backdropFilter:"blur(24px)",padding:"10px 16px"}}>
+      <div className="glass-bar" style={{position:"sticky",top:0,zIndex:200,background:"rgba(0,0,0,0.42)",borderBottom:`1px solid rgba(255,255,255,0.12)`,padding:"10px 16px"}}>
         <div style={{maxWidth:700,margin:"0 auto",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <div onClick={()=>setSection("home")} style={{minHeight:40,cursor:"pointer"}}>
             <div style={{fontSize:18,fontWeight:600,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>Swadhyāya</div>
@@ -2767,6 +2800,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
   const [view, setView] = useState("list"); // list | add | detail
   const [selectedGoal, setSelectedGoal] = useState(null);
   const [expandedGoalId, setExpandedGoalId] = useState(null);
+  const [monthOpenId, setMonthOpenId] = useState(null);
   const [newGoal, setNewGoal] = useState({
     id: null, title:"", category:"personal", type:"milestone",
     why:"", targetDate:"", targetNumber:"", targetUnit:"",
@@ -3365,46 +3399,52 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
             const daysLeft=goal.targetDate?Math.ceil((new Date(goal.targetDate)-new Date())/86400000):null;
             const isTrackable=goal.type==="habit"||goal.type==="weekly";
             const isExpanded=expandedGoalId===goal.id;
+            // Single status dot replaces the old duplicate badges — filled when there's
+            // real progress today/this period, hollow when the goal hasn't moved yet.
+            const onTrack = goal.type==="habit" ? doneToday
+              : goal.type==="weekly" ? weeklyCountList>=(goal.targetNumber||1)
+              : pct>0;
             return(
               <div key={goal.id}
-                onClick={()=>{ if(isTrackable) setExpandedGoalId(id=>id===goal.id?null:goal.id); }}
-                style={{background:C.card,border:`1px solid ${catColor}44`,borderRadius:14,padding:18,transition:"all 0.2s",boxShadow:`0 2px 12px ${catColor}12`,cursor:isTrackable?"pointer":"default"}}>
-                <div style={{display:"flex",gap:12,alignItems:"flex-start",marginBottom:10}}>
-                  <div style={{width:38,height:38,borderRadius:10,background:catColor+"22",border:`1px solid ${catColor}44`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>{getCatIcon(goal.category)}</div>
-                  <div style={{flex:1}}>
-                    <div style={{fontSize:16,fontWeight:600,color:catColor,marginBottom:2}}>{goal.title}</div>
-                    <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
-                      <span style={{fontSize:13,color:C.muted,textTransform:"capitalize",padding:"2px 8px",background:catColor+"12",borderRadius:20}}>{goal.type}</span>
-                      <span style={{fontSize:13,color:C.muted,textTransform:"capitalize"}}>{goal.category}</span>
-                      {daysLeft!==null&&<span style={{fontSize:13,color:daysLeft<30?C.red:daysLeft<90?C.gold:C.muted}}>{daysLeft>0?`${daysLeft}d left`:daysLeft===0?"Due today!":"Overdue"}</span>}
+                onClick={()=>setExpandedGoalId(id=>id===goal.id?null:goal.id)}
+                style={{background:C.card,border:`1px solid ${catColor}44`,borderRadius:14,padding:isExpanded?16:"11px 14px",transition:"all 0.2s",boxShadow:`0 2px 12px ${catColor}12`,cursor:"pointer"}}>
+                {/* Collapsed row — the only thing visible until tapped */}
+                <div style={{display:"flex",gap:10,alignItems:"center"}}>
+                  <div style={{width:30,height:30,borderRadius:8,background:catColor+"22",border:`1px solid ${catColor}44`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,flexShrink:0}}>{getCatIcon(goal.category)}</div>
+                  <div style={{fontSize:15,fontWeight:600,color:catColor,flex:1,minWidth:0,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{goal.title}</div>
+                  <div style={{fontSize:14,fontWeight:700,color:catColor,flexShrink:0}}>{pct}%</div>
+                  <div title={onTrack?"On track":"Needs attention"} style={{width:10,height:10,borderRadius:"50%",flexShrink:0,background:onTrack?catColor:"transparent",border:`2px solid ${catColor}`,boxShadow:onTrack?`0 0 6px ${catColor}99`:"none"}}/>
+                </div>
+
+                {isExpanded&&(
+                  <div style={{marginTop:14}}>
+                    <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap",marginBottom:10}}>
+                      <span style={{fontSize:12,color:C.muted,textTransform:"capitalize",padding:"2px 8px",background:catColor+"12",borderRadius:20}}>{goal.type}</span>
+                      <span style={{fontSize:12,color:C.muted,textTransform:"capitalize"}}>{goal.category}</span>
+                      {daysLeft!==null&&<span style={{fontSize:12,color:daysLeft<30?C.red:daysLeft<90?C.gold:C.muted}}>{daysLeft>0?`${daysLeft}d left`:daysLeft===0?"Due today!":"Overdue"}</span>}
                     </div>
+                    {/* Progress bar */}
+                    <div style={{background:C.border,borderRadius:4,height:5}}>
+                      <div style={{width:`${pct}%`,height:5,background:`linear-gradient(90deg,${catColor},${catColor}88)`,borderRadius:4,transition:"width 0.6s ease",minWidth:pct>0?4:0}}/>
+                    </div>
+                    {/* Quick actions */}
+                    <div style={{marginTop:10,display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
+                      {goal.type==="number"&&<div style={{fontSize:14,color:C.muted}}>{parseFloat(goal.currentNumber)||0} / {goal.targetNumber} {goal.targetUnit}</div>}
+                      {goal.type==="milestone"&&<div style={{fontSize:14,color:C.muted}}>{(goal.milestones||[]).filter(m=>m.done).length}/{(goal.milestones||[]).length} steps done</div>}
+                      {goal.type==="habit"&&(
+                        <button onClick={e=>{e.stopPropagation();markHabitToday(goal.id);}} style={{minHeight:40,minWidth:40,padding:"5px 12px",background:doneToday?C.accent2+"22":"transparent",border:`1px solid ${doneToday?C.accent2:C.border}`,borderRadius:20,cursor:"pointer",fontSize:14,color:doneToday?C.accent2:C.muted}}>
+                          {doneToday?"✓ Done today":"Mark today"}
+                        </button>
+                      )}
+                      <div style={{marginLeft:"auto",display:"flex",gap:6}}>
+                        <button onClick={e=>{e.stopPropagation();setNewGoal({...goal});setView("add");}} style={{fontSize:13,color:C.muted,background:"transparent",border:`1px solid ${C.border}`,borderRadius:20,padding:"6px 14px",cursor:"pointer",minHeight:40,minWidth:40}}>Edit</button>
+                        <button onClick={e=>{e.stopPropagation();deleteGoal(goal.id);}} style={{fontSize:13,color:C.red,background:"transparent",border:`1px solid ${C.red}33`,borderRadius:20,padding:"6px 14px",cursor:"pointer",minHeight:40,minWidth:40}}>Delete</button>
+                      </div>
+                    </div>
+                    {isTrackable&&(
+                      <HabitDotGrid goal={goal} C={C} colorIndex={goalIdx} expanded={monthOpenId===goal.id} onToggle={()=>setMonthOpenId(id=>id===goal.id?null:goal.id)}/>
+                    )}
                   </div>
-                  <div style={{textAlign:"right",flexShrink:0}}>
-                    <div style={{fontSize:18,fontWeight:700,color:catColor}}>{pct}%</div>
-                    {goal.type==="habit"&&<div style={{fontSize:13,color:C.muted}}>{streak}🔥</div>}
-                    {goal.type==="weekly"&&<div style={{fontSize:13,color:C.muted}}>{weeklyCountList}/{goal.targetNumber} wk</div>}
-                  </div>
-                </div>
-                {/* Progress bar */}
-                <div style={{background:C.border,borderRadius:4,height:5}}>
-                  <div style={{width:`${pct}%`,height:5,background:`linear-gradient(90deg,${catColor},${catColor}88)`,borderRadius:4,transition:"width 0.6s ease",minWidth:pct>0?4:0}}/>
-                </div>
-                {/* Quick actions */}
-                <div style={{marginTop:10,display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
-                  {goal.type==="number"&&<div style={{fontSize:15,color:C.muted}}>{parseFloat(goal.currentNumber)||0} / {goal.targetNumber} {goal.targetUnit}</div>}
-                  {goal.type==="milestone"&&<div style={{fontSize:15,color:C.muted}}>{(goal.milestones||[]).filter(m=>m.done).length}/{(goal.milestones||[]).length} steps done</div>}
-                  {goal.type==="habit"&&(
-                    <button onClick={e=>{e.stopPropagation();markHabitToday(goal.id);}} style={{minHeight:40,minWidth:40,padding:"5px 12px",background:doneToday?C.accent2+"22":"transparent",border:`1px solid ${doneToday?C.accent2:C.border}`,borderRadius:20,cursor:"pointer",fontSize:14,color:doneToday?C.accent2:C.muted}}>
-                      {doneToday?"✓ Done today":"Mark today"}
-                    </button>
-                  )}
-                  <div style={{marginLeft:"auto",display:"flex",gap:6}}>
-                    <button onClick={e=>{e.stopPropagation();setNewGoal({...goal});setView("add");}} style={{fontSize:13,color:C.muted,background:"transparent",border:`1px solid ${C.border}`,borderRadius:20,padding:"6px 14px",cursor:"pointer",minHeight:40,minWidth:40}}>Edit</button>
-                    <button onClick={e=>{e.stopPropagation();deleteGoal(goal.id);}} style={{fontSize:13,color:C.red,background:"transparent",border:`1px solid ${C.red}33`,borderRadius:20,padding:"6px 14px",cursor:"pointer",minHeight:40,minWidth:40}}>Delete</button>
-                  </div>
-                </div>
-                {isTrackable&&(
-                  <HabitDotGrid goal={goal} C={C} colorIndex={goalIdx} expanded={isExpanded} onToggle={()=>setExpandedGoalId(id=>id===goal.id?null:goal.id)}/>
                 )}
               </div>
             );
@@ -6104,7 +6144,7 @@ function CycleSection({C,profile,setProfile,periodLogs,setPeriodLogs,symptoms,se
           <div>
             <div style={{fontSize:12,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>SYMPTOMS</div>
             <div style={{display:"flex",flexWrap:"wrap",gap:5}}>
-              {["cramps","severe cramps","bloating","fatigue","nausea","headache","backache","mood swings","cravings","clots","spotting before","spotting after","none"].map(s=><button key={s} onClick={()=>setNp(p=>({...p,symptoms:p.symptoms.includes(s)?p.symptoms.filter(x=>x!==s):[...p.symptoms,s]}))} style={{minHeight:40,minWidth:40,padding:"5px 9px",borderRadius:20,border:`1px solid ${np.symptoms.includes(s)?PHASE_COLORS.menstrual:C.border}`,background:np.symptoms.includes(s)?PHASE_COLORS.menstrual+"18":"transparent",cursor:"pointer",fontSize:14,color:np.symptoms.includes(s)?PHASE_COLORS.menstrual:C.muted}}>{s}</button>)}
+              {["cramps","severe cramps","bloating","constipation","diarrhea","fatigue","nausea","headache","backache","tender breasts","acne","mood swings","irritability","anxiety","low mood","insomnia","cravings","clots","spotting before","spotting after","none"].map(s=><button key={s} onClick={()=>setNp(p=>({...p,symptoms:p.symptoms.includes(s)?p.symptoms.filter(x=>x!==s):[...p.symptoms,s]}))} style={{minHeight:40,minWidth:40,padding:"5px 9px",borderRadius:20,border:`1px solid ${np.symptoms.includes(s)?PHASE_COLORS.menstrual:C.border}`,background:np.symptoms.includes(s)?PHASE_COLORS.menstrual+"18":"transparent",cursor:"pointer",fontSize:14,color:np.symptoms.includes(s)?PHASE_COLORS.menstrual:C.muted}}>{s}</button>)}
             </div>
           </div>
           <textarea value={np.notes} onChange={e=>setNp(p=>({...p,notes:e.target.value}))} rows={2} placeholder="Anything unusual? e.g. came early, heavier than usual, darker colour…" style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 11px",fontSize:15,resize:"none"}}/>
@@ -6551,11 +6591,239 @@ function TodaysMirror({C,galaxy,profile,todayFood,needs,ritualDone,moveMin,compl
 //  Never resets. Accumulates context via a rolling summary stored
 //  in profile.mirrorSummary, updated each time it generates.
 // ══════════════════════════════════════════════════════════════
+// ── MIRROR SNAPSHOT — card-based "understand yourself in 30 seconds" page ──
+function useCountUp(target, duration=900){
+  const [val, setVal] = useState(0);
+  useEffect(()=>{
+    let raf, start;
+    const step = (t)=>{
+      if(!start) start = t;
+      const p = Math.min(1, (t-start)/duration);
+      setVal(Math.round(target * (1-Math.pow(1-p,3)))); // ease-out cubic
+      if(p<1) raf = requestAnimationFrame(step);
+    };
+    raf = requestAnimationFrame(step);
+    return ()=>cancelAnimationFrame(raf);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [target]);
+  return val;
+}
+
+function MirrorBar({label, value, color, C}){
+  const [width, setWidth] = useState(0);
+  useEffect(()=>{ const t=setTimeout(()=>setWidth(value), 120); return ()=>clearTimeout(t); }, [value]);
+  return (
+    <div style={{marginBottom:12}}>
+      <div style={{display:"flex",justifyContent:"space-between",marginBottom:5}}>
+        <span style={{fontSize:14,color:C.muted}}>{label}</span>
+        <span style={{fontSize:13,color:C.dim,fontFamily:"'DM Mono',monospace"}}>{value}%</span>
+      </div>
+      <div style={{height:7,borderRadius:4,background:C.border,overflow:"hidden"}}>
+        <div style={{height:"100%",width:`${width}%`,borderRadius:4,background:color,transition:"width 1.1s cubic-bezier(.2,.8,.2,1)"}}/>
+      </div>
+    </div>
+  );
+}
+
+function MirrorSnapshot({C, galaxy, profile, up, journalEntries, foodLogs, weightLog, moveLog, needs, onSeeFullAnalysis}){
+  const [cards, setCards] = useState(profile.mirrorCards || null);
+  const [loading, setLoading] = useState(false);
+  const accent = galaxy ? "#c084fc" : C.accent;
+  const fingerprint = `${(journalEntries||[]).length}-${(foodLogs||[]).length}-${(moveLog||[]).length}-${((profile.goals)||[]).length}`;
+
+  async function generateCards(){
+    setLoading(true);
+    try{
+      const recentJournals = (journalEntries||[]).filter(e=>e.freeWrite).sort((a,b)=>new Date(b.date)-new Date(a.date)).slice(0,10)
+        .map(e=>`[${e.date}] mood:${e.mood||"?"} "${e.freeWrite}"`).join("\n");
+      const goalsText = (profile.goals||[]).map(g=>{
+        const done = g.type==="habit" ? (g.habitDays||[]).length : g.type==="milestone" ? (g.milestones||[]).filter(m=>m.done).length : (g.currentNumber||0);
+        return `${g.title||g.text} (${g.type}, progress:${done})`;
+      }).join(", ") || "none set";
+      const todayStr = getLocalDateStr();
+      const cutoff = new Date(); cutoff.setDate(cutoff.getDate()-14);
+      const recentFood = (foodLogs||[]).filter(l=>new Date(l.date)>=cutoff);
+      const loggedDays = [...new Set(recentFood.map(l=>l.date))];
+      const avgCal = loggedDays.length ? Math.round(loggedDays.reduce((s,d)=>s+recentFood.filter(l=>l.date===d).reduce((s2,l)=>s2+(calcLoggedNutrition(l).cal||0),0),0)/loggedDays.length) : null;
+      const totalMoveMin = (moveLog||[]).slice(0,14).reduce((s,m)=>s+(m.duration||0),0);
+
+      const system = `You are generating short, punchy self-insight cards for a personal reflection app called "The Mirror". Output STRICT JSON ONLY, no markdown, no commentary, matching exactly this schema:
+{
+"becoming":{"trait":"one word or short phrase, e.g. Creator","emoji":"one emoji","delta":"e.g. +8% or steady or new"},
+"mirror":{"line":"max 20 words, poetic, observational, the single sharpest truth about this person right now","why":"max 30 words explaining why, plain language"},
+"redFlag":{"line":"max 12 words, the clearest concerning pattern","detail":"max 16 words"},
+"strength":{"line":"max 12 words, the clearest genuine strength","detail":"max 16 words"},
+"today":{"insight":"max 12 words about today specifically","focusPct":a number 0-100 estimating expected focus/energy today,"suggestion":"max 10 words, one concrete action"},
+"contradiction":{"say":"max 10 words quoting/paraphrasing a stated goal or intention","reality":"max 14 words, the actual behaviour data"},
+"identity":{"confidence":0-100,"discipline":0-100,"creativity":0-100,"resilience":0-100},
+"hiddenBelief":{"text":"max 8 words, a quoted-style limiting belief","count":a small integer estimate of how many times it shows up in their words,"confidence":0-100},
+"mission":{"text":"max 10 words, ONE concrete tiny action for today"},
+"mentor":{"text":"max 20 words, warm and direct, in second person, no cliches"}
+}
+Rules: Observation, never advice-tone except mission/mentor. No paragraphs. If data is too thin for a field, make a reasonable, honest, low-confidence guess rather than inventing false specifics — never fabricate numbers that aren't grounded in what's given.`;
+
+      const userContent = `Name: ${profile.name||"friend"}
+Recent journal entries:
+${recentJournals || "none logged"}
+Stated goals: ${goalsText}
+Average daily calories (last 14d, target ${needs?.cal||"?"}): ${avgCal===null?"not logged":avgCal}
+Movement last 14 days: ${totalMoveMin} min total
+Previous mirror summary (if any): ${profile.mirrorSummary || "none yet"}
+Today's date: ${todayStr}
+
+Generate the JSON now.`;
+
+      const res = await askAI(system, [{role:"user", content:userContent}], 700);
+      const jsonMatch = res.match(/\{[\s\S]*\}/);
+      const parsed = JSON.parse(jsonMatch ? jsonMatch[0] : res);
+      setCards(parsed);
+      up("mirrorCards", parsed);
+      up("mirrorCardsFingerprint", fingerprint);
+    }catch(e){
+      console.error("Mirror snapshot generation failed:", e);
+    }
+    setLoading(false);
+  }
+
+  useEffect(()=>{
+    const hasAnyData = (journalEntries||[]).length>0 || (foodLogs||[]).length>0 || (moveLog||[]).length>0;
+    const isStale = profile.mirrorCardsFingerprint !== fingerprint;
+    if(hasAnyData && isStale && !loading){ generateCards(); }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const card = (extra={}) => ({background:C.card, border:`1px solid ${C.border}`, borderRadius:22, padding:24, boxSizing:"border-box", ...extra});
+  const title = {fontSize:16, fontWeight:600, color:C.muted, display:"flex", alignItems:"center", gap:6, marginBottom:10};
+  const insightTxt = {fontSize:22, fontWeight:700, color:C.text, lineHeight:1.3};
+  const descTxt = {fontSize:14, color:C.muted, marginTop:6, lineHeight:1.5};
+
+  // Hooks must run unconditionally every render — compute these before any
+  // early return below, using safe defaults while cards hasn't loaded yet.
+  const conf = useCountUp(cards?.identity?.confidence||0);
+  const disc = useCountUp(cards?.identity?.discipline||0);
+  const crea = useCountUp(cards?.identity?.creativity||0);
+  const resi = useCountUp(cards?.identity?.resilience||0);
+  const focusPct = useCountUp(cards?.today?.focusPct||0);
+
+  if(!cards && !loading){
+    return (
+      <div style={card({textAlign:"center"})}>
+        <div style={{fontSize:28,marginBottom:10}}>🪞</div>
+        <div style={{fontSize:15,color:C.muted,lineHeight:1.6}}>Log a few journal entries and the mirror will start showing you who you're becoming.</div>
+      </div>
+    );
+  }
+  if(loading && !cards){
+    return <div style={card({textAlign:"center",color:C.muted,fontSize:15})}>Reading your patterns…</div>;
+  }
+
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:12}}>
+      {/* Header */}
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-end"}}>
+        <div>
+          <div style={{fontSize:15,color:C.muted}}>You're becoming:</div>
+          <div style={{fontSize:22,fontWeight:700,color:C.text,marginTop:2}}>{cards.becoming?.emoji} {cards.becoming?.trait} <span style={{fontSize:15,color:accent,fontWeight:600}}>{cards.becoming?.delta}</span></div>
+        </div>
+        <button onClick={generateCards} disabled={loading} style={{minHeight:40,minWidth:40,padding:"6px 14px",borderRadius:20,border:`1px solid ${C.border}`,background:"transparent",color:C.muted,fontSize:13,cursor:loading?"not-allowed":"pointer"}}>{loading?"Reading…":"↻ Refresh"}</button>
+      </div>
+
+      {/* Mirror — full width, fades in */}
+      <div style={card({animation:"fadeUp 0.6s ease"})}>
+        <div style={title}>🪞 MIRROR</div>
+        <div style={{...insightTxt, fontFamily:"'Cormorant Garamond',serif", fontStyle:"italic"}}>{cards.mirror?.line}</div>
+        <details style={{marginTop:10}}>
+          <summary style={{fontSize:13,color:accent,cursor:"pointer",listStyle:"none"}}>Why?</summary>
+          <div style={{...descTxt,marginTop:8}}>{cards.mirror?.why}</div>
+        </details>
+      </div>
+
+      {/* Red flag + Strength — half cards */}
+      <div style={{display:"flex",gap:12}}>
+        <div style={card({flex:1,animation:"mirrorShakeOnce 0.5s ease 0.4s"})}>
+          <div style={title}>🚩 RED FLAG</div>
+          <div style={{fontSize:16,fontWeight:700,color:C.red}}>{cards.redFlag?.line}</div>
+          <div style={descTxt}>{cards.redFlag?.detail}</div>
+        </div>
+        <div style={card({flex:1})}>
+          <div style={title}>🌱 STRENGTH</div>
+          <div style={{fontSize:16,fontWeight:700,color:C.accent2}}>{cards.strength?.line}</div>
+          <div style={descTxt}>{cards.strength?.detail}</div>
+        </div>
+      </div>
+
+      {/* Today */}
+      <div style={card()}>
+        <div style={title}>⚡ TODAY</div>
+        <div style={insightTxt}>{cards.today?.insight}</div>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:12}}>
+          <div>
+            <div style={{fontSize:12,color:C.dim}}>Expected focus</div>
+            <div style={{fontSize:24,fontWeight:700,color:accent}}>{focusPct}%</div>
+          </div>
+          <div style={{fontSize:14,color:C.muted,textAlign:"right",maxWidth:180}}>Suggested: {cards.today?.suggestion}</div>
+        </div>
+      </div>
+
+      {/* Contradiction */}
+      <div style={card()}>
+        <div style={title}>🔥 CONTRADICTION</div>
+        <div style={{fontSize:14,color:C.dim,marginBottom:4}}>You say:</div>
+        <div style={{fontSize:17,fontWeight:600,color:C.text,marginBottom:10}}>"{cards.contradiction?.say}"</div>
+        <div style={{fontSize:14,color:C.dim,marginBottom:4}}>Reality:</div>
+        <div style={{fontSize:17,fontWeight:600,color:C.gold}}>{cards.contradiction?.reality}</div>
+      </div>
+
+      {/* Identity progress */}
+      <div style={card()}>
+        <div style={title}>📈 WHO YOU'RE BECOMING</div>
+        <MirrorBar label="Confidence" value={conf} color={accent} C={C}/>
+        <MirrorBar label="Discipline" value={disc} color={C.gold} C={C}/>
+        <MirrorBar label="Creativity" value={crea} color={C.accent2} C={C}/>
+        <MirrorBar label="Resilience" value={resi} color={C.red} C={C}/>
+      </div>
+
+      {/* Hidden belief */}
+      <div style={card()}>
+        <div style={title}>🧠 HIDDEN BELIEF</div>
+        <div style={{...insightTxt, fontFamily:"'Cormorant Garamond',serif", fontStyle:"italic"}}>"{cards.hiddenBelief?.text}"</div>
+        <div style={{display:"flex",justifyContent:"space-between",marginTop:10}}>
+          <div style={descTxt}>Detected {cards.hiddenBelief?.count}x</div>
+          <div style={descTxt}>Confidence: {cards.hiddenBelief?.confidence}%</div>
+        </div>
+      </div>
+
+      {/* Mission — glows */}
+      <div style={card({textAlign:"center",animation:"mirrorGlow 3s ease-in-out infinite"})}>
+        <div style={{...title,justifyContent:"center"}}>🎯 ONE THING TODAY</div>
+        <div style={insightTxt}>{cards.mission?.text}</div>
+        <div style={{...descTxt,marginTop:4}}>Nothing else matters.</div>
+      </div>
+
+      {/* Mentor */}
+      <div style={card({textAlign:"center",background:"transparent",border:"none"})}>
+        <div style={{...title,justifyContent:"center"}}>💬 INNER MENTOR</div>
+        <div style={{fontSize:17,color:C.text,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",lineHeight:1.6}}>{cards.mentor?.text}</div>
+      </div>
+
+      {onSeeFullAnalysis&&(
+        <button onClick={onSeeFullAnalysis} style={{minHeight:40,minWidth:40,background:"transparent",border:"none",color:accent,fontSize:14,fontWeight:600,cursor:"pointer",padding:"8px 0"}}>See Full Analysis →</button>
+      )}
+    </div>
+  );
+}
+
 function HonestMirror({C, galaxy, profile, up, journalEntries, foodLogs, weightLog, moveLog, needs}){
   const [loading, setLoading] = useState(false);
   const [mirror, setMirror] = useState(profile.lastMirror || null);
   const [expanded, setExpanded] = useState(false);
   const accent = galaxy ? "#c084fc" : C.accent;
+
+  // A simple fingerprint of how much data exists right now. Compared against
+  // what existed the last time the mirror was generated — if it's grown,
+  // the reflection is stale and gets refreshed automatically instead of
+  // silently showing old text forever.
+  const dataFingerprint = `${(journalEntries||[]).length}-${(foodLogs||[]).length}-${(moveLog||[]).length}-${((profile.goals)||[]).length}`;
 
   function buildDataSnapshot(){
     const now = new Date();
@@ -6702,6 +6970,7 @@ Generate the honest mirror reflection.`;
       const history = [entry, ...(profile.mirrorHistory||[])].slice(0,12); // keep last 12
       up("lastMirror", entry);
       up("mirrorHistory", history);
+      up("mirrorDataFingerprint", dataFingerprint);
       if(newSummary) up("mirrorSummary", newSummary);
 
       setMirror(entry);
@@ -6713,6 +6982,18 @@ Generate the honest mirror reflection.`;
   }
 
   const history = profile.mirrorHistory || [];
+
+  // Auto-refresh once per visit if there's genuinely new data since the last
+  // reflection — this is what was missing: the mirror used to only update
+  // when the button was tapped, so it could sit stale for weeks.
+  useEffect(()=>{
+    const hasAnyData = (journalEntries||[]).length>0 || (foodLogs||[]).length>0 || (moveLog||[]).length>0;
+    const isStale = profile.mirrorDataFingerprint !== dataFingerprint;
+    if(hasAnyData && isStale && !loading){
+      generateMirror();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   return(
     <div style={{display:"flex",flexDirection:"column",gap:14}}>
@@ -7048,6 +7329,8 @@ function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedS
 
       {view==="insights"&&(
         <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          <MirrorSnapshot C={C} galaxy={galaxy} profile={profile} up={up} journalEntries={journalEntries} foodLogs={foodLogs} weightLog={weightLog} moveLog={moveLog} needs={needs} onSeeFullAnalysis={()=>document.getElementById("full-mirror-analysis")?.scrollIntoView({behavior:"smooth"})}/>
+          <div id="full-mirror-analysis"/>
           <HonestMirror C={C} galaxy={galaxy} profile={profile} up={up} journalEntries={journalEntries} foodLogs={foodLogs} weightLog={weightLog} moveLog={moveLog} needs={needs}/>
           <SleepMoodAnalysis journalEntries={journalEntries} C={C}/>
           <div style={{background:C.card,border:`1px solid ${C.accent}33`,borderRadius:13,padding:18}}>
