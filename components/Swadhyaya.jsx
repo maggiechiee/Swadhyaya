@@ -276,28 +276,28 @@ function WatercolourNav({NAV, section, setSection, C, galaxy}) {
 
 
 const EARTHY={
-  bg:"rgba(0,0,0,0.25)",
-  surface:"rgba(0,0,0,0.3)",
-  card:"rgba(255,255,255,0.1)",
-  border:"rgba(255,255,255,0.18)",
-  borderDark:"rgba(255,255,255,0.3)",
-  text:"#fff",
-  muted:"rgba(255,255,255,0.8)",
-  dim:"rgba(255,255,255,0.58)",
-  accent:"#c084fc",
-  accent2:"#34d399",
-  accent3:"#38bdf8",
-  gold:"#fbbf24",
-  warm:"#fb923c",
-  cream:"rgba(255,255,255,0.08)",
-  red:"#f87171",
-  purple:"#a78bfa",
-  cardQuote:"linear-gradient(135deg,rgba(70,30,110,0.82),rgba(100,45,140,0.72))",
-  cardGreen:"linear-gradient(135deg,rgba(15,70,50,0.82),rgba(25,100,70,0.72))",
-  cardBlue:"linear-gradient(135deg,rgba(15,35,90,0.82),rgba(30,50,140,0.72))",
-  cardTeal:"linear-gradient(135deg,rgba(8,55,65,0.82),rgba(12,80,90,0.72))",
-  cardDark:"linear-gradient(135deg,rgba(25,8,45,0.82),rgba(40,12,70,0.72))",
-  cardAmber:"linear-gradient(135deg,rgba(80,45,8,0.82),rgba(120,70,12,0.72))",
+  bg:"rgba(234,217,220,0.55)",
+  surface:"rgba(234,217,220,0.65)",
+  card:"rgba(255,255,255,0.55)",
+  border:"rgba(60,45,48,0.14)",
+  borderDark:"rgba(60,45,48,0.24)",
+  text:"#2b2622",
+  muted:"rgba(43,38,34,0.68)",
+  dim:"rgba(43,38,34,0.45)",
+  accent:"#9b7fd4",
+  accent2:"#5fa88a",
+  accent3:"#7a94c4",
+  gold:"#d4a24a",
+  warm:"#e0836f",
+  cream:"rgba(60,45,48,0.05)",
+  red:"#c9645c",
+  purple:"#8265b0",
+  cardQuote:"linear-gradient(135deg,rgba(155,127,212,0.16),rgba(140,120,200,0.1))",
+  cardGreen:"linear-gradient(135deg,rgba(95,168,138,0.16),rgba(90,160,130,0.1))",
+  cardBlue:"linear-gradient(135deg,rgba(122,148,196,0.16),rgba(110,135,180,0.1))",
+  cardTeal:"linear-gradient(135deg,rgba(95,160,160,0.16),rgba(85,150,150,0.1))",
+  cardDark:"linear-gradient(135deg,rgba(60,45,48,0.1),rgba(60,45,48,0.06))",
+  cardAmber:"linear-gradient(135deg,rgba(224,131,111,0.16),rgba(212,162,74,0.12))",
 };
 const GALAXY={
   bg:"#02010a",
@@ -663,6 +663,8 @@ const INGREDIENT_DB = {
   "chicken":{cal:120,protein:22.5,carbs:0,fat:2.6,fibre:0,iron:0.7,calcium:9,vitC:0,vitB12:0.3,vitD:0,folate:4,magnesium:23,zinc:0.8,potassium:220,omega3:0.05,choline:60,addedSugar:0,sodium:60,vitA:6,vitE:0.2},
   "peanuts":{cal:567,protein:25.8,carbs:16.1,fat:49.2,fibre:8.5,iron:4.6,calcium:92,vitC:0,vitB12:0,vitD:0,folate:240,magnesium:168,zinc:3.3,potassium:705,omega3:0,choline:55,addedSugar:0,sodium:18,vitA:0,vitE:8.3},
   "cheese":{cal:400,protein:23,carbs:3.3,fat:33,fibre:0,iron:0.3,calcium:670,vitC:0,vitB12:1,vitD:26,folate:16,magnesium:26,zinc:3.3,potassium:100,omega3:0.1,choline:16,addedSugar:0,sodium:670,vitA:300,vitE:0.3},
+  "lauki":{cal:15,protein:0.6,carbs:3.4,fat:0.2,fibre:1.2,iron:0.2,calcium:26,vitC:10,vitB12:0,vitD:0,folate:12,magnesium:11,zinc:0.7,potassium:87,omega3:0,choline:6,addedSugar:0,sodium:2,vitA:0,vitE:0.1},
+  "full cream milk":{cal:66,protein:3.2,carbs:4.7,fat:4,fibre:0,iron:0.1,calcium:120,vitC:0,vitB12:0.4,vitD:2,folate:5,magnesium:10,zinc:0.4,potassium:132,omega3:0,choline:14,addedSugar:0,sodium:44,vitA:46,vitE:0.1},
 };
 
 // Named real-world servings — every one stores ONLY a weight in grams.
@@ -709,14 +711,34 @@ const RECIPE_DB = {
   "paneer bhurji":{ingredients:[{name:"paneer",grams:150},{name:"oil",grams:15},{name:"onion",grams:60},{name:"tomato",grams:60},{name:"capsicum",grams:30},{name:"ginger",grams:3},{name:"garlic",grams:3},{name:"spices",grams:4}],yield:{finalWeight:300},defaultGrams:200},
   "aloo paratha":{ingredients:[{name:"atta",grams:320},{name:"potato",grams:400},{name:"oil",grams:50},{name:"ghee",grams:10},{name:"spices",grams:6}],yield:{finalWeight:720,unitsCount:4},defaultGrams:180},
   "roti":{ingredients:[{name:"atta",grams:180},{name:"ghee",grams:6}],yield:{finalWeight:210,unitsCount:6},defaultGrams:35},
-  "rice cooked":{ingredients:[{name:"rice",grams:100}],yield:{finalWeight:280},defaultGrams:200},
+  "rice cooked":{ingredients:[{name:"rice",grams:100}],yield:{finalWeight:280},defaultGrams:220},
   "idli":{ingredients:[{name:"rice",grams:100},{name:"urad dal",grams:30},{name:"salt",grams:2}],yield:{finalWeight:260,unitsCount:8},defaultGrams:38},
   "dosa":{ingredients:[{name:"rice",grams:100},{name:"urad dal",grams:25},{name:"oil",grams:12},{name:"salt",grams:2}],yield:{finalWeight:400,unitsCount:4},defaultGrams:130},
   "upma":{ingredients:[{name:"sooji",grams:100},{name:"oil",grams:12},{name:"ghee",grams:6},{name:"onion",grams:40},{name:"peas",grams:30},{name:"spices",grams:2}],yield:{finalWeight:350},defaultGrams:250},
   "samosa":{ingredients:[{name:"maida",grams:100},{name:"potato",grams:200},{name:"peas",grams:30},{name:"oil",grams:60},{name:"spices",grams:4}],yield:{finalWeight:350,unitsCount:6},defaultGrams:58},
   "veg momos":{ingredients:[{name:"maida",grams:120},{name:"cabbage",grams:100},{name:"carrot",grams:80},{name:"onion",grams:60},{name:"garlic",grams:8},{name:"ginger",grams:8},{name:"oil",grams:8},{name:"soy sauce",grams:10},{name:"salt",grams:5},{name:"spices",grams:2}],yield:{finalWeight:520,unitsCount:20},defaultGrams:130},
+
+  // Everyday home-style curries — the base every one of these shares is
+  // oil + onion + tomato + ginger + garlic + a spice blend, then one
+  // main vegetable/protein. This is the pattern your actual daily meals
+  // (brinjal/potato/peas/paneer/bottle gourd + chapati) run on.
+  "paneer curry":{ingredients:[{name:"paneer",grams:150},{name:"oil",grams:15},{name:"onion",grams:80},{name:"tomato",grams:100},{name:"ginger",grams:4},{name:"garlic",grams:4},{name:"spices",grams:5}],yield:{finalWeight:380},defaultGrams:220},
+  "baingan curry":{ingredients:[{name:"baingan",grams:200},{name:"oil",grams:20},{name:"onion",grams:70},{name:"tomato",grams:80},{name:"ginger",grams:3},{name:"garlic",grams:3},{name:"spices",grams:4}],yield:{finalWeight:340},defaultGrams:220},
+  "aloo curry":{ingredients:[{name:"potato",grams:250},{name:"oil",grams:18},{name:"onion",grams:60},{name:"tomato",grams:70},{name:"ginger",grams:3},{name:"garlic",grams:3},{name:"spices",grams:4}],yield:{finalWeight:370},defaultGrams:220},
+  "matar curry":{ingredients:[{name:"peas",grams:200},{name:"oil",grams:15},{name:"onion",grams:60},{name:"tomato",grams:70},{name:"ginger",grams:3},{name:"garlic",grams:3},{name:"spices",grams:3}],yield:{finalWeight:340},defaultGrams:220},
+  "matar paneer":{ingredients:[{name:"peas",grams:100},{name:"paneer",grams:100},{name:"oil",grams:15},{name:"onion",grams:70},{name:"tomato",grams:90},{name:"ginger",grams:3},{name:"garlic",grams:3},{name:"spices",grams:4}],yield:{finalWeight:380},defaultGrams:220},
+  "lauki curry":{ingredients:[{name:"lauki",grams:300},{name:"oil",grams:15},{name:"onion",grams:50},{name:"tomato",grams:60},{name:"ginger",grams:3},{name:"garlic",grams:3},{name:"spices",grams:3}],yield:{finalWeight:380},defaultGrams:220},
+  "full cream milk":{ingredients:[{name:"full cream milk",grams:100}],yield:{finalWeight:100},defaultGrams:250},
 };
-const RECIPE_ALIASES={"momos":"veg momos","momo":"veg momos","veg momo":"veg momos","chapati":"roti","chapatis":"roti","phulka":"roti","plain rice":"rice cooked","steamed rice":"rice cooked","white rice":"rice cooked","masala dosa":"dosa","plain dosa":"dosa","moong dal":"dal","yellow dal":"dal","dal tadka":"dal","dal fry":"dal"};
+const RECIPE_ALIASES={"momos":"veg momos","momo":"veg momos","veg momo":"veg momos","chapati":"roti","chapatis":"roti","phulka":"roti","phulkas":"roti","rice":"rice cooked","plain rice":"rice cooked","steamed rice":"rice cooked","white rice":"rice cooked","masala dosa":"dosa","plain dosa":"dosa","moong dal":"dal","yellow dal":"dal","dal tadka":"dal","dal fry":"dal",
+  "paneer sabzi":"paneer curry","paneer gravy":"paneer curry","paneer masala":"paneer curry",
+  "baingan":"baingan curry","brinjal curry":"baingan curry","brinjal sabzi":"baingan curry","baingan sabzi":"baingan curry","bhurta":"baingan curry","baingan bharta":"baingan curry",
+  "aloo sabzi":"aloo curry","aloo ki sabzi":"aloo curry","potato curry":"aloo curry","potato sabzi":"aloo curry","aloo":"aloo curry",
+  "matar sabzi":"matar curry","peas curry":"matar curry","peas sabzi":"matar curry","matar":"matar curry",
+  "mutter paneer":"matar paneer","matar paneer sabzi":"matar paneer",
+  "lauki sabzi":"lauki curry","ghiya":"lauki curry","ghiya curry":"lauki curry","ghiya sabzi":"lauki curry","bottle gourd curry":"lauki curry","bottle gourd":"lauki curry",
+  "extra cream milk":"full cream milk","full fat milk":"full cream milk","whole milk":"full cream milk","malai milk":"full cream milk","cream milk":"full cream milk",
+};
 
 // Matches a logged entry against RECIPE_DB the same way resolveFood
 // matches FOOD_DB — checked FIRST, since a weight-based recipe match is
@@ -2051,7 +2073,23 @@ export default function Swadhyaya(){
       )}
       {galaxy&&<Stars/>}
       {/* Background layer — artwork for earth, deep space for galaxy */}
-      {!galaxy&&<div className="sw-app-bg" style={{backgroundImage:`url(/artwork-earth.png?v=${ARTWORK_VERSION})`,opacity:1}}/>}
+      {!galaxy&&(
+        <div className="sw-app-bg" style={{
+          background:"linear-gradient(160deg,#f3e9ea 0%,#ede0e2 30%,#e8dadd 60%,#f0e6e2 100%)",
+          opacity:1, overflow:"hidden",
+        }}>
+          {/* Soft blurred colour streaks, echoing the reference — pops of
+              hue that fade back into the pale background rather than sitting
+              as flat blocks. */}
+          <div style={{position:"absolute",top:"-5%",left:"8%",width:60,height:"55%",filter:"blur(38px)",opacity:0.28,background:"linear-gradient(to bottom, #9b7fd4, transparent 85%)"}}/>
+          <div style={{position:"absolute",top:"5%",left:"22%",width:40,height:"40%",filter:"blur(34px)",opacity:0.22,background:"linear-gradient(to bottom, #d4a24a, transparent 85%)"}}/>
+          <div style={{position:"absolute",top:"-8%",left:"48%",width:50,height:"60%",filter:"blur(40px)",opacity:0.26,background:"linear-gradient(to bottom, #5fa88a, transparent 85%)"}}/>
+          <div style={{position:"absolute",top:"2%",left:"70%",width:60,height:"50%",filter:"blur(38px)",opacity:0.3,background:"linear-gradient(to bottom, #8265b0, transparent 85%)"}}/>
+          <div style={{position:"absolute",top:"10%",left:"85%",width:40,height:"38%",filter:"blur(32px)",opacity:0.22,background:"linear-gradient(to bottom, #e0836f, transparent 85%)"}}/>
+          <div style={{position:"absolute",bottom:"-5%",left:"15%",width:50,height:"45%",filter:"blur(36px)",opacity:0.2,background:"linear-gradient(to top, #7a94c4, transparent 85%)"}}/>
+          <div style={{position:"absolute",bottom:"0%",left:"60%",width:45,height:"40%",filter:"blur(36px)",opacity:0.24,background:"linear-gradient(to top, #c9645c, transparent 85%)"}}/>
+        </div>
+      )}
       {/* App-wide film grain — sits above every glass card so the blur reads as
           textured glass rather than a flat smooth overlay, without needing a
           noise layer on each individual card. */}
@@ -2075,7 +2113,7 @@ export default function Swadhyaya(){
         <div style={{maxWidth:700,margin:"0 auto",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <div onClick={()=>setSection("home")} style={{minHeight:40,cursor:"pointer"}}>
             <div style={{fontSize:18,fontWeight:600,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>Swadhyāya</div>
-            <div style={{fontSize:12,color:"rgba(255,255,255,0.7)",fontFamily:"'DM Mono',monospace",fontWeight:700,letterSpacing:2}}>
+            <div style={{fontSize:12,color:C.muted,fontFamily:"'DM Mono',monospace",fontWeight:700,letterSpacing:2}}>
               {profile.plan==="trial"?`TRIAL · ${trialDaysLeft} DAYS LEFT`:planData.name.toUpperCase()}
             </div>
           </div>
@@ -2767,9 +2805,9 @@ function HomeSection({C,galaxy,profile,needs,todayFood,waterLog,completedSteps,g
         {galaxy&&<div style={{position:"absolute",inset:0,pointerEvents:"none"}}>{[...Array(20)].map((_,i)=><div key={i} style={{position:"absolute",left:`${(i*37)%100}%`,top:`${(i*53)%100}%`,width:i%5===0?2:1,height:i%5===0?2:1,borderRadius:"50%",background:"#e8e0ff",opacity:0.2+Math.sin(i)*0.1}}/>)}</div>}
         <div style={{position:"relative",zIndex:1}}>
         <div style={{fontSize:34,marginBottom:6,animation:"sunrise 0.6s ease"}}>{galaxy?(hour<9?"✦":hour<16?"☀":hour<20?"✦":"🌙"):(hour<9?"🌅":hour<16?"☀️":hour<20?"🌇":"🌙")}</div>
-        <div style={{fontSize:26,fontWeight:300,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:"#fff",textShadow:"0 2px 16px rgba(0,0,0,0.4)"}}>{greeting}{profile.name?`, ${profile.name}`:""}.
+        <div style={{fontSize:26,fontWeight:300,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:C.text,textShadow:"0 2px 16px rgba(0,0,0,0.4)"}}>{greeting}{profile.name?`, ${profile.name}`:""}.
         </div>
-        <div style={{fontSize:15,color:"rgba(255,255,255,0.75)",marginTop:4,letterSpacing:0.5}}>{profile.fitnessGoal?`Goal: ${profile.fitnessGoal.slice(0,50)}${profile.fitnessGoal.length>50?"…":""}`:galaxy?"Your inner life, made visible.":""}</div>
+        <div style={{fontSize:15,color:C.muted,marginTop:4,letterSpacing:0.5}}>{profile.fitnessGoal?`Goal: ${profile.fitnessGoal.slice(0,50)}${profile.fitnessGoal.length>50?"…":""}`:galaxy?"Your inner life, made visible.":""}</div>
         </div>
       </div>
       <div style={{padding:"16px 16px",display:"flex",flexDirection:"column",gap:12}}>
@@ -2805,10 +2843,10 @@ function HomeSection({C,galaxy,profile,needs,todayFood,waterLog,completedSteps,g
         )}
 
         <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:14,padding:"18px 20px",backdropFilter:"blur(20px)"}}>
-          <div style={{fontSize:12,color:"rgba(255,255,255,0.65)",fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>TODAY'S REMINDER</div>
-          <div style={{fontSize:19,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",lineHeight:1.7,marginBottom:6,color:"#fff",textShadow:"0 1px 12px rgba(0,0,0,0.3)"}}>"{q.t}"</div>
-          <div style={{fontSize:14,color:"rgba(255,255,255,0.72)"}}>— {q.a}</div>
-          {q.note&&<div style={{fontSize:15,color:"rgba(255,255,255,0.7)",marginTop:8,lineHeight:1.6,fontStyle:"italic"}}>{q.note}</div>}
+          <div style={{fontSize:12,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>TODAY'S REMINDER</div>
+          <div style={{fontSize:19,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",lineHeight:1.7,marginBottom:6,color:C.text,textShadow:"0 1px 12px rgba(0,0,0,0.3)"}}>"{q.t}"</div>
+          <div style={{fontSize:14,color:C.muted}}>— {q.a}</div>
+          {q.note&&<div style={{fontSize:15,color:C.muted,marginTop:8,lineHeight:1.6,fontStyle:"italic"}}>{q.note}</div>}
         </div>
 
         {/* Behaviour insight */}
@@ -3359,7 +3397,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
                 onKeyDown={e=>{if(e.key==="Enter"&&newMilestone.trim()){setNewGoal(g=>({...g,milestones:[...(g.milestones||[]),{text:newMilestone.trim(),done:false,doneDate:null}]}));setNewMilestone("");}}}
                 placeholder="e.g. Attend acting workshop · Get headshots · Send first audition"
                 style={{flex:1,background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 12px",fontSize:15}}/>
-              <button onClick={()=>{if(!newMilestone.trim())return;setNewGoal(g=>({...g,milestones:[...(g.milestones||[]),{text:newMilestone.trim(),done:false,doneDate:null}]}));setNewMilestone("");}} style={{minHeight:40,minWidth:40,padding:"9px 14px",background:getCatColor(newGoal.category),border:"none",borderRadius:8,color:"#fff",cursor:"pointer",fontSize:16}}>+</button>
+              <button onClick={()=>{if(!newMilestone.trim())return;setNewGoal(g=>({...g,milestones:[...(g.milestones||[]),{text:newMilestone.trim(),done:false,doneDate:null}]}));setNewMilestone("");}} style={{minHeight:40,minWidth:40,padding:"9px 14px",background:getCatColor(newGoal.category),border:"none",borderRadius:8,color:C.text,cursor:"pointer",fontSize:16}}>+</button>
             </div>
             <div style={{fontSize:13,color:C.dim,marginTop:5}}>Press Enter or + to add each step</div>
           </div>
@@ -3476,7 +3514,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
             <button onClick={()=>markHabitToday(goal.id)} style={{minHeight:40,minWidth:40,
               width:"100%",padding:"16px",
               background:doneToday?C.accent2:`linear-gradient(135deg,${catColor},${catColor}88)`,
-              border:"none",borderRadius:12,color:"#fff",cursor:"pointer",
+              border:"none",borderRadius:12,color:C.text,cursor:"pointer",
               fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontStyle:"italic",
               boxShadow:doneToday?`0 0 16px ${C.accent2}44`:`0 0 16px ${catColor}33`,
             }}>
@@ -3509,7 +3547,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
                   <button onClick={()=>markWeeklyDone(goal.id)} style={{minHeight:40,minWidth:40,
                     flex:1,padding:"16px",
                     background:weeklyCount>=parseInt(goal.targetNumber||1)?C.accent2:`linear-gradient(135deg,${catColor},${catColor}88)`,
-                    border:"none",borderRadius:12,color:"#fff",cursor:"pointer",
+                    border:"none",borderRadius:12,color:C.text,cursor:"pointer",
                     fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontStyle:"italic",
                     boxShadow:`0 0 16px ${catColor}33`,
                   }}>
@@ -3556,7 +3594,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
                         opacity:isPast&&!done?0.5:1,
                       }}>
                         <div style={{display:"flex",alignItems:"center",gap:10}}>
-                          <div style={{width:24,height:24,borderRadius:"50%",border:`1.5px solid ${done?C.accent2:C.border}`,background:done?C.accent2:"transparent",display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,color:"#fff",flexShrink:0}}>{done?"✓":""}</div>
+                          <div style={{width:24,height:24,borderRadius:"50%",border:`1.5px solid ${done?C.accent2:C.border}`,background:done?C.accent2:"transparent",display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,color:C.text,flexShrink:0}}>{done?"✓":""}</div>
                           <div style={{fontSize:16,color:done?C.accent2:C.text,fontWeight:isToday?600:400}}>{d}{isToday?" · Today":""}</div>
                         </div>
                         <div style={{fontSize:14,color:C.muted}}>{thisDate.toLocaleDateString("en-IN",{day:"numeric",month:"short"})}</div>
@@ -3577,7 +3615,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
             {(goal.milestones||[]).length===0?<div style={{fontSize:16,color:C.dim,fontStyle:"italic"}}>No milestones added. Edit goal to add steps.</div>:
               (goal.milestones||[]).map((m,i)=>(
                 <div key={i} onClick={()=>toggleMilestone(goal.id,i)} style={{minHeight:40,display:"flex",gap:12,padding:"10px 0",borderBottom:i<goal.milestones.length-1?`1px solid ${C.border}`:"none",cursor:"pointer",alignItems:"flex-start"}}>
-                  <div style={{width:22,height:22,borderRadius:7,border:`2px solid ${m.done?catColor:C.border}`,background:m.done?catColor:"transparent",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,color:"#fff",flexShrink:0,marginTop:1,transition:"all 0.2s"}}>{m.done?"✓":""}</div>
+                  <div style={{width:22,height:22,borderRadius:7,border:`2px solid ${m.done?catColor:C.border}`,background:m.done?catColor:"transparent",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,color:C.text,flexShrink:0,marginTop:1,transition:"all 0.2s"}}>{m.done?"✓":""}</div>
                   <div style={{flex:1}}>
                     <div style={{fontSize:16,color:m.done?C.dim:C.text,textDecoration:m.done?"line-through":"none",lineHeight:1.5}}>{m.text}</div>
                     {m.done&&m.doneDate&&<div style={{fontSize:13,color:C.dim,marginTop:2}}>Completed {new Date(m.doneDate+"T12:00:00").toLocaleDateString("en-IN",{day:"numeric",month:"short"})}</div>}
@@ -3636,13 +3674,23 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
               <div key={goal.id}
                 onClick={()=>setExpandedGoalId(id=>id===goal.id?null:goal.id)}
                 style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${catColor}44`,borderRadius:14,padding:isExpanded?16:"11px 14px",transition:"all 0.2s",boxShadow:`0 2px 12px ${catColor}12`,cursor:"pointer"}}>
-                {/* Collapsed row — the only thing visible until tapped */}
+                {/* Collapsed row — always visible */}
                 <div style={{display:"flex",gap:10,alignItems:"center"}}>
                   <div style={{width:30,height:30,borderRadius:8,background:catColor+"22",border:`1px solid ${catColor}44`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,flexShrink:0}}>{getCatIcon(goal.category)}</div>
                   <div style={{fontSize:15,fontWeight:600,color:catColor,flex:1,minWidth:0,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{goal.title}</div>
                   <div style={{fontSize:14,fontWeight:700,color:catColor,flexShrink:0}}>{pct}%</div>
-                  <div title={onTrack?"On track":"Needs attention"} style={{width:10,height:10,borderRadius:"50%",flexShrink:0,background:onTrack?catColor:"transparent",border:`2px solid ${catColor}`,boxShadow:onTrack?`0 0 6px ${catColor}99`:"none"}}/>
+                  <div
+                    title={goal.type==="habit"?(doneToday?"Done today — tap to undo":"Tap to mark done today"):onTrack?"On track":"Needs attention"}
+                    onClick={goal.type==="habit"?(e=>{e.stopPropagation();markHabitToday(goal.id);}):undefined}
+                    style={{width:22,height:22,borderRadius:"50%",flexShrink:0,background:onTrack?catColor:"transparent",border:`2.5px solid ${catColor}`,boxShadow:onTrack?`0 0 8px ${catColor}99`:"none",cursor:goal.type==="habit"?"pointer":"default",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,color:C.text}}>
+                    {goal.type==="habit"&&doneToday?"✓":""}
+                  </div>
                 </div>
+
+                {/* Pixel progress view — always visible, not gated behind expand */}
+                {isTrackable&&(
+                  <HabitDotGrid goal={goal} C={C} colorIndex={goalIdx} expanded={monthOpenId===goal.id} onToggle={()=>setMonthOpenId(id=>id===goal.id?null:goal.id)}/>
+                )}
 
                 {isExpanded&&(
                   <div style={{marginTop:14}}>
@@ -3659,19 +3707,11 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
                     <div style={{marginTop:10,display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
                       {goal.type==="number"&&<div style={{fontSize:14,color:C.muted}}>{parseFloat(goal.currentNumber)||0} / {goal.targetNumber} {goal.targetUnit}</div>}
                       {goal.type==="milestone"&&<div style={{fontSize:14,color:C.muted}}>{(goal.milestones||[]).filter(m=>m.done).length}/{(goal.milestones||[]).length} steps done</div>}
-                      {goal.type==="habit"&&(
-                        <button onClick={e=>{e.stopPropagation();markHabitToday(goal.id);}} style={{minHeight:40,minWidth:40,padding:"5px 12px",background:doneToday?C.accent2+"22":"transparent",border:`1px solid ${doneToday?C.accent2:C.border}`,borderRadius:20,cursor:"pointer",fontSize:14,color:doneToday?C.accent2:C.muted}}>
-                          {doneToday?"✓ Done today":"Mark today"}
-                        </button>
-                      )}
                       <div style={{marginLeft:"auto",display:"flex",gap:6}}>
                         <button onClick={e=>{e.stopPropagation();setNewGoal({...goal});setView("add");}} style={{fontSize:13,color:C.muted,background:"transparent",border:`1px solid ${C.border}`,borderRadius:20,padding:"6px 14px",cursor:"pointer",minHeight:40,minWidth:40}}>Edit</button>
                         <button onClick={e=>{e.stopPropagation();deleteGoal(goal.id);}} style={{fontSize:13,color:C.red,background:"transparent",border:`1px solid ${C.red}33`,borderRadius:20,padding:"6px 14px",cursor:"pointer",minHeight:40,minWidth:40}}>Delete</button>
                       </div>
                     </div>
-                    {isTrackable&&(
-                      <HabitDotGrid goal={goal} C={C} colorIndex={goalIdx} expanded={monthOpenId===goal.id} onToggle={()=>setMonthOpenId(id=>id===goal.id?null:goal.id)}/>
-                    )}
                   </div>
                 )}
               </div>
@@ -3750,7 +3790,7 @@ function MonthlyTimeline({C, journalEntries, todayStr}) {
         <button onClick={()=>setViewMonth(m=>{const d=new Date(m.year,m.month+1);return{year:d.getFullYear(),month:d.getMonth()};})} style={{minHeight:40,minWidth:40,background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:8,padding:"6px 12px",cursor:"pointer",fontSize:16,color:C.muted}}>›</button>
       </div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2,marginBottom:6}}>
-        {["Su","Mo","Tu","We","Th","Fr","Sa"].map(d=><div key={d} style={{textAlign:"center",fontSize:12,color:"rgba(255,255,255,0.7)",fontFamily:"'DM Mono',monospace",fontWeight:700}}>{d}</div>)}
+        {["Su","Mo","Tu","We","Th","Fr","Sa"].map(d=><div key={d} style={{textAlign:"center",fontSize:12,color:C.muted,fontFamily:"'DM Mono',monospace",fontWeight:700}}>{d}</div>)}
       </div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2}}>
         {Array(new Date(viewMonth.year,viewMonth.month,1).getDay()).fill(null).map((_,i)=><div key={"e"+i}/>)}
@@ -4371,7 +4411,7 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
           <button onClick={saveEntry} style={{minHeight:40,minWidth:40,
             width:"100%",padding:"14px",
             background:saving?C.accent2:`linear-gradient(135deg,${C.accent},${C.warm})`,
-            border:"none",borderRadius:12,color:"#fff",cursor:"pointer",
+            border:"none",borderRadius:12,color:C.text,cursor:"pointer",
             fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontStyle:"italic",
             transition:"background 0.3s",
           }}>
@@ -4714,7 +4754,7 @@ function MorningSection({C,galaxy,completedSteps,setCompletedSteps,gratitude,set
         <button onClick={()=>setView("list")} style={{minHeight:40,minWidth:40,background:"none",border:"none",cursor:"pointer",fontSize:16,color:C.muted}}>← Back</button>
         <div style={{fontSize:14,color:C.muted,fontFamily:"'DM Mono',monospace"}}>{doneCount}/{STEPS.length} done</div>
         <div style={{display:"flex",gap:3}}>
-          {STEPS.map((s,i)=><div key={i} onClick={()=>setStep(i)} style={{minHeight:40,width:16,height:16,borderRadius:"50%",background:completedSteps.includes(s.id)?C.accent2:i===step?cur.color:C.border,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,color:"#fff"}}>{completedSteps.includes(s.id)?"✓":""}</div>)}
+          {STEPS.map((s,i)=><div key={i} onClick={()=>setStep(i)} style={{minHeight:40,width:16,height:16,borderRadius:"50%",background:completedSteps.includes(s.id)?C.accent2:i===step?cur.color:C.border,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,color:C.text}}>{completedSteps.includes(s.id)?"✓":""}</div>)}
         </div>
       </div>
       <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`2px solid ${cur.color}44`,borderRadius:16,overflow:"hidden",boxShadow:`0 6px 24px ${cur.color}15`}}>
@@ -5530,7 +5570,7 @@ function SupplementsPanel({C, profile, up}){
             style={{width:"100%",boxSizing:"border-box",background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:16,fontFamily:"'DM Mono',monospace",lineHeight:1.6,resize:"vertical"}}/>
           <button onClick={interpretLabel} disabled={!form.rawText?.trim()||aiLoading} style={{minHeight:40,minWidth:40,
             marginTop:8,padding:"9px 16px",borderRadius:9,border:"none",cursor:form.rawText?.trim()?"pointer":"not-allowed",
-            background:form.rawText?.trim()?accent:C.border,color:"#fff",fontSize:15,fontWeight:600,
+            background:form.rawText?.trim()?accent:C.border,color:C.text,fontSize:15,fontWeight:600,
           }}>{aiLoading?"Reading label…":"Read this label →"}</button>
 
           {form.nutrients?.length>0 && (
@@ -5620,7 +5660,7 @@ function SupplementsPanel({C, profile, up}){
         <button onClick={saveSupplement} disabled={!form.name.trim()} style={{minHeight:40,minWidth:40,
           padding:"13px",borderRadius:11,border:"none",cursor:form.name.trim()?"pointer":"not-allowed",
           background:form.name.trim()?`linear-gradient(135deg,${accent},${C.accent})`:C.border,
-          color:"#fff",fontSize:16,fontWeight:600,marginTop:4,
+          color:C.text,fontSize:16,fontWeight:600,marginTop:4,
         }}>{editing?"Save Changes":"Add Supplement"}</button>
       </div>
     );
@@ -5653,7 +5693,7 @@ function SupplementsPanel({C, profile, up}){
               width:30,height:30,borderRadius:"50%",flexShrink:0,cursor:"pointer",
               border:`2px solid ${s.takenToday?accent:C.border}`,
               background:s.takenToday?accent:"transparent",
-              display:"flex",alignItems:"center",justifyContent:"center",fontSize:17,color:"#fff",
+              display:"flex",alignItems:"center",justifyContent:"center",fontSize:17,color:C.text,
             }}>{s.takenToday?"✓":""}</button>
             <div style={{flex:1}}>
               <div style={{fontSize:16,fontWeight:600,color:s.takenToday?C.muted:C.text,textDecoration:s.takenToday?"line-through":"none"}}>💊 {s.name}</div>
@@ -6276,10 +6316,9 @@ function CycleSection({C,profile,setProfile,periodLogs,setPeriodLogs,symptoms,se
     <div style={{padding:"16px 16px"}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
         <div style={{fontSize:18,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>Menstrual Tracker</div>
-        <button onClick={()=>{setEditPeriod(null);setNp({startDate:"",endDate:"",flow:"medium",notes:"",symptoms:[]});setView("log");}} style={{minHeight:40,minWidth:40,padding:"6px 12px",background:PHASE_COLORS.menstrual+"18",border:`1px solid ${PHASE_COLORS.menstrual}44`,borderRadius:20,cursor:"pointer",fontSize:14,color:PHASE_COLORS.menstrual}}>+ Log Period</button>
       </div>
       <div style={{display:"flex",gap:4,marginBottom:14}}>
-        {[{id:"cal",l:"Calendar"},{id:"log",l:"Log"},{id:"overview",l:"Overview"},{id:"history",l:"History"}].map(t=><button key={t.id} onClick={()=>setView(t.id)} style={{minHeight:40,minWidth:40,flex:1,padding:"7px",borderRadius:8,border:"none",cursor:"pointer",background:view===t.id?PHASE_COLORS.menstrual+"22":"transparent",color:view===t.id?PHASE_COLORS.menstrual:C.muted,fontWeight:view===t.id?600:400,fontSize:14}}>{t.l}</button>)}
+        {[{id:"cal",l:"Calendar"},{id:"history",l:"Overview"}].map(t=><button key={t.id} onClick={()=>setView(t.id)} style={{minHeight:40,minWidth:40,flex:1,padding:"7px",borderRadius:8,border:"none",cursor:"pointer",background:view===t.id?PHASE_COLORS.menstrual+"22":"transparent",color:view===t.id?PHASE_COLORS.menstrual:C.muted,fontWeight:view===t.id?600:400,fontSize:14}}>{t.l}</button>)}
       </div>
 
       {view==="cal"&&(
@@ -6291,18 +6330,20 @@ function CycleSection({C,profile,setProfile,periodLogs,setPeriodLogs,symptoms,se
           </div>
           {/* Phase legend — current phase highlighted */}
           <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:12}}>
-            {Object.entries(PHASE_INFO).map(([k,v])=>{
-              const isCurrent=profile.cyclePhase===k;
+            {(()=>{const todayPhaseHere=phaseForDate(todayStr);return Object.entries(PHASE_INFO).map(([k,v])=>{
+              const isCurrent=todayPhaseHere===k;
               return<div key={k} style={{display:"flex",alignItems:"center",gap:4,padding:"5px 11px",background:PHASE_COLORS[k]+(isCurrent?"44":"18"),borderRadius:20,border:`1.5px solid ${PHASE_COLORS[k]}88`,transition:"all 0.2s",backdropFilter:"blur(12px)",boxShadow:isCurrent?`0 0 10px ${PHASE_COLORS[k]}99, 0 0 20px ${PHASE_COLORS[k]}44`:"none"}}>
                 <div style={{width:isCurrent?8:5,height:isCurrent?8:5,borderRadius:"50%",background:PHASE_COLORS[k],boxShadow:isCurrent?`0 0 6px ${PHASE_COLORS[k]}`:"none"}}/>
                 <div style={{fontSize:isCurrent?10:9,color:PHASE_COLORS[k],fontWeight:isCurrent?700:400}}>{v.icon} {v.label}{isCurrent?" ← you":""}</div>
               </div>;
-            })}
+            })})()}
           </div>
           {/* Today's phase banner */}
-          {profile.cyclePhase&&(()=>{
-            const ph=PHASE_INFO[profile.cyclePhase];
-            const pc=PHASE_COLORS[profile.cyclePhase];
+          {(()=>{
+            const todayPhaseHere2=phaseForDate(todayStr);
+            if(!todayPhaseHere2) return null;
+            const ph=PHASE_INFO[todayPhaseHere2];
+            const pc=PHASE_COLORS[todayPhaseHere2];
             const todayDay=calDays.find(d=>d&&d.ds===todayStr);
             const dayNum=todayDay?.cycleDay;
             return<div style={{background:pc+"18",border:`1px solid ${pc}44`,borderRadius:11,padding:"12px 14px",marginBottom:12,display:"flex",gap:10,alignItems:"center"}}>
@@ -6314,7 +6355,7 @@ function CycleSection({C,profile,setProfile,periodLogs,setPeriodLogs,symptoms,se
             </div>;
           })()}
           <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:13,padding:11,marginBottom:12}}>
-            <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2,marginBottom:5}}>{["Su","Mo","Tu","We","Th","Fr","Sa"].map(d=><div key={d} style={{textAlign:"center",fontSize:12,color:"rgba(255,255,255,0.7)",fontFamily:"'DM Mono',monospace",fontWeight:700}}>{d}</div>)}</div>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2,marginBottom:5}}>{["Su","Mo","Tu","We","Th","Fr","Sa"].map(d=><div key={d} style={{textAlign:"center",fontSize:12,color:C.muted,fontFamily:"'DM Mono',monospace",fontWeight:700}}>{d}</div>)}</div>
             <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2}}>
               {calDays.map((day,i)=>{
                 if(!day)return<div key={i}/>;
@@ -6327,7 +6368,7 @@ function CycleSection({C,profile,setProfile,periodLogs,setPeriodLogs,symptoms,se
                   background:day.lp?fc+"66":pc?pc+"38":"rgba(255,255,255,0.04)",
                   boxShadow:isToday?`0 0 0 2px ${C.accent}`:pc?`inset 0 0 0 1px ${pc}44`:"none",
                 }}>
-                  <div style={{fontSize:15,fontWeight:700,color:"#fff",textAlign:"center",textShadow:"0 1px 4px rgba(0,0,0,0.6)"}}>{day.d}</div>
+                  <div style={{fontSize:15,fontWeight:700,color:C.text,textAlign:"center",textShadow:"0 1px 4px rgba(0,0,0,0.6)"}}>{day.d}</div>
                   {day.lp
                     ?<div style={{width:6,height:6,borderRadius:"50%",background:fc,margin:"1px auto 0",boxShadow:`0 0 4px ${fc}`}}/>
                     :pc?<div style={{width:5,height:5,borderRadius:"50%",background:pc,margin:"1px auto 0",opacity:0.9,boxShadow:`0 0 3px ${pc}`}}/>
@@ -6383,27 +6424,6 @@ function CycleSection({C,profile,setProfile,periodLogs,setPeriodLogs,symptoms,se
           {editPeriod&&<button onClick={()=>{setPeriodLogs(l=>l.filter(p=>p.id!==editPeriod.id));setEditPeriod(null);setView("cal");}} style={{minHeight:40,minWidth:40,padding:"8px",background:"transparent",border:`1px solid ${C.red}44`,borderRadius:7,cursor:"pointer",color:C.red,fontSize:14}}>Delete this entry</button>}
         </div>
       )}
-
-      {view==="overview"&&(()=>{
-        const an=analysis();const pred=nextPred();
-        const allSym={};periodLogs.forEach(p=>p.symptoms?.forEach(s=>{allSym[s]=(allSym[s]||0)+1;}));
-        const topSym=Object.entries(allSym).sort((a,b)=>b[1]-a[1]).slice(0,5);
-        return<div>
-          {!an?<div style={{textAlign:"center",padding:"40px",color:C.dim}}><div style={{fontSize:28,marginBottom:10}}>🌙</div><div style={{fontStyle:"italic",fontSize:16}}>Log at least 2 periods to see your cycle overview.</div><button onClick={()=>setView("log")} style={{minHeight:40,minWidth:40,marginTop:12,padding:"10px 20px",background:`linear-gradient(135deg,${PHASE_COLORS.menstrual},#d4855a)`,border:"none",borderRadius:11,color:"#fff",cursor:"pointer",fontSize:15}}>Log First Period</button></div>:
-          <div style={{display:"flex",flexDirection:"column",gap:11}}>
-            <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
-              <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>CYCLE STATS · {an.total} PERIODS</div>
-              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:9,marginBottom:10}}>
-                {[{l:"Avg cycle",v:an.avgCycle?`${an.avgCycle}d`:"—",c:PHASE_COLORS.follicular},{l:"Shortest",v:an.minCycle?`${an.minCycle}d`:"—",c:C.accent2},{l:"Longest",v:an.maxCycle?`${an.maxCycle}d`:"—",c:C.accent},{l:"Avg duration",v:an.avgDur?`${an.avgDur}d`:"—",c:PHASE_COLORS.menstrual},{l:"Min",v:an.minCycle?`${an.minCycle}d`:"—",c:C.accent2},{l:"Max",v:an.maxCycle?`${an.maxCycle}d`:"—",c:C.accent}].map((n,i)=><div key={i} style={{padding:"8px 6px",background:C.bg,borderRadius:7,textAlign:"center"}}><div style={{fontSize:16,fontWeight:700,color:n.c}}>{n.v}</div><div style={{fontSize:12,color:C.dim}}>{n.l}</div></div>)}
-              </div>
-              <div style={{padding:"7px 11px",background:an.irregular?C.gold+"15":C.accent2+"15",border:`1px solid ${an.irregular?C.gold:C.accent2}44`,borderRadius:7,fontSize:14,color:C.text}}>{an.irregular?"⚠ Variation over 7 days. Some is normal — worth noting with a doctor.":"✓ Fairly regular cycle"}</div>
-            </div>
-            {pred&&<div style={{background:PHASE_COLORS.menstrual+"12",border:`1px solid ${PHASE_COLORS.menstrual}33`,borderRadius:11,padding:"13px 15px"}}><div style={{fontSize:13,color:PHASE_COLORS.menstrual,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:5}}>NEXT PERIOD</div><div style={{fontSize:18,fontWeight:700,color:PHASE_COLORS.menstrual}}>{pred.date.toLocaleDateString("en-IN",{day:"numeric",month:"long",year:"numeric"})}</div><div style={{fontSize:14,color:C.muted,marginTop:2}}>{pred.days>0?`${pred.days} days away`:pred.days===0?"Today":"Overdue by "+Math.abs(pred.days)+" days"} · {pred.cl}-day avg</div></div>}
-            {periodLogs.slice(0,5).map((p,i)=><div key={p.id} style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:11,padding:"12px 14px",display:"flex",gap:10,alignItems:"center"}}><div style={{width:32,height:32,borderRadius:7,background:FLOW_COLORS[p.flow]+"22",border:`2px solid ${FLOW_COLORS[p.flow]}44`,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",flexShrink:0}}><div style={{fontSize:14,fontWeight:700,color:FLOW_COLORS[p.flow]}}>{dur(p)||"?"}</div><div style={{fontSize:12,color:FLOW_COLORS[p.flow]}}>days</div></div><div style={{flex:1}}><div style={{fontSize:15,fontWeight:600}}>{new Date(p.startDate+"T12:00:00").toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"})}</div><div style={{fontSize:14,color:FLOW_COLORS[p.flow]}}>{FLOW_LABELS[p.flow]}{p.notes?` · "${p.notes}"`:""}  </div></div><button onClick={()=>{setEditPeriod(p);setNp({...p});setView("log");}} style={{minHeight:40,minWidth:40,padding:"4px 9px",background:C.bg,border:`1px solid ${C.border}`,borderRadius:20,cursor:"pointer",fontSize:13,color:C.muted}}>Edit</button></div>)}
-            {topSym.length>0&&<div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:11,padding:"14px 16px"}}><div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>COMMON SYMPTOMS</div>{topSym.map(([s,cnt],i)=><div key={i} style={{display:"flex",justifyContent:"space-between",padding:"5px 0",borderBottom:i<topSym.length-1?`1px solid ${C.border}`:"none"}}><span style={{fontSize:15}}>{s}</span><div style={{display:"flex",gap:5,alignItems:"center"}}><div style={{width:Math.min(50,cnt*14),height:4,background:PHASE_COLORS.menstrual,borderRadius:2}}/><span style={{fontSize:13,color:C.muted}}>{cnt}x</span></div></div>)}</div>}
-          </div>}
-        </div>;
-      })()}
 
       {view==="history"&&(
         <div>
