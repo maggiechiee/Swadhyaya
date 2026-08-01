@@ -247,8 +247,8 @@ function WatercolourNav({NAV, section, setSection, C, galaxy}) {
 
   return (
     <div className="glass-bar" style={{position:"fixed",bottom:0,left:0,right:0,zIndex:200,
-      background:"rgba(0,0,0,0.45)",
-      borderTop:`1px solid rgba(255,255,255,0.12)`,padding:"6px 0 10px"}}>
+      background:galaxy?"rgba(0,0,0,0.45)":"rgba(250,240,222,0.62)",
+      borderTop:`1px solid ${C.border}`,padding:"6px 0 10px"}}>
       <div style={{maxWidth:700,margin:"0 auto",display:"flex",justifyContent:"space-around"}}>
         {NAV.map(n => {
           const active = section === n.id;
@@ -276,28 +276,28 @@ function WatercolourNav({NAV, section, setSection, C, galaxy}) {
 
 
 const EARTHY={
-  bg:"rgba(234,217,220,0.55)",
-  surface:"rgba(234,217,220,0.65)",
-  card:"rgba(255,255,255,0.55)",
-  border:"rgba(60,45,48,0.14)",
-  borderDark:"rgba(60,45,48,0.24)",
-  text:"#2b2622",
-  muted:"rgba(43,38,34,0.68)",
-  dim:"rgba(43,38,34,0.45)",
-  accent:"#9b7fd4",
-  accent2:"#5fa88a",
-  accent3:"#7a94c4",
-  gold:"#d4a24a",
-  warm:"#e0836f",
-  cream:"rgba(60,45,48,0.05)",
-  red:"#c9645c",
-  purple:"#8265b0",
-  cardQuote:"linear-gradient(135deg,rgba(155,127,212,0.16),rgba(140,120,200,0.1))",
-  cardGreen:"linear-gradient(135deg,rgba(95,168,138,0.16),rgba(90,160,130,0.1))",
-  cardBlue:"linear-gradient(135deg,rgba(122,148,196,0.16),rgba(110,135,180,0.1))",
-  cardTeal:"linear-gradient(135deg,rgba(95,160,160,0.16),rgba(85,150,150,0.1))",
-  cardDark:"linear-gradient(135deg,rgba(60,45,48,0.1),rgba(60,45,48,0.06))",
-  cardAmber:"linear-gradient(135deg,rgba(224,131,111,0.16),rgba(212,162,74,0.12))",
+  bg:"rgba(232,215,178,0.5)",
+  surface:"rgba(232,215,178,0.6)",
+  card:"rgba(248,240,220,0.72)",
+  border:"rgba(74,56,32,0.22)",
+  borderDark:"rgba(74,56,32,0.35)",
+  text:"#221a10",
+  muted:"rgba(34,26,16,0.72)",
+  dim:"rgba(34,26,16,0.48)",
+  accent:"#5c3a5e",
+  accent2:"#2d5540",
+  accent3:"#3a5a78",
+  gold:"#a8752e",
+  warm:"#a8442f",
+  cream:"rgba(74,56,32,0.06)",
+  red:"#8c3a2e",
+  purple:"#5c3a5e",
+  cardQuote:"linear-gradient(135deg,rgba(92,58,94,0.18),rgba(80,50,82,0.12))",
+  cardGreen:"linear-gradient(135deg,rgba(45,85,64,0.18),rgba(40,76,58,0.12))",
+  cardBlue:"linear-gradient(135deg,rgba(58,90,120,0.18),rgba(50,80,108,0.12))",
+  cardTeal:"linear-gradient(135deg,rgba(45,90,90,0.18),rgba(40,80,80,0.12))",
+  cardDark:"linear-gradient(135deg,rgba(74,56,32,0.14),rgba(74,56,32,0.08))",
+  cardAmber:"linear-gradient(135deg,rgba(168,68,47,0.18),rgba(168,117,46,0.14))",
 };
 const GALAXY={
   bg:"#02010a",
@@ -665,6 +665,14 @@ const INGREDIENT_DB = {
   "cheese":{cal:400,protein:23,carbs:3.3,fat:33,fibre:0,iron:0.3,calcium:670,vitC:0,vitB12:1,vitD:26,folate:16,magnesium:26,zinc:3.3,potassium:100,omega3:0.1,choline:16,addedSugar:0,sodium:670,vitA:300,vitE:0.3},
   "lauki":{cal:15,protein:0.6,carbs:3.4,fat:0.2,fibre:1.2,iron:0.2,calcium:26,vitC:10,vitB12:0,vitD:0,folate:12,magnesium:11,zinc:0.7,potassium:87,omega3:0,choline:6,addedSugar:0,sodium:2,vitA:0,vitE:0.1},
   "full cream milk":{cal:66,protein:3.2,carbs:4.7,fat:4,fibre:0,iron:0.1,calcium:120,vitC:0,vitB12:0.4,vitD:2,folate:5,magnesium:10,zinc:0.4,potassium:132,omega3:0,choline:14,addedSugar:0,sodium:44,vitA:46,vitE:0.1},
+  "mango":{cal:60,protein:0.8,carbs:15,fat:0.4,fibre:1.6,iron:0.2,calcium:11,vitC:36,vitB12:0,vitD:0,folate:43,magnesium:10,zinc:0.1,potassium:168,omega3:0,choline:7.6,addedSugar:0,sodium:1,vitA:54,vitE:0.9},
+  "banana":{cal:89,protein:1.1,carbs:23,fat:0.3,fibre:2.6,iron:0.3,calcium:5,vitC:8.7,vitB12:0,vitD:0,folate:20,magnesium:27,zinc:0.2,potassium:358,omega3:0,choline:9.8,addedSugar:0,sodium:1,vitA:3,vitE:0.1},
+  "apple":{cal:52,protein:0.3,carbs:14,fat:0.2,fibre:2.4,iron:0.1,calcium:6,vitC:4.6,vitB12:0,vitD:0,folate:3,magnesium:5,zinc:0,potassium:107,omega3:0,choline:3.4,addedSugar:0,sodium:1,vitA:3,vitE:0.2},
+  "papaya":{cal:43,protein:0.5,carbs:11,fat:0.3,fibre:1.7,iron:0.3,calcium:20,vitC:61,vitB12:0,vitD:0,folate:37,magnesium:21,zinc:0.1,potassium:182,omega3:0,choline:6.1,addedSugar:0,sodium:8,vitA:47,vitE:0.3},
+  "grapes":{cal:69,protein:0.7,carbs:18,fat:0.2,fibre:0.9,iron:0.4,calcium:10,vitC:3.2,vitB12:0,vitD:0,folate:2,magnesium:7,zinc:0.1,potassium:191,omega3:0,choline:5.6,addedSugar:0,sodium:2,vitA:3,vitE:0.2},
+  "watermelon":{cal:30,protein:0.6,carbs:8,fat:0.2,fibre:0.4,iron:0.2,calcium:7,vitC:8.1,vitB12:0,vitD:0,folate:3,magnesium:10,zinc:0.1,potassium:112,omega3:0,choline:4.1,addedSugar:0,sodium:1,vitA:28,vitE:0.1},
+  "pomegranate":{cal:83,protein:1.7,carbs:19,fat:1.2,fibre:4,iron:0.3,calcium:10,vitC:10,vitB12:0,vitD:0,folate:38,magnesium:12,zinc:0.4,potassium:236,omega3:0,choline:7.6,addedSugar:0,sodium:3,vitA:0,vitE:0.6},
+  "guava":{cal:68,protein:2.6,carbs:14,fat:1,fibre:5.4,iron:0.3,calcium:18,vitC:228,vitB12:0,vitD:0,folate:49,magnesium:22,zinc:0.2,potassium:417,omega3:0,choline:7.6,addedSugar:0,sodium:2,vitA:31,vitE:0.7},
 };
 
 // Named real-world servings — every one stores ONLY a weight in grams.
@@ -729,6 +737,8 @@ const RECIPE_DB = {
   "matar paneer":{ingredients:[{name:"peas",grams:100},{name:"paneer",grams:100},{name:"oil",grams:15},{name:"onion",grams:70},{name:"tomato",grams:90},{name:"ginger",grams:3},{name:"garlic",grams:3},{name:"spices",grams:4}],yield:{finalWeight:380},defaultGrams:220},
   "lauki curry":{ingredients:[{name:"lauki",grams:300},{name:"oil",grams:15},{name:"onion",grams:50},{name:"tomato",grams:60},{name:"ginger",grams:3},{name:"garlic",grams:3},{name:"spices",grams:3}],yield:{finalWeight:380},defaultGrams:220},
   "full cream milk":{ingredients:[{name:"full cream milk",grams:100}],yield:{finalWeight:100},defaultGrams:250},
+  "mango shake":{ingredients:[{name:"mango",grams:150},{name:"full cream milk",grams:200},{name:"sugar",grams:15}],yield:{finalWeight:360},defaultGrams:250},
+  "banana shake":{ingredients:[{name:"banana",grams:150},{name:"full cream milk",grams:200},{name:"sugar",grams:15}],yield:{finalWeight:360},defaultGrams:250},
 };
 const RECIPE_ALIASES={"momos":"veg momos","momo":"veg momos","veg momo":"veg momos","chapati":"roti","chapatis":"roti","phulka":"roti","phulkas":"roti","rice":"rice cooked","plain rice":"rice cooked","steamed rice":"rice cooked","white rice":"rice cooked","masala dosa":"dosa","plain dosa":"dosa","moong dal":"dal","yellow dal":"dal","dal tadka":"dal","dal fry":"dal",
   "paneer sabzi":"paneer curry","paneer gravy":"paneer curry","paneer masala":"paneer curry",
@@ -738,6 +748,8 @@ const RECIPE_ALIASES={"momos":"veg momos","momo":"veg momos","veg momo":"veg mom
   "mutter paneer":"matar paneer","matar paneer sabzi":"matar paneer",
   "lauki sabzi":"lauki curry","ghiya":"lauki curry","ghiya curry":"lauki curry","ghiya sabzi":"lauki curry","bottle gourd curry":"lauki curry","bottle gourd":"lauki curry",
   "extra cream milk":"full cream milk","full fat milk":"full cream milk","whole milk":"full cream milk","malai milk":"full cream milk","cream milk":"full cream milk",
+  "mangoshake":"mango shake","mango milkshake":"mango shake","mango juice shake":"mango shake",
+  "bananashake":"banana shake","banana milkshake":"banana shake",
 };
 
 // Matches a logged entry against RECIPE_DB the same way resolveFood
@@ -1422,7 +1434,13 @@ function getPhase(lp,cl,pl,ds){
 // keeps the Home/Wellness phase indicator in sync with what's really been logged.
 function getTodayPhaseFromLogs(periodLogs, cycleLength, periodLength, lastPeriodStart, todayStr){
   const logs = (periodLogs||[]).filter(p=>p.startDate);
-  const inPeriod=(ds,p)=>{const d=new Date(ds),s=new Date(p.startDate),e=p.endDate?new Date(p.endDate):new Date(p.startDate);return d>=s&&d<=e;};
+  const expectedLen = parseInt(periodLength)||5;
+  const inPeriod=(ds,p)=>{
+    const d=new Date(ds),s=new Date(p.startDate);
+    if(p.endDate) return d>=s && d<=new Date(p.endDate);
+    const cap=new Date(s); cap.setDate(cap.getDate()+expectedLen-1);
+    return d>=s && d<=cap;
+  };
   if(logs.some(p=>inPeriod(todayStr,p))) return "menstrual";
   const sorted=[...logs].sort((a,b)=>new Date(b.startDate)-new Date(a.startDate));
   const mostRecent=sorted.find(p=>new Date(p.startDate)<=new Date(todayStr));
@@ -2075,19 +2093,21 @@ export default function Swadhyaya(){
       {/* Background layer — artwork for earth, deep space for galaxy */}
       {!galaxy&&(
         <div className="sw-app-bg" style={{
-          background:"linear-gradient(160deg,#f3e9ea 0%,#ede0e2 30%,#e8dadd 60%,#f0e6e2 100%)",
+          background:"linear-gradient(160deg,#e8d7b2 0%,#dfc99e 35%,#d4bb8c 65%,#e2cfa4 100%)",
           opacity:1, overflow:"hidden",
         }}>
-          {/* Soft blurred colour streaks, echoing the reference — pops of
-              hue that fade back into the pale background rather than sitting
-              as flat blocks. */}
-          <div style={{position:"absolute",top:"-5%",left:"8%",width:60,height:"55%",filter:"blur(38px)",opacity:0.28,background:"linear-gradient(to bottom, #9b7fd4, transparent 85%)"}}/>
-          <div style={{position:"absolute",top:"5%",left:"22%",width:40,height:"40%",filter:"blur(34px)",opacity:0.22,background:"linear-gradient(to bottom, #d4a24a, transparent 85%)"}}/>
-          <div style={{position:"absolute",top:"-8%",left:"48%",width:50,height:"60%",filter:"blur(40px)",opacity:0.26,background:"linear-gradient(to bottom, #5fa88a, transparent 85%)"}}/>
-          <div style={{position:"absolute",top:"2%",left:"70%",width:60,height:"50%",filter:"blur(38px)",opacity:0.3,background:"linear-gradient(to bottom, #8265b0, transparent 85%)"}}/>
-          <div style={{position:"absolute",top:"10%",left:"85%",width:40,height:"38%",filter:"blur(32px)",opacity:0.22,background:"linear-gradient(to bottom, #e0836f, transparent 85%)"}}/>
-          <div style={{position:"absolute",bottom:"-5%",left:"15%",width:50,height:"45%",filter:"blur(36px)",opacity:0.2,background:"linear-gradient(to top, #7a94c4, transparent 85%)"}}/>
-          <div style={{position:"absolute",bottom:"0%",left:"60%",width:45,height:"40%",filter:"blur(36px)",opacity:0.24,background:"linear-gradient(to top, #c9645c, transparent 85%)"}}/>
+          {/* Deep botanical-toned streaks — richer, more saturated than a
+              pastel wash, closer to ink/pigment bleeding through paper. */}
+          <div style={{position:"absolute",top:"-5%",left:"8%",width:70,height:"58%",filter:"blur(42px)",opacity:0.35,background:"linear-gradient(to bottom, #5c3a5e, transparent 85%)"}}/>
+          <div style={{position:"absolute",top:"5%",left:"22%",width:46,height:"42%",filter:"blur(36px)",opacity:0.3,background:"linear-gradient(to bottom, #a8752e, transparent 85%)"}}/>
+          <div style={{position:"absolute",top:"-8%",left:"48%",width:56,height:"62%",filter:"blur(44px)",opacity:0.32,background:"linear-gradient(to bottom, #2d5540, transparent 85%)"}}/>
+          <div style={{position:"absolute",top:"2%",left:"70%",width:66,height:"52%",filter:"blur(42px)",opacity:0.36,background:"linear-gradient(to bottom, #5c3a5e, transparent 85%)"}}/>
+          <div style={{position:"absolute",top:"10%",left:"85%",width:46,height:"40%",filter:"blur(34px)",opacity:0.3,background:"linear-gradient(to bottom, #a8442f, transparent 85%)"}}/>
+          <div style={{position:"absolute",bottom:"-5%",left:"15%",width:56,height:"48%",filter:"blur(38px)",opacity:0.28,background:"linear-gradient(to top, #3a5a78, transparent 85%)"}}/>
+          <div style={{position:"absolute",bottom:"0%",left:"60%",width:50,height:"42%",filter:"blur(38px)",opacity:0.3,background:"linear-gradient(to top, #8c3a2e, transparent 85%)"}}/>
+          {/* Subtle vignette for depth — this is what makes it read as
+              "elevated" rather than flat */}
+          <div style={{position:"absolute",inset:0,background:"radial-gradient(ellipse at center, transparent 40%, rgba(50,35,15,0.16) 100%)",pointerEvents:"none"}}/>
         </div>
       )}
       {/* App-wide film grain — sits above every glass card so the blur reads as
@@ -2109,10 +2129,10 @@ export default function Swadhyaya(){
       )}
 
       {/* TOP BAR */}
-      <div className="glass-bar" style={{position:"sticky",top:0,zIndex:200,background:"rgba(0,0,0,0.42)",borderBottom:`1px solid rgba(255,255,255,0.12)`,padding:"10px 16px"}}>
+      <div className="glass-bar" style={{position:"sticky",top:0,zIndex:200,background:galaxy?"rgba(0,0,0,0.42)":"rgba(250,240,222,0.6)",borderBottom:`1px solid ${C.border}`,padding:"10px 16px"}}>
         <div style={{maxWidth:700,margin:"0 auto",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <div onClick={()=>setSection("home")} style={{minHeight:40,cursor:"pointer"}}>
-            <div style={{fontSize:18,fontWeight:600,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>Swadhyāya</div>
+            <div style={{fontSize:18,fontWeight:600,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:C.text}}>Swadhyāya</div>
             <div style={{fontSize:12,color:C.muted,fontFamily:"'DM Mono',monospace",fontWeight:700,letterSpacing:2}}>
               {profile.plan==="trial"?`TRIAL · ${trialDaysLeft} DAYS LEFT`:planData.name.toUpperCase()}
             </div>
@@ -2998,38 +3018,31 @@ function HabitDotGrid({goal, C, colorIndex=0, expanded=false, onToggle}){
 
   return (
     <div style={{marginTop:10}}>
-      <div style={{
-        display:"flex", alignItems:"center",
-        justifyContent:"space-between",
-      }}>
-        <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace"}}>
-          {doneCount}/{today} · <span style={{color,fontWeight:700}}>{pct}%</span> · 🔥{bestStreak}d streak
-        </div>
-        <div style={{fontSize:13,color:color,fontWeight:600}}>{expanded?"▾ hide":"▸ view month"}</div>
+      <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",marginBottom:6}}>
+        {doneCount}/{today} · <span style={{color,fontWeight:700}}>{pct}%</span> · 🔥{bestStreak}d streak
       </div>
 
-      {expanded&&(
+      <div style={{
+        background:"transparent",
+        borderRadius:10, padding:"10px 10px 8px",
+        border:`1px solid ${C.border}`,
+      }}>
+        <div style={{fontSize:12,color:color,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7,fontWeight:700}}>
+          {monthName.toUpperCase()} {year}
+        </div>
         <div style={{
-          marginTop:8, background:"transparent",
-          borderRadius:10, padding:"10px 10px 8px",
-          border:`1px solid ${C.border}`,
+          display:"grid",
+          gridTemplateColumns:`repeat(${daysInMonth},1fr)`,
+          gap:"2.5px",
         }}>
-          <div style={{fontSize:12,color:color,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7,fontWeight:700}}>
-            {monthName.toUpperCase()} {year}
-          </div>
-          <div style={{
-            display:"grid",
-            gridTemplateColumns:`repeat(${daysInMonth},1fr)`,
-            gap:"2.5px",
-          }}>
-            {Array.from({length:daysInMonth},(_,i)=>{
-              const day=i+1;
-              const isDone=doneDays.has(day);
-              const isFuture=day>today;
-              const isToday=day===today;
-              return(
-                <div key={day} title={`${monthName} ${day}${isDone?" — done":""}`} style={{
-                  aspectRatio:"1/1",
+          {Array.from({length:daysInMonth},(_,i)=>{
+            const day=i+1;
+            const isDone=doneDays.has(day);
+            const isFuture=day>today;
+            const isToday=day===today;
+            return(
+              <div key={day} title={`${monthName} ${day}${isDone?" — done":""}`} style={{
+                aspectRatio:"1/1",
                   borderRadius:"2px",
                   background:isFuture?futureDot:isDone?color:emptyDot,
                   opacity:isFuture?0.4:1,
@@ -3057,7 +3070,7 @@ function HabitDotGrid({goal, C, colorIndex=0, expanded=false, onToggle}){
             })}
           </div>
         </div>
-      )}
+      </div>
     </div>
   );
 }
@@ -6270,7 +6283,19 @@ function CycleSection({C,profile,setProfile,periodLogs,setPeriodLogs,symptoms,se
   const FLOW_LABELS={spotting:"Spotting",light:"Light",medium:"Medium",heavy:"Heavy",very_heavy:"Very Heavy"};
   const up=(k,v)=>setProfile(p=>({...p,[k]:v}));
 
-  function inPeriod(ds,p){if(!p.startDate)return false;const d=new Date(ds),s=new Date(p.startDate),e=p.endDate?new Date(p.endDate):new Date(p.startDate);return d>=s&&d<=e;}
+  function inPeriod(ds,p){
+    if(!p.startDate)return false;
+    const d=new Date(ds),s=new Date(p.startDate);
+    if(p.endDate) return d>=s && d<=new Date(p.endDate);
+    // No end date logged yet — the period is still ongoing. Treat any day
+    // from the start up to a reasonable expected length as still "in
+    // period" instead of only matching the single start date, which was
+    // wrongly falling through to Follicular the moment a period without
+    // a closed end date reached its second day.
+    const expectedLen = parseInt(profile.periodLength)||5;
+    const cap = new Date(s); cap.setDate(cap.getDate()+expectedLen-1);
+    return d>=s && d<=cap;
+  }
   function phaseForDate(ds){const lp=periodLogs.find(p=>inPeriod(ds,p));if(lp)return"menstrual";return getPhase(profile.lastPeriodStart,parseInt(profile.cycleLength)||28,parseInt(profile.periodLength)||5,ds);}
   function dur(p){if(!p.startDate||!p.endDate)return null;return Math.round((new Date(p.endDate)-new Date(p.startDate))/86400000)+1;}
   function savePeriod(){
