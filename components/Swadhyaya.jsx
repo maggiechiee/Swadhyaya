@@ -276,28 +276,29 @@ function WatercolourNav({NAV, section, setSection, C, galaxy}) {
 
 
 const EARTHY={
-  bg:"rgba(232,215,178,0.5)",
-  surface:"rgba(232,215,178,0.6)",
-  card:"rgba(250,244,228,0.82)",
-  border:"rgba(74,56,32,0.28)",
-  borderDark:"rgba(74,56,32,0.4)",
-  text:"#221a10",
-  muted:"rgba(34,26,16,0.72)",
-  dim:"rgba(34,26,16,0.48)",
-  accent:"#5c3a5e",
-  accent2:"#2d5540",
-  accent3:"#3a5a78",
-  gold:"#a8752e",
-  warm:"#a8442f",
-  cream:"rgba(74,56,32,0.06)",
+  bg:"rgba(242,228,201,0.5)",
+  surface:"rgba(242,228,201,0.62)",
+  card:"rgba(250,240,215,0.85)",
+  border:"rgba(90,69,48,0.22)",
+  borderDark:"rgba(90,69,48,0.35)",
+  text:"#5a4530",
+  muted:"rgba(90,69,48,0.75)",
+  dim:"rgba(90,69,48,0.5)",
+  accent:"#9B7FA8",
+  accent2:"#7E905A",
+  accent3:"#6b4f7a",
+  gold:"#D9932E",
+  warm:"#CC6B2C",
+  cream:"rgba(90,69,48,0.06)",
   red:"#8c3a2e",
-  purple:"#5c3a5e",
-  cardQuote:"linear-gradient(135deg,rgba(92,58,94,0.18),rgba(80,50,82,0.12))",
-  cardGreen:"linear-gradient(135deg,rgba(45,85,64,0.18),rgba(40,76,58,0.12))",
-  cardBlue:"linear-gradient(135deg,rgba(58,90,120,0.18),rgba(50,80,108,0.12))",
-  cardTeal:"linear-gradient(135deg,rgba(45,90,90,0.18),rgba(40,80,80,0.12))",
-  cardDark:"linear-gradient(135deg,rgba(74,56,32,0.14),rgba(74,56,32,0.08))",
-  cardAmber:"linear-gradient(135deg,rgba(168,68,47,0.18),rgba(168,117,46,0.14))",
+  purple:"#9B7FA8",
+  pink:"#B05D81",
+  cardQuote:"linear-gradient(135deg,rgba(155,127,168,0.16),rgba(107,79,122,0.1))",
+  cardGreen:"linear-gradient(135deg,rgba(126,144,90,0.16),rgba(54,72,36,0.1))",
+  cardBlue:"linear-gradient(135deg,rgba(107,79,122,0.16),rgba(90,65,105,0.1))",
+  cardTeal:"linear-gradient(135deg,rgba(126,144,90,0.14),rgba(107,79,122,0.08))",
+  cardDark:"linear-gradient(135deg,rgba(90,69,48,0.14),rgba(90,69,48,0.08))",
+  cardAmber:"linear-gradient(135deg,rgba(204,107,44,0.18),rgba(217,147,46,0.14))",
 };
 const GALAXY={
   bg:"#02010a",
@@ -325,6 +326,8 @@ const GALAXY={
 };
 
 const PHASE_COLORS={menstrual:"#e05a5a",follicular:"#c49a2a",ovulation:"#71b478",luteal:"#7a5fa5",pms:"#d4855a"};
+const PHASE_COLORS_GALAXY=PHASE_COLORS;
+const PHASE_COLORS_EARTH={menstrual:"#8c3a4a",follicular:"#5c7a42",ovulation:"#c9781f",luteal:"#7a5f8a",pms:"#b8632e"};
 const PHASE_INFO={
   menstrual:{label:"Menstrual",days:"1–5",desc:"Rest. Iron-rich foods. Gentle movement only.",icon:"🩸"},
   follicular:{label:"Follicular",days:"6–13",desc:"Energy rising. Best for bold moves.",icon:"🌱"},
@@ -2163,7 +2166,7 @@ export default function Swadhyaya(){
         {safeSection==="morning"&&<MorningSection C={C} galaxy={galaxy} completedSteps={completedSteps} setCompletedSteps={setCompletedSteps} gratitude={gratitude} setGratitude={setGratitude} priorities={priorities} setPriorities={setPriorities} meditationLog={meditationLog} setMeditationLog={setMeditationLog} profile={profile}/>}
         {safeSection==="wellness"&&<WellnessSection C={C} galaxy={galaxy} profile={profile} moveLog={moveLog} setMoveLog={setMoveLog} todayPhase={todayPhase} meditationLog={meditationLog} setMeditationLog={setMeditationLog}/>}
         {safeSection==="food"&&<FoodSection C={C} galaxy={galaxy} foodLogs={foodLogs} setFoodLogs={setFoodLogs} waterLog={waterLog} setWaterLog={setWaterLog} needs={needs} todayFood={todayFood} updateBP={updateBP} profile={profile} saveFoodLogEntry={saveFoodLogEntry} up={up}/>}
-        {section==="cycle"&&profile.gender==="female"&&<CycleSection C={C} profile={profile} setProfile={setProfile} periodLogs={periodLogs} setPeriodLogs={setPeriodLogs} symptoms={symptoms} setSymptoms={setSymptoms} savePeriodToCloud={savePeriodToCloud}/>}
+        {section==="cycle"&&profile.gender==="female"&&<CycleSection C={C} galaxy={galaxy} profile={profile} setProfile={setProfile} periodLogs={periodLogs} setPeriodLogs={setPeriodLogs} symptoms={symptoms} setSymptoms={setSymptoms} savePeriodToCloud={savePeriodToCloud}/>}
         {safeSection==="manual"&&<YourManualSection C={C} galaxy={galaxy} profile={profile} journalEntries={journalEntries} behaviourProfile={behaviourProfile} foodLogs={foodLogs}/>}
         {safeSection==="goals"&&<GoalsSection C={C} galaxy={galaxy} profile={profile} up={up} journalEntries={journalEntries}/>}
         {safeSection==="journal"&&<JournalSection C={C} galaxy={galaxy} profile={profile} journalEntries={journalEntries} setJournalEntries={setJournalEntries} foodLogs={foodLogs} moveLog={moveLog} completedSteps={completedSteps} periodLogs={periodLogs} behaviourProfile={behaviourProfile} updateBP={updateBP}/>}
@@ -2766,6 +2769,7 @@ function GoalPlanCard({profile,C}){
 
 
 function HomeSection({C,galaxy,profile,needs,todayFood,waterLog,completedSteps,greeting,section,setSection,todayPhase,behaviourProfile,trialDaysLeft,journalEntries=[],foodLogs=[]}){
+  const PHASE_COLORS = galaxy ? PHASE_COLORS_GALAXY : PHASE_COLORS_EARTH;
   const QUOTES=[
     {t:"The secret of your future is hidden in your daily routine.",a:"Mike Murdock"},
     {t:"Swadhyaya — know thyself. This is the highest study.",a:"Patanjali"},
@@ -2821,7 +2825,7 @@ function HomeSection({C,galaxy,profile,needs,todayFood,waterLog,completedSteps,g
         {galaxy&&<div style={{position:"absolute",inset:0,pointerEvents:"none"}}>{[...Array(20)].map((_,i)=><div key={i} style={{position:"absolute",left:`${(i*37)%100}%`,top:`${(i*53)%100}%`,width:i%5===0?2:1,height:i%5===0?2:1,borderRadius:"50%",background:"#e8e0ff",opacity:0.2+Math.sin(i)*0.1}}/>)}</div>}
         <div style={{position:"relative",zIndex:1}}>
         <div style={{fontSize:34,marginBottom:6,animation:"sunrise 0.6s ease"}}>{galaxy?(hour<9?"✦":hour<16?"☀":hour<20?"✦":"🌙"):(hour<9?"🌅":hour<16?"☀️":hour<20?"🌇":"🌙")}</div>
-        <div style={{fontSize:26,fontWeight:300,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:C.text,textShadow:"0 2px 16px rgba(0,0,0,0.4)"}}>{greeting}{profile.name?`, ${profile.name}`:""}.
+        <div style={{fontSize:26,fontWeight:300,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:C.text,textShadow:galaxy?"0 2px 16px rgba(0,0,0,0.4)":"none"}}>{greeting}{profile.name?`, ${profile.name}`:""}.
         </div>
         <div style={{fontSize:15,color:C.muted,marginTop:4,letterSpacing:0.5}}>{profile.fitnessGoal?`Goal: ${profile.fitnessGoal.slice(0,50)}${profile.fitnessGoal.length>50?"…":""}`:galaxy?"Your inner life, made visible.":""}</div>
         </div>
@@ -2860,7 +2864,7 @@ function HomeSection({C,galaxy,profile,needs,todayFood,waterLog,completedSteps,g
 
         <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:14,padding:"18px 20px",backdropFilter:"blur(20px)"}}>
           <div style={{fontSize:12,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>TODAY'S REMINDER</div>
-          <div style={{fontSize:19,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",lineHeight:1.7,marginBottom:6,color:C.text,textShadow:"0 1px 12px rgba(0,0,0,0.3)"}}>"{q.t}"</div>
+          <div style={{fontSize:19,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",lineHeight:1.7,marginBottom:6,color:C.text,textShadow:galaxy?"0 1px 12px rgba(0,0,0,0.3)":"none"}}>"{q.t}"</div>
           <div style={{fontSize:14,color:C.muted}}>— {q.a}</div>
           {q.note&&<div style={{fontSize:15,color:C.muted,marginTop:8,lineHeight:1.6,fontStyle:"italic"}}>{q.note}</div>}
         </div>
@@ -6309,7 +6313,8 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
 // ══════════════════════════════════════════════════════════════
 //  CYCLE TRACKER
 // ══════════════════════════════════════════════════════════════
-function CycleSection({C,profile,setProfile,periodLogs,setPeriodLogs,symptoms,setSymptoms,savePeriodToCloud}){
+function CycleSection({C,galaxy,profile,setProfile,periodLogs,setPeriodLogs,symptoms,setSymptoms,savePeriodToCloud}){
+  const PHASE_COLORS = galaxy ? PHASE_COLORS_GALAXY : PHASE_COLORS_EARTH;
   const[view,setView]=useState("cal");
   const[calMonth,setCalMonth]=useState(()=>{const n=new Date();return{year:n.getFullYear(),month:n.getMonth()};});
   const[selectedDay,setSelectedDay]=useState(null);
@@ -6395,7 +6400,7 @@ function CycleSection({C,profile,setProfile,periodLogs,setPeriodLogs,symptoms,se
           <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:12}}>
             {(()=>{const todayPhaseHere=phaseForDate(todayStr);return Object.entries(PHASE_INFO).map(([k,v])=>{
               const isCurrent=todayPhaseHere===k;
-              return<div key={k} style={{display:"flex",alignItems:"center",gap:4,padding:"5px 11px",background:PHASE_COLORS[k]+(isCurrent?"44":"18"),borderRadius:20,border:`1.5px solid ${PHASE_COLORS[k]}88`,transition:"all 0.2s",backdropFilter:"blur(12px)",boxShadow:isCurrent?`0 0 10px ${PHASE_COLORS[k]}99, 0 0 20px ${PHASE_COLORS[k]}44`:"none"}}>
+              return<div key={k} style={{display:"flex",alignItems:"center",gap:4,padding:"5px 11px",background:PHASE_COLORS[k]+(isCurrent?"33":"12"),borderRadius:20,border:`1.5px solid ${PHASE_COLORS[k]}${isCurrent?"cc":"66"}`,transition:"all 0.2s",boxShadow:isCurrent?`0 0 5px ${PHASE_COLORS[k]}55`:"none"}}>
                 <div style={{width:isCurrent?8:5,height:isCurrent?8:5,borderRadius:"50%",background:PHASE_COLORS[k],boxShadow:isCurrent?`0 0 6px ${PHASE_COLORS[k]}`:"none"}}/>
                 <div style={{fontSize:isCurrent?10:9,color:PHASE_COLORS[k],fontWeight:isCurrent?700:400}}>{v.icon} {v.label}{isCurrent?" ← you":""}</div>
               </div>;
@@ -6427,11 +6432,11 @@ function CycleSection({C,profile,setProfile,periodLogs,setPeriodLogs,symptoms,se
                 const pc=day.phase?PHASE_COLORS[day.phase]:null;
                 return<button key={i} onClick={()=>setSelectedDay(isSel?null:day.ds)} style={{
                   padding:"4px 1px",borderRadius:6,minHeight:36,cursor:"pointer",position:"relative",
-                  border:`2px solid ${isToday?C.accent:isSel?pc||"#555":pc?pc+"66":"rgba(255,255,255,0.08)"}`,
-                  background:day.lp?fc+"66":pc?pc+"38":"rgba(255,255,255,0.04)",
-                  boxShadow:isToday?`0 0 0 2px ${C.accent}`:pc?`inset 0 0 0 1px ${pc}44`:"none",
+                  border:`2px solid ${isToday?C.accent:isSel?pc||"#555":pc?pc+"77":C.border}`,
+                  background:day.lp?fc+"66":pc?pc+"45":C.cream,
+                  boxShadow:isToday?`0 0 0 2px ${C.accent}`:"none",
                 }}>
-                  <div style={{fontSize:15,fontWeight:700,color:C.text,textAlign:"center",textShadow:"0 1px 4px rgba(0,0,0,0.6)"}}>{day.d}</div>
+                  <div style={{fontSize:15,fontWeight:700,color:C.text,textAlign:"center",textShadow:galaxy?"0 1px 4px rgba(0,0,0,0.6)":"none"}}>{day.d}</div>
                   {day.lp
                     ?<div style={{width:6,height:6,borderRadius:"50%",background:fc,margin:"1px auto 0",boxShadow:`0 0 4px ${fc}`}}/>
                     :pc?<div style={{width:5,height:5,borderRadius:"50%",background:pc,margin:"1px auto 0",opacity:0.9,boxShadow:`0 0 3px ${pc}`}}/>
