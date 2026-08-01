@@ -278,9 +278,9 @@ function WatercolourNav({NAV, section, setSection, C, galaxy}) {
 const EARTHY={
   bg:"rgba(232,215,178,0.5)",
   surface:"rgba(232,215,178,0.6)",
-  card:"rgba(248,240,220,0.72)",
-  border:"rgba(74,56,32,0.22)",
-  borderDark:"rgba(74,56,32,0.35)",
+  card:"rgba(250,244,228,0.82)",
+  border:"rgba(74,56,32,0.28)",
+  borderDark:"rgba(74,56,32,0.4)",
   text:"#221a10",
   muted:"rgba(34,26,16,0.72)",
   dim:"rgba(34,26,16,0.48)",
@@ -2093,21 +2093,17 @@ export default function Swadhyaya(){
       {/* Background layer — artwork for earth, deep space for galaxy */}
       {!galaxy&&(
         <div className="sw-app-bg" style={{
-          background:"linear-gradient(160deg,#e8d7b2 0%,#dfc99e 35%,#d4bb8c 65%,#e2cfa4 100%)",
+          background:"linear-gradient(160deg,#ecdfba 0%,#e5d4a5 35%,#dcc790 65%,#e7d8ac 100%)",
           opacity:1, overflow:"hidden",
         }}>
-          {/* Deep botanical-toned streaks — richer, more saturated than a
-              pastel wash, closer to ink/pigment bleeding through paper. */}
-          <div style={{position:"absolute",top:"-5%",left:"8%",width:70,height:"58%",filter:"blur(42px)",opacity:0.35,background:"linear-gradient(to bottom, #5c3a5e, transparent 85%)"}}/>
-          <div style={{position:"absolute",top:"5%",left:"22%",width:46,height:"42%",filter:"blur(36px)",opacity:0.3,background:"linear-gradient(to bottom, #a8752e, transparent 85%)"}}/>
-          <div style={{position:"absolute",top:"-8%",left:"48%",width:56,height:"62%",filter:"blur(44px)",opacity:0.32,background:"linear-gradient(to bottom, #2d5540, transparent 85%)"}}/>
-          <div style={{position:"absolute",top:"2%",left:"70%",width:66,height:"52%",filter:"blur(42px)",opacity:0.36,background:"linear-gradient(to bottom, #5c3a5e, transparent 85%)"}}/>
-          <div style={{position:"absolute",top:"10%",left:"85%",width:46,height:"40%",filter:"blur(34px)",opacity:0.3,background:"linear-gradient(to bottom, #a8442f, transparent 85%)"}}/>
-          <div style={{position:"absolute",bottom:"-5%",left:"15%",width:56,height:"48%",filter:"blur(38px)",opacity:0.28,background:"linear-gradient(to top, #3a5a78, transparent 85%)"}}/>
-          <div style={{position:"absolute",bottom:"0%",left:"60%",width:50,height:"42%",filter:"blur(38px)",opacity:0.3,background:"linear-gradient(to top, #8c3a2e, transparent 85%)"}}/>
-          {/* Subtle vignette for depth — this is what makes it read as
-              "elevated" rather than flat */}
-          <div style={{position:"absolute",inset:0,background:"radial-gradient(ellipse at center, transparent 40%, rgba(50,35,15,0.16) 100%)",pointerEvents:"none"}}/>
+          {/* Soft botanical-toned streaks — kept subtle so they read as
+              atmosphere, not competition with the actual content on top. */}
+          <div style={{position:"absolute",top:"-5%",left:"8%",width:70,height:"55%",filter:"blur(48px)",opacity:0.14,background:"linear-gradient(to bottom, #5c3a5e, transparent 85%)"}}/>
+          <div style={{position:"absolute",top:"5%",left:"25%",width:46,height:"40%",filter:"blur(42px)",opacity:0.12,background:"linear-gradient(to bottom, #a8752e, transparent 85%)"}}/>
+          <div style={{position:"absolute",top:"-8%",left:"50%",width:56,height:"58%",filter:"blur(50px)",opacity:0.13,background:"linear-gradient(to bottom, #2d5540, transparent 85%)"}}/>
+          <div style={{position:"absolute",top:"2%",left:"72%",width:66,height:"48%",filter:"blur(48px)",opacity:0.14,background:"linear-gradient(to bottom, #5c3a5e, transparent 85%)"}}/>
+          <div style={{position:"absolute",bottom:"-5%",left:"18%",width:56,height:"42%",filter:"blur(44px)",opacity:0.11,background:"linear-gradient(to top, #3a5a78, transparent 85%)"}}/>
+          <div style={{position:"absolute",bottom:"0%",left:"62%",width:50,height:"38%",filter:"blur(44px)",opacity:0.12,background:"linear-gradient(to top, #8c3a2e, transparent 85%)"}}/>
         </div>
       )}
       {/* App-wide film grain — sits above every glass card so the blur reads as
@@ -3733,16 +3729,35 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
                       </div>
                     )}
 
+                    {/* Number goals — actually log progress here, not just
+                        a static count */}
+                    {goal.type==="number"&&(
+                      <div onClick={e=>e.stopPropagation()} style={{display:"flex",gap:8,alignItems:"center",marginTop:10}}>
+                        <div style={{fontSize:13,color:C.muted,flexShrink:0}}>{parseFloat(goal.currentNumber)||0}/{goal.targetNumber||"—"} {goal.targetUnit}</div>
+                        <input value={logAmount} onChange={e=>setLogAmount(e.target.value)} type="number"
+                          placeholder={`Add ${goal.targetUnit||"amount"}`}
+                          style={{flex:1,minWidth:0,background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"7px 10px",fontSize:14}}/>
+                        <button onClick={()=>{logProgress(goal.id,logAmount);setLogAmount("");}} style={{minHeight:40,minWidth:40,padding:"7px 14px",background:catColor,border:"none",borderRadius:8,color:"#fff",cursor:"pointer",fontSize:13,fontWeight:600,flexShrink:0}}>+ Add</button>
+                      </div>
+                    )}
+
+                    {/* Weekly goals — mark today directly, same as habits */}
+                    {goal.type==="weekly"&&(
+                      <div onClick={e=>e.stopPropagation()} style={{display:"flex",gap:8,alignItems:"center",marginTop:10}}>
+                        <div style={{fontSize:13,color:C.muted,flexShrink:0}}>{weeklyCountList}/{goal.targetNumber||1} this week</div>
+                        <button onClick={()=>markWeeklyDone(goal.id)} style={{minHeight:40,minWidth:40,marginLeft:"auto",padding:"7px 16px",background:catColor,border:"none",borderRadius:20,color:"#fff",cursor:"pointer",fontSize:13,fontWeight:600}}>+ Mark today</button>
+                      </div>
+                    )}
+
                     {/* Progress bar — only meaningful when there's something
                         to show progress of */}
                     {!(goal.type==="milestone"&&(goal.milestones||[]).length===0)&&(
-                      <div style={{background:C.border,borderRadius:4,height:5,marginTop:goal.type==="milestone"?10:0}}>
+                      <div style={{background:C.border,borderRadius:4,height:5,marginTop:10}}>
                         <div style={{width:`${pct}%`,height:5,background:`linear-gradient(90deg,${catColor},${catColor}88)`,borderRadius:4,transition:"width 0.6s ease",minWidth:pct>0?4:0}}/>
                       </div>
                     )}
                     {/* Quick actions */}
                     <div style={{marginTop:10,display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
-                      {goal.type==="number"&&<div style={{fontSize:14,color:C.muted}}>{parseFloat(goal.currentNumber)||0} / {goal.targetNumber} {goal.targetUnit}</div>}
                       <div style={{marginLeft:"auto",display:"flex",gap:6}}>
                         <button onClick={e=>{e.stopPropagation();setNewGoal({...goal});setView("add");}} style={{fontSize:13,color:C.muted,background:"transparent",border:`1px solid ${C.border}`,borderRadius:20,padding:"6px 14px",cursor:"pointer",minHeight:40,minWidth:40}}>Edit</button>
                         <button onClick={e=>{e.stopPropagation();deleteGoal(goal.id);}} style={{fontSize:13,color:C.red,background:"transparent",border:`1px solid ${C.red}33`,borderRadius:20,padding:"6px 14px",cursor:"pointer",minHeight:40,minWidth:40}}>Delete</button>
