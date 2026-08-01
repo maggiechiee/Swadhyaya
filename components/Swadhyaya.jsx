@@ -327,7 +327,8 @@ const GALAXY={
 
 const PHASE_COLORS={menstrual:"#e05a5a",follicular:"#c49a2a",ovulation:"#71b478",luteal:"#7a5fa5",pms:"#d4855a"};
 const PHASE_COLORS_GALAXY=PHASE_COLORS;
-const PHASE_COLORS_EARTH={menstrual:"#8c3a4a",follicular:"#5c7a42",ovulation:"#c9781f",luteal:"#7a5f8a",pms:"#b8632e"};
+const PHASE_COLORS_EARTH={menstrual:"#6D161F",follicular:"#364824",ovulation:"#8a5f0f",luteal:"#905A36",pms:"#8a6a44"};
+const PHASE_BG_EARTH={menstrual:"#F3D9C4",follicular:"#DCE3C6",ovulation:"#F3E4BE",luteal:"#E4D7C4",pms:"#EAD9C7"};
 const PHASE_INFO={
   menstrual:{label:"Menstrual",days:"1–5",desc:"Rest. Iron-rich foods. Gentle movement only.",icon:"🩸"},
   follicular:{label:"Follicular",days:"6–13",desc:"Energy rising. Best for bold moves.",icon:"🌱"},
@@ -2137,7 +2138,7 @@ export default function Swadhyaya(){
             </div>
           </div>
           <div style={{display:"flex",gap:8,alignItems:"center"}}>
-            {todayPhase&&<div style={{fontSize:14,color:PHASE_COLORS[todayPhase],padding:"3px 9px",background:PHASE_COLORS[todayPhase]+"18",borderRadius:20}}>{PHASE_INFO[todayPhase]?.icon} {PHASE_INFO[todayPhase]?.label}</div>}
+            {todayPhase&&<div style={{fontSize:14,color:(galaxy?PHASE_COLORS_GALAXY:PHASE_COLORS_EARTH)[todayPhase],padding:"3px 9px",background:(galaxy?PHASE_COLORS_GALAXY:PHASE_COLORS_EARTH)[todayPhase]+"18",borderRadius:20}}>{PHASE_INFO[todayPhase]?.icon} {PHASE_INFO[todayPhase]?.label}</div>}
             <div style={{fontSize:15,color:C.accent3}}>💧{Math.round(waterLog/250)}g</div>
             <div style={{fontSize:15,color:C.accent}}>🔥{Math.round(todayFood.cal)}</div>
             <button onClick={()=>setGalaxy(g=>!g)} style={{minHeight:40,minWidth:40,background:galaxy?"#c084fc33":"transparent",border:`1.5px solid ${galaxy?"#c084fc":"#b5622a44"}`,borderRadius:20,padding:"5px 12px",cursor:"pointer",fontSize:14,color:galaxy?"#c084fc":C.accent,display:"flex",alignItems:"center",gap:4,fontFamily:"'DM Mono',monospace",letterSpacing:0.5}}><span>{galaxy?"☀":"✦"}</span><span style={{fontSize:12}}>{galaxy?"EARTHY":"GALAXY"}</span></button>
@@ -2150,7 +2151,7 @@ export default function Swadhyaya(){
       </div>
 
       {/* PHASE BANNER */}
-      {todayPhase&&<div style={{background:PHASE_COLORS[todayPhase]+"15",borderBottom:`1px solid ${PHASE_COLORS[todayPhase]}22`,padding:"5px 16px",textAlign:"center",position:"relative",zIndex:1}}><span style={{fontSize:14,color:PHASE_COLORS[todayPhase]}}>{PHASE_INFO[todayPhase]?.desc}</span></div>}
+      {todayPhase&&(()=>{const pc2=(galaxy?PHASE_COLORS_GALAXY:PHASE_COLORS_EARTH)[todayPhase];return<div style={{background:pc2+"15",borderBottom:`1px solid ${pc2}22`,padding:"5px 16px",textAlign:"center",position:"relative",zIndex:1}}><span style={{fontSize:14,color:pc2,fontWeight:galaxy?400:600}}>{PHASE_INFO[todayPhase]?.desc}</span></div>;})()}
 
       {/* UPGRADE BANNER for trial */}
       {profile.plan==="trial"&&trialDaysLeft<=2&&(
@@ -6315,6 +6316,7 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
 // ══════════════════════════════════════════════════════════════
 function CycleSection({C,galaxy,profile,setProfile,periodLogs,setPeriodLogs,symptoms,setSymptoms,savePeriodToCloud}){
   const PHASE_COLORS = galaxy ? PHASE_COLORS_GALAXY : PHASE_COLORS_EARTH;
+  const PHASE_BG = galaxy ? null : PHASE_BG_EARTH;
   const[view,setView]=useState("cal");
   const[calMonth,setCalMonth]=useState(()=>{const n=new Date();return{year:n.getFullYear(),month:n.getMonth()};});
   const[selectedDay,setSelectedDay]=useState(null);
@@ -6400,7 +6402,7 @@ function CycleSection({C,galaxy,profile,setProfile,periodLogs,setPeriodLogs,symp
           <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:12}}>
             {(()=>{const todayPhaseHere=phaseForDate(todayStr);return Object.entries(PHASE_INFO).map(([k,v])=>{
               const isCurrent=todayPhaseHere===k;
-              return<div key={k} style={{display:"flex",alignItems:"center",gap:4,padding:"5px 11px",background:PHASE_COLORS[k]+(isCurrent?"33":"12"),borderRadius:20,border:`1.5px solid ${PHASE_COLORS[k]}${isCurrent?"cc":"66"}`,transition:"all 0.2s",boxShadow:isCurrent?`0 0 5px ${PHASE_COLORS[k]}55`:"none"}}>
+              return<div key={k} style={{display:"flex",alignItems:"center",gap:4,padding:"5px 11px",background:PHASE_BG?PHASE_BG[k]:PHASE_COLORS[k]+(isCurrent?"33":"12"),borderRadius:20,border:`1.5px solid ${PHASE_COLORS[k]}${isCurrent?"cc":"66"}`,transition:"all 0.2s",boxShadow:isCurrent?`0 0 5px ${PHASE_COLORS[k]}55`:"none"}}>
                 <div style={{width:isCurrent?8:5,height:isCurrent?8:5,borderRadius:"50%",background:PHASE_COLORS[k],boxShadow:isCurrent?`0 0 6px ${PHASE_COLORS[k]}`:"none"}}/>
                 <div style={{fontSize:isCurrent?10:9,color:PHASE_COLORS[k],fontWeight:isCurrent?700:400}}>{v.icon} {v.label}{isCurrent?" ← you":""}</div>
               </div>;
@@ -6433,7 +6435,7 @@ function CycleSection({C,galaxy,profile,setProfile,periodLogs,setPeriodLogs,symp
                 return<button key={i} onClick={()=>setSelectedDay(isSel?null:day.ds)} style={{
                   padding:"4px 1px",borderRadius:6,minHeight:36,cursor:"pointer",position:"relative",
                   border:`2px solid ${isToday?C.accent:isSel?pc||"#555":pc?pc+"77":C.border}`,
-                  background:day.lp?fc+"66":pc?pc+"45":C.cream,
+                  background:day.lp?fc+"66":pc?(PHASE_BG?PHASE_BG[day.phase]:pc+"45"):C.cream,
                   boxShadow:isToday?`0 0 0 2px ${C.accent}`:"none",
                 }}>
                   <div style={{fontSize:15,fontWeight:700,color:C.text,textAlign:"center",textShadow:galaxy?"0 1px 4px rgba(0,0,0,0.6)":"none"}}>{day.d}</div>
