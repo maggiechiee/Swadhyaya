@@ -3711,14 +3711,38 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
                       <span style={{fontSize:12,color:C.muted,textTransform:"capitalize"}}>{goal.category}</span>
                       {daysLeft!==null&&<span style={{fontSize:12,color:daysLeft<30?C.red:daysLeft<90?C.gold:C.muted}}>{daysLeft>0?`${daysLeft}d left`:daysLeft===0?"Due today!":"Overdue"}</span>}
                     </div>
-                    {/* Progress bar */}
-                    <div style={{background:C.border,borderRadius:4,height:5}}>
-                      <div style={{width:`${pct}%`,height:5,background:`linear-gradient(90deg,${catColor},${catColor}88)`,borderRadius:4,transition:"width 0.6s ease",minWidth:pct>0?4:0}}/>
-                    </div>
+
+                    {/* Milestone goals: show the actual checklist so steps can be
+                        marked done right here — a plain count with nothing to
+                        tap was the bug. If there are no steps yet, there's
+                        nothing to mark, so skip the meaningless 0% bar and
+                        point at Edit instead. */}
+                    {goal.type==="milestone"&&(goal.milestones||[]).length===0&&(
+                      <div onClick={e=>{e.stopPropagation();setNewGoal({...goal});setView("add");}} style={{fontSize:14,color:C.muted,padding:"10px 12px",border:`1px dashed ${C.border}`,borderRadius:10,cursor:"pointer",textAlign:"center"}}>
+                        No steps added yet — tap to add steps to track
+                      </div>
+                    )}
+                    {goal.type==="milestone"&&(goal.milestones||[]).length>0&&(
+                      <div>
+                        {goal.milestones.map((m,i)=>(
+                          <div key={i} onClick={e=>{e.stopPropagation();toggleMilestone(goal.id,i);}} style={{minHeight:40,display:"flex",gap:10,padding:"8px 0",borderBottom:i<goal.milestones.length-1?`1px solid ${C.border}`:"none",cursor:"pointer",alignItems:"flex-start"}}>
+                            <div style={{width:20,height:20,borderRadius:6,border:`2px solid ${m.done?catColor:C.border}`,background:m.done?catColor:"transparent",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,color:C.text,flexShrink:0,marginTop:1}}>{m.done?"✓":""}</div>
+                            <div style={{fontSize:14,color:m.done?C.dim:C.text,textDecoration:m.done?"line-through":"none",lineHeight:1.4}}>{m.text}</div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+
+                    {/* Progress bar — only meaningful when there's something
+                        to show progress of */}
+                    {!(goal.type==="milestone"&&(goal.milestones||[]).length===0)&&(
+                      <div style={{background:C.border,borderRadius:4,height:5,marginTop:goal.type==="milestone"?10:0}}>
+                        <div style={{width:`${pct}%`,height:5,background:`linear-gradient(90deg,${catColor},${catColor}88)`,borderRadius:4,transition:"width 0.6s ease",minWidth:pct>0?4:0}}/>
+                      </div>
+                    )}
                     {/* Quick actions */}
                     <div style={{marginTop:10,display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
                       {goal.type==="number"&&<div style={{fontSize:14,color:C.muted}}>{parseFloat(goal.currentNumber)||0} / {goal.targetNumber} {goal.targetUnit}</div>}
-                      {goal.type==="milestone"&&<div style={{fontSize:14,color:C.muted}}>{(goal.milestones||[]).filter(m=>m.done).length}/{(goal.milestones||[]).length} steps done</div>}
                       <div style={{marginLeft:"auto",display:"flex",gap:6}}>
                         <button onClick={e=>{e.stopPropagation();setNewGoal({...goal});setView("add");}} style={{fontSize:13,color:C.muted,background:"transparent",border:`1px solid ${C.border}`,borderRadius:20,padding:"6px 14px",cursor:"pointer",minHeight:40,minWidth:40}}>Edit</button>
                         <button onClick={e=>{e.stopPropagation();deleteGoal(goal.id);}} style={{fontSize:13,color:C.red,background:"transparent",border:`1px solid ${C.red}33`,borderRadius:20,padding:"6px 14px",cursor:"pointer",minHeight:40,minWidth:40}}>Delete</button>
