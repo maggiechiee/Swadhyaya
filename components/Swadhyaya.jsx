@@ -3071,7 +3071,6 @@ function HabitDotGrid({goal, C, colorIndex=0, expanded=false, onToggle}){
           </div>
         </div>
       </div>
-    </div>
   );
 }
 
