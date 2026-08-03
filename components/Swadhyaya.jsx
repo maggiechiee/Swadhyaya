@@ -299,6 +299,7 @@ const EARTHY={
   cardTeal:"linear-gradient(135deg,rgba(126,144,90,0.14),rgba(107,79,122,0.08))",
   cardDark:"linear-gradient(135deg,rgba(90,69,48,0.14),rgba(90,69,48,0.08))",
   cardAmber:"linear-gradient(135deg,rgba(204,107,44,0.18),rgba(217,147,46,0.14))",
+  glassBlur:"none",
 };
 const GALAXY={
   bg:"#02010a",
@@ -323,6 +324,7 @@ const GALAXY={
   cardTeal:"linear-gradient(135deg,rgba(0,50,55,0.92),rgba(0,75,80,0.82))",
   cardDark:"linear-gradient(135deg,rgba(20,0,40,0.92),rgba(38,0,65,0.82))",
   cardAmber:"linear-gradient(135deg,rgba(60,25,0,0.92),rgba(100,50,0,0.82))",
+  glassBlur:"blur(26px) saturate(160%)",
 };
 
 const PHASE_COLORS={menstrual:"#e05a5a",follicular:"#c49a2a",ovulation:"#71b478",luteal:"#7a5fa5",pms:"#d4855a"};
@@ -669,6 +671,10 @@ const INGREDIENT_DB = {
   "cheese":{cal:400,protein:23,carbs:3.3,fat:33,fibre:0,iron:0.3,calcium:670,vitC:0,vitB12:1,vitD:26,folate:16,magnesium:26,zinc:3.3,potassium:100,omega3:0.1,choline:16,addedSugar:0,sodium:670,vitA:300,vitE:0.3},
   "lauki":{cal:15,protein:0.6,carbs:3.4,fat:0.2,fibre:1.2,iron:0.2,calcium:26,vitC:10,vitB12:0,vitD:0,folate:12,magnesium:11,zinc:0.7,potassium:87,omega3:0,choline:6,addedSugar:0,sodium:2,vitA:0,vitE:0.1},
   "full cream milk":{cal:66,protein:3.2,carbs:4.7,fat:4,fibre:0,iron:0.1,calcium:120,vitC:0,vitB12:0.4,vitD:2,folate:5,magnesium:10,zinc:0.4,potassium:132,omega3:0,choline:14,addedSugar:0,sodium:44,vitA:46,vitE:0.1},
+  "tea":{cal:1,protein:0,carbs:0.3,fat:0,fibre:0,iron:0,calcium:0,vitC:0,vitB12:0,vitD:0,folate:0,magnesium:1,zinc:0,potassium:8,omega3:0,choline:0,addedSugar:0,sodium:1,vitA:0,vitE:0},
+  "coffee":{cal:1,protein:0.1,carbs:0,fat:0,fibre:0,iron:0,calcium:1,vitC:0,vitB12:0,vitD:0,folate:0,magnesium:1,zinc:0,potassium:6,omega3:0,choline:0,addedSugar:0,sodium:1,vitA:0,vitE:0},
+  "moringa powder":{cal:205,protein:27.1,carbs:38.2,fat:2.3,fibre:19.2,iron:28.2,calcium:2003,vitC:17,vitB12:0,vitD:0,folate:39,magnesium:368,zinc:2,potassium:1324,omega3:0.1,choline:0,addedSugar:0,sodium:9,vitA:378,vitE:113},
+  "sugarcane juice":{cal:65,protein:0.2,carbs:16,fat:0,fibre:0.2,iron:0.3,calcium:15,vitC:2,vitB12:0,vitD:0,folate:1,magnesium:14,zinc:0.1,potassium:150,omega3:0,choline:0,addedSugar:0,sodium:15,vitA:0,vitE:0},
   "mango":{cal:60,protein:0.8,carbs:15,fat:0.4,fibre:1.6,iron:0.2,calcium:11,vitC:36,vitB12:0,vitD:0,folate:43,magnesium:10,zinc:0.1,potassium:168,omega3:0,choline:7.6,addedSugar:0,sodium:1,vitA:54,vitE:0.9},
   "banana":{cal:89,protein:1.1,carbs:23,fat:0.3,fibre:2.6,iron:0.3,calcium:5,vitC:8.7,vitB12:0,vitD:0,folate:20,magnesium:27,zinc:0.2,potassium:358,omega3:0,choline:9.8,addedSugar:0,sodium:1,vitA:3,vitE:0.1},
   "apple":{cal:52,protein:0.3,carbs:14,fat:0.2,fibre:2.4,iron:0.1,calcium:6,vitC:4.6,vitB12:0,vitD:0,folate:3,magnesium:5,zinc:0,potassium:107,omega3:0,choline:3.4,addedSugar:0,sodium:1,vitA:3,vitE:0.2},
@@ -743,6 +749,13 @@ const RECIPE_DB = {
   "full cream milk":{ingredients:[{name:"full cream milk",grams:100}],yield:{finalWeight:100},defaultGrams:250},
   "mango shake":{ingredients:[{name:"mango",grams:150},{name:"full cream milk",grams:200},{name:"sugar",grams:15}],yield:{finalWeight:360},defaultGrams:250},
   "banana shake":{ingredients:[{name:"banana",grams:150},{name:"full cream milk",grams:200},{name:"sugar",grams:15}],yield:{finalWeight:360},defaultGrams:250},
+  "milk tea":{ingredients:[{name:"full cream milk",grams:80},{name:"tea",grams:70},{name:"sugar",grams:8}],yield:{finalWeight:150},defaultGrams:150},
+  "black coffee":{ingredients:[{name:"coffee",grams:150}],yield:{finalWeight:150},defaultGrams:150},
+  "cappuccino":{ingredients:[{name:"full cream milk",grams:100},{name:"coffee",grams:50}],yield:{finalWeight:150},defaultGrams:150},
+  "americano":{ingredients:[{name:"coffee",grams:150}],yield:{finalWeight:150},defaultGrams:150},
+  "moringa powder":{ingredients:[{name:"moringa powder",grams:100}],yield:{finalWeight:100},defaultGrams:5},
+  "moringa brew":{ingredients:[{name:"moringa powder",grams:3},{name:"tea",grams:147}],yield:{finalWeight:150},defaultGrams:150},
+  "sugarcane juice":{ingredients:[{name:"sugarcane juice",grams:100}],yield:{finalWeight:100},defaultGrams:250},
 };
 const RECIPE_ALIASES={"momos":"veg momos","momo":"veg momos","veg momo":"veg momos","chapati":"roti","chapatis":"roti","phulka":"roti","phulkas":"roti","rice":"rice cooked","plain rice":"rice cooked","steamed rice":"rice cooked","white rice":"rice cooked","masala dosa":"dosa","plain dosa":"dosa","moong dal":"dal","yellow dal":"dal","dal tadka":"dal","dal fry":"dal",
   "paneer sabzi":"paneer curry","paneer gravy":"paneer curry","paneer masala":"paneer curry",
@@ -754,6 +767,11 @@ const RECIPE_ALIASES={"momos":"veg momos","momo":"veg momos","veg momo":"veg mom
   "extra cream milk":"full cream milk","full fat milk":"full cream milk","whole milk":"full cream milk","malai milk":"full cream milk","cream milk":"full cream milk",
   "mangoshake":"mango shake","mango milkshake":"mango shake","mango juice shake":"mango shake",
   "bananashake":"banana shake","banana milkshake":"banana shake",
+  "chai":"milk tea","masala chai":"milk tea","doodh wali chai":"milk tea","tea with milk":"milk tea",
+  "coffee":"black coffee","cappucino":"cappuccino","capuchino":"cappuccino",
+  "moringa":"moringa powder","moringa leaf powder":"moringa powder",
+  "moringa tea":"moringa brew","moringa water":"moringa brew",
+  "sugarcane":"sugarcane juice","sugar cane juice":"sugarcane juice","ganne ka juice":"sugarcane juice",
 };
 
 // Matches a logged entry against RECIPE_DB the same way resolveFood
@@ -1070,10 +1088,17 @@ function calcLoggedNutrition(logEntry){
 // entered exactly as printed on the label, one row per nutrient — so any
 // combination (a main ingredient plus small absorption-boosting add-ons)
 // can be logged without being restricted to a fixed supplement "type".
-function calcSupplementNutrition(supplements){
+function calcSupplementNutrition(supplements, todayStr){
   const b={cal:0,protein:0,carbs:0,fat:0,fibre:0,iron:0,calcium:0,vitC:0,vitB12:0,vitD:0,folate:0,magnesium:0,zinc:0,potassium:0,omega3:0,choline:0,addedSugar:0,sodium:0,vitA:0,vitE:0};
   (supplements||[]).forEach(supp=>{
+    // A supplement only counts toward today's totals if it was actually
+    // marked taken ON today's date. Without this check, a supplement
+    // taken once would silently keep contributing its nutrients to every
+    // future day's totals forever, since `takenToday` only gets visually
+    // reset inside the Supplements tab's own display list — never in the
+    // underlying stored data this function reads from.
     if(!supp.takenToday) return;
+    if(todayStr && supp.lastTakenDate!==todayStr) return;
     (supp.nutrients||[]).forEach(n=>{
       const amt = parseFloat(n.amount)||0;
       if(amt<=0 || !n.key) return;
@@ -1875,7 +1900,7 @@ export default function Swadhyaya(){
   const todayStr=getLocalDateStr();
   const needs=useMemo(()=>calcNeeds(profile),[profile]);
   const todayFoodOnly=useMemo(()=>foodLogs.filter(l=>l.date===todayStr).reduce((acc,l)=>{const n=calcLoggedNutrition(l);for(const k of Object.keys(acc))acc[k]+=n[k]||0;return acc;},{cal:0,protein:0,carbs:0,fat:0,fibre:0,iron:0,calcium:0,vitC:0,vitB12:0,vitD:0,folate:0,magnesium:0,zinc:0,potassium:0,omega3:0,choline:0,addedSugar:0,sodium:0,vitA:0,vitE:0}),[foodLogs,todayStr]);
-  const todaySupplements=useMemo(()=>calcSupplementNutrition(profile.supplements),[profile.supplements]);
+  const todaySupplements=useMemo(()=>calcSupplementNutrition(profile.supplements, todayStr),[profile.supplements, todayStr]);
   const todayFood=useMemo(()=>{
     const combined={...todayFoodOnly};
     for(const k of Object.keys(combined)) combined[k]+=todaySupplements[k]||0;
@@ -2075,7 +2100,7 @@ export default function Swadhyaya(){
       {/* Login modal */}
       {showLogin&&!user&&(
         <div style={{position:"fixed",inset:0,zIndex:1000,background:"rgba(0,0,0,0.5)",display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
-          <div style={{width:"100%",maxWidth:400,background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",borderRadius:20,overflow:"hidden"}}>
+          <div style={{width:"100%",maxWidth:400,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,borderRadius:20,overflow:"hidden"}}>
             <div style={{padding:"16px 20px",display:"flex",justifyContent:"space-between",alignItems:"center",borderBottom:`1px solid ${C.border}`}}>
               <div style={{fontSize:17,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>Sign in to save your data</div>
               <button onClick={()=>setShowLogin(false)} style={{minHeight:40,minWidth:40,background:"none",border:"none",cursor:"pointer",fontSize:20,color:C.muted}}>×</button>
@@ -2086,7 +2111,7 @@ export default function Swadhyaya(){
       )}
       {showLogin&&user&&(
         <div style={{position:"fixed",inset:0,zIndex:1000,background:"rgba(0,0,0,0.5)",display:"flex",alignItems:"center",justifyContent:"center",padding:20}} onClick={()=>setShowLogin(false)}>
-          <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",borderRadius:16,padding:24,textAlign:"center",maxWidth:300}}>
+          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,borderRadius:16,padding:24,textAlign:"center",maxWidth:300}}>
             <div style={{fontSize:16,marginBottom:8}}>✓ Signed in as</div>
             <div style={{fontSize:16,color:C.accent,marginBottom:16}}>{user.email}</div>
             <button onClick={async()=>{await supabase.auth.signOut();setUser(null);setShowLogin(false);}} style={{minHeight:40,minWidth:40,padding:"10px 24px",background:C.red+"20",border:`1px solid ${C.red}44`,borderRadius:20,cursor:"pointer",color:C.red,fontSize:16}}>Sign out</button>
@@ -2097,27 +2122,17 @@ export default function Swadhyaya(){
       {/* Background layer — artwork for earth, deep space for galaxy */}
       {!galaxy&&(
         <div className="sw-app-bg" style={{
-          background:"linear-gradient(160deg,#ecdfba 0%,#e5d4a5 35%,#dcc790 65%,#e7d8ac 100%)",
-          opacity:1, overflow:"hidden",
-        }}>
-          {/* Soft botanical-toned streaks — kept subtle so they read as
-              atmosphere, not competition with the actual content on top. */}
-          <div style={{position:"absolute",top:"-5%",left:"8%",width:70,height:"55%",filter:"blur(48px)",opacity:0.14,background:"linear-gradient(to bottom, #5c3a5e, transparent 85%)"}}/>
-          <div style={{position:"absolute",top:"5%",left:"25%",width:46,height:"40%",filter:"blur(42px)",opacity:0.12,background:"linear-gradient(to bottom, #a8752e, transparent 85%)"}}/>
-          <div style={{position:"absolute",top:"-8%",left:"50%",width:56,height:"58%",filter:"blur(50px)",opacity:0.13,background:"linear-gradient(to bottom, #2d5540, transparent 85%)"}}/>
-          <div style={{position:"absolute",top:"2%",left:"72%",width:66,height:"48%",filter:"blur(48px)",opacity:0.14,background:"linear-gradient(to bottom, #5c3a5e, transparent 85%)"}}/>
-          <div style={{position:"absolute",bottom:"-5%",left:"18%",width:56,height:"42%",filter:"blur(44px)",opacity:0.11,background:"linear-gradient(to top, #3a5a78, transparent 85%)"}}/>
-          <div style={{position:"absolute",bottom:"0%",left:"62%",width:50,height:"38%",filter:"blur(44px)",opacity:0.12,background:"linear-gradient(to top, #8c3a2e, transparent 85%)"}}/>
-        </div>
+          background:"linear-gradient(160deg,#f2e4c9 0%,#ecdfba 100%)",
+          opacity:1,
+        }}/>
       )}
-      {/* App-wide film grain — sits above every glass card so the blur reads as
-          textured glass rather than a flat smooth overlay, without needing a
-          noise layer on each individual card. */}
-      <div style={{
+      {/* Film grain — only for Galaxy's glass aesthetic; Earth mode is
+          meant to read as flat, clean vintage print, not textured glass. */}
+      {galaxy&&<div style={{
         position:"fixed", inset:0, zIndex:9999, pointerEvents:"none",
         opacity:0.045, mixBlendMode:"overlay",
         backgroundImage:"url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
-      }}/>
+      }}/>}
       {galaxy&&(
         <>
           <div className="sw-app-galaxy-bg"/>
@@ -2206,7 +2221,7 @@ function Onboarding({profile,up,onDone,C}){
       </div>
     )},
     {title:"What's your name?",sub:"So we can speak to you, not at you.",content:(
-      <input value={profile.name} onChange={e=>up("name",e.target.value)} placeholder="Your name" style={{width:"100%",background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:12,color:C.text,padding:"16px 18px",fontSize:20,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",boxSizing:"border-box",textAlign:"center"}}/>
+      <input value={profile.name} onChange={e=>up("name",e.target.value)} placeholder="Your name" style={{width:"100%",background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:12,color:C.text,padding:"16px 18px",fontSize:20,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",boxSizing:"border-box",textAlign:"center"}}/>
     ),valid:profile.name.trim().length>0},
     {title:"Tell us about you",sub:"Gender, age, body — for precise targets.",content:(
       <div style={{display:"flex",flexDirection:"column",gap:14}}>
@@ -2219,12 +2234,12 @@ function Onboarding({profile,up,onDone,C}){
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
           <div>
             <div style={{fontSize:14,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>DATE OF BIRTH</div>
-            <input type="date" value={profile.dob||""} onChange={e=>{up("dob",e.target.value);up("age",String(Math.floor((Date.now()-new Date(e.target.value))/(365.25*86400000))));}} style={{width:"100%",background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 10px",fontSize:16,boxSizing:"border-box"}}/>
+            <input type="date" value={profile.dob||""} onChange={e=>{up("dob",e.target.value);up("age",String(Math.floor((Date.now()-new Date(e.target.value))/(365.25*86400000))));}} style={{width:"100%",background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 10px",fontSize:16,boxSizing:"border-box"}}/>
             {profile.age&&<div style={{fontSize:14,color:C.accent2,marginTop:3}}>Age: {profile.age}</div>}
           </div>
           <div>
             <div style={{fontSize:14,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>ACTIVITY</div>
-            <select value={profile.activityLevel} onChange={e=>up("activityLevel",e.target.value)} style={{width:"100%",background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 10px",fontSize:16}}>
+            <select value={profile.activityLevel} onChange={e=>up("activityLevel",e.target.value)} style={{width:"100%",background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 10px",fontSize:16}}>
               <option value="sedentary">Sedentary</option>
               <option value="light">Light</option>
               <option value="moderate">Moderate</option>
@@ -2237,15 +2252,15 @@ function Onboarding({profile,up,onDone,C}){
           <div>
             <div style={{fontSize:14,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>WEIGHT</div>
             <div style={{display:"flex",gap:6}}>
-              <input value={profile.weight} onChange={e=>up("weight",e.target.value)} placeholder="58" type="number" style={{flex:1,background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 10px",fontSize:16}}/>
-              <select value={profile.weightUnit} onChange={e=>up("weightUnit",e.target.value)} style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:8,color:C.muted,padding:"9px 6px",fontSize:15}}><option>kg</option><option>lbs</option></select>
+              <input value={profile.weight} onChange={e=>up("weight",e.target.value)} placeholder="58" type="number" style={{flex:1,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 10px",fontSize:16}}/>
+              <select value={profile.weightUnit} onChange={e=>up("weightUnit",e.target.value)} style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:8,color:C.muted,padding:"9px 6px",fontSize:15}}><option>kg</option><option>lbs</option></select>
             </div>
           </div>
           <div>
             <div style={{fontSize:14,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>HEIGHT</div>
             <div style={{display:"flex",gap:6}}>
-              <input value={profile.height} onChange={e=>up("height",e.target.value)} placeholder="162" type="number" style={{flex:1,background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 10px",fontSize:16}}/>
-              <select value={profile.heightUnit} onChange={e=>up("heightUnit",e.target.value)} style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:8,color:C.muted,padding:"9px 6px",fontSize:15}}><option>cm</option><option>inch</option></select>
+              <input value={profile.height} onChange={e=>up("height",e.target.value)} placeholder="162" type="number" style={{flex:1,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 10px",fontSize:16}}/>
+              <select value={profile.heightUnit} onChange={e=>up("heightUnit",e.target.value)} style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:8,color:C.muted,padding:"9px 6px",fontSize:15}}><option>cm</option><option>inch</option></select>
             </div>
           </div>
         </div>
@@ -2255,7 +2270,7 @@ function Onboarding({profile,up,onDone,C}){
       <div style={{display:"flex",flexDirection:"column",gap:14}}>
         <div>
           <div style={{fontSize:14,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>PRIMARY GOAL</div>
-          <textarea value={profile.fitnessGoal} onChange={e=>up("fitnessGoal",e.target.value)} rows={3} placeholder="e.g. Lose 8kg in 4 months · Gain muscle and improve stamina · Manage PCOS and irregular periods · Reduce stress and sleep better · Improve flexibility and back pain…" style={{width:"100%",background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:10,color:C.text,padding:"12px 14px",fontSize:16,resize:"none",boxSizing:"border-box"}}/>
+          <textarea value={profile.fitnessGoal} onChange={e=>up("fitnessGoal",e.target.value)} rows={3} placeholder="e.g. Lose 8kg in 4 months · Gain muscle and improve stamina · Manage PCOS and irregular periods · Reduce stress and sleep better · Improve flexibility and back pain…" style={{width:"100%",background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:10,color:C.text,padding:"12px 14px",fontSize:16,resize:"none",boxSizing:"border-box"}}/>
           <div style={{fontSize:14,color:C.muted,marginTop:4}}>Write exactly what you want. The more specific, the better the app adapts.</div>
         </div>
         <div>
@@ -2276,7 +2291,7 @@ function Onboarding({profile,up,onDone,C}){
       <div style={{display:"flex",flexDirection:"column",gap:14}}>
         <div>
           <div style={{fontSize:14,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>FIRST DAY OF LAST PERIOD</div>
-          <input type="date" value={profile.lastPeriodStart} onChange={e=>up("lastPeriodStart",e.target.value)} style={{width:"100%",background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:10,color:C.text,padding:"11px 14px",fontSize:16,boxSizing:"border-box"}}/>
+          <input type="date" value={profile.lastPeriodStart} onChange={e=>up("lastPeriodStart",e.target.value)} style={{width:"100%",background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:10,color:C.text,padding:"11px 14px",fontSize:16,boxSizing:"border-box"}}/>
         </div>
         <div>
           <div style={{fontSize:14,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>CYCLE LENGTH · {profile.cycleLength} days</div>
@@ -2555,7 +2570,7 @@ function ThreeThingsCard({C, profile, journalEntries, completedSteps, galaxy}) {
   const hasSupplement = (profile.healthConditions||[]).length > 0;
 
   return (
-    <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.accent}33`,borderRadius:14,padding:18,marginBottom:12}}>
+    <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.accent}33`,borderRadius:14,padding:18,marginBottom:12}}>
       <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>☀ THREE THINGS NOT TO FORGET TODAY</div>
       {items.map((item,i) => (
         <div key={i} style={{display:"flex",gap:10,alignItems:"center",marginBottom:i<2?10:0}}>
@@ -2638,7 +2653,7 @@ function GoalPlanCard({profile,C}){
   });
 
   return(
-    <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",borderRadius:16,padding:20,marginBottom:16,border:`1px solid ${C.border}`}}>
+    <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,borderRadius:16,padding:20,marginBottom:16,border:`1px solid ${C.border}`}}>
       <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:16}}>
         <div style={{fontSize:22}}>{n.isLoss?"target":"muscle"}</div>
         <div>
@@ -2863,7 +2878,7 @@ function HomeSection({C,galaxy,profile,needs,todayFood,waterLog,completedSteps,g
           <ThreeThingsCard C={C} profile={profile} journalEntries={journalEntries} completedSteps={completedSteps} galaxy={galaxy}/>
         )}
 
-        <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:14,padding:"18px 20px",backdropFilter:"blur(20px)"}}>
+        <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:14,padding:"18px 20px",backdropFilter:"blur(20px)"}}>
           <div style={{fontSize:12,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>TODAY'S REMINDER</div>
           <div style={{fontSize:19,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",lineHeight:1.7,marginBottom:6,color:C.text,textShadow:galaxy?"0 1px 12px rgba(0,0,0,0.3)":"none"}}>"{q.t}"</div>
           <div style={{fontSize:14,color:C.muted}}>— {q.a}</div>
@@ -2884,7 +2899,7 @@ function HomeSection({C,galaxy,profile,needs,todayFood,waterLog,completedSteps,g
             {Icon:()=><svg width="22" height="22" viewBox="0 0 22 22"><defs><radialGradient id="dg" cx="40%" cy="35%" r="60%"><stop offset="0%" stopColor="#4a6e8a" stopOpacity="0.5"/><stop offset="100%" stopColor="#4a6e8a" stopOpacity="0.05"/></radialGradient></defs><path d="M11 2 Q14 8 16 12 A5 5 0 0 1 6 12 Q8 8 11 2Z" fill="url(#dg)" stroke="#4a6e8a" strokeWidth="1" strokeLinejoin="round"/><path d="M9 12 Q10 10 11 11" stroke="white" strokeWidth="1" strokeLinecap="round" opacity="0.5" fill="none"/></svg>,label:"Water",value:`${Math.round(waterLog/250)}`,sub:`/ ${Math.round(needs.water/250)} glasses`,color:waterLog>=needs.water*0.7?C.accent3:C.red,onClick:()=>setSection("food")},
             {Icon:()=><IconMorning size={22} active={true} C={C}/>,label:"Morning",value:`${ritualDone}/7`,sub:ritualDone===7?"Complete ✓":"steps done",color:ritualDone===7?C.accent2:C.gold,onClick:()=>setSection("morning")},
           ].map((item,i)=>(
-            <button key={i} onClick={item.onClick} style={{minHeight:40,minWidth:40,background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:12,padding:"14px 8px",textAlign:"center",cursor:"pointer"}}>
+            <button key={i} onClick={item.onClick} style={{minHeight:40,minWidth:40,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:12,padding:"14px 8px",textAlign:"center",cursor:"pointer"}}>
               <div style={{marginBottom:4,display:"flex",justifyContent:"center"}}><item.Icon/></div>
               <div style={{fontSize:18,fontWeight:700,color:item.color}}>{item.value}</div>
               <div style={{fontSize:13,color:C.dim,marginTop:1}}>{item.sub}</div>
@@ -2892,7 +2907,7 @@ function HomeSection({C,galaxy,profile,needs,todayFood,waterLog,completedSteps,g
           ))}
         </div>
 
-        <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:14,padding:"16px 18px"}}>
+        <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:14,padding:"16px 18px"}}>
           <div style={{fontSize:14,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>QUICK ACTIONS</div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
             {[
@@ -3257,7 +3272,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
           <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>WHAT IS YOUR GOAL?</div>
           <input value={newGoal.title} onChange={e=>setNewGoal(g=>({...g,title:e.target.value}))}
             placeholder="e.g. Save ₹2 lakhs for Europe trip · Become an actress · Meditate daily for 90 days"
-            style={{width:"100%",background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"12px 14px",fontSize:16,boxSizing:"border-box"}}/>
+            style={{width:"100%",background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"12px 14px",fontSize:16,boxSizing:"border-box"}}/>
         </div>
 
         {/* Goal type */}
@@ -3309,10 +3324,10 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
             <div style={{display:"flex",gap:10}}>
               <input value={newGoal.targetNumber} onChange={e=>setNewGoal(g=>({...g,targetNumber:e.target.value}))}
                 placeholder="200000" type="number"
-                style={{flex:1,background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:17,fontFamily:"'DM Mono',monospace"}}/>
+                style={{flex:1,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:17,fontFamily:"'DM Mono',monospace"}}/>
               <input value={newGoal.targetUnit} onChange={e=>setNewGoal(g=>({...g,targetUnit:e.target.value}))}
                 placeholder="₹ / kg / videos / books"
-                style={{flex:1,background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:16}}/>
+                style={{flex:1,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:16}}/>
             </div>
             <div style={{fontSize:13,color:C.dim,marginTop:5}}>Starting from: <input value={newGoal.currentNumber} onChange={e=>setNewGoal(g=>({...g,currentNumber:e.target.value}))} placeholder="0" type="number" style={{background:"transparent",border:"none",color:C.accent,fontSize:15,fontFamily:"'DM Mono',monospace",width:60}}/> {newGoal.targetUnit}</div>
           </div>
@@ -3325,7 +3340,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
             <div style={{display:"flex",gap:10,alignItems:"center"}}>
               <input value={newGoal.targetNumber} onChange={e=>setNewGoal(g=>({...g,targetNumber:e.target.value}))}
                 placeholder="90" type="number"
-                style={{width:80,background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:18,fontFamily:"'DM Mono',monospace"}}/>
+                style={{width:80,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:18,fontFamily:"'DM Mono',monospace"}}/>
               <div style={{fontSize:16,color:C.muted}}>consecutive days</div>
             </div>
             <div style={{display:"flex",gap:8,flexWrap:"wrap",marginTop:10}}>
@@ -3352,7 +3367,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
                 <div style={{display:"flex",gap:10,alignItems:"center"}}>
                   <input value={newGoal.targetNumber} onChange={e=>setNewGoal(g=>({...g,targetNumber:e.target.value}))}
                     placeholder="3" type="number"
-                    style={{width:80,background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:18,fontFamily:"'DM Mono',monospace"}}/>
+                    style={{width:80,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:18,fontFamily:"'DM Mono',monospace"}}/>
                   <div style={{fontSize:16,color:C.muted}}>times this week</div>
                 </div>
                 <div style={{display:"flex",gap:8,flexWrap:"wrap",marginTop:10}}>
@@ -3409,7 +3424,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
               <input value={newMilestone} onChange={e=>setNewMilestone(e.target.value)}
                 onKeyDown={e=>{if(e.key==="Enter"&&newMilestone.trim()){setNewGoal(g=>({...g,milestones:[...(g.milestones||[]),{text:newMilestone.trim(),done:false,doneDate:null}]}));setNewMilestone("");}}}
                 placeholder="e.g. Attend acting workshop · Get headshots · Send first audition"
-                style={{flex:1,background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 12px",fontSize:15}}/>
+                style={{flex:1,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 12px",fontSize:15}}/>
               <button onClick={()=>{if(!newMilestone.trim())return;setNewGoal(g=>({...g,milestones:[...(g.milestones||[]),{text:newMilestone.trim(),done:false,doneDate:null}]}));setNewMilestone("");}} style={{minHeight:40,minWidth:40,padding:"9px 14px",background:getCatColor(newGoal.category),border:"none",borderRadius:8,color:C.text,cursor:"pointer",fontSize:16}}>+</button>
             </div>
             <div style={{fontSize:13,color:C.dim,marginTop:5}}>Press Enter or + to add each step</div>
@@ -3421,14 +3436,14 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
           <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>WHY DOES THIS MATTER TO YOU?</div>
           <textarea value={newGoal.why} onChange={e=>setNewGoal(g=>({...g,why:e.target.value}))}
             rows={2} placeholder="The reason behind the goal. This is what keeps you going when motivation drops."
-            style={{width:"100%",background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:16,resize:"none",boxSizing:"border-box",fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}/>
+            style={{width:"100%",background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:16,resize:"none",boxSizing:"border-box",fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}/>
         </div>
 
         {/* Target date */}
         <div>
           <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>TARGET DATE (optional)</div>
           <input type="date" value={newGoal.targetDate} onChange={e=>setNewGoal(g=>({...g,targetDate:e.target.value}))}
-            style={{width:"100%",background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:16,boxSizing:"border-box"}}/>
+            style={{width:"100%",background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:16,boxSizing:"border-box"}}/>
           {newGoal.targetDate&&(()=>{
             const days=Math.ceil((new Date(newGoal.targetDate)-new Date())/86400000);
             return <div style={{fontSize:14,color:days<30?C.red:days<90?C.gold:C.accent2,marginTop:4}}>{days>0?`${days} days from today`:"Date has passed"}</div>;
@@ -3469,7 +3484,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
         </div>
 
         {/* Goal header */}
-        <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`2px solid ${catColor}44`,borderRadius:16,padding:22,marginBottom:14,boxShadow:`0 0 24px ${catColor}18`}}>
+        <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`2px solid ${catColor}44`,borderRadius:16,padding:22,marginBottom:14,boxShadow:`0 0 24px ${catColor}18`}}>
           <div style={{display:"flex",gap:12,alignItems:"flex-start",marginBottom:14}}>
             <div style={{width:44,height:44,borderRadius:12,background:catColor+"22",border:`2px solid ${catColor}44`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0}}>{getCatIcon(goal.category)}</div>
             <div style={{flex:1}}>
@@ -3501,7 +3516,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
 
         {/* Number goal — log progress */}
         {goal.type==="number"&&(
-          <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:13,padding:18,marginBottom:12}}>
+          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18,marginBottom:12}}>
             <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>LOG PROGRESS</div>
             <div style={{display:"flex",gap:10,alignItems:"center"}}>
               <input value={logAmount} onChange={e=>setLogAmount(e.target.value)} type="number"
@@ -3522,7 +3537,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
 
         {/* Habit goal — daily check-in */}
         {goal.type==="habit"&&(
-          <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:13,padding:18,marginBottom:12}}>
+          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18,marginBottom:12}}>
             <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>TODAY'S CHECK-IN</div>
             <button onClick={()=>markHabitToday(goal.id)} style={{minHeight:40,minWidth:40,
               width:"100%",padding:"16px",
@@ -3551,7 +3566,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
 
         {/* Weekly goal check-in */}
         {goal.type==="weekly"&&(
-          <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:13,padding:18,marginBottom:12}}>
+          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18,marginBottom:12}}>
             <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>THIS WEEK</div>
 
             {(goal.weeklyMode||"count")==="count"&&(
@@ -3623,7 +3638,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
 
         {/* Milestones */}
         {goal.type==="milestone"&&(
-          <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:13,padding:18,marginBottom:12}}>
+          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18,marginBottom:12}}>
             <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>MILESTONES</div>
             {(goal.milestones||[]).length===0?<div style={{fontSize:16,color:C.dim,fontStyle:"italic"}}>No milestones added. Edit goal to add steps.</div>:
               (goal.milestones||[]).map((m,i)=>(
@@ -3640,7 +3655,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
         )}
 
         {/* Notes */}
-        <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:12,padding:16}}>
+        <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:12,padding:16}}>
           <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>NOTES</div>
           <textarea value={goal.notes||""} onChange={e=>up("goals",goals.map(g=>g.id===goal.id?{...g,notes:e.target.value}:g))}
             rows={3} placeholder="Thoughts, obstacles, what's working, what's not…"
@@ -3686,7 +3701,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
             return(
               <div key={goal.id}
                 onClick={()=>setExpandedGoalId(id=>id===goal.id?null:goal.id)}
-                style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${catColor}44`,borderRadius:14,padding:isExpanded?16:"11px 14px",transition:"all 0.2s",boxShadow:`0 2px 12px ${catColor}12`,cursor:"pointer"}}>
+                style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${catColor}44`,borderRadius:14,padding:isExpanded?16:"11px 14px",transition:"all 0.2s",boxShadow:`0 2px 12px ${catColor}12`,cursor:"pointer"}}>
                 {/* Collapsed row — always visible */}
                 <div style={{display:"flex",gap:10,alignItems:"center"}}>
                   <div style={{width:30,height:30,borderRadius:8,background:catColor+"22",border:`1px solid ${catColor}44`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,flexShrink:0}}>{getCatIcon(goal.category)}</div>
@@ -3841,9 +3856,9 @@ function MonthlyTimeline({C, journalEntries, todayStr}) {
   return (
     <div>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
-        <button onClick={()=>setViewMonth(m=>{const d=new Date(m.year,m.month-1);return{year:d.getFullYear(),month:d.getMonth()};})} style={{minHeight:40,minWidth:40,background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:8,padding:"6px 12px",cursor:"pointer",fontSize:16,color:C.muted}}>‹</button>
+        <button onClick={()=>setViewMonth(m=>{const d=new Date(m.year,m.month-1);return{year:d.getFullYear(),month:d.getMonth()};})} style={{minHeight:40,minWidth:40,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:8,padding:"6px 12px",cursor:"pointer",fontSize:16,color:C.muted}}>‹</button>
         <div style={{fontSize:17,fontWeight:600}}>{MONTH_NAMES[viewMonth.month]} {viewMonth.year}</div>
-        <button onClick={()=>setViewMonth(m=>{const d=new Date(m.year,m.month+1);return{year:d.getFullYear(),month:d.getMonth()};})} style={{minHeight:40,minWidth:40,background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:8,padding:"6px 12px",cursor:"pointer",fontSize:16,color:C.muted}}>›</button>
+        <button onClick={()=>setViewMonth(m=>{const d=new Date(m.year,m.month+1);return{year:d.getFullYear(),month:d.getMonth()};})} style={{minHeight:40,minWidth:40,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:8,padding:"6px 12px",cursor:"pointer",fontSize:16,color:C.muted}}>›</button>
       </div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2,marginBottom:6}}>
         {["Su","Mo","Tu","We","Th","Fr","Sa"].map(d=><div key={d} style={{textAlign:"center",fontSize:12,color:C.muted,fontFamily:"'DM Mono',monospace",fontWeight:700}}>{d}</div>)}
@@ -3854,7 +3869,7 @@ function MonthlyTimeline({C, journalEntries, todayStr}) {
           const isToday=ds===todayStr;
           const mc=entry?.mood?getMoodColorLocal(entry.mood):null;
           return(
-            <div key={day} style={{aspectRatio:"1",borderRadius:5,background:mc?mc+"28":C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${isToday?C.accent:mc?mc+"55":C.border}`,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:0}}>
+            <div key={day} style={{aspectRatio:"1",borderRadius:5,background:mc?mc+"28":C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${isToday?C.accent:mc?mc+"55":C.border}`,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:0}}>
               <div style={{fontSize:12,fontWeight:isToday?700:400,color:isToday?C.accent:C.text}}>{day}</div>
               {entry?.mood&&<span style={{fontSize:12}}>{MOOD_OPTIONS_LOCAL.find(m=>m.val===entry.mood)?.emoji||""}</span>}
               {entry?.ritualDone===7&&<div style={{width:3,height:3,borderRadius:"50%",background:C.accent2}}/>}
@@ -3868,7 +3883,7 @@ function MonthlyTimeline({C, journalEntries, todayStr}) {
       </div>
       {/* Month stats */}
       {monthData.filter(d=>d.entry).length>0&&(
-        <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:11,padding:14,marginTop:12}}>
+        <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:11,padding:14,marginTop:12}}>
           <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:9}}>{MONTH_NAMES[viewMonth.month].toUpperCase()} IN NUMBERS</div>
           <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:7}}>
             {[
@@ -3975,7 +3990,7 @@ function EmotionalGraph({C, galaxy, journalEntries, profile}) {
           {l:"Best day",v:data.length?MOOD_EMOJI[data.reduce((a,b)=>a.score>b.score?a:b).mood]||"🙂":"—",c:C.accent2},
           {l:"Days tracked",v:data.length,c:C.accent},
         ].map((n,i)=>(
-          <div key={i} style={{padding:"9px 8px",background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",borderRadius:8,textAlign:"center",border:`1px solid ${C.border}`}}>
+          <div key={i} style={{padding:"9px 8px",background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,borderRadius:8,textAlign:"center",border:`1px solid ${C.border}`}}>
             <div style={{fontSize:18,fontWeight:700,color:n.c}}>{n.v}</div>
             <div style={{fontSize:12,color:C.dim}}>{n.l}</div>
           </div>
@@ -3983,7 +3998,7 @@ function EmotionalGraph({C, galaxy, journalEntries, profile}) {
       </div>
 
       {/* SVG Chart */}
-      <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:14,padding:"8px 4px 4px",position:"relative",overflow:"visible"}}>
+      <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:14,padding:"8px 4px 4px",position:"relative",overflow:"visible"}}>
         <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{display:"block",overflow:"visible"}}>
           <defs>
             <linearGradient id={accentId} x1="0%" y1="0%" x2="0%" y2="100%">
@@ -4054,7 +4069,7 @@ function EmotionalGraph({C, galaxy, journalEntries, profile}) {
 
       {/* Selected entry detail */}
       {selectedEntry&&(
-        <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`2px solid ${lineColor}55`,borderRadius:13,padding:18,marginTop:12,animation:"fadeUp 0.3s ease"}}>
+        <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`2px solid ${lineColor}55`,borderRadius:13,padding:18,marginTop:12,animation:"fadeUp 0.3s ease"}}>
           <div style={{display:"flex",gap:10,alignItems:"center",marginBottom:10}}>
             <span style={{fontSize:28}}>{MOOD_EMOJI[selectedEntry.mood]||"◎"}</span>
             <div>
@@ -4306,7 +4321,7 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
           </div>
 
           {/* Mood selector */}
-          <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
             <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>HOW ARE YOU FEELING?</div>
             <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
               {MOOD_OPTIONS.map(m=>(
@@ -4324,14 +4339,14 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
           </div>
 
           {/* Energy level */}
-          <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
             <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>ENERGY LEVEL TODAY · {todayEntry.energy}/10</div>
             <input type="range" min="1" max="10" value={todayEntry.energy||5} onChange={e=>setTodayEntry(en=>({...en,energy:parseInt(e.target.value)}))} style={{width:"100%",accentColor:C.accent}}/>
             <div style={{display:"flex",justifyContent:"space-between",fontSize:13,color:C.dim,marginTop:4}}><span>Drained</span><span>Alive</span></div>
           </div>
 
           {/* Sleep */}
-          <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
             <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>
               🌙 SLEEP {(()=>{
                 const h=sleepHoursFromTimes(todayEntry.bedtime,todayEntry.wakeTime);
@@ -4376,7 +4391,7 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
           </div>
 
           {/* Screen time + eye/exhaustion tracking */}
-          <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
             <div style={{fontSize:13,color:C.accent2,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>📱 SCREEN TIME & EYE HEALTH</div>
 
             <div style={{marginBottom:14}}>
@@ -4431,7 +4446,7 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
 
 
           {/* Structured prompts */}
-          <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
             <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>REFLECT · 3 QUESTIONS</div>
             {selectedPrompts.map((pi, i) => (
               <div key={i} style={{marginBottom:i<2?16:0}}>
@@ -4452,7 +4467,7 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
           </div>
 
           {/* Free write */}
-          <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
             <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>FREE WRITE — anything on your mind</div>
             <textarea
               value={todayEntry.freeWrite||""}
@@ -4485,7 +4500,7 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
               <div style={{fontSize:16,fontStyle:"italic"}}>No entries yet. Start writing today.</div>
             </div>
           ):journalEntries.slice(0,20).map((entry,i)=>(
-            <div key={entry.date} style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:12,padding:18,marginBottom:10,borderLeft:`4px solid ${getMoodColor(entry.mood)}`}}>
+            <div key={entry.date} style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:12,padding:18,marginBottom:10,borderLeft:`4px solid ${getMoodColor(entry.mood)}`}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
                 <div>
                   <div style={{fontSize:16,fontWeight:600}}>{new Date(entry.date+"T12:00:00").toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}</div>
@@ -4514,7 +4529,7 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
             </div>
           ):(
             <div style={{display:"flex",flexDirection:"column",gap:12}}>
-              <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.accent}33`,borderRadius:14,padding:20}}>
+              <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.accent}33`,borderRadius:14,padding:20}}>
                 <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>THIS WEEK · {digest.count} ENTRIES</div>
                 <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,marginBottom:14}}>
                   {[
@@ -4540,7 +4555,7 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
                 )}
               </div>
               {/* Mood bar chart for week */}
-              <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+              <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
                 <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>ENERGY THIS WEEK</div>
                 <div style={{display:"flex",gap:6,alignItems:"flex-end",height:80}}>
                   {Array.from({length:7},(_,i)=>{
@@ -4561,7 +4576,7 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
               </div>
               {/* Goal completion this week */}
               {(profile.goals||[]).length>0&&(
-                <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+                <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
                   <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>GOALS THIS WEEK</div>
                   {(profile.goals||[]).slice(0,4).map((goal,i)=>{
                     const completedDays=journalEntries.filter(e=>new Date(e.date)>=new Date(Date.now()-7*86400000)&&e.goals?.[goal.id]).length;
@@ -4576,7 +4591,7 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
               )}
               {/* Highlights from this week */}
               {digest.highlights.length>0&&(
-                <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+                <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
                   <div style={{fontSize:13,color:C.gold,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>✦ FROM YOUR JOURNAL THIS WEEK</div>
                   {digest.highlights.map((e,i)=>(
                     <div key={i} style={{padding:"10px 12px",background:C.bg,borderRadius:8,marginBottom:8,borderLeft:`3px solid ${getMoodColor(e.mood)}`}}>
@@ -4600,7 +4615,7 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
       {/* ── HIGHLIGHTS ── */}
       {view==="highlights"&&(
         <div>
-          <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.gold}33`,borderRadius:14,padding:20,marginBottom:14}}>
+          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.gold}33`,borderRadius:14,padding:20,marginBottom:14}}>
             <div style={{fontSize:13,color:C.gold,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:6}}>✦ YOUR MEMORY KEEPER</div>
             <div style={{fontSize:16,color:C.muted,lineHeight:1.7,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif"}}>Good days slip away. This section holds them for you — the proud moments, the high energy days, the things worth remembering.</div>
           </div>
@@ -4610,7 +4625,7 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
               <div style={{fontSize:16,fontStyle:"italic",lineHeight:1.7}}>Your highlight reel builds as you write. Log your good days here and they will never disappear.</div>
             </div>
           ):highlights.map((entry,i)=>(
-            <div key={entry.date} style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${getMoodColor(entry.mood)}44`,borderRadius:13,padding:18,marginBottom:12,borderLeft:`4px solid ${getMoodColor(entry.mood)}`}}>
+            <div key={entry.date} style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${getMoodColor(entry.mood)}44`,borderRadius:13,padding:18,marginBottom:12,borderLeft:`4px solid ${getMoodColor(entry.mood)}`}}>
               <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:8}}>
                 <span style={{fontSize:22}}>{MOOD_OPTIONS.find(m=>m.val===entry.mood)?.emoji||"✦"}</span>
                 <div>
@@ -4798,7 +4813,7 @@ function MorningSection({C,galaxy,completedSteps,setCompletedSteps,gratitude,set
       {["How am I really feeling?","What is weighing on me?","What do I need that I'm not giving myself?","Free write:"].map((q,i)=>(
         <div key={i} style={{marginBottom:16}}>
           <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>{q.toUpperCase()}</div>
-          <textarea rows={3} value={journalEntries[i]} onChange={e=>setJournalEntries(a=>{const n=[...a];n[i]=e.target.value;return n;})} placeholder="Write here…" style={{width:"100%",background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:10,color:C.text,padding:"12px 14px",fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",fontSize:17,lineHeight:1.7,resize:"none",boxSizing:"border-box"}}/>
+          <textarea rows={3} value={journalEntries[i]} onChange={e=>setJournalEntries(a=>{const n=[...a];n[i]=e.target.value;return n;})} placeholder="Write here…" style={{width:"100%",background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:10,color:C.text,padding:"12px 14px",fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",fontSize:17,lineHeight:1.7,resize:"none",boxSizing:"border-box"}}/>
         </div>
       ))}
     </div>
@@ -4813,7 +4828,7 @@ function MorningSection({C,galaxy,completedSteps,setCompletedSteps,gratitude,set
           {STEPS.map((s,i)=><div key={i} onClick={()=>setStep(i)} style={{minHeight:40,width:16,height:16,borderRadius:"50%",background:completedSteps.includes(s.id)?C.accent2:i===step?cur.color:C.border,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,color:C.text}}>{completedSteps.includes(s.id)?"✓":""}</div>)}
         </div>
       </div>
-      <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`2px solid ${cur.color}44`,borderRadius:16,overflow:"hidden",boxShadow:`0 6px 24px ${cur.color}15`}}>
+      <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`2px solid ${cur.color}44`,borderRadius:16,overflow:"hidden",boxShadow:`0 6px 24px ${cur.color}15`}}>
         <div style={{background:`linear-gradient(135deg,${cur.color}18,transparent)`,padding:"22px 22px 16px",borderBottom:`1px solid ${cur.color}22`}}>
           <div style={{fontSize:38,marginBottom:6,animation:"slowBreath 4s infinite"}}>{cur.icon}</div>
           <div style={{fontSize:20,fontWeight:400,fontFamily:"'Cormorant Garamond',serif",marginBottom:3}}>{cur.title}</div>
@@ -4847,7 +4862,7 @@ function MorningSection({C,galaxy,completedSteps,setCompletedSteps,gratitude,set
         <div><div style={{fontSize:18,fontWeight:600,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}><span style={{marginRight:8,verticalAlign:"middle"}}><IconMorning size={20} active={true} C={C}/></span>Morning Ritual</div><div style={{fontSize:15,color:C.muted}}>{doneCount} of {STEPS.length} complete{allDone?" · ✓":""}</div></div>
         <button onClick={()=>setView("journal")} style={{minHeight:40,minWidth:40,padding:"7px 12px",background:C.bg,border:`1px solid ${C.border}`,borderRadius:20,cursor:"pointer",fontSize:15,color:C.muted}}>📔 Journal</button>
       </div>
-      <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:12,padding:"14px 16px",marginBottom:14,display:"flex",gap:14,alignItems:"center"}}>
+      <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:12,padding:"14px 16px",marginBottom:14,display:"flex",gap:14,alignItems:"center"}}>
         <div style={{position:"relative",width:48,height:48,flexShrink:0}}>
           <svg width="48" height="48" style={{transform:"rotate(-90deg)"}}><circle cx="24" cy="24" r="19" fill="none" stroke={C.border} strokeWidth="5"/><circle cx="24" cy="24" r="19" fill="none" stroke={allDone?C.accent2:C.accent} strokeWidth="5" strokeDasharray="119" strokeDashoffset={119*(1-doneCount/STEPS.length)} strokeLinecap="round" style={{transition:"stroke-dashoffset 0.5s"}}/></svg>
           <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,fontWeight:700,color:allDone?C.accent2:C.accent}}>{Math.round((doneCount/STEPS.length)*100)}%</div>
@@ -4858,7 +4873,7 @@ function MorningSection({C,galaxy,completedSteps,setCompletedSteps,gratitude,set
         {doneCount===0?"Begin Ritual →":allDone?"Review Ritual ✓":"Continue Ritual →"}
       </button>
       {STEPS.map((s,i)=>(
-        <div key={i} onClick={()=>{setStep(i);setView("step");}} style={{minHeight:40,background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${completedSteps.includes(s.id)?C.accent2+"66":C.border}`,borderRadius:10,padding:"12px 14px",marginBottom:7,cursor:"pointer",display:"flex",gap:12,alignItems:"center",borderLeft:`4px solid ${completedSteps.includes(s.id)?C.accent2:s.color}`}}>
+        <div key={i} onClick={()=>{setStep(i);setView("step");}} style={{minHeight:40,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${completedSteps.includes(s.id)?C.accent2+"66":C.border}`,borderRadius:10,padding:"12px 14px",marginBottom:7,cursor:"pointer",display:"flex",gap:12,alignItems:"center",borderLeft:`4px solid ${completedSteps.includes(s.id)?C.accent2:s.color}`}}>
           <span style={{fontSize:18}}>{completedSteps.includes(s.id)?"✅":s.icon}</span>
           <div style={{flex:1}}><div style={{fontSize:16,fontWeight:600,color:completedSteps.includes(s.id)?C.accent2:C.text}}>{s.title}</div><div style={{fontSize:14,color:C.muted}}>{Math.floor(s.dur/60)} min</div></div>
           <div style={{fontSize:14,color:C.dim}}>→</div>
@@ -4986,7 +5001,7 @@ function PranayamaTimer({C, galaxy}) {
     <div>
       <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:16}}>
         {PRANAYAMA_TECHNIQUES.map((t,i) => (
-          <div key={t.id} style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${selected===i?t.color:C.border}`,borderRadius:12,overflow:"hidden",borderLeft:`4px solid ${t.color}`}}>
+          <div key={t.id} style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${selected===i?t.color:C.border}`,borderRadius:12,overflow:"hidden",borderLeft:`4px solid ${t.color}`}}>
             <div style={{padding:"14px 16px"}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:6}}>
                 <div>
@@ -5093,7 +5108,7 @@ function WellnessSection({C,galaxy,profile,moveLog,setMoveLog,todayPhase,meditat
       {!selectedCat&&(
         <div style={{display:"flex",flexDirection:"column",gap:10}}>
           {Object.entries(YOGA_LIBRARY).map(([key,lib])=>(
-            <button key={key} onClick={()=>setSelectedCat(key)} style={{minHeight:40,minWidth:40,padding:"16px",background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${lib.color}44`,borderRadius:13,cursor:"pointer",textAlign:"left",borderLeft:`4px solid ${lib.color}`}}>
+            <button key={key} onClick={()=>setSelectedCat(key)} style={{minHeight:40,minWidth:40,padding:"16px",background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${lib.color}44`,borderRadius:13,cursor:"pointer",textAlign:"left",borderLeft:`4px solid ${lib.color}`}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                 <div>
                   <div style={{fontSize:16,fontWeight:600,color:lib.color}}>{lib.label}</div>
@@ -5129,7 +5144,7 @@ function WellnessSection({C,galaxy,profile,moveLog,setMoveLog,todayPhase,meditat
     <div style={{padding:"20px 16px"}}>
       <div style={{fontSize:18,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",marginBottom:16}}>Wellness</div>
       {/* Meditation */}
-      <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:14,padding:22,marginBottom:12,textAlign:"center"}}>
+      <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:14,padding:22,marginBottom:12,textAlign:"center"}}>
         <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>GUIDED MEDITATION · ANXIETY & QUIET MIND</div>
 
         <audio
@@ -5174,12 +5189,12 @@ function WellnessSection({C,galaxy,profile,moveLog,setMoveLog,todayPhase,meditat
         </button>
       </div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:12}}>
-        <button onClick={()=>setView("breathe")} style={{minHeight:40,minWidth:40,padding:"18px",background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:14,cursor:"pointer",textAlign:"left"}}>
+        <button onClick={()=>setView("breathe")} style={{minHeight:40,minWidth:40,padding:"18px",background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:14,cursor:"pointer",textAlign:"left"}}>
           <div style={{fontSize:26,marginBottom:6}}>🌬️️</div>
           <div style={{fontSize:16,fontWeight:600}}>Pranayama</div>
           <div style={{fontSize:14,color:C.muted}}>4 breathwork techniques</div>
         </button>
-        <button onClick={()=>setView("yoga")} style={{minHeight:40,minWidth:40,padding:"18px",background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:14,cursor:"pointer",textAlign:"left"}}>
+        <button onClick={()=>setView("yoga")} style={{minHeight:40,minWidth:40,padding:"18px",background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:14,cursor:"pointer",textAlign:"left"}}>
           <div style={{fontSize:26,marginBottom:6}}>🧘</div>
           <div style={{fontSize:16,fontWeight:600}}>Yoga Asanas</div>
           <div style={{fontSize:14,color:C.muted}}>{Object.values(YOGA_LIBRARY).reduce((a,l)=>a+(l.poses?.length||0),0)} poses · {Object.keys(YOGA_LIBRARY).length} categories</div>
@@ -5187,14 +5202,14 @@ function WellnessSection({C,galaxy,profile,moveLog,setMoveLog,todayPhase,meditat
       </div>
       {/* Recommended today */}
       {recommendedCats.length>0&&(
-        <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:12,padding:"14px 16px",marginBottom:12}}>
+        <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:12,padding:"14px 16px",marginBottom:12}}>
           <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>RECOMMENDED FOR YOUR GOAL TODAY</div>
           <div style={{display:"flex",gap:7,flexWrap:"wrap"}}>
             {recommendedCats.map(cat=>{const lib=YOGA_LIBRARY[cat];if(!lib)return null;return<button key={cat} onClick={()=>{setSelectedCat(cat);setView("yoga");}} style={{minHeight:40,minWidth:40,padding:"6px 12px",background:lib.color+"15",border:`1px solid ${lib.color}44`,borderRadius:20,cursor:"pointer",fontSize:15,color:lib.color}}>{lib.label}</button>;})}
           </div>
         </div>
       )}
-      <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:12,padding:"16px 18px"}}>
+      <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:12,padding:"16px 18px"}}>
         <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>LOG MOVEMENT</div>
         <MoveLogger moveLog={moveLog} setMoveLog={setMoveLog} C={C}/>
       </div>
@@ -5204,7 +5219,7 @@ function WellnessSection({C,galaxy,profile,moveLog,setMoveLog,todayPhase,meditat
 
 function PoseCard({pose,color,C,open,setOpen}){
   return(
-    <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${open?color:C.border}`,borderRadius:12,marginBottom:9,overflow:"hidden",transition:"all 0.2s"}}>
+    <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${open?color:C.border}`,borderRadius:12,marginBottom:9,overflow:"hidden",transition:"all 0.2s"}}>
       <div onClick={setOpen} style={{minHeight:40,padding:"12px 16px",cursor:"pointer",borderLeft:`3px solid ${color}`}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
           <div><div style={{fontSize:16,fontWeight:600}}>{pose.name} <span style={{fontSize:14,color:C.muted,fontWeight:400}}>{pose.en}</span></div><div style={{fontSize:14,color:C.muted,marginTop:2}}>{pose.dur} · {pose.benefit.split("·")[0].split(",")[0]}</div></div>
@@ -5613,7 +5628,7 @@ function SupplementsPanel({C, profile, up}){
           <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>NAME</div>
           <input value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))}
             placeholder="e.g. Carbamide Forte Chelated Iron"
-            style={{width:"100%",boxSizing:"border-box",background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:16}}/>
+            style={{width:"100%",boxSizing:"border-box",background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:16}}/>
         </div>
 
         <div>
@@ -5623,7 +5638,7 @@ function SupplementsPanel({C, profile, up}){
             onChange={e=>setForm(f=>({...f, rawText:e.target.value}))}
             placeholder={"Iron (from Ferrous Bisglycinate) 29mg\nVitamin C (Ascorbic Acid) 65mg\nZinc (from Zinc Gluconate) 13.2mg\nVitamin B9 (Folic Acid) 129.41mcg\nVitamin B12 (Cyanocobalamin) 2.2mcg"}
             rows={5}
-            style={{width:"100%",boxSizing:"border-box",background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:16,fontFamily:"'DM Mono',monospace",lineHeight:1.6,resize:"vertical"}}/>
+            style={{width:"100%",boxSizing:"border-box",background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:16,fontFamily:"'DM Mono',monospace",lineHeight:1.6,resize:"vertical"}}/>
           <button onClick={interpretLabel} disabled={!form.rawText?.trim()||aiLoading} style={{minHeight:40,minWidth:40,
             marginTop:8,padding:"9px 16px",borderRadius:9,border:"none",cursor:form.rawText?.trim()?"pointer":"not-allowed",
             background:form.rawText?.trim()?accent:C.border,color:C.text,fontSize:15,fontWeight:600,
@@ -5641,7 +5656,7 @@ function SupplementsPanel({C, profile, up}){
                     </div>
                     <input value={row.amount} onChange={e=>updateNutrientRow(idx,"amount",e.target.value)}
                       type="number"
-                      style={{width:64,background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:7,color:C.text,padding:"5px 8px",fontSize:16,fontFamily:"'DM Mono',monospace"}}/>
+                      style={{width:64,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:7,color:C.text,padding:"5px 8px",fontSize:16,fontFamily:"'DM Mono',monospace"}}/>
                     <div style={{fontSize:13,color:C.muted,width:32}}>{NUTRIENT_FIELDS.find(nf=>nf.key===row.key)?.unit||""}</div>
                     <button onClick={()=>removeNutrientRow(idx)} style={{minHeight:40,minWidth:40,background:"transparent",border:"none",color:C.red||"#e05a5a",cursor:"pointer",fontSize:17,padding:"2px 4px"}}>×</button>
                   </div>
@@ -5741,7 +5756,7 @@ function SupplementsPanel({C, profile, up}){
         const isExpanded = expandedId===s.id;
         return (
         <div key={s.id} style={{
-          background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${s.takenToday?accent+"55":C.border}`,
+          background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${s.takenToday?accent+"55":C.border}`,
           borderRadius:13,overflow:"hidden",
         }}>
           <div style={{display:"flex",alignItems:"center",gap:12,padding:"13px 14px"}}>
@@ -5965,7 +5980,7 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
             ].map((n,i)=>{
               const pct=Math.round((parseFloat(n.v)/n.t)*100);
               const color=sc(pct,n.isMax);
-              return<div key={i} style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${color}33`,borderRadius:10,padding:"10px 8px",textAlign:"center"}}>
+              return<div key={i} style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${color}33`,borderRadius:10,padding:"10px 8px",textAlign:"center"}}>
                 <div style={{fontSize:14,color:C.muted,marginBottom:2}}>{n.l}</div>
                 <div style={{fontSize:17,fontWeight:700,color}}>{n.v}<span style={{fontSize:12,color:C.dim,fontWeight:400}}>/{n.t}</span></div>
                 <div style={{fontSize:12,color:C.dim,marginBottom:4}}>{n.u}{n.isMax?" limit":""}</div>
@@ -5990,7 +6005,7 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
             ):null;
           })()}
           {/* Water quick add */}
-          <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.accent3}33`,borderRadius:10,padding:"12px 14px",marginBottom:12}}>
+          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.accent3}33`,borderRadius:10,padding:"12px 14px",marginBottom:12}}>
             <div style={{fontSize:13,color:C.accent3,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>💧 WATER INTAKE · {waterLog}ml of {needs.water}ml</div>
             <div style={{background:C.border,borderRadius:6,height:6,marginBottom:10}}><div style={{width:`${Math.min(100,Math.round((waterLog/needs.water)*100))}%`,height:6,background:`linear-gradient(90deg,${C.accent3},#38bdf8)`,borderRadius:6,transition:"width 0.4s"}}/></div>
             <div style={{display:"flex",gap:7}}>
@@ -6001,7 +6016,7 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
             ?<div style={{textAlign:"center",padding:"28px",color:C.dim,fontStyle:"italic",fontSize:16}}>No food logged today. Tap + Log Food or tell My Space what you ate.</div>
             :foodLogs.filter(l=>l.date===todayStr).map((log,i)=>{
               const n=calcLoggedNutrition(log);
-              return<div key={log.id} style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:11,padding:"12px 14px",marginBottom:8}}>
+              return<div key={log.id} style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:11,padding:"12px 14px",marginBottom:8}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
                   <div><div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",marginBottom:2}}>{log.meal} · {log.time}</div><div style={{fontSize:16,fontWeight:600}}>{(log.foods||[]).join(", ")}</div></div>
                   <div style={{fontSize:17,fontWeight:700,color:C.accent}}>{Math.round(n.cal)}<span style={{fontSize:12,color:C.dim}}>kcal</span></div>
@@ -6020,7 +6035,7 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
 
       {view==="add"&&(
         <div>
-          <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:14,padding:20,display:"flex",flexDirection:"column",gap:14}}>
+          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:14,padding:20,display:"flex",flexDirection:"column",gap:14}}>
             <div>
               <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>WHICH DAY?</div>
               <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
@@ -6148,7 +6163,7 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
             )}
 
             {signals.map((signal,si)=>(
-              <div key={si} style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`2px solid ${signal.color}44`,borderRadius:14,marginBottom:16,overflow:"hidden",boxShadow:`0 0 20px ${signal.color}12`}}>
+              <div key={si} style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`2px solid ${signal.color}44`,borderRadius:14,marginBottom:16,overflow:"hidden",boxShadow:`0 0 20px ${signal.color}12`}}>
                 {/* Header */}
                 <div style={{padding:"16px 18px",background:`linear-gradient(135deg,${signal.color}18,transparent)`,borderBottom:`1px solid ${signal.color}22`}}>
                   <div style={{display:"flex",gap:12,alignItems:"center",marginBottom:8}}>
@@ -6214,7 +6229,7 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
 
             {/* All conditions reference */}
             {signals.length>0&&(
-              <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:12,padding:16,marginTop:8}}>
+              <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:12,padding:16,marginTop:8}}>
                 <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>OTHER CONDITIONS TO KNOW</div>
                 <div style={{display:"flex",flexWrap:"wrap",gap:8}}>
                   {Object.values(HEALTH_SIGNALS).filter(s=>!signals.find(d=>d.label===s.label)).map((s,i)=>(
@@ -6274,7 +6289,7 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
                     vitE:"Eat: walnuts, sunflower seeds, spinach, sweet potato",
                   };
                   return(
-                    <div key={i} style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:10,padding:"12px 14px",borderLeft:`3px solid ${color}`}}>
+                    <div key={i} style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:10,padding:"12px 14px",borderLeft:`3px solid ${color}`}}>
                       <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:4}}>
                         <div style={{display:"flex",gap:7,alignItems:"center"}}>
                           <span style={{fontSize:16}}>{n.icon}</span>
@@ -6394,9 +6409,9 @@ function CycleSection({C,galaxy,profile,setProfile,periodLogs,setPeriodLogs,symp
       {view==="cal"&&(
         <div>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
-            <button onClick={()=>setCalMonth(m=>{const d=new Date(m.year,m.month-1,1);return{year:d.getFullYear(),month:d.getMonth()};})} style={{minHeight:40,minWidth:40,background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:7,padding:"6px 12px",cursor:"pointer",fontSize:16,color:C.muted}}>‹</button>
+            <button onClick={()=>setCalMonth(m=>{const d=new Date(m.year,m.month-1,1);return{year:d.getFullYear(),month:d.getMonth()};})} style={{minHeight:40,minWidth:40,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:7,padding:"6px 12px",cursor:"pointer",fontSize:16,color:C.muted}}>‹</button>
             <div style={{fontSize:17,fontWeight:600}}>{MONTH_NAMES[calMonth.month]} {calMonth.year}</div>
-            <button onClick={()=>setCalMonth(m=>{const d=new Date(m.year,m.month+1,1);return{year:d.getFullYear(),month:d.getMonth()};})} style={{minHeight:40,minWidth:40,background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:7,padding:"6px 12px",cursor:"pointer",fontSize:16,color:C.muted}}>›</button>
+            <button onClick={()=>setCalMonth(m=>{const d=new Date(m.year,m.month+1,1);return{year:d.getFullYear(),month:d.getMonth()};})} style={{minHeight:40,minWidth:40,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:7,padding:"6px 12px",cursor:"pointer",fontSize:16,color:C.muted}}>›</button>
           </div>
           {/* Phase legend — current phase highlighted */}
           <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:12}}>
@@ -6424,7 +6439,7 @@ function CycleSection({C,galaxy,profile,setProfile,periodLogs,setPeriodLogs,symp
               </div>
             </div>;
           })()}
-          <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:13,padding:11,marginBottom:12}}>
+          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:11,marginBottom:12}}>
             <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2,marginBottom:5}}>{["Su","Mo","Tu","We","Th","Fr","Sa"].map(d=><div key={d} style={{textAlign:"center",fontSize:12,color:C.muted,fontFamily:"'DM Mono',monospace",fontWeight:700}}>{d}</div>)}</div>
             <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2}}>
               {calDays.map((day,i)=>{
@@ -6451,7 +6466,7 @@ function CycleSection({C,galaxy,profile,setProfile,periodLogs,setPeriodLogs,symp
             const day=calDays.find(d=>d&&d.ds===selectedDay);
             const pc=day?.phase?PHASE_COLORS[day.phase]:C.accent;
             const daySym=symptoms[selectedDay]||[];
-            return<div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${pc}55`,borderRadius:13,padding:16,marginBottom:11}}>
+            return<div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${pc}55`,borderRadius:13,padding:16,marginBottom:11}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
                 <div><div style={{fontSize:16,fontWeight:700}}>{new Date(selectedDay+"T12:00:00").toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"})}</div>{day?.phase&&<div style={{fontSize:14,color:pc,marginTop:2}}>{PHASE_INFO[day.phase]?.icon} {PHASE_INFO[day.phase]?.label} · {PHASE_INFO[day.phase]?.desc}</div>}</div>
                 {day?.lp&&<button onClick={()=>{setEditPeriod(day.lp);setNp({...day.lp});setView("log");}} style={{minHeight:40,minWidth:40,padding:"4px 9px",background:C.red+"15",border:`1px solid ${C.red}44`,borderRadius:20,cursor:"pointer",fontSize:14,color:C.red}}>Edit</button>}
@@ -6468,7 +6483,7 @@ function CycleSection({C,galaxy,profile,setProfile,periodLogs,setPeriodLogs,symp
       )}
 
       {view==="log"&&(
-        <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:13,padding:20,display:"flex",flexDirection:"column",gap:14}}>
+        <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:20,display:"flex",flexDirection:"column",gap:14}}>
           <div style={{fontSize:16,fontWeight:600,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>{editPeriod?"Edit Period":"Log a Period"}</div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
             {[{l:"STARTED",k:"startDate"},{l:"ENDED",k:"endDate"}].map((f,i)=><div key={i}><div style={{fontSize:12,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:5}}>{f.l}</div><input type="date" value={np[f.k]} onChange={e=>setNp(p=>({...p,[f.k]:e.target.value}))} style={{width:"100%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:7,color:C.text,padding:"9px",fontSize:16,boxSizing:"border-box"}}/></div>)}
@@ -6498,7 +6513,7 @@ function CycleSection({C,galaxy,profile,setProfile,periodLogs,setPeriodLogs,symp
       {view==="history"&&(
         <div>
           {periodLogs.length===0?<div style={{textAlign:"center",padding:"40px",color:C.dim,fontStyle:"italic",fontSize:16}}>No periods logged yet.</div>:
-            periodLogs.map((p,i)=><div key={p.id} style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:11,padding:"12px 14px",marginBottom:8}}>
+            periodLogs.map((p,i)=><div key={p.id} style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:11,padding:"12px 14px",marginBottom:8}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
                 <div><div style={{fontSize:16,fontWeight:700}}>{new Date(p.startDate+"T12:00:00").toLocaleDateString("en-IN",{day:"numeric",month:"long",year:"numeric"})}</div><div style={{fontSize:14,color:C.muted,marginTop:1}}>{p.endDate?`Ended ${new Date(p.endDate+"T12:00:00").toLocaleDateString("en-IN",{day:"numeric",month:"short"})} · ${dur(p)} days`:"End date not set"}</div></div>
                 <div style={{display:"flex",gap:5,alignItems:"center"}}><div style={{padding:"2px 8px",background:FLOW_COLORS[p.flow]+"22",border:`1px solid ${FLOW_COLORS[p.flow]}44`,borderRadius:20,fontSize:13,color:FLOW_COLORS[p.flow]}}>{FLOW_LABELS[p.flow]}</div><button onClick={()=>{setEditPeriod(p);setNp({...p});setView("log");}} style={{minHeight:40,minWidth:40,padding:"3px 8px",background:C.bg,border:`1px solid ${C.border}`,borderRadius:20,cursor:"pointer",fontSize:13,color:C.muted}}>Edit</button></div>
@@ -6652,7 +6667,7 @@ function DayDashboard({C, galaxy, profile, todayFood, needs, completedSteps, jou
   }
 
   return (
-    <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:16,overflow:"hidden",marginBottom:14}}>
+    <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:16,overflow:"hidden",marginBottom:14}}>
 
       {/* Q1: HOW AM I */}
       <div style={{padding:"20px 18px",background:scoreBg}}>
@@ -7010,7 +7025,7 @@ Generate the JSON now.`;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const card = (extra={}) => ({background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)", border:`1px solid ${C.border}`, borderRadius:22, padding:24, boxSizing:"border-box", ...extra});
+  const card = (extra={}) => ({background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur, border:`1px solid ${C.border}`, borderRadius:22, padding:24, boxSizing:"border-box", ...extra});
   const title = {fontSize:16, fontWeight:600, color:C.muted, display:"flex", alignItems:"center", gap:6, marginBottom:10};
   const insightTxt = {fontSize:22, fontWeight:700, color:C.text, lineHeight:1.3};
   const descTxt = {fontSize:14, color:C.muted, marginTop:6, lineHeight:1.5};
@@ -7338,7 +7353,7 @@ Generate the honest mirror reflection.`;
 
       {/* Current mirror */}
       {mirror && (
-        <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${accent}33`,borderRadius:16,padding:22,position:"relative"}}>
+        <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${accent}33`,borderRadius:16,padding:22,position:"relative"}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
             <div style={{fontSize:12,color:C.muted,letterSpacing:2}}>{mirror.date} · {mirror.generatedAt}</div>
             <button onClick={()=>setExpanded(e=>!e)} style={{minHeight:40,minWidth:40,background:"transparent",border:"none",color:C.muted,cursor:"pointer",fontSize:14}}>
@@ -7360,7 +7375,7 @@ Generate the honest mirror reflection.`;
 
       {/* No data state */}
       {!mirror && !loading && (
-        <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:16,padding:24,textAlign:"center"}}>
+        <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:16,padding:24,textAlign:"center"}}>
           <div style={{fontSize:28,marginBottom:12}}>🪞</div>
           <div style={{fontSize:16,color:C.muted,lineHeight:1.75,marginBottom:8}}>
             The mirror reads everything — your journal entries, mood, sleep, food, goals, movement, the words you keep using. The more you log, the deeper it sees.
@@ -7479,7 +7494,7 @@ function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedS
             moveLog={moveLog||[]}
           />
           {/* Calorie balance */}
-          <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
             <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>TODAY'S CALORIE BALANCE</div>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
               <div><div style={{fontSize:28,fontWeight:700,color:isLoss?(calDiff<0?C.accent2:C.red):isGain?(calDiff>0?C.accent2:C.gold):C.accent}}>{calDiff>0?"+":""}{calDiff}</div><div style={{fontSize:14,color:C.muted}}>kcal {calDiff>0?"surplus":"deficit"}</div></div>
@@ -7500,7 +7515,7 @@ function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedS
               {icon:"☀",label:"Ritual",value:`${ritualDone}/7`,target:7,pct:Math.min(100,Math.round((ritualDone/7)*100)),color:C.gold},
               {icon:"💧",label:"Water",value:`${Math.round(profile.water||0)+Math.round((foodLogs.filter(l=>l.date===todayStr).reduce((a,l)=>a+(l.water||0),0)*250+parseInt(profile.waterLog||0)))}ml`,target:needs.water,pct:0,color:C.accent3},
             ].map((item,i)=>(
-              <div key={i} style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:11,padding:"12px 8px",textAlign:"center"}}>
+              <div key={i} style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:11,padding:"12px 8px",textAlign:"center"}}>
                 <div style={{fontSize:20,marginBottom:3}}>{item.icon}</div>
                 <div style={{fontSize:16,fontWeight:700,color:item.color}}>{item.value}</div>
                 <div style={{background:C.border,borderRadius:3,height:4,marginTop:5}}><div style={{width:`${item.pct}%`,height:4,background:item.color,borderRadius:3,transition:"width 0.5s"}}/></div>
@@ -7514,7 +7529,7 @@ function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedS
       {view==="weight"&&(
         <div style={{display:"flex",flexDirection:"column",gap:11}}>
           {/* Log weight */}
-          <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
             <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>LOG TODAY'S WEIGHT</div>
             <div style={{display:"flex",gap:9,alignItems:"center"}}>
               <input value={weightInput} onChange={e=>setWeightInput(e.target.value)} placeholder={`e.g. ${profile.weight}`} type="number" style={{flex:1,background:C.bg,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"11px 13px",fontSize:18,fontFamily:"'DM Mono',monospace"}}/>
@@ -7529,7 +7544,7 @@ function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedS
             if(!gp.goalKg || (!gp.isLoss && !gp.isGain)) return null;
             if(!gp.hasEnoughData){
               return (
-                <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+                <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
                   <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>GOAL PROGRESS · {gp.goalKg}KG {gp.isLoss?"LOSS":"GAIN"}</div>
                   <div style={{fontSize:16,color:C.muted,lineHeight:1.7,fontStyle:"italic"}}>Log your weight at least twice — a few days apart — and this will show your real progress and a realistic timeline based on how things are actually going.</div>
                 </div>
@@ -7538,7 +7553,7 @@ function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedS
             const goalLabel = gp.isLoss ? "lose" : "gain";
             const paceColor = gp.onPace===true ? C.accent2 : gp.onPace===false ? C.gold : C.muted;
             return (
-              <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.accent}33`,borderRadius:13,padding:18}}>
+              <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.accent}33`,borderRadius:13,padding:18}}>
                 <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>GOAL PROGRESS · {goalLabel} {gp.goalKg}kg</div>
 
                 <div style={{marginBottom:14}}>
@@ -7595,7 +7610,7 @@ function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedS
 
           {/* Weight trend */}
           {weightTrend&&(
-            <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+            <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
               <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>WEIGHT TREND · {weightTrend.entries} ENTRIES</div>
               <div style={{display:"flex",gap:14,marginBottom:12}}>
                 <div><div style={{fontSize:14,color:C.muted}}>Starting</div><div style={{fontSize:18,fontWeight:700}}>{weightTrend.first}<span style={{fontSize:14,color:C.dim}}>{profile.weightUnit}</span></div></div>
@@ -7612,7 +7627,7 @@ function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedS
 
           {/* Weight log history */}
           {weightLog.length>0&&(
-            <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+            <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
               <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>HISTORY</div>
               {weightLog.slice(-10).reverse().map((w,i)=>(
                 <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:i<Math.min(9,weightLog.length-1)?`1px solid ${C.border}`:"none"}}>
@@ -7626,7 +7641,7 @@ function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedS
       )}
 
       {view==="weekly"&&(
-        <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+        <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
           <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>7-DAY AVERAGES</div>
           {[
             {label:"Daily calories",value:`${weekAvg} kcal`,target:`target ${needs.cal}`,on:Math.abs(weekAvg-needs.cal)<200,color:C.accent},
@@ -7651,7 +7666,7 @@ function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedS
           <div id="full-mirror-analysis"/>
           <HonestMirror C={C} galaxy={galaxy} profile={profile} up={up} journalEntries={journalEntries} foodLogs={foodLogs} weightLog={weightLog} moveLog={moveLog} needs={needs}/>
           <SleepMoodAnalysis journalEntries={journalEntries} C={C}/>
-          <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.accent}33`,borderRadius:13,padding:18}}>
+          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.accent}33`,borderRadius:13,padding:18}}>
             <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>◉ PATTERNS YOU'VE SHOWN</div>
             {Object.keys(behaviourProfile).length===0?(
               <div style={{fontSize:16,color:C.muted,fontStyle:"italic",lineHeight:1.7}}>Keep logging food, mood, and using My Space. Over time, patterns emerge — ones you can't always see from inside them. This is where you start to see yourself clearly.</div>
@@ -7822,7 +7837,7 @@ function SleepMoodAnalysis({journalEntries, C}){
 
   if(!analysis.enoughData){
     return (
-      <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+      <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
         <div style={{fontSize:13,color:C.accent3,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>🌙 SLEEP & MOOD PATTERNS</div>
         <div style={{fontSize:16,color:C.muted,lineHeight:1.7,fontStyle:"italic"}}>
           Log your sleep (bedtime + wake time) alongside your mood for a few more days — at least 3 days with both logged — and real patterns will start to show up here. So far you have {analysis.count} day{analysis.count===1?"":"s"} with both logged.
@@ -7833,7 +7848,7 @@ function SleepMoodAnalysis({journalEntries, C}){
 
   return (
     <div style={{display:"flex",flexDirection:"column",gap:10}}>
-      <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.accent3}33`,borderRadius:13,padding:18}}>
+      <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.accent3}33`,borderRadius:13,padding:18}}>
         <div style={{fontSize:13,color:C.accent3,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>🌙 SLEEP & MOOD PATTERNS · {analysis.count} days tracked</div>
 
         {/* Current streak warning, if active */}
@@ -7999,7 +8014,7 @@ Keep responses warm, direct, 4–6 sentences max unless they ask for more.`;
         </div>
       )}
 
-      <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:13,height:390,overflowY:"auto",padding:14,marginBottom:10,display:"flex",flexDirection:"column",gap:11}}>
+      <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,height:390,overflowY:"auto",padding:14,marginBottom:10,display:"flex",flexDirection:"column",gap:11}}>
         {msgs.map((m,i)=>(
           <div key={i} style={{display:"flex",flexDirection:"column",alignItems:m.role==="user"?"flex-end":"flex-start",gap:3}}>
             <div style={{display:"flex",gap:8,alignItems:"flex-end",flexDirection:m.role==="user"?"row-reverse":"row"}}>
@@ -8017,7 +8032,7 @@ Keep responses warm, direct, 4–6 sentences max unless they ask for more.`;
         <textarea value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}}} rows={2}
           placeholder={profile.plan==="trial"?"Upgrade to chat with me…":"I ate poha this morning… / I'm feeling overwhelmed… / I had chai on empty stomach…"}
           disabled={profile.plan==="trial"}
-          style={{flex:1,background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:16,resize:"none",opacity:profile.plan==="trial"?0.5:1}}/>
+          style={{flex:1,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:16,resize:"none",opacity:profile.plan==="trial"?0.5:1}}/>
         <button onClick={send} disabled={loading||profile.plan==="trial"} style={{minHeight:40,minWidth:40,padding:"10px 16px",background:loading||profile.plan==="trial"?C.border:`linear-gradient(135deg,${C.accent},${C.warm})`,border:"none",borderRadius:9,color:"#fff",cursor:loading||profile.plan==="trial"?"not-allowed":"pointer",fontSize:18}}>→</button>
       </div>
     </div>
@@ -8040,7 +8055,7 @@ function UpgradeSection({C,profile,up,setSection}){
           {id:"tier1",name:"Essential",monthly:"$5 / month",yearly:"$59 / year",inr:"₹499 / month · ₹4,999 / year",features:["All modules unlocked","20 AI messages/day in My Space","Behavioural profile builds over time","Cycle tracker + yoga personalisation","Food log + nutrition analysis"],color:C.accent},
           {id:"tier2",name:"Unlimited",monthly:"$11 / month",yearly:"$119 / year",inr:"₹999 / month · ₹9,999 / year",features:["Everything in Essential","Unlimited AI messages in My Space","Deep behavioural memory","Weekly insight report","Priority responses"],color:C.accent2,recommended:true},
         ].map(plan=>(
-          <div key={plan.id} style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`2px solid ${plan.recommended?plan.color:C.border}`,borderRadius:16,padding:22,boxShadow:plan.recommended?`0 0 24px ${plan.color}22`:"none"}}>
+          <div key={plan.id} style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`2px solid ${plan.recommended?plan.color:C.border}`,borderRadius:16,padding:22,boxShadow:plan.recommended?`0 0 24px ${plan.color}22`:"none"}}>
             {plan.recommended&&<div style={{fontSize:13,color:plan.color,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:8}}>✦ MOST POPULAR</div>}
             <div style={{fontSize:18,fontWeight:700,color:plan.color,marginBottom:4}}>{plan.name}</div>
             <div style={{fontSize:24,fontWeight:700,marginBottom:2}}>{plan.monthly}</div>
@@ -8101,7 +8116,7 @@ function YourManualSection({C, galaxy, profile, journalEntries, behaviourProfile
       <div style={{fontSize:16,color:C.muted,lineHeight:1.8,marginBottom:20}}>
         <em>"I don't tell you who you are. I learn how your mind works and help you live with it."</em>
       </div>
-      <div style={{textAlign:"center",padding:"40px 20px",background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",borderRadius:14,border:`1px solid ${C.border}`}}>
+      <div style={{textAlign:"center",padding:"40px 20px",background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,borderRadius:14,border:`1px solid ${C.border}`}}>
         <div style={{fontSize:32,marginBottom:12}}>📖</div>
         <div style={{fontSize:16,color:C.muted,lineHeight:1.8}}>Your manual builds as you use the app. Journal for a few days, log your mood and energy, and patterns will start to emerge.</div>
         <div style={{fontSize:15,color:C.dim,marginTop:10}}>Need at least 5 journal entries to begin.</div>
@@ -8137,7 +8152,7 @@ function YourManualSection({C, galaxy, profile, journalEntries, behaviourProfile
       </div>
 
       {/* Pattern observations */}
-      <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:14,padding:18,marginBottom:14}}>
+      <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:14,padding:18,marginBottom:14}}>
         <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>WHAT WE'VE NOTICED · {manual.entryCount} entries</div>
         {manual.observations.map((obs, i) => (
           <div key={i} style={{padding:"10px 0",borderBottom:i<manual.observations.length-1?`1px solid ${C.border}`:"none"}}>
@@ -8158,7 +8173,7 @@ function YourManualSection({C, galaxy, profile, journalEntries, behaviourProfile
       {manual.suggestions.length > 0 && (
         <div style={{display:"flex",flexDirection:"column",gap:10}}>
           {manual.suggestions.map((sug, i) => (
-            <div key={i} style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${sug.type==="awareness"?C.gold:sug.type==="health"?C.red:C.border}44`,borderRadius:12,padding:16}}>
+            <div key={i} style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${sug.type==="awareness"?C.gold:sug.type==="health"?C.red:C.border}44`,borderRadius:12,padding:16}}>
               <div style={{fontSize:13,color:sug.type==="awareness"?C.gold:sug.type==="health"?C.red:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>
                 {sug.type==="awareness"?"◉ PATTERN AWARENESS":sug.type==="health"?"⚕ HEALTH NOTE":"◈ SUGGESTION"}
               </div>
@@ -8191,7 +8206,7 @@ function ProfileSection({C,profile,up,needs,setSection,resetToday,resetAllLogs})
         <div style={{fontSize:18,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>My Profile</div>
         <button onClick={()=>setSection("upgrade")} style={{minHeight:40,minWidth:40,padding:"6px 13px",background:C.accent+"15",border:`1px solid ${C.accent}44`,borderRadius:20,cursor:"pointer",fontSize:14,color:C.accent}}>Manage Plan</button>
       </div>
-      <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:13,padding:20,marginBottom:14}}>
+      <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:20,marginBottom:14}}>
         <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>PERSONAL DETAILS</div>
         <div style={{display:"flex",flexDirection:"column",gap:12}}>
           {[{l:"Name",k:"name",t:"text"},{l:"Age",k:"age",t:"number"},{l:"Weight (kg)",k:"weight",t:"number"},{l:"Height (cm)",k:"height",t:"number"}].map((f,i)=>(
@@ -8217,7 +8232,7 @@ function ProfileSection({C,profile,up,needs,setSection,resetToday,resetAllLogs})
           )}
         </div>
       </div>
-      <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.accent}33`,borderRadius:11,padding:"14px 16px",marginBottom:14}}>
+      <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.accent}33`,borderRadius:11,padding:"14px 16px",marginBottom:14}}>
         <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:9}}>YOUR DAILY TARGETS</div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:7}}>
           {[{l:"Calories",v:needs.cal,u:"kcal",c:C.accent},{l:"Protein",v:needs.protein,u:"g",c:C.accent2},{l:"Iron",v:needs.iron,u:"mg",c:C.red},{l:"Calcium",v:needs.calcium,u:"mg",c:C.purple},{l:"Water",v:Math.round(needs.water/250),u:"glasses",c:C.accent3},{l:"Fibre",v:needs.fibre,u:"g",c:C.gold}].map((n,i)=>(
@@ -8230,7 +8245,7 @@ function ProfileSection({C,profile,up,needs,setSection,resetToday,resetAllLogs})
         </div>
       </div>
       {/* Your Manual link */}
-      <div onClick={()=>setSection("manual")} style={{minHeight:40,background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.accent}33`,borderRadius:12,padding:"14px 18px",marginBottom:12,cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+      <div onClick={()=>setSection("manual")} style={{minHeight:40,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.accent}33`,borderRadius:12,padding:"14px 18px",marginBottom:12,cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
         <div>
           <div style={{display:"flex",gap:8,alignItems:"center"}}>
             <span style={{fontSize:18}}>📖</span>
@@ -8242,7 +8257,7 @@ function ProfileSection({C,profile,up,needs,setSection,resetToday,resetAllLogs})
       </div>
 
       {/* Goals link */}
-      <div onClick={()=>setSection("goals")} style={{minHeight:40,background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.accent}33`,borderRadius:12,padding:"14px 18px",marginBottom:14,cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+      <div onClick={()=>setSection("goals")} style={{minHeight:40,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.accent}33`,borderRadius:12,padding:"14px 18px",marginBottom:14,cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
         <div>
           <div style={{fontSize:16,fontWeight:600,color:C.accent}}>My Goals</div>
           <div style={{fontSize:14,color:C.muted,marginTop:2}}>{(profile.goals||[]).length} goals · Tap to manage</div>
@@ -8255,7 +8270,7 @@ function ProfileSection({C,profile,up,needs,setSection,resetToday,resetAllLogs})
       </button>
 
       {/* Reset options */}
-      <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:12,padding:16,marginTop:8}}>
+      <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:12,padding:16,marginTop:8}}>
         <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:4}}>RESET DATA</div>
         <div style={{fontSize:14,color:C.dim,marginBottom:12,lineHeight:1.5}}>Use this if you want to start over or clear test entries.</div>
         <div style={{display:"flex",flexDirection:"column",gap:8}}>
@@ -8379,7 +8394,7 @@ function NotificationSettings({C, profile}){
   ];
 
   return(
-    <div style={{background:C.card,backdropFilter:"blur(26px) saturate(160%)",WebkitBackdropFilter:"blur(26px) saturate(160%)",border:`1px solid ${C.border}`,borderRadius:13,padding:20,marginTop:14}}>
+    <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:20,marginTop:14}}>
       <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>REMINDERS</div>
 
       {status==="unsupported"&&(
