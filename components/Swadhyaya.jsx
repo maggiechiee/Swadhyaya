@@ -747,6 +747,9 @@ const RECIPE_DB = {
   "matar paneer":{ingredients:[{name:"peas",grams:100},{name:"paneer",grams:100},{name:"oil",grams:15},{name:"onion",grams:70},{name:"tomato",grams:90},{name:"ginger",grams:3},{name:"garlic",grams:3},{name:"spices",grams:4}],yield:{finalWeight:380},defaultGrams:220},
   "lauki curry":{ingredients:[{name:"lauki",grams:300},{name:"oil",grams:15},{name:"onion",grams:50},{name:"tomato",grams:60},{name:"ginger",grams:3},{name:"garlic",grams:3},{name:"spices",grams:3}],yield:{finalWeight:380},defaultGrams:220},
   "full cream milk":{ingredients:[{name:"full cream milk",grams:100}],yield:{finalWeight:100},defaultGrams:250},
+  "oil":{ingredients:[{name:"oil",grams:100}],yield:{finalWeight:100},defaultGrams:5},
+  "ghee":{ingredients:[{name:"ghee",grams:100}],yield:{finalWeight:100},defaultGrams:5},
+  "butter":{ingredients:[{name:"butter",grams:100}],yield:{finalWeight:100},defaultGrams:10},
   "mango shake":{ingredients:[{name:"mango",grams:150},{name:"full cream milk",grams:200},{name:"sugar",grams:15}],yield:{finalWeight:360},defaultGrams:250},
   "banana shake":{ingredients:[{name:"banana",grams:150},{name:"full cream milk",grams:200},{name:"sugar",grams:15}],yield:{finalWeight:360},defaultGrams:250},
   "milk tea":{ingredients:[{name:"full cream milk",grams:80},{name:"tea",grams:70},{name:"sugar",grams:8}],yield:{finalWeight:150},defaultGrams:150},
@@ -772,6 +775,9 @@ const RECIPE_ALIASES={"momos":"veg momos","momo":"veg momos","veg momo":"veg mom
   "moringa":"moringa powder","moringa leaf powder":"moringa powder",
   "moringa tea":"moringa brew","moringa water":"moringa brew",
   "sugarcane":"sugarcane juice","sugar cane juice":"sugarcane juice","ganne ka juice":"sugarcane juice",
+  "mustard oil":"oil","sarson ka tel":"oil","sunflower oil":"oil","groundnut oil":"oil","peanut oil":"oil",
+  "vegetable oil":"oil","refined oil":"oil","sesame oil":"oil","til oil":"oil","olive oil":"oil","coconut oil":"oil","cooking oil":"oil",
+  "desi ghee":"ghee","clarified butter":"ghee",
 };
 
 // Matches a logged entry against RECIPE_DB the same way resolveFood
@@ -965,6 +971,20 @@ function parseQuantity(foodStr) {
   const gramTrail = str.match(/^(.+?)\s+(\d+(?:\.\d+)?)\s*(g|gram|grams|ml)\b\s*$/);
   if (gramTrail) {
     return { qty: 1, gramsStated: parseFloat(gramTrail[2]), food: gramTrail[1].trim() };
+  }
+
+  // tsp/tbsp amounts — these are extremely common for oil, ghee, sugar,
+  // spices etc. and were previously not recognized as units at all, so
+  // "2 tsp mustard oil" ended up with "tsp" stuck onto the food name and
+  // failed to match anything, silently logging as 0 kcal.
+  const SPOON_GRAMS = {tsp:5, tspn:5, teaspoon:5, teaspoons:5, tbsp:15, tbspn:15, tablespoon:15, tablespoons:15};
+  const spoonLead = str.match(/^(\d+(?:\.\d+)?)\s*(tsp|tspn|teaspoons?|tbsp|tbspn|tablespoons?)\b\s*(.*)$/);
+  if (spoonLead) {
+    return { qty: 1, gramsStated: parseFloat(spoonLead[1]) * SPOON_GRAMS[spoonLead[2]], food: spoonLead[3].trim() };
+  }
+  const spoonTrail = str.match(/^(.+?)\s+(\d+(?:\.\d+)?)\s*(tsp|tspn|teaspoons?|tbsp|tbspn|tablespoons?)\b\s*$/);
+  if (spoonTrail) {
+    return { qty: 1, gramsStated: parseFloat(spoonTrail[2]) * SPOON_GRAMS[spoonTrail[3]], food: spoonTrail[1].trim() };
   }
 
   // leading plain number followed by rest of string: "2 bowls dal", "2 roti"
@@ -1223,12 +1243,13 @@ async function estimateFoodAI(rawEntries, learnedFoods={}){
   if(toEstimate.length===0) return {totals:learnedTotals, newlyLearned:{}};
 
   const system=`You are a nutrition estimation engine for Indian foods, supplements, and herbs. Given a list of food/supplement entries exactly as a person logged them (including quantity if given, e.g. "1 tsp moringa powder", "lions mane mushroom powder", "half lemon with salt"), estimate realistic nutrition totals for EACH entry as actually consumed (respecting any stated quantity; assume one typical serving if no quantity given).
+IMPORTANT — cooking oil/ghee: home-cooked Indian dishes (curries, sabzis, dal, paratha, etc.) almost always include real amounts of oil or ghee in preparation, which meaningfully raises calories and fat. Do not silently omit this. If the dish name implies typical home cooking, include a realistic oil/ghee contribution (commonly 1-2 tsp per serving for a curry/sabzi) in your estimate rather than treating it as a bare vegetable/protein with no added fat. Use web search if you're not confident about a specific dish's typical preparation or nutrition data, rather than guessing from memory alone.
 Return ONLY valid JSON, no markdown, no explanation, in this exact shape:
 {"items":[{"input":"<original entry text>","cal":0,"protein":0,"carbs":0,"fat":0,"fibre":0,"iron":0,"calcium":0,"vitC":0,"vitB12":0,"vitD":0,"folate":0,"magnesium":0,"zinc":0,"potassium":0,"omega3":0,"choline":0,"addedSugar":0,"sodium":0,"vitA":0,"vitE":0}]}
 Units: cal=kcal, protein/carbs/fat/fibre=g, iron/zinc/vitE=mg, calcium/magnesium/potassium/sodium/choline/vitC=mg, vitB12/vitD/folate/vitA=mcg, omega3=g, addedSugar=g.
 Be realistic -- supplements like mushroom powders or moringa are typically taken in small (gram-level) amounts with low calories (5-20 kcal) but can carry meaningful micronutrients. If something is truly unidentifiable, return all zeros for it rather than guessing wildly.`;
   try{
-    const res=await askAI(system,[{role:"user",content:JSON.stringify(toEstimate)}],800);
+    const res=await askAI(system,[{role:"user",content:JSON.stringify(toEstimate)}],900,true);
     const cleaned=res.replace(/```json|```/g,"").trim();
     const parsed=JSON.parse(cleaned);
     const aiTotals=empty();
@@ -1528,8 +1549,8 @@ function Stars(){
 }
 
 // ── AI call ───────────────────────────────────────────────────
-async function askAI(system,messages,maxTokens=600){
-  const r=await fetch("/api/ask-ai",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({system,messages,max_tokens:maxTokens})});
+async function askAI(system,messages,maxTokens=600,useSearch=false){
+  const r=await fetch("/api/ask-ai",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({system,messages,max_tokens:maxTokens,use_search:useSearch})});
   const d=await r.json();
   if(!r.ok || d.error) throw new Error(d.error||"AI request failed");
   return d.content?.map(b=>b.text||"").join("")||"Try again.";
