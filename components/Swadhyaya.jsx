@@ -7,11 +7,6 @@ const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ""
 );
 
-// Bump this any time you replace /public/artwork-earth.png with a new image
-// under the SAME filename — otherwise browsers and Vercel's CDN keep serving
-// the old cached copy indefinitely, which is exactly what you just hit.
-const ARTWORK_VERSION = "2";
-
 /* ═══════════════════════════════════════════════════════════
    SWADHYĀYA v2.0
    Goal-adaptive · Behavioural memory · Usage limits
@@ -34,10 +29,6 @@ const FONTS = `
   .sw-content{position:relative;z-index:1;}
   /* Glassmorphic card base */
   .glass-card{backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.22);border-radius:20px;}
-  /* Translucent bars (top header, bottom nav) — heavier blur + film grain so text stays readable over any background artwork */
-  .glass-bar{position:relative;backdrop-filter:blur(30px) saturate(1.1);-webkit-backdrop-filter:blur(30px) saturate(1.1);}
-  .glass-bar::before{content:'';position:absolute;inset:0;pointer-events:none;opacity:0.05;mix-blend-mode:overlay;
-    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");}
   /* Galaxy nebula blobs */
   .nebula{position:fixed;border-radius:50%;filter:blur(60px);pointer-events:none;z-index:0;animation:nebulaPulse 8s ease-in-out infinite;}
   .nebula-1{width:350px;height:350px;top:-80px;left:-80px;background:radial-gradient(circle,rgba(90,0,180,0.45),transparent 70%);animation-delay:0s;}
@@ -52,8 +43,6 @@ const FONTS = `
   @keyframes checkPop{0%{transform:scale(0)}70%{transform:scale(1.2)}100%{transform:scale(1)}}
   @keyframes sunrise{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
   @keyframes ringPulse{0%{box-shadow:0 0 0 0 rgba(113,180,120,0.5)}70%{box-shadow:0 0 0 14px rgba(113,180,120,0)}100%{box-shadow:0 0 0 0 rgba(113,180,120,0)}}
-  @keyframes mirrorShakeOnce{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
-  @keyframes mirrorGlow{0%,100%{box-shadow:0 0 0px rgba(212,168,92,0)}50%{box-shadow:0 0 22px rgba(212,168,92,0.35)}}
   .fade{animation:fadeUp 0.45s ease both;}
 `;
 
@@ -246,23 +235,23 @@ function WatercolourNav({NAV, section, setSection, C, galaxy}) {
   };
 
   return (
-    <div className="glass-bar" style={{position:"fixed",bottom:0,left:0,right:0,zIndex:200,
-      background:galaxy?"rgba(0,0,0,0.45)":"rgba(250,240,222,0.62)",
-      borderTop:`1px solid ${C.border}`,padding:"6px 0 10px"}}>
+    <div style={{position:"fixed",bottom:0,left:0,right:0,zIndex:200,
+      background:"rgba(0,0,0,0.3)",
+      borderTop:`1px solid rgba(255,255,255,0.12)`,padding:"6px 0 10px"}}>
       <div style={{maxWidth:700,margin:"0 auto",display:"flex",justifyContent:"space-around"}}>
         {NAV.map(n => {
           const active = section === n.id;
           return (
-            <button key={n.id} onClick={() => setSection(n.id)} style={{minHeight:40,minWidth:40,
+            <button key={n.id} onClick={() => setSection(n.id)} style={{
               display:"flex",flexDirection:"column",alignItems:"center",gap:3,
               padding:"4px 8px",background:"none",border:"none",cursor:"pointer",
               borderTop:active?`2px solid ${C.accent}`:"2px solid transparent",opacity:active?1:0.75,
             }}>
               <div style={{width:22,height:22,display:"flex",alignItems:"center",justifyContent:"center",position:"relative"}}>
-                {iconMap[n.id] ? iconMap[n.id](active) : <span style={{fontSize:18,opacity:active?1:0.4}}>{n.icon}</span>}
+                {iconMap[n.id] ? iconMap[n.id](active) : <span style={{fontSize:16,opacity:active?1:0.4}}>{n.icon}</span>}
                 {n.id==="birthchart"&&galaxy&&<div style={{position:"absolute",top:-2,right:-2,width:6,height:6,borderRadius:"50%",background:"#c084fc",boxShadow:"0 0 4px #c084fc"}}/>}
               </div>
-              <span style={{fontSize:12,fontFamily:"'DM Mono',monospace",letterSpacing:0.5,
+              <span style={{fontSize:8,fontFamily:"'DM Mono',monospace",letterSpacing:0.5,
                 color:active?C.accent:n.id==="birthchart"&&galaxy?"#c084fc":C.muted,textTransform:"uppercase"}}>
                 {n.label}
               </span>
@@ -276,30 +265,28 @@ function WatercolourNav({NAV, section, setSection, C, galaxy}) {
 
 
 const EARTHY={
-  bg:"rgba(242,228,201,0.5)",
-  surface:"rgba(242,228,201,0.62)",
-  card:"rgba(250,240,215,0.85)",
-  border:"rgba(90,69,48,0.22)",
-  borderDark:"rgba(90,69,48,0.35)",
-  text:"#5a4530",
-  muted:"rgba(90,69,48,0.75)",
-  dim:"rgba(90,69,48,0.5)",
-  accent:"#9B7FA8",
-  accent2:"#7E905A",
-  accent3:"#6b4f7a",
-  gold:"#D9932E",
-  warm:"#CC6B2C",
-  cream:"rgba(90,69,48,0.06)",
-  red:"#8c3a2e",
-  purple:"#9B7FA8",
-  pink:"#B05D81",
-  cardQuote:"linear-gradient(135deg,rgba(155,127,168,0.16),rgba(107,79,122,0.1))",
-  cardGreen:"linear-gradient(135deg,rgba(126,144,90,0.16),rgba(54,72,36,0.1))",
-  cardBlue:"linear-gradient(135deg,rgba(107,79,122,0.16),rgba(90,65,105,0.1))",
-  cardTeal:"linear-gradient(135deg,rgba(126,144,90,0.14),rgba(107,79,122,0.08))",
-  cardDark:"linear-gradient(135deg,rgba(90,69,48,0.14),rgba(90,69,48,0.08))",
-  cardAmber:"linear-gradient(135deg,rgba(204,107,44,0.18),rgba(217,147,46,0.14))",
-  glassBlur:"none",
+  bg:"rgba(0,0,0,0.25)",
+  surface:"rgba(0,0,0,0.3)",
+  card:"rgba(255,255,255,0.1)",
+  border:"rgba(255,255,255,0.18)",
+  borderDark:"rgba(255,255,255,0.3)",
+  text:"#fff",
+  muted:"rgba(255,255,255,0.65)",
+  dim:"rgba(255,255,255,0.35)",
+  accent:"#c084fc",
+  accent2:"#34d399",
+  accent3:"#38bdf8",
+  gold:"#fbbf24",
+  warm:"#fb923c",
+  cream:"rgba(255,255,255,0.08)",
+  red:"#f87171",
+  purple:"#a78bfa",
+  cardQuote:"linear-gradient(135deg,rgba(70,30,110,0.82),rgba(100,45,140,0.72))",
+  cardGreen:"linear-gradient(135deg,rgba(15,70,50,0.82),rgba(25,100,70,0.72))",
+  cardBlue:"linear-gradient(135deg,rgba(15,35,90,0.82),rgba(30,50,140,0.72))",
+  cardTeal:"linear-gradient(135deg,rgba(8,55,65,0.82),rgba(12,80,90,0.72))",
+  cardDark:"linear-gradient(135deg,rgba(25,8,45,0.82),rgba(40,12,70,0.72))",
+  cardAmber:"linear-gradient(135deg,rgba(80,45,8,0.82),rgba(120,70,12,0.72))",
 };
 const GALAXY={
   bg:"#02010a",
@@ -308,8 +295,8 @@ const GALAXY={
   border:"rgba(255,255,255,0.14)",
   borderDark:"rgba(120,90,255,0.3)",
   text:"#fff",
-  muted:"rgba(255,255,255,0.78)",
-  dim:"rgba(255,255,255,0.55)",
+  muted:"rgba(255,255,255,0.6)",
+  dim:"rgba(255,255,255,0.3)",
   accent:"#c084fc",
   accent2:"#34d399",
   accent3:"#38bdf8",
@@ -324,13 +311,9 @@ const GALAXY={
   cardTeal:"linear-gradient(135deg,rgba(0,50,55,0.92),rgba(0,75,80,0.82))",
   cardDark:"linear-gradient(135deg,rgba(20,0,40,0.92),rgba(38,0,65,0.82))",
   cardAmber:"linear-gradient(135deg,rgba(60,25,0,0.92),rgba(100,50,0,0.82))",
-  glassBlur:"blur(26px) saturate(160%)",
 };
 
 const PHASE_COLORS={menstrual:"#e05a5a",follicular:"#c49a2a",ovulation:"#71b478",luteal:"#7a5fa5",pms:"#d4855a"};
-const PHASE_COLORS_GALAXY=PHASE_COLORS;
-const PHASE_COLORS_EARTH={menstrual:"#6D161F",follicular:"#364824",ovulation:"#8a5f0f",luteal:"#905A36",pms:"#8a6a44"};
-const PHASE_BG_EARTH={menstrual:"#F3D9C4",follicular:"#DCE3C6",ovulation:"#F3E4BE",luteal:"#E4D7C4",pms:"#EAD9C7"};
 const PHASE_INFO={
   menstrual:{label:"Menstrual",days:"1–5",desc:"Rest. Iron-rich foods. Gentle movement only.",icon:"🩸"},
   follicular:{label:"Follicular",days:"6–13",desc:"Energy rising. Best for bold moves.",icon:"🌱"},
@@ -613,21 +596,21 @@ const FOOD_DB={
   "water":{serving:"1 glass",cal:0,protein:0,carbs:0,fat:0,fibre:0,iron:0,calcium:0,vitC:0,vitB12:0,vitD:0,folate:0,magnesium:0,zinc:0,potassium:0,omega3:0,choline:0,addedSugar:0,sodium:0,vitA:0,vitE:0},
 };
 
-// ═══════════════════════════════════════════════════════════════
-// NUTRITION CALCULATION ENGINE — ingredient + recipe + serving-size
+// ============================================================================
+// NUTRITION CALCULATION ENGINE -- ingredient + recipe + serving-size
 // based. This is the accurate replacement path: instead of trusting a
 // single fixed "per serving" guess (FOOD_DB above, kept only as a
 // fallback for dishes not yet converted) or an AI guess, real dishes
 // are built from ingredient WEIGHTS. Calories/macros are summed from
-// the ingredients automatically — never entered by hand — so any
+// the ingredients automatically -- never entered by hand -- so any
 // serving size, any ingredient swap, and any "less oil / extra
 // paneer" style edit recalculates correctly instead of silently
 // staying wrong.
-// ═══════════════════════════════════════════════════════════════
+// ============================================================================
 
 const EMPTY_NUTRIENTS = ()=>({cal:0,protein:0,carbs:0,fat:0,fibre:0,iron:0,calcium:0,vitC:0,vitB12:0,vitD:0,folate:0,magnesium:0,zinc:0,potassium:0,omega3:0,choline:0,addedSugar:0,sodium:0,vitA:0,vitE:0});
 
-// Per-100g nutrition for RAW/base ingredients (not fixed servings —
+// Per-100g nutrition for RAW/base ingredients (not fixed servings --
 // these get scaled by however many grams a recipe actually uses).
 const INGREDIENT_DB = {
   "rice":{cal:365,protein:7.1,carbs:80.4,fat:0.6,fibre:1.3,iron:0.8,calcium:10,vitC:0,vitB12:0,vitD:0,folate:8,magnesium:25,zinc:1.1,potassium:115,omega3:0,choline:9,addedSugar:0,sodium:1,vitA:0,vitE:0.1},
@@ -664,7 +647,7 @@ const INGREDIENT_DB = {
   "soy sauce":{cal:53,protein:8,carbs:4.9,fat:0.1,fibre:0.8,iron:2,calcium:20,vitC:0,vitB12:0,vitD:0,folate:34,magnesium:40,zinc:0.4,potassium:207,omega3:0,choline:15,addedSugar:0,sodium:5500,vitA:0,vitE:0},
   "sugar":{cal:387,protein:0,carbs:100,fat:0,fibre:0,iron:0,calcium:1,vitC:0,vitB12:0,vitD:0,folate:0,magnesium:0,zinc:0,potassium:2,omega3:0,choline:0,addedSugar:100,sodium:1,vitA:0,vitE:0},
   "salt":{cal:0,protein:0,carbs:0,fat:0,fibre:0,iron:0,calcium:24,vitC:0,vitB12:0,vitD:0,folate:0,magnesium:1,zinc:0,potassium:8,omega3:0,choline:0,addedSugar:0,sodium:38758,vitA:0,vitE:0},
-  "spices":{cal:270,protein:10,carbs:45,fat:8,fibre:30,iron:20,calcium:400,vitC:2,vitB12:0,vitD:0,folate:15,magnesium:150,zinc:2,potassium:1200,omega3:0,choline:5,addedSugar:0,sodium:60,vitA:20,vitE:1}, // generic mixed masala/spice blend — used in small (2-8g) amounts
+  "spices":{cal:270,protein:10,carbs:45,fat:8,fibre:30,iron:20,calcium:400,vitC:2,vitB12:0,vitD:0,folate:15,magnesium:150,zinc:2,potassium:1200,omega3:0,choline:5,addedSugar:0,sodium:60,vitA:20,vitE:1}, // generic mixed masala/spice blend -- used in small (2-8g) amounts
   "egg":{cal:155,protein:13,carbs:1.1,fat:11,fibre:0,iron:1.8,calcium:50,vitC:0,vitB12:1.1,vitD:82,folate:47,magnesium:12,zinc:1,potassium:126,omega3:0.1,choline:294,addedSugar:0,sodium:124,vitA:160,vitE:1},
   "chicken":{cal:120,protein:22.5,carbs:0,fat:2.6,fibre:0,iron:0.7,calcium:9,vitC:0,vitB12:0.3,vitD:0,folate:4,magnesium:23,zinc:0.8,potassium:220,omega3:0.05,choline:60,addedSugar:0,sodium:60,vitA:6,vitE:0.2},
   "peanuts":{cal:567,protein:25.8,carbs:16.1,fat:49.2,fibre:8.5,iron:4.6,calcium:92,vitC:0,vitB12:0,vitD:0,folate:240,magnesium:168,zinc:3.3,potassium:705,omega3:0,choline:55,addedSugar:0,sodium:18,vitA:0,vitE:8.3},
@@ -685,7 +668,7 @@ const INGREDIENT_DB = {
   "guava":{cal:68,protein:2.6,carbs:14,fat:1,fibre:5.4,iron:0.3,calcium:18,vitC:228,vitB12:0,vitD:0,folate:49,magnesium:22,zinc:0.2,potassium:417,omega3:0,choline:7.6,addedSugar:0,sodium:2,vitA:31,vitE:0.7},
 };
 
-// Named real-world servings — every one stores ONLY a weight in grams.
+// Named real-world servings -- every one stores ONLY a weight in grams.
 // Nutrition for any of these is never stored separately; it's always
 // computed from a recipe's totals scaled to this weight.
 const SERVING_SIZES=[
@@ -715,7 +698,7 @@ const SERVING_SIZES=[
 ];
 
 // Every recipe's ingredients store WEIGHT ONLY. Nutrition below is never
-// entered by hand — it's summed automatically from INGREDIENT_DB by
+// entered by hand -- it's summed automatically from INGREDIENT_DB by
 // calcRecipeTotals(). "yield" is the real-world outcome of cooking:
 // finalWeight = the actual cooked/final weight (water absorbed, oil
 // absorbed, evaporation already accounted for), and unitsCount is set
@@ -736,7 +719,7 @@ const RECIPE_DB = {
   "samosa":{ingredients:[{name:"maida",grams:100},{name:"potato",grams:200},{name:"peas",grams:30},{name:"oil",grams:60},{name:"spices",grams:4}],yield:{finalWeight:350,unitsCount:6},defaultGrams:58},
   "veg momos":{ingredients:[{name:"maida",grams:120},{name:"cabbage",grams:100},{name:"carrot",grams:80},{name:"onion",grams:60},{name:"garlic",grams:8},{name:"ginger",grams:8},{name:"oil",grams:8},{name:"soy sauce",grams:10},{name:"salt",grams:5},{name:"spices",grams:2}],yield:{finalWeight:520,unitsCount:20},defaultGrams:130},
 
-  // Everyday home-style curries — the base every one of these shares is
+  // Everyday home-style curries -- the base every one of these shares is
   // oil + onion + tomato + ginger + garlic + a spice blend, then one
   // main vegetable/protein. This is the pattern your actual daily meals
   // (brinjal/potato/peas/paneer/bottle gourd + chapati) run on.
@@ -781,7 +764,7 @@ const RECIPE_ALIASES={"momos":"veg momos","momo":"veg momos","veg momo":"veg mom
 };
 
 // Matches a logged entry against RECIPE_DB the same way resolveFood
-// matches FOOD_DB — checked FIRST, since a weight-based recipe match is
+// matches FOOD_DB -- checked FIRST, since a weight-based recipe match is
 // always more accurate than a fixed-serving FOOD_DB guess.
 function resolveRecipe(raw){
   let s=(raw||"").toLowerCase().trim().replace(/[^a-z0-9 ]/g,"").replace(/\s+/g," ").trim();
@@ -829,8 +812,8 @@ function calcRecipeTotals(recipe){
 }
 
 // Scales the whole-batch totals down to whatever weight was actually
-// eaten — this is the entire point of the engine: no serving size is
-// ever a separate hardcoded number, it's always totals × (grams eaten
+// eaten -- this is the entire point of the engine: no serving size is
+// ever a separate hardcoded number, it's always totals x (grams eaten
 // / grams the whole batch weighs).
 function calcRecipePortion(recipe, grams){
   const totals = calcRecipeTotals(recipe);
@@ -851,7 +834,7 @@ function calcRecipeUnits(recipe, unitCount){
 
 // Dynamic recalculation for modifications like "less oil", "extra
 // paneer", "double vegetables", "half rice". Never mutates the original
-// recipe — returns a new one with adjusted ingredient weights AND a
+// recipe -- returns a new one with adjusted ingredient weights AND a
 // correspondingly adjusted final yield weight, so a portion computed
 // from the new recipe is automatically correct.
 // adjustments: [{ingredient:"oil", multiply:0.5}] or {add:-10} or {set:5}
@@ -870,6 +853,7 @@ function adjustRecipe(recipe, adjustments){
   const newYield = {...recipe.yield, finalWeight:Math.max(1,(recipe.yield?.finalWeight||100)+weightDelta)};
   return {...recipe, ingredients, yield:newYield};
 }
+
 
 
 // Reference nutrient contributions for common supplement types, used by
@@ -973,7 +957,7 @@ function parseQuantity(foodStr) {
     return { qty: 1, gramsStated: parseFloat(gramTrail[2]), food: gramTrail[1].trim() };
   }
 
-  // tsp/tbsp amounts — these are extremely common for oil, ghee, sugar,
+  // tsp/tbsp amounts -- these are extremely common for oil, ghee, sugar,
   // spices etc. and were previously not recognized as units at all, so
   // "2 tsp mustard oil" ended up with "tsp" stuck onto the food name and
   // failed to match anything, silently logging as 0 kcal.
@@ -1061,7 +1045,7 @@ function calcNutrition(foods){
     splitFoodEntries(rawEntry).forEach(entry=>{
       const {qty, gramsStated, food} = parseQuantity(entry);
 
-      // Step 1: Recipe engine first — real ingredient-weight math, always
+      // Step 1: Recipe engine first -- real ingredient-weight math, always
       // more accurate than a fixed "per serving" guess.
       const recipeKey = resolveRecipe(food);
       if(recipeKey){
@@ -1087,7 +1071,6 @@ function calcNutrition(foods){
   });
   return b;
 }
-
 
 // Computes nutrition for a SAVED log entry, including any AI-estimated
 // values that were captured at log time for unrecognized foods.
@@ -1204,17 +1187,15 @@ If a line is genuinely unclear or doesn't match any tracked nutrient, set matche
 }
 
 
-// Returns the list of raw entries that neither the recipe engine nor
-// resolveFood could match, so the caller knows which ones need an AI
-// estimate as a last resort.
+// Returns the list of raw entries that resolveFood could NOT match,
+// so the caller knows which ones need an AI estimate.
 function getUnresolvedFoods(foods){
   const unresolved=[];
   (foods||[]).forEach(rawEntry=>{
     splitFoodEntries(rawEntry).forEach(entry=>{
       const {food}=parseQuantity(entry);
-      const isRecipe = !!resolveRecipe(food);
       const k=resolveFood(food);
-      if(!isRecipe && !k && food) unresolved.push(entry);
+      if(!k && food) unresolved.push(entry);
     });
   });
   return unresolved;
@@ -1243,13 +1224,12 @@ async function estimateFoodAI(rawEntries, learnedFoods={}){
   if(toEstimate.length===0) return {totals:learnedTotals, newlyLearned:{}};
 
   const system=`You are a nutrition estimation engine for Indian foods, supplements, and herbs. Given a list of food/supplement entries exactly as a person logged them (including quantity if given, e.g. "1 tsp moringa powder", "lions mane mushroom powder", "half lemon with salt"), estimate realistic nutrition totals for EACH entry as actually consumed (respecting any stated quantity; assume one typical serving if no quantity given).
-IMPORTANT — cooking oil/ghee: home-cooked Indian dishes (curries, sabzis, dal, paratha, etc.) almost always include real amounts of oil or ghee in preparation, which meaningfully raises calories and fat. Do not silently omit this. If the dish name implies typical home cooking, include a realistic oil/ghee contribution (commonly 1-2 tsp per serving for a curry/sabzi) in your estimate rather than treating it as a bare vegetable/protein with no added fat. Use web search if you're not confident about a specific dish's typical preparation or nutrition data, rather than guessing from memory alone.
 Return ONLY valid JSON, no markdown, no explanation, in this exact shape:
 {"items":[{"input":"<original entry text>","cal":0,"protein":0,"carbs":0,"fat":0,"fibre":0,"iron":0,"calcium":0,"vitC":0,"vitB12":0,"vitD":0,"folate":0,"magnesium":0,"zinc":0,"potassium":0,"omega3":0,"choline":0,"addedSugar":0,"sodium":0,"vitA":0,"vitE":0}]}
 Units: cal=kcal, protein/carbs/fat/fibre=g, iron/zinc/vitE=mg, calcium/magnesium/potassium/sodium/choline/vitC=mg, vitB12/vitD/folate/vitA=mcg, omega3=g, addedSugar=g.
 Be realistic -- supplements like mushroom powders or moringa are typically taken in small (gram-level) amounts with low calories (5-20 kcal) but can carry meaningful micronutrients. If something is truly unidentifiable, return all zeros for it rather than guessing wildly.`;
   try{
-    const res=await askAI(system,[{role:"user",content:JSON.stringify(toEstimate)}],900,true);
+    const res=await askAI(system,[{role:"user",content:JSON.stringify(toEstimate)}],800);
     const cleaned=res.replace(/```json|```/g,"").trim();
     const parsed=JSON.parse(cleaned);
     const aiTotals=empty();
@@ -1480,7 +1460,7 @@ function getPhase(lp,cl,pl,ds){
   return"pms";
 }
 
-// Phase calc that trusts actual logged periods over the static profile date —
+// Phase calc that trusts actual logged periods over the static profile date --
 // keeps the Home/Wellness phase indicator in sync with what's really been logged.
 function getTodayPhaseFromLogs(periodLogs, cycleLength, periodLength, lastPeriodStart, todayStr){
   const logs = (periodLogs||[]).filter(p=>p.startDate);
@@ -1549,8 +1529,8 @@ function Stars(){
 }
 
 // ── AI call ───────────────────────────────────────────────────
-async function askAI(system,messages,maxTokens=600,useSearch=false){
-  const r=await fetch("/api/ask-ai",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({system,messages,max_tokens:maxTokens,use_search:useSearch})});
+async function askAI(system,messages,maxTokens=600){
+  const r=await fetch("/api/ask-ai",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({system,messages,max_tokens:maxTokens})});
   const d=await r.json();
   if(!r.ok || d.error) throw new Error(d.error||"AI request failed");
   return d.content?.map(b=>b.text||"").join("")||"Try again.";
@@ -1712,7 +1692,7 @@ export default function Swadhyaya(){
         setProfile(p => {
           const restored = {...p,
           name: prof.name || "",
-          gender: prof.gender || p.gender || "",
+          gender: prof.gender || "female",
           age: prof.age || "",
           weight: prof.weight || "",
           height: prof.height || "",
@@ -2074,7 +2054,7 @@ export default function Swadhyaya(){
     <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"transparent"}}>
       <div style={{textAlign:"center"}}>
         <div style={{fontSize:28,marginBottom:8}}>✦</div>
-        <div style={{fontSize:16,color:"#9088a0",fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>Loading…</div>
+        <div style={{fontSize:14,color:"#9088a0",fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>Loading…</div>
       </div>
     </div>
   );
@@ -2103,6 +2083,7 @@ export default function Swadhyaya(){
 
   const NAV=[
     {id:"home",icon:"⬡",label:"Home"},
+    {id:"today",icon:"🗓",label:"Today"},
     {id:"morning",icon:"🌅",label:"Morning"},
     {id:"wellness",icon:"🧘",label:"Wellness"},
     {id:"food",icon:"🍽",label:"Nutrition"},
@@ -2121,10 +2102,10 @@ export default function Swadhyaya(){
       {/* Login modal */}
       {showLogin&&!user&&(
         <div style={{position:"fixed",inset:0,zIndex:1000,background:"rgba(0,0,0,0.5)",display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
-          <div style={{width:"100%",maxWidth:400,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,borderRadius:20,overflow:"hidden"}}>
+          <div style={{width:"100%",maxWidth:400,background:C.card,borderRadius:20,overflow:"hidden"}}>
             <div style={{padding:"16px 20px",display:"flex",justifyContent:"space-between",alignItems:"center",borderBottom:`1px solid ${C.border}`}}>
-              <div style={{fontSize:17,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>Sign in to save your data</div>
-              <button onClick={()=>setShowLogin(false)} style={{minHeight:40,minWidth:40,background:"none",border:"none",cursor:"pointer",fontSize:20,color:C.muted}}>×</button>
+              <div style={{fontSize:15,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>Sign in to save your data</div>
+              <button onClick={()=>setShowLogin(false)} style={{background:"none",border:"none",cursor:"pointer",fontSize:20,color:C.muted}}>×</button>
             </div>
             <AuthScreen C={C} onAuth={(u)=>{setUser(u);setShowLogin(false);if(u)loadUserData(u.id);}}/>
           </div>
@@ -2132,28 +2113,16 @@ export default function Swadhyaya(){
       )}
       {showLogin&&user&&(
         <div style={{position:"fixed",inset:0,zIndex:1000,background:"rgba(0,0,0,0.5)",display:"flex",alignItems:"center",justifyContent:"center",padding:20}} onClick={()=>setShowLogin(false)}>
-          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,borderRadius:16,padding:24,textAlign:"center",maxWidth:300}}>
-            <div style={{fontSize:16,marginBottom:8}}>✓ Signed in as</div>
-            <div style={{fontSize:16,color:C.accent,marginBottom:16}}>{user.email}</div>
-            <button onClick={async()=>{await supabase.auth.signOut();setUser(null);setShowLogin(false);}} style={{minHeight:40,minWidth:40,padding:"10px 24px",background:C.red+"20",border:`1px solid ${C.red}44`,borderRadius:20,cursor:"pointer",color:C.red,fontSize:16}}>Sign out</button>
+          <div style={{background:C.card,borderRadius:16,padding:24,textAlign:"center",maxWidth:300}}>
+            <div style={{fontSize:14,marginBottom:8}}>✓ Signed in as</div>
+            <div style={{fontSize:13,color:C.accent,marginBottom:16}}>{user.email}</div>
+            <button onClick={async()=>{await supabase.auth.signOut();setUser(null);setShowLogin(false);}} style={{padding:"10px 24px",background:C.red+"20",border:`1px solid ${C.red}44`,borderRadius:20,cursor:"pointer",color:C.red,fontSize:13}}>Sign out</button>
           </div>
         </div>
       )}
       {galaxy&&<Stars/>}
       {/* Background layer — artwork for earth, deep space for galaxy */}
-      {!galaxy&&(
-        <div className="sw-app-bg" style={{
-          background:"linear-gradient(160deg,#f2e4c9 0%,#ecdfba 100%)",
-          opacity:1,
-        }}/>
-      )}
-      {/* Film grain — only for Galaxy's glass aesthetic; Earth mode is
-          meant to read as flat, clean vintage print, not textured glass. */}
-      {galaxy&&<div style={{
-        position:"fixed", inset:0, zIndex:9999, pointerEvents:"none",
-        opacity:0.045, mixBlendMode:"overlay",
-        backgroundImage:"url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E\")",
-      }}/>}
+      {!galaxy&&<div className="sw-app-bg" style={{backgroundImage:`url(/artwork-earth.png)`,opacity:1}}/>}
       {galaxy&&(
         <>
           <div className="sw-app-galaxy-bg"/>
@@ -2165,21 +2134,21 @@ export default function Swadhyaya(){
       )}
 
       {/* TOP BAR */}
-      <div className="glass-bar" style={{position:"sticky",top:0,zIndex:200,background:galaxy?"rgba(0,0,0,0.42)":"rgba(250,240,222,0.6)",borderBottom:`1px solid ${C.border}`,padding:"10px 16px"}}>
+      <div style={{position:"sticky",top:0,zIndex:200,background:"rgba(0,0,0,0.25)",borderBottom:`1px solid rgba(255,255,255,0.12)`,padding:"10px 16px"}}>
         <div style={{maxWidth:700,margin:"0 auto",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <div onClick={()=>setSection("home")} style={{minHeight:40,cursor:"pointer"}}>
-            <div style={{fontSize:18,fontWeight:600,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:C.text}}>Swadhyāya</div>
-            <div style={{fontSize:12,color:C.muted,fontFamily:"'DM Mono',monospace",fontWeight:700,letterSpacing:2}}>
+          <div onClick={()=>setSection("home")} style={{cursor:"pointer"}}>
+            <div style={{fontSize:18,fontWeight:600,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>Swadhyāya</div>
+            <div style={{fontSize:9,color:"rgba(255,255,255,0.7)",fontFamily:"'DM Mono',monospace",fontWeight:700,letterSpacing:2}}>
               {profile.plan==="trial"?`TRIAL · ${trialDaysLeft} DAYS LEFT`:planData.name.toUpperCase()}
             </div>
           </div>
           <div style={{display:"flex",gap:8,alignItems:"center"}}>
-            {todayPhase&&<div style={{fontSize:14,color:(galaxy?PHASE_COLORS_GALAXY:PHASE_COLORS_EARTH)[todayPhase],padding:"3px 9px",background:(galaxy?PHASE_COLORS_GALAXY:PHASE_COLORS_EARTH)[todayPhase]+"18",borderRadius:20}}>{PHASE_INFO[todayPhase]?.icon} {PHASE_INFO[todayPhase]?.label}</div>}
-            <div style={{fontSize:15,color:C.accent3}}>💧{Math.round(waterLog/250)}g</div>
-            <div style={{fontSize:15,color:C.accent}}>🔥{Math.round(todayFood.cal)}</div>
-            <button onClick={()=>setGalaxy(g=>!g)} style={{minHeight:40,minWidth:40,background:galaxy?"#c084fc33":"transparent",border:`1.5px solid ${galaxy?"#c084fc":"#b5622a44"}`,borderRadius:20,padding:"5px 12px",cursor:"pointer",fontSize:14,color:galaxy?"#c084fc":C.accent,display:"flex",alignItems:"center",gap:4,fontFamily:"'DM Mono',monospace",letterSpacing:0.5}}><span>{galaxy?"☀":"✦"}</span><span style={{fontSize:12}}>{galaxy?"EARTHY":"GALAXY"}</span></button>
-            <button onClick={()=>setSection("profile")} style={{minHeight:40,minWidth:40,width:30,height:30,borderRadius:"50%",background:`linear-gradient(135deg,${C.accent},${C.warm})`,border:"none",cursor:"pointer",fontSize:16,color:"#fff"}}>{profile.name?profile.name[0].toUpperCase():"◉"}</button>
-            <button onClick={()=>setShowLogin(true)} style={{minHeight:40,minWidth:40,fontSize:13,padding:"4px 8px",borderRadius:20,border:`1px solid ${user?C.accent2:C.red}44`,background:user?C.accent2+"15":C.red+"15",cursor:"pointer",color:user?C.accent2:C.red,fontFamily:"'DM Mono',monospace"}}>
+            {todayPhase&&<div style={{fontSize:11,color:PHASE_COLORS[todayPhase],padding:"3px 9px",background:PHASE_COLORS[todayPhase]+"18",borderRadius:20}}>{PHASE_INFO[todayPhase]?.icon} {PHASE_INFO[todayPhase]?.label}</div>}
+            <div style={{fontSize:12,color:C.accent3}}>💧{Math.round(waterLog/250)}g</div>
+            <div style={{fontSize:12,color:C.accent}}>🔥{Math.round(todayFood.cal)}</div>
+            <button onClick={()=>setGalaxy(g=>!g)} style={{background:galaxy?"#c084fc33":"transparent",border:`1.5px solid ${galaxy?"#c084fc":"#b5622a44"}`,borderRadius:20,padding:"5px 12px",cursor:"pointer",fontSize:11,color:galaxy?"#c084fc":C.accent,display:"flex",alignItems:"center",gap:4,fontFamily:"'DM Mono',monospace",letterSpacing:0.5}}><span>{galaxy?"☀":"✦"}</span><span style={{fontSize:9}}>{galaxy?"EARTHY":"GALAXY"}</span></button>
+            <button onClick={()=>setSection("profile")} style={{width:30,height:30,borderRadius:"50%",background:`linear-gradient(135deg,${C.accent},${C.warm})`,border:"none",cursor:"pointer",fontSize:13,color:"#fff"}}>{profile.name?profile.name[0].toUpperCase():"◉"}</button>
+            <button onClick={()=>setShowLogin(true)} style={{fontSize:10,padding:"4px 8px",borderRadius:20,border:`1px solid ${user?C.accent2:C.red}44`,background:user?C.accent2+"15":C.red+"15",cursor:"pointer",color:user?C.accent2:C.red,fontFamily:"'DM Mono',monospace"}}>
               {user?"●":"LOGIN"}
             </button>
           </div>
@@ -2187,28 +2156,29 @@ export default function Swadhyaya(){
       </div>
 
       {/* PHASE BANNER */}
-      {todayPhase&&(()=>{const pc2=(galaxy?PHASE_COLORS_GALAXY:PHASE_COLORS_EARTH)[todayPhase];return<div style={{background:pc2+"15",borderBottom:`1px solid ${pc2}22`,padding:"5px 16px",textAlign:"center",position:"relative",zIndex:1}}><span style={{fontSize:14,color:pc2,fontWeight:galaxy?400:600}}>{PHASE_INFO[todayPhase]?.desc}</span></div>;})()}
+      {todayPhase&&<div style={{background:PHASE_COLORS[todayPhase]+"15",borderBottom:`1px solid ${PHASE_COLORS[todayPhase]}22`,padding:"5px 16px",textAlign:"center",position:"relative",zIndex:1}}><span style={{fontSize:11,color:PHASE_COLORS[todayPhase]}}>{PHASE_INFO[todayPhase]?.desc}</span></div>}
 
       {/* UPGRADE BANNER for trial */}
       {profile.plan==="trial"&&trialDaysLeft<=2&&(
         <div style={{background:C.accent+"18",borderBottom:`1px solid ${C.accent}44`,padding:"8px 16px",textAlign:"center",position:"relative",zIndex:1}}>
-          <span style={{fontSize:15,color:C.accent}}>⏳ {trialDaysLeft===0?"Trial ended":"Trial ends soon"} · </span>
-          <span onClick={()=>setSection("upgrade")} style={{minHeight:40,fontSize:15,color:C.accent,fontWeight:700,cursor:"pointer",textDecoration:"underline"}}>Upgrade now</span>
+          <span style={{fontSize:12,color:C.accent}}>⏳ {trialDaysLeft===0?"Trial ended":"Trial ends soon"} · </span>
+          <span onClick={()=>setSection("upgrade")} style={{fontSize:12,color:C.accent,fontWeight:700,cursor:"pointer",textDecoration:"underline"}}>Upgrade now</span>
         </div>
       )}
 
       {/* MAIN CONTENT */}
       <div style={{maxWidth:700,margin:"0 auto",padding:"0 0 120px",position:"relative",zIndex:1}}>
         {safeSection==="home"&&<HomeSection C={C} galaxy={galaxy} profile={profile} needs={needs} todayFood={todayFood} waterLog={waterLog} completedSteps={completedSteps} greeting={greeting} section={section} setSection={setSection} todayPhase={todayPhase} behaviourProfile={behaviourProfile} trialDaysLeft={trialDaysLeft} journalEntries={journalEntries} foodLogs={foodLogs}/>}
+        {safeSection==="today"&&<TodaySection C={C} galaxy={galaxy} profile={profile} up={up}/>}
         {safeSection==="morning"&&<MorningSection C={C} galaxy={galaxy} completedSteps={completedSteps} setCompletedSteps={setCompletedSteps} gratitude={gratitude} setGratitude={setGratitude} priorities={priorities} setPriorities={setPriorities} meditationLog={meditationLog} setMeditationLog={setMeditationLog} profile={profile}/>}
         {safeSection==="wellness"&&<WellnessSection C={C} galaxy={galaxy} profile={profile} moveLog={moveLog} setMoveLog={setMoveLog} todayPhase={todayPhase} meditationLog={meditationLog} setMeditationLog={setMeditationLog}/>}
         {safeSection==="food"&&<FoodSection C={C} galaxy={galaxy} foodLogs={foodLogs} setFoodLogs={setFoodLogs} waterLog={waterLog} setWaterLog={setWaterLog} needs={needs} todayFood={todayFood} updateBP={updateBP} profile={profile} saveFoodLogEntry={saveFoodLogEntry} up={up}/>}
-        {section==="cycle"&&profile.gender==="female"&&<CycleSection C={C} galaxy={galaxy} profile={profile} setProfile={setProfile} periodLogs={periodLogs} setPeriodLogs={setPeriodLogs} symptoms={symptoms} setSymptoms={setSymptoms} savePeriodToCloud={savePeriodToCloud}/>}
+        {section==="cycle"&&profile.gender==="female"&&<CycleSection C={C} profile={profile} setProfile={setProfile} periodLogs={periodLogs} setPeriodLogs={setPeriodLogs} symptoms={symptoms} setSymptoms={setSymptoms} savePeriodToCloud={savePeriodToCloud}/>}
         {safeSection==="manual"&&<YourManualSection C={C} galaxy={galaxy} profile={profile} journalEntries={journalEntries} behaviourProfile={behaviourProfile} foodLogs={foodLogs}/>}
         {safeSection==="goals"&&<GoalsSection C={C} galaxy={galaxy} profile={profile} up={up} journalEntries={journalEntries}/>}
         {safeSection==="journal"&&<JournalSection C={C} galaxy={galaxy} profile={profile} journalEntries={journalEntries} setJournalEntries={setJournalEntries} foodLogs={foodLogs} moveLog={moveLog} completedSteps={completedSteps} periodLogs={periodLogs} behaviourProfile={behaviourProfile} updateBP={updateBP}/>}
         {safeSection==="progress"&&<ProgressSection C={C} profile={profile} up={up} needs={needs} todayFood={todayFood} moveLog={moveLog} completedSteps={completedSteps} weightLog={weightLog} setWeightLog={setWeightLog} foodLogs={foodLogs} behaviourProfile={behaviourProfile} updateBP={updateBP}/>}
-        {safeSection==="myspace"&&<MySpaceSection C={C} galaxy={galaxy} profile={profile} foodLogs={foodLogs} setFoodLogs={setFoodLogs} waterLog={waterLog} setWaterLog={setWaterLog} moveLog={moveLog} setMoveLog={setMoveLog} todayFood={todayFood} needs={needs} canSendAI={canSendAI} recordAIMsg={recordAIMsg} todayMsgs={todayMsgs} planData={planData} setSection={setSection} updateBP={updateBP} behaviourProfile={behaviourProfile} saveFoodLogEntry={saveFoodLogEntry} journalEntries={journalEntries}/>}
+        {safeSection==="myspace"&&<MySpaceSection C={C} galaxy={galaxy} profile={profile} foodLogs={foodLogs} setFoodLogs={setFoodLogs} waterLog={waterLog} setWaterLog={setWaterLog} moveLog={moveLog} setMoveLog={setMoveLog} todayFood={todayFood} needs={needs} canSendAI={canSendAI} recordAIMsg={recordAIMsg} todayMsgs={todayMsgs} planData={planData} setSection={setSection} updateBP={updateBP} behaviourProfile={behaviourProfile} saveFoodLogEntry={saveFoodLogEntry}/>}
         {safeSection==="profile"&&<ProfileSection C={C} profile={profile} up={up} needs={needs} setSection={setSection}
           resetToday={()=>{setFoodLogs([]);setWaterLog(0);setCompletedSteps([]);}}
           resetAllLogs={()=>{setFoodLogs([]);setWaterLog(0);setCompletedSteps([]);setJournalEntries([]);setWeightLog([]);setMoveLog([]);setMeditationLog([]);setPeriodLogs([]);}}
@@ -2236,31 +2206,31 @@ function Onboarding({profile,up,onDone,C}){
             style={{width:"100%",height:240,objectFit:"cover",objectPosition:"center 20%",display:"block"}}/>
         </div>
         <div style={{fontSize:27,fontWeight:300,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",marginBottom:8,color:C.text}}>Swadhyāya</div>
-        <div style={{fontSize:16,color:C.muted,letterSpacing:3,fontFamily:"'DM Mono',monospace",marginBottom:16}}>स्वाध्याय · KNOW THYSELF</div>
-        <div style={{fontSize:17,color:C.muted,lineHeight:1.8,marginBottom:20,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif"}}>"You already have the answers.<br/>This helps you hear them."</div>
-        <div style={{padding:"14px 18px",background:C.accent+"12",border:`1px solid ${C.accent}33`,borderRadius:12,fontSize:16,color:C.text,lineHeight:1.7}}>7-day free trial · All features · No AI chat during trial<br/>Upgrade for $5/month to unlock AI</div>
+        <div style={{fontSize:13,color:C.muted,letterSpacing:3,fontFamily:"'DM Mono',monospace",marginBottom:16}}>स्वाध्याय · KNOW THYSELF</div>
+        <div style={{fontSize:15,color:C.muted,lineHeight:1.8,marginBottom:20,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif"}}>"You already have the answers.<br/>This helps you hear them."</div>
+        <div style={{padding:"14px 18px",background:C.accent+"12",border:`1px solid ${C.accent}33`,borderRadius:12,fontSize:13,color:C.text,lineHeight:1.7}}>7-day free trial · All features · No AI chat during trial<br/>Upgrade for $5/month to unlock AI</div>
       </div>
     )},
     {title:"What's your name?",sub:"So we can speak to you, not at you.",content:(
-      <input value={profile.name} onChange={e=>up("name",e.target.value)} placeholder="Your name" style={{width:"100%",background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:12,color:C.text,padding:"16px 18px",fontSize:20,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",boxSizing:"border-box",textAlign:"center"}}/>
+      <input value={profile.name} onChange={e=>up("name",e.target.value)} placeholder="Your name" style={{width:"100%",background:C.card,border:`1px solid ${C.border}`,borderRadius:12,color:C.text,padding:"16px 18px",fontSize:20,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",boxSizing:"border-box",textAlign:"center"}}/>
     ),valid:profile.name.trim().length>0},
     {title:"Tell us about you",sub:"Gender, age, body — for precise targets.",content:(
       <div style={{display:"flex",flexDirection:"column",gap:14}}>
         <div>
-          <div style={{fontSize:14,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>GENDER</div>
+          <div style={{fontSize:11,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>GENDER</div>
           <div style={{display:"flex",gap:8}}>
-            {[{v:"female",l:"Female"},{v:"male",l:"Male"},{v:"other",l:"Other"}].map(g=><button key={g.v} onClick={()=>up("gender",g.v)} style={{minHeight:40,minWidth:40,flex:1,padding:"10px",borderRadius:10,border:`2px solid ${profile.gender===g.v?C.accent:C.border}`,background:profile.gender===g.v?C.accent+"12":"transparent",cursor:"pointer",fontSize:16,color:profile.gender===g.v?C.accent:C.muted}}>{g.l}</button>)}
+            {[{v:"female",l:"Female"},{v:"male",l:"Male"},{v:"other",l:"Other"}].map(g=><button key={g.v} onClick={()=>up("gender",g.v)} style={{flex:1,padding:"10px",borderRadius:10,border:`2px solid ${profile.gender===g.v?C.accent:C.border}`,background:profile.gender===g.v?C.accent+"12":"transparent",cursor:"pointer",fontSize:13,color:profile.gender===g.v?C.accent:C.muted}}>{g.l}</button>)}
           </div>
         </div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
           <div>
-            <div style={{fontSize:14,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>DATE OF BIRTH</div>
-            <input type="date" value={profile.dob||""} onChange={e=>{up("dob",e.target.value);up("age",String(Math.floor((Date.now()-new Date(e.target.value))/(365.25*86400000))));}} style={{width:"100%",background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 10px",fontSize:16,boxSizing:"border-box"}}/>
-            {profile.age&&<div style={{fontSize:14,color:C.accent2,marginTop:3}}>Age: {profile.age}</div>}
+            <div style={{fontSize:11,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>DATE OF BIRTH</div>
+            <input type="date" value={profile.dob||""} onChange={e=>{up("dob",e.target.value);up("age",String(Math.floor((Date.now()-new Date(e.target.value))/(365.25*86400000))));}} style={{width:"100%",background:C.card,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 10px",fontSize:13,boxSizing:"border-box"}}/>
+            {profile.age&&<div style={{fontSize:11,color:C.accent2,marginTop:3}}>Age: {profile.age}</div>}
           </div>
           <div>
-            <div style={{fontSize:14,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>ACTIVITY</div>
-            <select value={profile.activityLevel} onChange={e=>up("activityLevel",e.target.value)} style={{width:"100%",background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 10px",fontSize:16}}>
+            <div style={{fontSize:11,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>ACTIVITY</div>
+            <select value={profile.activityLevel} onChange={e=>up("activityLevel",e.target.value)} style={{width:"100%",background:C.card,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 10px",fontSize:13}}>
               <option value="sedentary">Sedentary</option>
               <option value="light">Light</option>
               <option value="moderate">Moderate</option>
@@ -2271,17 +2241,17 @@ function Onboarding({profile,up,onDone,C}){
         </div>
         <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:12}}>
           <div>
-            <div style={{fontSize:14,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>WEIGHT</div>
+            <div style={{fontSize:11,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>WEIGHT</div>
             <div style={{display:"flex",gap:6}}>
-              <input value={profile.weight} onChange={e=>up("weight",e.target.value)} placeholder="58" type="number" style={{flex:1,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 10px",fontSize:16}}/>
-              <select value={profile.weightUnit} onChange={e=>up("weightUnit",e.target.value)} style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:8,color:C.muted,padding:"9px 6px",fontSize:15}}><option>kg</option><option>lbs</option></select>
+              <input value={profile.weight} onChange={e=>up("weight",e.target.value)} placeholder="58" type="number" style={{flex:1,background:C.card,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 10px",fontSize:13}}/>
+              <select value={profile.weightUnit} onChange={e=>up("weightUnit",e.target.value)} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:8,color:C.muted,padding:"9px 6px",fontSize:12}}><option>kg</option><option>lbs</option></select>
             </div>
           </div>
           <div>
-            <div style={{fontSize:14,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>HEIGHT</div>
+            <div style={{fontSize:11,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>HEIGHT</div>
             <div style={{display:"flex",gap:6}}>
-              <input value={profile.height} onChange={e=>up("height",e.target.value)} placeholder="162" type="number" style={{flex:1,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 10px",fontSize:16}}/>
-              <select value={profile.heightUnit} onChange={e=>up("heightUnit",e.target.value)} style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:8,color:C.muted,padding:"9px 6px",fontSize:15}}><option>cm</option><option>inch</option></select>
+              <input value={profile.height} onChange={e=>up("height",e.target.value)} placeholder="162" type="number" style={{flex:1,background:C.card,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 10px",fontSize:13}}/>
+              <select value={profile.heightUnit} onChange={e=>up("heightUnit",e.target.value)} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:8,color:C.muted,padding:"9px 6px",fontSize:12}}><option>cm</option><option>inch</option></select>
             </div>
           </div>
         </div>
@@ -2290,20 +2260,20 @@ function Onboarding({profile,up,onDone,C}){
     {title:"What's your goal?",sub:"Be specific — the app adjusts everything for you.",content:(
       <div style={{display:"flex",flexDirection:"column",gap:14}}>
         <div>
-          <div style={{fontSize:14,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>PRIMARY GOAL</div>
-          <textarea value={profile.fitnessGoal} onChange={e=>up("fitnessGoal",e.target.value)} rows={3} placeholder="e.g. Lose 8kg in 4 months · Gain muscle and improve stamina · Manage PCOS and irregular periods · Reduce stress and sleep better · Improve flexibility and back pain…" style={{width:"100%",background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:10,color:C.text,padding:"12px 14px",fontSize:16,resize:"none",boxSizing:"border-box"}}/>
-          <div style={{fontSize:14,color:C.muted,marginTop:4}}>Write exactly what you want. The more specific, the better the app adapts.</div>
+          <div style={{fontSize:11,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>PRIMARY GOAL</div>
+          <textarea value={profile.fitnessGoal} onChange={e=>up("fitnessGoal",e.target.value)} rows={3} placeholder="e.g. Lose 8kg in 4 months · Gain muscle and improve stamina · Manage PCOS and irregular periods · Reduce stress and sleep better · Improve flexibility and back pain…" style={{width:"100%",background:C.card,border:`1px solid ${C.border}`,borderRadius:10,color:C.text,padding:"12px 14px",fontSize:14,resize:"none",boxSizing:"border-box"}}/>
+          <div style={{fontSize:11,color:C.muted,marginTop:4}}>Write exactly what you want. The more specific, the better the app adapts.</div>
         </div>
         <div>
-          <div style={{fontSize:14,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>ANY HEALTH CONDITIONS?</div>
+          <div style={{fontSize:11,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>ANY HEALTH CONDITIONS?</div>
           <div style={{display:"flex",flexWrap:"wrap",gap:7}}>
-            {["Digestion issues","Back pain","Eye strain","PCOS","Thyroid","Diabetes","Joint pain","Insomnia","Anxiety","None"].map(h=><button key={h} onClick={()=>up("healthConditions",profile.healthConditions?.includes(h)?profile.healthConditions.filter(x=>x!==h):[...(profile.healthConditions||[]),h])} style={{minHeight:40,minWidth:40,padding:"6px 12px",borderRadius:20,border:`1px solid ${profile.healthConditions?.includes(h)?C.accent:C.border}`,background:profile.healthConditions?.includes(h)?C.accent+"15":"transparent",cursor:"pointer",fontSize:15,color:profile.healthConditions?.includes(h)?C.accent:C.muted}}>{h}</button>)}
+            {["Digestion issues","Back pain","Eye strain","PCOS","Thyroid","Diabetes","Joint pain","Insomnia","Anxiety","None"].map(h=><button key={h} onClick={()=>up("healthConditions",profile.healthConditions?.includes(h)?profile.healthConditions.filter(x=>x!==h):[...(profile.healthConditions||[]),h])} style={{padding:"6px 12px",borderRadius:20,border:`1px solid ${profile.healthConditions?.includes(h)?C.accent:C.border}`,background:profile.healthConditions?.includes(h)?C.accent+"15":"transparent",cursor:"pointer",fontSize:12,color:profile.healthConditions?.includes(h)?C.accent:C.muted}}>{h}</button>)}
           </div>
         </div>
         {profile.weight&&profile.fitnessGoal&&(
           <div style={{padding:"12px 16px",background:C.accent+"12",border:`1px solid ${C.accent}33`,borderRadius:10}}>
-            <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",marginBottom:2}}>YOUR ADJUSTED DAILY TARGET</div>
-            <div style={{fontSize:22,fontWeight:700,color:C.accent}}>{calcNeeds({...profile}).cal} <span style={{fontSize:15,color:C.muted,fontWeight:400}}>kcal/day</span></div>
+            <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",marginBottom:2}}>YOUR ADJUSTED DAILY TARGET</div>
+            <div style={{fontSize:22,fontWeight:700,color:C.accent}}>{calcNeeds({...profile}).cal} <span style={{fontSize:12,color:C.muted,fontWeight:400}}>kcal/day</span></div>
           </div>
         )}
       </div>
@@ -2311,21 +2281,21 @@ function Onboarding({profile,up,onDone,C}){
     ...(profile.gender==="female"?[{title:"Cycle setup",sub:"So the app can adapt to where you are each month.",content:(
       <div style={{display:"flex",flexDirection:"column",gap:14}}>
         <div>
-          <div style={{fontSize:14,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>FIRST DAY OF LAST PERIOD</div>
-          <input type="date" value={profile.lastPeriodStart} onChange={e=>up("lastPeriodStart",e.target.value)} style={{width:"100%",background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:10,color:C.text,padding:"11px 14px",fontSize:16,boxSizing:"border-box"}}/>
+          <div style={{fontSize:11,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>FIRST DAY OF LAST PERIOD</div>
+          <input type="date" value={profile.lastPeriodStart} onChange={e=>up("lastPeriodStart",e.target.value)} style={{width:"100%",background:C.card,border:`1px solid ${C.border}`,borderRadius:10,color:C.text,padding:"11px 14px",fontSize:14,boxSizing:"border-box"}}/>
         </div>
         <div>
-          <div style={{fontSize:14,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>CYCLE LENGTH · {profile.cycleLength} days</div>
+          <div style={{fontSize:11,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>CYCLE LENGTH · {profile.cycleLength} days</div>
           <input type="range" min="21" max="35" value={profile.cycleLength} onChange={e=>up("cycleLength",e.target.value)} style={{width:"100%"}}/>
         </div>
         <div>
-          <div style={{fontSize:14,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>PERIOD DURATION · {profile.periodLength} days</div>
+          <div style={{fontSize:11,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>PERIOD DURATION · {profile.periodLength} days</div>
           <input type="range" min="2" max="8" value={profile.periodLength} onChange={e=>up("periodLength",e.target.value)} style={{width:"100%"}}/>
         </div>
         <div>
-          <div style={{fontSize:14,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>PREGNANCY / BREASTFEEDING</div>
+          <div style={{fontSize:11,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>PREGNANCY / BREASTFEEDING</div>
           <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
-            {[{v:"no",l:"Not pregnant"},{v:"trimester1",l:"1st trimester"},{v:"trimester2",l:"2nd trimester"},{v:"trimester3",l:"3rd trimester"}].map(opt=><button key={opt.v} onClick={()=>up("pregnant",opt.v)} style={{minHeight:40,minWidth:40,padding:"7px 13px",borderRadius:20,border:`1px solid ${profile.pregnant===opt.v?C.accent:C.border}`,background:profile.pregnant===opt.v?C.accent+"15":"transparent",cursor:"pointer",fontSize:15,color:profile.pregnant===opt.v?C.accent:C.muted}}>{opt.l}</button>)}
+            {[{v:"no",l:"Not pregnant"},{v:"trimester1",l:"1st trimester"},{v:"trimester2",l:"2nd trimester"},{v:"trimester3",l:"3rd trimester"}].map(opt=><button key={opt.v} onClick={()=>up("pregnant",opt.v)} style={{padding:"7px 13px",borderRadius:20,border:`1px solid ${profile.pregnant===opt.v?C.accent:C.border}`,background:profile.pregnant===opt.v?C.accent+"15":"transparent",cursor:"pointer",fontSize:12,color:profile.pregnant===opt.v?C.accent:C.muted}}>{opt.l}</button>)}
           </div>
         </div>
       </div>
@@ -2333,13 +2303,13 @@ function Onboarding({profile,up,onDone,C}){
     {title:`You're all set${profile.name?", "+profile.name:""}`,sub:"Your personalised journey begins now.",content:(
       <div style={{textAlign:"center"}}>
         <div style={{fontSize:48,marginBottom:12,animation:"checkPop 0.5s ease"}}>✓</div>
-        <div style={{fontSize:16,color:C.muted,lineHeight:1.8,marginBottom:20}}>Your inner life, made visible. Every number here belongs to you — not averages, not guesses. Yours.</div>
+        <div style={{fontSize:14,color:C.muted,lineHeight:1.8,marginBottom:20}}>Your inner life, made visible. Every number here belongs to you — not averages, not guesses. Yours.</div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
           {[{l:"Calories",v:calcNeeds(profile).cal,u:"kcal",c:EARTHY.accent},{l:"Protein",v:calcNeeds(profile).protein,u:"g",c:EARTHY.accent2},{l:"Iron",v:calcNeeds(profile).iron,u:"mg",c:EARTHY.red},{l:"Water",v:Math.round(calcNeeds(profile).water/250),u:"glasses",c:EARTHY.accent3},{l:"Fibre",v:calcNeeds(profile).fibre,u:"g",c:EARTHY.gold},{l:"Goal",v:profile.fitnessGoal?profile.fitnessGoal.split(" ").slice(0,3).join(" ")+"…":"Set goal",u:"",c:EARTHY.purple}].map((n,i)=>(
             <div key={i} style={{padding:"10px 6px",background:EARTHY.bg,border:`1px solid ${EARTHY.border}`,borderRadius:10,textAlign:"center"}}>
-              <div style={{fontSize:17,fontWeight:700,color:n.c}}>{n.v}</div>
-              <div style={{fontSize:12,color:EARTHY.dim}}>{n.u}</div>
-              <div style={{fontSize:12,color:EARTHY.muted,marginTop:1}}>{n.l}</div>
+              <div style={{fontSize:15,fontWeight:700,color:n.c}}>{n.v}</div>
+              <div style={{fontSize:9,color:EARTHY.dim}}>{n.u}</div>
+              <div style={{fontSize:9,color:EARTHY.muted,marginTop:1}}>{n.l}</div>
             </div>
           ))}
         </div>
@@ -2352,15 +2322,15 @@ function Onboarding({profile,up,onDone,C}){
       <div style={{background:EARTHY.card,borderBottom:`1px solid ${EARTHY.border}`,padding:"14px 20px"}}>
         <div style={{maxWidth:500,margin:"0 auto"}}>
           <div style={{display:"flex",gap:4,marginBottom:8}}>{steps.map((_,i)=><div key={i} style={{flex:1,height:3,borderRadius:2,background:i<=step?EARTHY.accent:EARTHY.border,transition:"all 0.3s"}}/>)}</div>
-          <div style={{fontSize:13,color:EARTHY.muted,fontFamily:"'DM Mono',monospace"}}>STEP {step+1} OF {steps.length} · SWADHYĀYA</div>
+          <div style={{fontSize:10,color:EARTHY.muted,fontFamily:"'DM Mono',monospace"}}>STEP {step+1} OF {steps.length} · SWADHYĀYA</div>
         </div>
       </div>
       <div style={{maxWidth:500,margin:"0 auto",padding:"32px 20px 80px"}}>
-        <div style={{marginBottom:24}}><div style={{fontSize:24,fontWeight:300,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",marginBottom:4}}>{cur.title}</div><div style={{fontSize:16,color:EARTHY.muted}}>{cur.sub}</div></div>
+        <div style={{marginBottom:24}}><div style={{fontSize:24,fontWeight:300,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",marginBottom:4}}>{cur.title}</div><div style={{fontSize:13,color:EARTHY.muted}}>{cur.sub}</div></div>
         <div className="fade">{cur.content}</div>
         <div style={{display:"flex",gap:10,marginTop:28}}>
-          {step>0&&<button onClick={()=>setStep(s=>s-1)} style={{minHeight:40,minWidth:40,padding:"13px 20px",background:"transparent",border:`1px solid ${EARTHY.border}`,borderRadius:12,cursor:"pointer",color:EARTHY.muted,fontSize:16}}>← Back</button>}
-          <button onClick={()=>step<steps.length-1?setStep(s=>s+1):onDone()} disabled={cur.valid===false} style={{minHeight:40,minWidth:40,flex:1,padding:"15px",background:cur.valid===false?EARTHY.border:`linear-gradient(135deg,${EARTHY.accent},${EARTHY.warm})`,border:"none",borderRadius:12,color:cur.valid===false?EARTHY.dim:"#fff",cursor:cur.valid===false?"not-allowed":"pointer",fontSize:17,fontWeight:600}}>
+          {step>0&&<button onClick={()=>setStep(s=>s-1)} style={{padding:"13px 20px",background:"transparent",border:`1px solid ${EARTHY.border}`,borderRadius:12,cursor:"pointer",color:EARTHY.muted,fontSize:14}}>← Back</button>}
+          <button onClick={()=>step<steps.length-1?setStep(s=>s+1):onDone()} disabled={cur.valid===false} style={{flex:1,padding:"15px",background:cur.valid===false?EARTHY.border:`linear-gradient(135deg,${EARTHY.accent},${EARTHY.warm})`,border:"none",borderRadius:12,color:cur.valid===false?EARTHY.dim:"#fff",cursor:cur.valid===false?"not-allowed":"pointer",fontSize:15,fontWeight:600}}>
             {step<steps.length-1?"Continue →":"Enter Swadhyāya →"}
           </button>
         </div>
@@ -2591,20 +2561,20 @@ function ThreeThingsCard({C, profile, journalEntries, completedSteps, galaxy}) {
   const hasSupplement = (profile.healthConditions||[]).length > 0;
 
   return (
-    <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.accent}33`,borderRadius:14,padding:18,marginBottom:12}}>
-      <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>☀ THREE THINGS NOT TO FORGET TODAY</div>
+    <div style={{background:C.card,border:`1px solid ${C.accent}33`,borderRadius:14,padding:18,marginBottom:12}}>
+      <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>☀ THREE THINGS NOT TO FORGET TODAY</div>
       {items.map((item,i) => (
         <div key={i} style={{display:"flex",gap:10,alignItems:"center",marginBottom:i<2?10:0}}>
-          <div style={{width:22,height:22,borderRadius:7,border:`1px solid ${C.border}`,background:C.bg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,color:C.muted,flexShrink:0}}>{i+1}</div>
+          <div style={{width:22,height:22,borderRadius:7,border:`1px solid ${C.border}`,background:C.bg,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,color:C.muted,flexShrink:0}}>{i+1}</div>
           <input
             value={item}
             onChange={e => setItems(prev => prev.map((v,j) => j===i ? e.target.value : v))}
             placeholder={i===0 ? (goals[0]?.title||goals[0]?.text||"Most important task today…") : i===1 ? "Something you might forget…" : "Someone to check in with…"}
-            style={{flex:1,background:"transparent",border:"none",borderBottom:`1px solid ${C.border}`,color:C.text,padding:"6px 0",fontSize:16,fontFamily:"'Jost',sans-serif"}}
+            style={{flex:1,background:"transparent",border:"none",borderBottom:`1px solid ${C.border}`,color:C.text,padding:"6px 0",fontSize:13,fontFamily:"'Jost',sans-serif"}}
           />
         </div>
       ))}
-      <div style={{marginTop:12,fontSize:14,color:C.muted,fontStyle:"italic"}}>These stay at the top of your day until you close the app.</div>
+      <div style={{marginTop:12,fontSize:11,color:C.muted,fontStyle:"italic"}}>These stay at the top of your day until you close the app.</div>
     </div>
   );
 }
@@ -2666,7 +2636,7 @@ function GoalPlanCard({profile,C}){
   const exercisePlan=n.isLoss?lossEx:gainEx;
 
   const tabStyle=(t)=>({
-    flex:1,padding:"9px 0",fontSize:15,
+    flex:1,padding:"9px 0",fontSize:12,
     fontFamily:"'DM Mono',monospace",letterSpacing:1,
     background:tab===t?accentColor:"transparent",
     color:tab===t?"#fff":C.muted,
@@ -2674,14 +2644,14 @@ function GoalPlanCard({profile,C}){
   });
 
   return(
-    <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,borderRadius:16,padding:20,marginBottom:16,border:`1px solid ${C.border}`}}>
+    <div style={{background:C.card,borderRadius:16,padding:20,marginBottom:16,border:`1px solid ${C.border}`}}>
       <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:16}}>
         <div style={{fontSize:22}}>{n.isLoss?"target":"muscle"}</div>
         <div>
-          <div style={{fontSize:17,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:C.text}}>
+          <div style={{fontSize:15,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:C.text}}>
             {n.isLoss?"Weight Loss Plan":"Weight Gain Plan"}
           </div>
-          <div style={{fontSize:14,color:C.muted,fontFamily:"'DM Mono',monospace",marginTop:2}}>
+          <div style={{fontSize:11,color:C.muted,fontFamily:"'DM Mono',monospace",marginTop:2}}>
             {profile.fitnessGoal}
           </div>
         </div>
@@ -2689,7 +2659,7 @@ function GoalPlanCard({profile,C}){
 
       {timelineText&&(
         <div style={{background:timelineText.onTrack?"#71b47815":"#e05a5a15",border:`1px solid ${timelineText.onTrack?"#71b478":"#e05a5a"}30`,borderRadius:10,padding:"10px 14px",marginBottom:16}}>
-          <div style={{fontSize:15,color:timelineText.onTrack?"#71b478":"#e05a5a",lineHeight:1.6}}>
+          <div style={{fontSize:12,color:timelineText.onTrack?"#71b478":"#e05a5a",lineHeight:1.6}}>
             {timelineText.onTrack
               ?`Goal is achievable. At ${Math.abs(n.weeklyChange)}kg/week you will reach it in ~${timelineText.months} months.`
               :`Realistic timeline is ~${timelineText.months} months, not ${timelineText.goalMonths}. Plan adjusted to be safe and sustainable.`
@@ -2706,9 +2676,9 @@ function GoalPlanCard({profile,C}){
           {label:"Water",value:`${Math.round(n.water/250)}`,unit:"glasses",color:C.accent3},
         ].map((item,i)=>(
           <div key={i} style={{background:C.bg,borderRadius:10,padding:"10px 8px",textAlign:"center"}}>
-            <div style={{fontSize:18,fontWeight:700,color:item.color}}>{item.value}</div>
-            <div style={{fontSize:12,color:C.muted,fontFamily:"'DM Mono',monospace",marginTop:2}}>{item.label}</div>
-            <div style={{fontSize:12,color:C.dim}}>{item.unit}</div>
+            <div style={{fontSize:16,fontWeight:700,color:item.color}}>{item.value}</div>
+            <div style={{fontSize:9,color:C.muted,fontFamily:"'DM Mono',monospace",marginTop:2}}>{item.label}</div>
+            <div style={{fontSize:9,color:C.dim}}>{item.unit}</div>
           </div>
         ))}
       </div>
@@ -2720,9 +2690,9 @@ function GoalPlanCard({profile,C}){
       </div>
 
       {tab==="overview"&&(
-        <div style={{minHeight:40,minWidth:40,minHeight:40,minWidth:40,minHeight:40,minWidth:40,display:"flex",flexDirection:"column",gap:10}}>
-          <div style={{fontSize:16,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:C.text,marginBottom:4}}>What to focus on</div>
-          <ul style={{margin:0,paddingLeft:16,fontSize:15,color:C.muted,lineHeight:1.9}}>
+        <div style={{display:"flex",flexDirection:"column",gap:10}}>
+          <div style={{fontSize:13,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:C.text,marginBottom:4}}>What to focus on</div>
+          <ul style={{margin:0,paddingLeft:16,fontSize:12,color:C.muted,lineHeight:1.9}}>
             {n.isLoss?[
               `Eat ${n.cal} kcal/day — not less, starvation slows metabolism`,
               `Hit ${n.protein}g protein daily — prevents muscle loss while losing fat`,
@@ -2740,18 +2710,18 @@ function GoalPlanCard({profile,C}){
             ].map((tip,i)=><li key={i}>{tip}</li>)}
           </ul>
           <div style={{marginTop:4}}>
-            <div style={{fontSize:14,color:C.muted,marginBottom:6,fontFamily:"'DM Mono',monospace"}}>DAILY MACROS</div>
+            <div style={{fontSize:11,color:C.muted,marginBottom:6,fontFamily:"'DM Mono',monospace"}}>DAILY MACROS</div>
             {[
               {label:"Protein",g:n.protein,kcal:n.protein*4,color:C.accent2},
               {label:"Carbs",g:n.carbs,kcal:n.carbs*4,color:accentColor},
               {label:"Fat",g:n.fat,kcal:n.fat*9,color:"#c49a2a"},
             ].map((m,i)=>(
               <div key={i} style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
-                <div style={{width:52,fontSize:14,color:C.muted}}>{m.label}</div>
+                <div style={{width:52,fontSize:11,color:C.muted}}>{m.label}</div>
                 <div style={{flex:1,height:6,background:C.border,borderRadius:3,overflow:"hidden"}}>
                   <div style={{width:`${Math.round((m.kcal/n.cal)*100)}%`,height:"100%",background:m.color,borderRadius:3}}/>
                 </div>
-                <div style={{fontSize:14,color:C.text,width:48,textAlign:"right"}}>{m.g}g</div>
+                <div style={{fontSize:11,color:C.text,width:48,textAlign:"right"}}>{m.g}g</div>
               </div>
             ))}
           </div>
@@ -2760,19 +2730,19 @@ function GoalPlanCard({profile,C}){
 
       {tab==="food"&&(
         <div>
-          <div style={{fontSize:14,color:C.muted,marginBottom:10,fontFamily:"'DM Mono',monospace"}}>
+          <div style={{fontSize:11,color:C.muted,marginBottom:10,fontFamily:"'DM Mono',monospace"}}>
             SAMPLE DAY  {mealPlan.reduce((s,m)=>s+m.cal,0)} KCAL TOTAL
           </div>
           {mealPlan.map((m,i)=>(
             <div key={i} style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",padding:"10px 0",borderBottom:i<mealPlan.length-1?`1px solid ${C.border}`:"none"}}>
               <div style={{flex:1}}>
-                <div style={{fontSize:14,color:accentColor,fontFamily:"'DM Mono',monospace",marginBottom:3}}>{m.meal}</div>
-                <div style={{fontSize:16,color:C.text,lineHeight:1.5}}>{m.items}</div>
+                <div style={{fontSize:11,color:accentColor,fontFamily:"'DM Mono',monospace",marginBottom:3}}>{m.meal}</div>
+                <div style={{fontSize:13,color:C.text,lineHeight:1.5}}>{m.items}</div>
               </div>
-              <div style={{fontSize:14,color:C.muted,marginLeft:10,whiteSpace:"nowrap"}}>{m.cal} kcal</div>
+              <div style={{fontSize:11,color:C.muted,marginLeft:10,whiteSpace:"nowrap"}}>{m.cal} kcal</div>
             </div>
           ))}
-          <div style={{marginTop:12,fontSize:14,color:C.muted,lineHeight:1.7,fontStyle:"italic"}}>
+          <div style={{marginTop:12,fontSize:11,color:C.muted,lineHeight:1.7,fontStyle:"italic"}}>
             {n.isLoss
               ?"Portions: roti = 1 medium, katori = 150ml bowl. Cook with 1 tsp oil per meal max."
               :"Increase portions gradually. Add ghee to roti. Use full-fat dairy."}
@@ -2782,18 +2752,18 @@ function GoalPlanCard({profile,C}){
 
       {tab==="exercise"&&(
         <div>
-          <div style={{fontSize:14,color:C.muted,marginBottom:10,fontFamily:"'DM Mono',monospace"}}>WEEKLY PLAN</div>
+          <div style={{fontSize:11,color:C.muted,marginBottom:10,fontFamily:"'DM Mono',monospace"}}>WEEKLY PLAN</div>
           {exercisePlan.map((e,i)=>(
             <div key={i} style={{display:"flex",gap:10,padding:"9px 0",borderBottom:i<exercisePlan.length-1?`1px solid ${C.border}`:"none",alignItems:"flex-start"}}>
-              <div style={{width:32,height:32,borderRadius:8,background:accentColor+"18",color:accentColor,fontSize:14,fontFamily:"'DM Mono',monospace",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{e.day}</div>
+              <div style={{width:32,height:32,borderRadius:8,background:accentColor+"18",color:accentColor,fontSize:11,fontFamily:"'DM Mono',monospace",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{e.day}</div>
               <div style={{flex:1}}>
-                <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",marginBottom:2}}>{e.type}</div>
-                <div style={{fontSize:15,color:C.text,lineHeight:1.5}}>{e.activity}</div>
+                <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",marginBottom:2}}>{e.type}</div>
+                <div style={{fontSize:12,color:C.text,lineHeight:1.5}}>{e.activity}</div>
               </div>
-              <div style={{fontSize:13,color:C.muted,whiteSpace:"nowrap"}}>{e.burn}</div>
+              <div style={{fontSize:10,color:C.muted,whiteSpace:"nowrap"}}>{e.burn}</div>
             </div>
           ))}
-          <div style={{marginTop:12,padding:"10px 12px",background:accentColor+"10",borderRadius:8,fontSize:15,color:C.muted,lineHeight:1.7}}>
+          <div style={{marginTop:12,padding:"10px 12px",background:accentColor+"10",borderRadius:8,fontSize:12,color:C.muted,lineHeight:1.7}}>
             {n.isLoss
               ?"Strength training 2x/week is essential even for fat loss. It preserves muscle so the weight you lose is fat, not muscle."
               :"Progressive overload: increase reps or weight slightly each week. Without this, muscles stop growing."}
@@ -2806,7 +2776,6 @@ function GoalPlanCard({profile,C}){
 
 
 function HomeSection({C,galaxy,profile,needs,todayFood,waterLog,completedSteps,greeting,section,setSection,todayPhase,behaviourProfile,trialDaysLeft,journalEntries=[],foodLogs=[]}){
-  const PHASE_COLORS = galaxy ? PHASE_COLORS_GALAXY : PHASE_COLORS_EARTH;
   const QUOTES=[
     {t:"The secret of your future is hidden in your daily routine.",a:"Mike Murdock"},
     {t:"Swadhyaya — know thyself. This is the highest study.",a:"Patanjali"},
@@ -2858,13 +2827,13 @@ function HomeSection({C,galaxy,profile,needs,todayFood,waterLog,completedSteps,g
   const stateInfo=DAY_STATES[dailyState]||DAY_STATES.normal;
   return(
     <div>
-      <div style={{background:"rgba(0,0,0,0.2)",backdropFilter:"blur(12px)",padding:"32px 20px 24px",textAlign:"center",position:"relative",overflow:"hidden",borderBottom:"1px solid rgba(255,255,255,0.1)"}}>
+      <div style={{background:"rgba(0,0,0,0.2)",padding:"32px 20px 24px",textAlign:"center",position:"relative",overflow:"hidden",borderBottom:"1px solid rgba(255,255,255,0.1)"}}>
         {galaxy&&<div style={{position:"absolute",inset:0,pointerEvents:"none"}}>{[...Array(20)].map((_,i)=><div key={i} style={{position:"absolute",left:`${(i*37)%100}%`,top:`${(i*53)%100}%`,width:i%5===0?2:1,height:i%5===0?2:1,borderRadius:"50%",background:"#e8e0ff",opacity:0.2+Math.sin(i)*0.1}}/>)}</div>}
         <div style={{position:"relative",zIndex:1}}>
         <div style={{fontSize:34,marginBottom:6,animation:"sunrise 0.6s ease"}}>{galaxy?(hour<9?"✦":hour<16?"☀":hour<20?"✦":"🌙"):(hour<9?"🌅":hour<16?"☀️":hour<20?"🌇":"🌙")}</div>
-        <div style={{fontSize:26,fontWeight:300,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:C.text,textShadow:galaxy?"0 2px 16px rgba(0,0,0,0.4)":"none"}}>{greeting}{profile.name?`, ${profile.name}`:""}.
+        <div style={{fontSize:26,fontWeight:300,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:"#fff",textShadow:"0 2px 16px rgba(0,0,0,0.4)"}}>{greeting}{profile.name?`, ${profile.name}`:""}.
         </div>
-        <div style={{fontSize:15,color:C.muted,marginTop:4,letterSpacing:0.5}}>{profile.fitnessGoal?`Goal: ${profile.fitnessGoal.slice(0,50)}${profile.fitnessGoal.length>50?"…":""}`:galaxy?"Your inner life, made visible.":""}</div>
+        <div style={{fontSize:12,color:"rgba(255,255,255,0.6)",marginTop:4,letterSpacing:0.5}}>{profile.fitnessGoal?`Goal: ${profile.fitnessGoal.slice(0,50)}${profile.fitnessGoal.length>50?"…":""}`:galaxy?"Your inner life, made visible.":""}</div>
         </div>
       </div>
       <div style={{padding:"16px 16px",display:"flex",flexDirection:"column",gap:12}}>
@@ -2875,23 +2844,23 @@ function HomeSection({C,galaxy,profile,needs,todayFood,waterLog,completedSteps,g
             <div style={{display:"flex",gap:10,alignItems:"center"}}>
               <span style={{fontSize:24}}>{stateInfo.icon}</span>
               <div>
-                <div style={{fontSize:17,fontWeight:700,color:stateInfo.color,fontFamily:"'Cormorant Garamond',serif"}}>{stateInfo.label}</div>
-                <div style={{fontSize:15,color:C.muted}}>{stateInfo.sub}</div>
+                <div style={{fontSize:15,fontWeight:700,color:stateInfo.color,fontFamily:"'Cormorant Garamond',serif"}}>{stateInfo.label}</div>
+                <div style={{fontSize:12,color:C.muted}}>{stateInfo.sub}</div>
               </div>
             </div>
-            <div style={{fontSize:12,color:stateInfo.color,padding:"3px 9px",background:stateInfo.color+"18",borderRadius:20,fontFamily:"'DM Mono',monospace",letterSpacing:1,textTransform:"uppercase"}}>{dailyState}</div>
+            <div style={{fontSize:9,color:stateInfo.color,padding:"3px 9px",background:stateInfo.color+"18",borderRadius:20,fontFamily:"'DM Mono',monospace",letterSpacing:1,textTransform:"uppercase"}}>{dailyState}</div>
           </div>
           {stateInfo.reminders.length>0&&(
             <div style={{display:"flex",flexDirection:"column",gap:5}}>
               {stateInfo.reminders.map((r,i)=>(
                 <div key={i} style={{display:"flex",gap:7,alignItems:"flex-start"}}>
                   <div style={{width:4,height:4,borderRadius:"50%",background:stateInfo.color,marginTop:6,flexShrink:0}}/>
-                  <div style={{fontSize:15,color:C.text,lineHeight:1.5}}>{r}</div>
+                  <div style={{fontSize:12,color:C.text,lineHeight:1.5}}>{r}</div>
                 </div>
               ))}
             </div>
           )}
-          <div style={{marginTop:8,padding:"8px 10px",background:stateInfo.color+"10",borderRadius:8,fontSize:14,color:C.muted,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",lineHeight:1.6}}>{stateInfo.philosophy}</div>
+          <div style={{marginTop:8,padding:"8px 10px",background:stateInfo.color+"10",borderRadius:8,fontSize:11,color:C.muted,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",lineHeight:1.6}}>{stateInfo.philosophy}</div>
         </div>
 
         {/* Three things to remember */}
@@ -2899,18 +2868,18 @@ function HomeSection({C,galaxy,profile,needs,todayFood,waterLog,completedSteps,g
           <ThreeThingsCard C={C} profile={profile} journalEntries={journalEntries} completedSteps={completedSteps} galaxy={galaxy}/>
         )}
 
-        <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:14,padding:"18px 20px",backdropFilter:"blur(20px)"}}>
-          <div style={{fontSize:12,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>TODAY'S REMINDER</div>
-          <div style={{fontSize:19,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",lineHeight:1.7,marginBottom:6,color:C.text,textShadow:galaxy?"0 1px 12px rgba(0,0,0,0.3)":"none"}}>"{q.t}"</div>
-          <div style={{fontSize:14,color:C.muted}}>— {q.a}</div>
-          {q.note&&<div style={{fontSize:15,color:C.muted,marginTop:8,lineHeight:1.6,fontStyle:"italic"}}>{q.note}</div>}
+        <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:14,padding:"18px 20px"}}>
+          <div style={{fontSize:9,color:"rgba(255,255,255,0.45)",fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>TODAY'S REMINDER</div>
+          <div style={{fontSize:19,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",lineHeight:1.7,marginBottom:6,color:"#fff",textShadow:"0 1px 12px rgba(0,0,0,0.3)"}}>"{q.t}"</div>
+          <div style={{fontSize:11,color:"rgba(255,255,255,0.55)"}}>— {q.a}</div>
+          {q.note&&<div style={{fontSize:12,color:"rgba(255,255,255,0.5)",marginTop:8,lineHeight:1.6,fontStyle:"italic"}}>{q.note}</div>}
         </div>
 
         {/* Behaviour insight */}
         {bpSummary&&(
           <div style={{background:C.accent+"10",border:`1px solid ${C.accent}33`,borderRadius:12,padding:"12px 16px"}}>
-            <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:6}}>◉ WHAT YOU'VE REVEALED ABOUT YOURSELF</div>
-            <div style={{fontSize:16,color:C.text,lineHeight:1.7}}>{bpSummary}</div>
+            <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:6}}>◉ WHAT YOU'VE REVEALED ABOUT YOURSELF</div>
+            <div style={{fontSize:13,color:C.text,lineHeight:1.7}}>{bpSummary}</div>
           </div>
         )}
 
@@ -2920,16 +2889,16 @@ function HomeSection({C,galaxy,profile,needs,todayFood,waterLog,completedSteps,g
             {Icon:()=><svg width="22" height="22" viewBox="0 0 22 22"><defs><radialGradient id="dg" cx="40%" cy="35%" r="60%"><stop offset="0%" stopColor="#4a6e8a" stopOpacity="0.5"/><stop offset="100%" stopColor="#4a6e8a" stopOpacity="0.05"/></radialGradient></defs><path d="M11 2 Q14 8 16 12 A5 5 0 0 1 6 12 Q8 8 11 2Z" fill="url(#dg)" stroke="#4a6e8a" strokeWidth="1" strokeLinejoin="round"/><path d="M9 12 Q10 10 11 11" stroke="white" strokeWidth="1" strokeLinecap="round" opacity="0.5" fill="none"/></svg>,label:"Water",value:`${Math.round(waterLog/250)}`,sub:`/ ${Math.round(needs.water/250)} glasses`,color:waterLog>=needs.water*0.7?C.accent3:C.red,onClick:()=>setSection("food")},
             {Icon:()=><IconMorning size={22} active={true} C={C}/>,label:"Morning",value:`${ritualDone}/7`,sub:ritualDone===7?"Complete ✓":"steps done",color:ritualDone===7?C.accent2:C.gold,onClick:()=>setSection("morning")},
           ].map((item,i)=>(
-            <button key={i} onClick={item.onClick} style={{minHeight:40,minWidth:40,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:12,padding:"14px 8px",textAlign:"center",cursor:"pointer"}}>
+            <button key={i} onClick={item.onClick} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:"14px 8px",textAlign:"center",cursor:"pointer"}}>
               <div style={{marginBottom:4,display:"flex",justifyContent:"center"}}><item.Icon/></div>
-              <div style={{fontSize:18,fontWeight:700,color:item.color}}>{item.value}</div>
-              <div style={{fontSize:13,color:C.dim,marginTop:1}}>{item.sub}</div>
+              <div style={{fontSize:16,fontWeight:700,color:item.color}}>{item.value}</div>
+              <div style={{fontSize:10,color:C.dim,marginTop:1}}>{item.sub}</div>
             </button>
           ))}
         </div>
 
-        <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:14,padding:"16px 18px"}}>
-          <div style={{fontSize:14,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>QUICK ACTIONS</div>
+        <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:14,padding:"16px 18px"}}>
+          <div style={{fontSize:11,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>QUICK ACTIONS</div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8}}>
             {[
               {Icon:({a})=><IconMorning size={22} active={a} C={C}/>,label:"Morning Ritual",sub:"Begin your day",s:"morning"},
@@ -2942,10 +2911,10 @@ function HomeSection({C,galaxy,profile,needs,todayFood,waterLog,completedSteps,g
               const isActive=section===item.s;
               const ItemIcon=item.Icon;
               return(
-              <button key={i} onClick={()=>setSection(item.s)} style={{minHeight:40,minWidth:40,padding:"12px",background:C.bg,border:`1px solid ${C.border}`,borderRadius:10,cursor:"pointer",textAlign:"left"}}>
+              <button key={i} onClick={()=>setSection(item.s)} style={{padding:"12px",background:C.bg,border:`1px solid ${C.border}`,borderRadius:10,cursor:"pointer",textAlign:"left"}}>
                 <div style={{marginBottom:6}}><ItemIcon a={isActive}/></div>
-                <div style={{fontSize:15,fontWeight:600}}>{item.label}</div>
-                <div style={{fontSize:13,color:C.muted}}>{item.sub}</div>
+                <div style={{fontSize:12,fontWeight:600}}>{item.label}</div>
+                <div style={{fontSize:10,color:C.muted}}>{item.sub}</div>
               </button>
               );
             })}
@@ -2955,9 +2924,9 @@ function HomeSection({C,galaxy,profile,needs,todayFood,waterLog,completedSteps,g
         <GoalPlanCard profile={profile} C={C} />
         {profile.plan==="trial"&&(
           <div style={{background:`linear-gradient(135deg,${C.accent}18,${C.warm}12)`,border:`1px solid ${C.accent}44`,borderRadius:14,padding:"16px 18px",textAlign:"center"}}>
-            <div style={{fontSize:16,fontWeight:600,marginBottom:4}}>✦ Unlock AI features</div>
-            <div style={{fontSize:15,color:C.muted,marginBottom:12}}>Your daily companion · Know your patterns · Understand yourself deeply</div>
-            <button onClick={()=>setSection("upgrade")} style={{minHeight:40,minWidth:40,padding:"10px 24px",background:`linear-gradient(135deg,${C.accent},${C.warm})`,border:"none",borderRadius:20,color:"#fff",cursor:"pointer",fontSize:16,fontWeight:600}}>Upgrade from $5/month →</button>
+            <div style={{fontSize:14,fontWeight:600,marginBottom:4}}>✦ Unlock AI features</div>
+            <div style={{fontSize:12,color:C.muted,marginBottom:12}}>Your daily companion · Know your patterns · Understand yourself deeply</div>
+            <button onClick={()=>setSection("upgrade")} style={{padding:"10px 24px",background:`linear-gradient(135deg,${C.accent},${C.warm})`,border:"none",borderRadius:20,color:"#fff",cursor:"pointer",fontSize:13,fontWeight:600}}>Upgrade from $5/month →</button>
           </div>
         )}
       </div>
@@ -3012,7 +2981,8 @@ const HABIT_DOT_COLORS = [
   "#5a9632", // lime-green
 ];
 
-function HabitDotGrid({goal, C, colorIndex=0, expanded=false, onToggle}){
+function HabitDotGrid({goal, C, colorIndex=0}){
+  const [expanded, setExpanded] = useState(false);
   if(goal.type!=="habit" && goal.type!=="weekly") return null;
 
   const color = HABIT_DOT_COLORS[colorIndex % HABIT_DOT_COLORS.length];
@@ -3048,44 +3018,53 @@ function HabitDotGrid({goal, C, colorIndex=0, expanded=false, onToggle}){
     if(doneDays.has(d)){ cur++; bestStreak=Math.max(bestStreak,cur); } else { cur=0; }
   }
 
-  // Transparent bar, same as every other progress strip in the app —
-  // dots sit directly on the card rather than in a separate dark box.
-  const emptyDot = C.border;
-  const futureDot = C.dim;
+  // Dark background for the grid so colors pop regardless of Earth/Galaxy mode
+  const gridBg = "#13111a";
+  const emptyDot = "#252235";
+  const futureDot = "#1c1a28";
 
   return (
     <div style={{marginTop:10}}>
-      <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",marginBottom:6}}>
-        {doneCount}/{today} · <span style={{color,fontWeight:700}}>{pct}%</span> · 🔥{bestStreak}d streak
-      </div>
-
-      <div style={{
-        background:"transparent",
-        borderRadius:10, padding:"10px 10px 8px",
-        border:`1px solid ${C.border}`,
-      }}>
-        <div style={{fontSize:12,color:color,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7,fontWeight:700}}>
-          {monthName.toUpperCase()} {year}
-        </div>
-        <div style={{
-          display:"grid",
-          gridTemplateColumns:`repeat(${daysInMonth},1fr)`,
-          gap:"2.5px",
+      <button
+        onClick={e=>{e.stopPropagation();setExpanded(x=>!x);}}
+        style={{
+          width:"100%", background:"transparent", border:"none",
+          cursor:"pointer", display:"flex", alignItems:"center",
+          justifyContent:"space-between", padding:0,
         }}>
-          {Array.from({length:daysInMonth},(_,i)=>{
-            const day=i+1;
-            const isDone=doneDays.has(day);
-            const isFuture=day>today;
-            const isToday=day===today;
-            return(
-              <div key={day} title={`${monthName} ${day}${isDone?" — done":""}`} style={{
-                aspectRatio:"1/1",
+        <div style={{fontSize:10,color:C.dim,fontFamily:"'DM Mono',monospace"}}>
+          {doneCount}/{today} · <span style={{color}}>{pct}%</span> · 🔥{bestStreak}d streak
+        </div>
+        <div style={{fontSize:10,color:color,opacity:0.7}}>{expanded?"▾ hide":"▸ view month"}</div>
+      </button>
+
+      {expanded&&(
+        <div onClick={e=>e.stopPropagation()} style={{
+          marginTop:8, background:gridBg,
+          borderRadius:10, padding:"10px 10px 8px",
+          border:`1px solid ${color}22`,
+        }}>
+          <div style={{fontSize:9,color:color,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7,opacity:0.8}}>
+            {monthName.toUpperCase()} {year}
+          </div>
+          <div style={{
+            display:"grid",
+            gridTemplateColumns:`repeat(${daysInMonth},1fr)`,
+            gap:"2.5px",
+          }}>
+            {Array.from({length:daysInMonth},(_,i)=>{
+              const day=i+1;
+              const isDone=doneDays.has(day);
+              const isFuture=day>today;
+              const isToday=day===today;
+              return(
+                <div key={day} style={{
+                  aspectRatio:"1/1",
                   borderRadius:"2px",
                   background:isFuture?futureDot:isDone?color:emptyDot,
-                  opacity:isFuture?0.4:1,
-                  boxShadow:isDone?`0 0 4px ${color}88`:"none",
-                  outline:isToday?`1.5px solid ${isDone?"#fff":color}`:"none",
-                  outlineOffset:isToday?"1px":0,
+                  opacity:isFuture?0.3:1,
+                  boxShadow:isDone?`0 0 4px ${color}66`:"none",
+                  outline:isToday&&!isDone?`1px solid ${color}44`:"none",
                 }}/>
               );
             })}
@@ -3100,22 +3079,380 @@ function HabitDotGrid({goal, C, colorIndex=0, expanded=false, onToggle}){
               const d=i+1;
               const show=d===1||d===7||d===14||d===21||d===28||d===daysInMonth;
               return(
-                <div key={d} style={{fontSize:"8px",color:show?C.muted:"transparent",textAlign:"center",fontFamily:"monospace"}}>
+                <div key={d} style={{fontSize:"5px",color:show?color+"55":"transparent",textAlign:"center",fontFamily:"monospace"}}>
                   {show?d:"·"}
                 </div>
               );
             })}
           </div>
         </div>
+      )}
+    </div>
+  );
+}
+
+// ============ TODAY / CALENDAR SECTION ============
+// Recurring tasks live on profile.tasks (mirrors how goals live on
+// profile.goals). Recurrence is computed on the fly per date rather than
+// pre-expanded into stored occurrences, so editing a task's pattern later
+// doesn't require rewriting history — only completions are stored per date.
+
+const TASK_RECUR_OPTIONS = [
+  {id:"once", label:"Once"},
+  {id:"daily", label:"Daily"},
+  {id:"weekly", label:"Weekly"},
+  {id:"monthly", label:"Monthly"},
+  {id:"custom", label:"Every N days"},
+];
+
+const TASK_WEEKDAY_LABELS = ["S","M","T","W","T","F","S"];
+
+function taskOccursOnDate(task, dateStr) {
+  if (!task.startDate) return false;
+  if (dateStr < task.startDate) return false;
+  if (task.endDate && dateStr > task.endDate) return false;
+  const d = new Date(dateStr+"T12:00:00");
+  const start = new Date(task.startDate+"T12:00:00");
+  switch (task.recurrence) {
+    case "once": return dateStr === task.startDate;
+    case "daily": return true;
+    case "weekly": return (task.weekDays||[]).includes(d.getDay());
+    case "monthly": return d.getDate() === start.getDate();
+    case "custom": {
+      const every = parseInt(task.everyNDays,10) || 1;
+      const diff = Math.round((d - start) / 86400000);
+      return diff >= 0 && diff % every === 0;
+    }
+    default: return false;
+  }
+}
+
+function blankTask(){
+  return {id:null, title:"", category:"personal", recurrence:"once",
+    startDate:getLocalDateStr(), endDate:"", weekDays:[], everyNDays:"2",
+    notes:"", completions:{}, createdAt:""};
+}
+
+function TodaySection({C, galaxy, profile, up}) {
+  const [selectedDate, setSelectedDate] = useState(getLocalDateStr());
+  const [view, setView] = useState("list"); // list | add
+  const [editingTask, setEditingTask] = useState(null);
+  const [newTask, setNewTask] = useState(blankTask());
+  // Which month the calendar grid is showing. Independent of selectedDate so
+  // you can browse ahead without losing the day you're looking at.
+  const [monthCursor, setMonthCursor] = useState(()=>{
+    const d=new Date(); return {y:d.getFullYear(), m:d.getMonth()};
+  });
+
+  const tasks = profile.tasks || [];
+  const goals = profile.goals || [];
+  const todayStr = getLocalDateStr();
+
+  // Full month grid, padded so the 1st lands under its real weekday.
+  const monthGrid = useMemo(()=>{
+    const {y,m} = monthCursor;
+    const first = new Date(y, m, 1);
+    const daysInMonth = new Date(y, m+1, 0).getDate();
+    const cells = [];
+    for(let i=0;i<first.getDay();i++) cells.push(null);
+    for(let d=1; d<=daysInMonth; d++) cells.push(getLocalDateStr(new Date(y,m,d)));
+    return cells;
+  },[monthCursor]);
+
+  const monthLabel = useMemo(()=>{
+    return new Date(monthCursor.y, monthCursor.m, 1)
+      .toLocaleDateString(undefined,{month:"long", year:"numeric"});
+  },[monthCursor]);
+
+  function shiftMonth(delta){
+    setMonthCursor(c=>{
+      const d = new Date(c.y, c.m+delta, 1);
+      return {y:d.getFullYear(), m:d.getMonth()};
+    });
+  }
+
+  // Per-date counts that drive the little dots under each calendar day.
+  function dayLoad(dStr){
+    const t = tasks.filter(x=>taskOccursOnDate(x,dStr));
+    const g = goals.filter(x=>x.targetDate===dStr && !x.done);
+    const doneCount = t.filter(x=>(x.completions||{})[dStr]).length;
+    return {taskCount:t.length, goalCount:g.length, doneCount, allDone: t.length>0 && doneCount===t.length};
+  }
+
+  const tasksForDay = tasks.filter(t=>taskOccursOnDate(t, selectedDate));
+  const goalsForDay = goals.filter(g=>g.targetDate===selectedDate && !g.done);
+  // Overdue milestone goals only surface on today's own view, not on every past date.
+  const overdueGoals = selectedDate===todayStr
+    ? goals.filter(g=>g.targetDate && g.targetDate<todayStr && !g.done)
+    : [];
+
+  const doneToday = tasksForDay.filter(t=>(t.completions||{})[selectedDate]).length;
+
+  const selectedLabel = useMemo(()=>{
+    const d = new Date(selectedDate+"T12:00:00");
+    if(selectedDate===todayStr) return "Today";
+    return d.toLocaleDateString(undefined,{weekday:"long", day:"numeric", month:"long"});
+  },[selectedDate, todayStr]);
+
+  function saveTask(){
+    if(!newTask.title.trim()) return;
+    const task = {...newTask, id:newTask.id||Date.now(), createdAt:newTask.createdAt||getLocalDateStr()};
+    if(newTask.id){
+      up("tasks", tasks.map(t=>t.id===task.id?task:t));
+    } else {
+      up("tasks", [...tasks, task]);
+    }
+    setView("list");
+    setNewTask(blankTask());
+    setEditingTask(null);
+  }
+
+  function deleteTask(id){
+    up("tasks", tasks.filter(t=>t.id!==id));
+    setView("list");
+    setNewTask(blankTask());
+    setEditingTask(null);
+  }
+
+  function toggleTaskDone(taskId, dateStr){
+    up("tasks", tasks.map(t=>{
+      if(t.id!==taskId) return t;
+      const comp = {...(t.completions||{})};
+      if(comp[dateStr]) delete comp[dateStr]; else comp[dateStr]=true;
+      return {...t, completions:comp};
+    }));
+  }
+
+  function startEdit(task){
+    setNewTask({...blankTask(), ...task});
+    setEditingTask(task.id);
+    setView("add");
+  }
+
+  function toggleWeekDay(dayNum){
+    setNewTask(t=>{
+      const days = t.weekDays||[];
+      return {...t, weekDays: days.includes(dayNum)?days.filter(d=>d!==dayNum):[...days,dayNum]};
+    });
+  }
+
+  const inputStyle = {width:"100%",padding:"12px 14px",borderRadius:12,border:`1px solid ${C.border||"#e0d8c8"}`,background:C.card||"transparent",color:C.text,fontSize:14,marginBottom:14,boxSizing:"border-box"};
+  const labelStyle = {fontSize:12,color:C.subtext||"#9088a0",marginBottom:6};
+
+  if (view==="add") {
+    return (
+      <div style={{padding:"20px 16px"}}>
+        <div onClick={()=>{setView("list");setNewTask(blankTask());setEditingTask(null);}}
+          style={{fontSize:14,color:C.accent,marginBottom:16,cursor:"pointer"}}>← Back</div>
+        <div style={{fontSize:20,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",marginBottom:20,color:C.text}}>
+          {editingTask?"Edit task":"New task"}
+        </div>
+
+        <input value={newTask.title} onChange={e=>setNewTask(t=>({...t,title:e.target.value}))}
+          placeholder="What needs doing?" style={inputStyle}/>
+
+        <div style={labelStyle}>Category</div>
+        <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:14}}>
+          {GOAL_CATEGORIES.map(cat=>(
+            <div key={cat.id} onClick={()=>setNewTask(t=>({...t,category:cat.id}))}
+              style={{padding:"6px 12px",borderRadius:20,fontSize:12,cursor:"pointer",
+                background: newTask.category===cat.id ? cat.color : "transparent",
+                color: newTask.category===cat.id ? "#fff" : C.text,
+                border:`1px solid ${newTask.category===cat.id?cat.color:(C.border||"#e0d8c8")}`}}>
+              {cat.icon} {cat.label}
+            </div>
+          ))}
+        </div>
+
+        <div style={labelStyle}>Repeats</div>
+        <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:14}}>
+          {TASK_RECUR_OPTIONS.map(opt=>(
+            <div key={opt.id} onClick={()=>setNewTask(t=>({...t,recurrence:opt.id}))}
+              style={{padding:"6px 12px",borderRadius:20,fontSize:12,cursor:"pointer",
+                background: newTask.recurrence===opt.id ? C.accent : "transparent",
+                color: newTask.recurrence===opt.id ? "#fff" : C.text,
+                border:`1px solid ${newTask.recurrence===opt.id?C.accent:(C.border||"#e0d8c8")}`}}>
+              {opt.label}
+            </div>
+          ))}
+        </div>
+
+        {newTask.recurrence==="weekly" && (
+          <div style={{display:"flex",gap:6,marginBottom:14}}>
+            {TASK_WEEKDAY_LABELS.map((lbl,i)=>(
+              <div key={i} onClick={()=>toggleWeekDay(i)}
+                style={{width:32,height:32,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,cursor:"pointer",
+                  background:(newTask.weekDays||[]).includes(i)?C.accent:"transparent",
+                  color:(newTask.weekDays||[]).includes(i)?"#fff":C.text,
+                  border:`1px solid ${(newTask.weekDays||[]).includes(i)?C.accent:(C.border||"#e0d8c8")}`}}>
+                {lbl}
+              </div>
+            ))}
+          </div>
+        )}
+
+        {newTask.recurrence==="custom" && (
+          <div style={{marginBottom:14}}>
+            <div style={labelStyle}>Repeat every</div>
+            <div style={{display:"flex",alignItems:"center",gap:8}}>
+              <input type="number" min="2" value={newTask.everyNDays}
+                onChange={e=>setNewTask(t=>({...t,everyNDays:e.target.value}))}
+                style={{width:70,padding:"10px 12px",borderRadius:10,border:`1px solid ${C.border||"#e0d8c8"}`,background:C.card||"transparent",color:C.text,fontSize:14}}/>
+              <span style={{fontSize:13,color:C.text}}>days</span>
+            </div>
+          </div>
+        )}
+
+        <div style={labelStyle}>Starts</div>
+        <input type="date" value={newTask.startDate} onChange={e=>setNewTask(t=>({...t,startDate:e.target.value}))} style={inputStyle}/>
+
+        {newTask.recurrence!=="once" && (
+          <>
+            <div style={labelStyle}>Ends (optional)</div>
+            <input type="date" value={newTask.endDate} onChange={e=>setNewTask(t=>({...t,endDate:e.target.value}))} style={inputStyle}/>
+          </>
+        )}
+
+        <textarea value={newTask.notes} onChange={e=>setNewTask(t=>({...t,notes:e.target.value}))}
+          placeholder="Notes (optional)" style={{...inputStyle,minHeight:70,marginBottom:20,resize:"vertical"}}/>
+
+        <div style={{display:"flex",gap:10}}>
+          <div onClick={saveTask}
+            style={{flex:1,padding:"12px",borderRadius:12,background:C.accent,color:"#fff",textAlign:"center",fontSize:14,fontWeight:600,cursor:"pointer"}}>
+            {editingTask?"Save changes":"Add task"}
+          </div>
+          {editingTask && (
+            <div onClick={()=>deleteTask(editingTask)}
+              style={{padding:"12px 18px",borderRadius:12,border:"1px solid #e05a5a",color:"#e05a5a",fontSize:14,cursor:"pointer"}}>
+              Delete
+            </div>
+          )}
+        </div>
       </div>
+    );
+  }
+
+  return (
+    <div style={{padding:"20px 16px"}}>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18}}>
+        <div style={{fontSize:20,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:C.text}}>Today</div>
+        <div onClick={()=>{setNewTask(blankTask());setEditingTask(null);setView("add");}}
+          style={{fontSize:13,color:C.accent,fontWeight:600,cursor:"pointer"}}>+ Add task</div>
+      </div>
+
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
+        <div onClick={()=>shiftMonth(-1)} style={{padding:"6px 12px",fontSize:18,color:C.accent,cursor:"pointer",userSelect:"none"}}>‹</div>
+        <div style={{fontSize:15,fontWeight:600,color:C.text}}>{monthLabel}</div>
+        <div onClick={()=>shiftMonth(1)} style={{padding:"6px 12px",fontSize:18,color:C.accent,cursor:"pointer",userSelect:"none"}}>›</div>
+      </div>
+
+      <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2,marginBottom:6}}>
+        {TASK_WEEKDAY_LABELS.map((lbl,i)=>(
+          <div key={i} style={{textAlign:"center",fontSize:10,color:C.subtext||"#9088a0",paddingBottom:4}}>{lbl}</div>
+        ))}
+      </div>
+
+      <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:4,marginBottom:20}}>
+        {monthGrid.map((dStr,i)=>{
+          if(!dStr) return <div key={"pad"+i}/>;
+          const dayNum = parseInt(dStr.slice(8,10),10);
+          const selected = dStr===selectedDate;
+          const isToday = dStr===todayStr;
+          const {taskCount, goalCount, allDone} = dayLoad(dStr);
+          return (
+            <div key={dStr} onClick={()=>setSelectedDate(dStr)}
+              style={{aspectRatio:"1",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:2,
+                borderRadius:10,cursor:"pointer",
+                background: selected ? C.accent : "transparent",
+                border: `1px solid ${selected?C.accent:isToday?(C.gold||"#c49a2a"):"transparent"}`}}>
+              <div style={{fontSize:13,fontWeight:isToday?700:500,color:selected?"#fff":C.text}}>{dayNum}</div>
+              <div style={{display:"flex",gap:2,height:4}}>
+                {taskCount>0 && <div style={{width:4,height:4,borderRadius:"50%",background:selected?"#fff":(allDone?"#3c9650":(C.accent||"#7c5fd4"))}}/>}
+                {goalCount>0 && <div style={{width:4,height:4,borderRadius:"50%",background:selected?"#fff":(C.gold||"#c49a2a")}}/>}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:12,paddingBottom:8,borderBottom:`1px solid ${C.border||"#e0d8c8"}`}}>
+        <div style={{fontSize:17,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:C.text}}>{selectedLabel}</div>
+        {tasksForDay.length>0 && (
+          <div style={{fontSize:12,color:doneToday===tasksForDay.length?"#3c9650":(C.subtext||"#9088a0")}}>
+            {doneToday}/{tasksForDay.length} done
+          </div>
+        )}
+      </div>
+
+      {overdueGoals.length>0 && (
+        <div style={{marginBottom:18}}>
+          <div style={{fontSize:12,color:"#e05a5a",marginBottom:8,fontWeight:600}}>Overdue</div>
+          {overdueGoals.map(g=>(
+            <div key={g.id} style={{padding:"10px 14px",borderRadius:10,border:"1px solid #e05a5a44",marginBottom:8,fontSize:14,color:C.text}}>
+              ◎ {g.title} <span style={{fontSize:11,color:"#e05a5a"}}>· was due {g.targetDate}</span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {goalsForDay.length>0 && (
+        <div style={{marginBottom:18}}>
+          <div style={{fontSize:12,color:C.subtext||"#9088a0",marginBottom:8,fontWeight:600}}>Goal deadlines</div>
+          {goalsForDay.map(g=>(
+            <div key={g.id} style={{padding:"10px 14px",borderRadius:10,border:`1px solid ${getCatColor(g.category)}44`,marginBottom:8,fontSize:14,color:C.text,display:"flex",alignItems:"center",gap:8}}>
+              <span>{getCatIcon(g.category)}</span> {g.title}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {tasksForDay.length===0 && goalsForDay.length===0 && overdueGoals.length===0 ? (
+        <div style={{textAlign:"center",padding:"30px 0",color:C.subtext||"#9088a0"}}>
+          <div style={{fontSize:15,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>Nothing on the books.</div>
+        </div>
+      ) : null}
+
+      {(()=>{
+        const pending = tasksForDay.filter(t=>!(t.completions||{})[selectedDate]);
+        const finished = tasksForDay.filter(t=>(t.completions||{})[selectedDate]);
+        const row = (t, done) => (
+          <div key={t.id} style={{display:"flex",alignItems:"center",gap:10,padding:"11px 14px",borderRadius:10,border:`1px solid ${C.border||"#e0d8c8"}`,marginBottom:8,background:done?"transparent":(C.card||"transparent")}}>
+            <div onClick={()=>toggleTaskDone(t.id,selectedDate)}
+              style={{width:22,height:22,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,color:"#fff",
+                border:`2px solid ${getCatColor(t.category)}`,background:done?getCatColor(t.category):"transparent",cursor:"pointer",flexShrink:0}}>
+              {done?"✓":""}
+            </div>
+            <div style={{flex:1,fontSize:14,color:C.text,textDecoration:done?"line-through":"none",opacity:done?0.55:1,cursor:"pointer"}} onClick={()=>startEdit(t)}>
+              {t.title}
+              {t.recurrence!=="once" && <span style={{fontSize:10,color:C.subtext||"#9088a0",marginLeft:6}}>↻ {t.recurrence}</span>}
+              {t.notes && <div style={{fontSize:11,color:C.subtext||"#9088a0",marginTop:2}}>{t.notes}</div>}
+            </div>
+          </div>
+        );
+        return (
+          <>
+            {pending.length>0 && (
+              <div style={{marginBottom:16}}>
+                <div style={{fontSize:12,color:C.subtext||"#9088a0",marginBottom:8,fontWeight:600}}>To do</div>
+                {pending.map(t=>row(t,false))}
+              </div>
+            )}
+            {finished.length>0 && (
+              <div style={{marginBottom:16}}>
+                <div style={{fontSize:12,color:"#3c9650",marginBottom:8,fontWeight:600}}>Done</div>
+                {finished.map(t=>row(t,true))}
+              </div>
+            )}
+          </>
+        );
+      })()}
+    </div>
   );
 }
 
 function GoalsSection({C, galaxy, profile, up, journalEntries}) {
   const [view, setView] = useState("list"); // list | add | detail
   const [selectedGoal, setSelectedGoal] = useState(null);
-  const [expandedGoalId, setExpandedGoalId] = useState(null);
-  const [monthOpenId, setMonthOpenId] = useState(null);
   const [newGoal, setNewGoal] = useState({
     id: null, title:"", category:"personal", type:"milestone",
     why:"", targetDate:"", targetNumber:"", targetUnit:"",
@@ -3284,21 +3621,21 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
     <div style={{padding:"16px 16px"}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:20}}>
         <div style={{fontSize:18,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>{newGoal.id?"Edit Goal":"New Goal"}</div>
-        <button onClick={()=>{setView("list");resetForm();}} style={{minHeight:40,minWidth:40,background:"none",border:"none",cursor:"pointer",fontSize:16,color:C.muted}}>Cancel</button>
+        <button onClick={()=>{setView("list");resetForm();}} style={{background:"none",border:"none",cursor:"pointer",fontSize:13,color:C.muted}}>Cancel</button>
       </div>
 
       <div style={{display:"flex",flexDirection:"column",gap:16}}>
         {/* Title */}
         <div>
-          <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>WHAT IS YOUR GOAL?</div>
+          <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>WHAT IS YOUR GOAL?</div>
           <input value={newGoal.title} onChange={e=>setNewGoal(g=>({...g,title:e.target.value}))}
             placeholder="e.g. Save ₹2 lakhs for Europe trip · Become an actress · Meditate daily for 90 days"
-            style={{width:"100%",background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"12px 14px",fontSize:16,boxSizing:"border-box"}}/>
+            style={{width:"100%",background:C.card,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"12px 14px",fontSize:14,boxSizing:"border-box"}}/>
         </div>
 
         {/* Goal type */}
         <div>
-          <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:10}}>GOAL TYPE</div>
+          <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:10}}>GOAL TYPE</div>
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
             {[
               {v:"number",l:"Number Goal",d:"Track a specific number — savings amount, kg to lose, videos to post, books to read",icon:"123"},
@@ -3306,16 +3643,16 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
               {v:"habit",l:"Habit Goal",d:"Build a daily practice — meditate, walk, journal, cold shower, no sugar",icon:"🔁"},
               {v:"weekly",l:"Weekly Goal",d:"A target for the week, not every day — gym 3x, call mom, post 2 reels. Resets every Monday.",icon:"📅"},
             ].map(t=>(
-              <button key={t.v} onClick={()=>setNewGoal(g=>({...g,type:t.v}))} style={{minHeight:40,minWidth:40,
+              <button key={t.v} onClick={()=>setNewGoal(g=>({...g,type:t.v}))} style={{
                 padding:"12px 14px",borderRadius:10,textAlign:"left",cursor:"pointer",
                 border:`2px solid ${newGoal.type===t.v?getCatColor(newGoal.category):C.border}`,
                 background:newGoal.type===t.v?getCatColor(newGoal.category)+"15":"transparent",
               }}>
                 <div style={{display:"flex",gap:10,alignItems:"center"}}>
-                  <div style={{width:32,height:32,borderRadius:8,background:getCatColor(newGoal.category)+"22",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,flexShrink:0}}>{t.icon}</div>
+                  <div style={{width:32,height:32,borderRadius:8,background:getCatColor(newGoal.category)+"22",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,flexShrink:0}}>{t.icon}</div>
                   <div>
-                    <div style={{fontSize:16,fontWeight:600,color:newGoal.type===t.v?getCatColor(newGoal.category):C.text}}>{t.l}</div>
-                    <div style={{fontSize:14,color:C.muted,marginTop:1}}>{t.d}</div>
+                    <div style={{fontSize:13,fontWeight:600,color:newGoal.type===t.v?getCatColor(newGoal.category):C.text}}>{t.l}</div>
+                    <div style={{fontSize:11,color:C.muted,marginTop:1}}>{t.d}</div>
                   </div>
                 </div>
               </button>
@@ -3325,11 +3662,11 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
 
         {/* Category */}
         <div>
-          <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>CATEGORY</div>
+          <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>CATEGORY</div>
           <div style={{display:"flex",gap:7,flexWrap:"wrap"}}>
             {GOAL_CATEGORIES.map(cat=>(
-              <button key={cat.id} onClick={()=>setNewGoal(g=>({...g,category:cat.id}))} style={{minHeight:40,minWidth:40,
-                padding:"6px 12px",borderRadius:20,cursor:"pointer",fontSize:15,
+              <button key={cat.id} onClick={()=>setNewGoal(g=>({...g,category:cat.id}))} style={{
+                padding:"6px 12px",borderRadius:20,cursor:"pointer",fontSize:12,
                 border:`1px solid ${newGoal.category===cat.id?cat.color:C.border}`,
                 background:newGoal.category===cat.id?cat.color+"18":"transparent",
                 color:newGoal.category===cat.id?cat.color:C.muted,
@@ -3341,32 +3678,32 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
         {/* Number goal specific */}
         {newGoal.type==="number"&&(
           <div>
-            <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>TARGET</div>
+            <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>TARGET</div>
             <div style={{display:"flex",gap:10}}>
               <input value={newGoal.targetNumber} onChange={e=>setNewGoal(g=>({...g,targetNumber:e.target.value}))}
                 placeholder="200000" type="number"
-                style={{flex:1,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:17,fontFamily:"'DM Mono',monospace"}}/>
+                style={{flex:1,background:C.card,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:15,fontFamily:"'DM Mono',monospace"}}/>
               <input value={newGoal.targetUnit} onChange={e=>setNewGoal(g=>({...g,targetUnit:e.target.value}))}
                 placeholder="₹ / kg / videos / books"
-                style={{flex:1,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:16}}/>
+                style={{flex:1,background:C.card,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:13}}/>
             </div>
-            <div style={{fontSize:13,color:C.dim,marginTop:5}}>Starting from: <input value={newGoal.currentNumber} onChange={e=>setNewGoal(g=>({...g,currentNumber:e.target.value}))} placeholder="0" type="number" style={{background:"transparent",border:"none",color:C.accent,fontSize:15,fontFamily:"'DM Mono',monospace",width:60}}/> {newGoal.targetUnit}</div>
+            <div style={{fontSize:10,color:C.dim,marginTop:5}}>Starting from: <input value={newGoal.currentNumber} onChange={e=>setNewGoal(g=>({...g,currentNumber:e.target.value}))} placeholder="0" type="number" style={{background:"transparent",border:"none",color:C.accent,fontSize:12,fontFamily:"'DM Mono',monospace",width:60}}/> {newGoal.targetUnit}</div>
           </div>
         )}
 
         {/* Habit goal specific */}
         {newGoal.type==="habit"&&(
           <div>
-            <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>TARGET STREAK</div>
+            <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>TARGET STREAK</div>
             <div style={{display:"flex",gap:10,alignItems:"center"}}>
               <input value={newGoal.targetNumber} onChange={e=>setNewGoal(g=>({...g,targetNumber:e.target.value}))}
                 placeholder="90" type="number"
-                style={{width:80,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:18,fontFamily:"'DM Mono',monospace"}}/>
-              <div style={{fontSize:16,color:C.muted}}>consecutive days</div>
+                style={{width:80,background:C.card,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:16,fontFamily:"'DM Mono',monospace"}}/>
+              <div style={{fontSize:13,color:C.muted}}>consecutive days</div>
             </div>
             <div style={{display:"flex",gap:8,flexWrap:"wrap",marginTop:10}}>
               {[7,21,30,60,90,100,365].map(n=>(
-                <button key={n} onClick={()=>setNewGoal(g=>({...g,targetNumber:String(n)}))} style={{minHeight:40,minWidth:40,padding:"5px 11px",borderRadius:20,border:`1px solid ${newGoal.targetNumber===String(n)?getCatColor(newGoal.category):C.border}`,background:newGoal.targetNumber===String(n)?getCatColor(newGoal.category)+"18":"transparent",cursor:"pointer",fontSize:15,color:newGoal.targetNumber===String(n)?getCatColor(newGoal.category):C.muted}}>{n} days</button>
+                <button key={n} onClick={()=>setNewGoal(g=>({...g,targetNumber:String(n)}))} style={{padding:"5px 11px",borderRadius:20,border:`1px solid ${newGoal.targetNumber===String(n)?getCatColor(newGoal.category):C.border}`,background:newGoal.targetNumber===String(n)?getCatColor(newGoal.category)+"18":"transparent",cursor:"pointer",fontSize:12,color:newGoal.targetNumber===String(n)?getCatColor(newGoal.category):C.muted}}>{n} days</button>
               ))}
             </div>
           </div>
@@ -3375,34 +3712,34 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
         {/* Weekly target for weekly goals */}
         {newGoal.type==="weekly"&&(
           <div>
-            <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>HOW SHOULD THIS WEEK WORK?</div>
+            <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>HOW SHOULD THIS WEEK WORK?</div>
             <div style={{display:"flex",gap:6,marginBottom:14}}>
               {[{v:"count",l:"Any days — just a count"},{v:"days",l:"Specific days"}].map(o=>(
-                <button key={o.v} onClick={()=>setNewGoal(g=>({...g,weeklyMode:o.v}))} style={{minHeight:40,minWidth:40,flex:1,padding:"9px 8px",borderRadius:9,border:`1.5px solid ${(newGoal.weeklyMode||"count")===o.v?getCatColor(newGoal.category):C.border}`,background:(newGoal.weeklyMode||"count")===o.v?getCatColor(newGoal.category)+"15":"transparent",cursor:"pointer",fontSize:15,color:(newGoal.weeklyMode||"count")===o.v?getCatColor(newGoal.category):C.muted}}>{o.l}</button>
+                <button key={o.v} onClick={()=>setNewGoal(g=>({...g,weeklyMode:o.v}))} style={{flex:1,padding:"9px 8px",borderRadius:9,border:`1.5px solid ${(newGoal.weeklyMode||"count")===o.v?getCatColor(newGoal.category):C.border}`,background:(newGoal.weeklyMode||"count")===o.v?getCatColor(newGoal.category)+"15":"transparent",cursor:"pointer",fontSize:12,color:(newGoal.weeklyMode||"count")===o.v?getCatColor(newGoal.category):C.muted}}>{o.l}</button>
               ))}
             </div>
 
             {(newGoal.weeklyMode||"count")==="count"&&(
               <div>
-                <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>TIMES PER WEEK</div>
+                <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>TIMES PER WEEK</div>
                 <div style={{display:"flex",gap:10,alignItems:"center"}}>
                   <input value={newGoal.targetNumber} onChange={e=>setNewGoal(g=>({...g,targetNumber:e.target.value}))}
                     placeholder="3" type="number"
-                    style={{width:80,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:18,fontFamily:"'DM Mono',monospace"}}/>
-                  <div style={{fontSize:16,color:C.muted}}>times this week</div>
+                    style={{width:80,background:C.card,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:16,fontFamily:"'DM Mono',monospace"}}/>
+                  <div style={{fontSize:13,color:C.muted}}>times this week</div>
                 </div>
                 <div style={{display:"flex",gap:8,flexWrap:"wrap",marginTop:10}}>
                   {[1,2,3,4,5,6,7].map(n=>(
-                    <button key={n} onClick={()=>setNewGoal(g=>({...g,targetNumber:String(n)}))} style={{minHeight:40,minWidth:40,padding:"5px 11px",borderRadius:20,border:`1px solid ${newGoal.targetNumber===String(n)?getCatColor(newGoal.category):C.border}`,background:newGoal.targetNumber===String(n)?getCatColor(newGoal.category)+"18":"transparent",cursor:"pointer",fontSize:15,color:newGoal.targetNumber===String(n)?getCatColor(newGoal.category):C.muted}}>{n}x/week</button>
+                    <button key={n} onClick={()=>setNewGoal(g=>({...g,targetNumber:String(n)}))} style={{padding:"5px 11px",borderRadius:20,border:`1px solid ${newGoal.targetNumber===String(n)?getCatColor(newGoal.category):C.border}`,background:newGoal.targetNumber===String(n)?getCatColor(newGoal.category)+"18":"transparent",cursor:"pointer",fontSize:12,color:newGoal.targetNumber===String(n)?getCatColor(newGoal.category):C.muted}}>{n}x/week</button>
                   ))}
                 </div>
-                <div style={{fontSize:14,color:C.dim,marginTop:8,fontStyle:"italic"}}>Resets every Monday. Tap to log each time you complete it, any day that suits you.</div>
+                <div style={{fontSize:11,color:C.dim,marginTop:8,fontStyle:"italic"}}>Resets every Monday. Tap to log each time you complete it, any day that suits you.</div>
               </div>
             )}
 
             {(newGoal.weeklyMode==="days")&&(
               <div>
-                <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>WHICH DAYS?</div>
+                <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>WHICH DAYS?</div>
                 <div style={{display:"flex",gap:5,flexWrap:"wrap"}}>
                   {[{v:"Mon",l:"M"},{v:"Tue",l:"T"},{v:"Wed",l:"W"},{v:"Thu",l:"T"},{v:"Fri",l:"F"},{v:"Sat",l:"S"},{v:"Sun",l:"S"}].map(d=>{
                     const selected=(newGoal.weeklyDays||[]).includes(d.v);
@@ -3411,16 +3748,16 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
                         const days=g.weeklyDays||[];
                         const next=selected?days.filter(x=>x!==d.v):[...days,d.v];
                         return {...g, weeklyDays:next, targetNumber:String(next.length)};
-                      })} style={{minHeight:40,minWidth:40,
+                      })} style={{
                         width:38,height:38,borderRadius:10,
                         border:`1.5px solid ${selected?getCatColor(newGoal.category):C.border}`,
                         background:selected?getCatColor(newGoal.category):"transparent",
-                        color:selected?"#fff":C.muted,cursor:"pointer",fontSize:16,fontWeight:600,
+                        color:selected?"#fff":C.muted,cursor:"pointer",fontSize:13,fontWeight:600,
                       }}>{d.l}</button>
                     );
                   })}
                 </div>
-                <div style={{fontSize:14,color:C.dim,marginTop:8,fontStyle:"italic"}}>
+                <div style={{fontSize:11,color:C.dim,marginTop:8,fontStyle:"italic"}}>
                   {(newGoal.weeklyDays||[]).length>0
                     ? `Scheduled for ${(newGoal.weeklyDays||[]).join(", ")}. You'll see this on those days specifically.`
                     : "Pick the days this task happens — e.g. face mask on Mon, Wed, Fri."}
@@ -3433,48 +3770,48 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
         {/* Milestones for milestone goals */}
         {newGoal.type==="milestone"&&(
           <div>
-            <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>MILESTONES — break it into steps</div>
+            <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>MILESTONES — break it into steps</div>
             {(newGoal.milestones||[]).map((m,i)=>(
               <div key={i} style={{display:"flex",gap:8,padding:"6px 0",borderBottom:i<newGoal.milestones.length-1?`1px solid ${C.border}`:"none",alignItems:"center"}}>
-                <div style={{width:18,height:18,borderRadius:5,background:C.bg,border:`1px solid ${C.border}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,color:C.dim,flexShrink:0}}>{i+1}</div>
-                <div style={{flex:1,fontSize:16,color:C.text}}>{m.text}</div>
-                <button onClick={()=>setNewGoal(g=>({...g,milestones:g.milestones.filter((_,j)=>j!==i)}))} style={{minHeight:40,minWidth:40,background:"none",border:"none",cursor:"pointer",color:C.red,fontSize:16}}>×</button>
+                <div style={{width:18,height:18,borderRadius:5,background:C.bg,border:`1px solid ${C.border}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,color:C.dim,flexShrink:0}}>{i+1}</div>
+                <div style={{flex:1,fontSize:13,color:C.text}}>{m.text}</div>
+                <button onClick={()=>setNewGoal(g=>({...g,milestones:g.milestones.filter((_,j)=>j!==i)}))} style={{background:"none",border:"none",cursor:"pointer",color:C.red,fontSize:14}}>×</button>
               </div>
             ))}
             <div style={{display:"flex",gap:8,marginTop:8}}>
               <input value={newMilestone} onChange={e=>setNewMilestone(e.target.value)}
                 onKeyDown={e=>{if(e.key==="Enter"&&newMilestone.trim()){setNewGoal(g=>({...g,milestones:[...(g.milestones||[]),{text:newMilestone.trim(),done:false,doneDate:null}]}));setNewMilestone("");}}}
                 placeholder="e.g. Attend acting workshop · Get headshots · Send first audition"
-                style={{flex:1,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 12px",fontSize:15}}/>
-              <button onClick={()=>{if(!newMilestone.trim())return;setNewGoal(g=>({...g,milestones:[...(g.milestones||[]),{text:newMilestone.trim(),done:false,doneDate:null}]}));setNewMilestone("");}} style={{minHeight:40,minWidth:40,padding:"9px 14px",background:getCatColor(newGoal.category),border:"none",borderRadius:8,color:C.text,cursor:"pointer",fontSize:16}}>+</button>
+                style={{flex:1,background:C.card,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 12px",fontSize:12}}/>
+              <button onClick={()=>{if(!newMilestone.trim())return;setNewGoal(g=>({...g,milestones:[...(g.milestones||[]),{text:newMilestone.trim(),done:false,doneDate:null}]}));setNewMilestone("");}} style={{padding:"9px 14px",background:getCatColor(newGoal.category),border:"none",borderRadius:8,color:"#fff",cursor:"pointer",fontSize:13}}>+</button>
             </div>
-            <div style={{fontSize:13,color:C.dim,marginTop:5}}>Press Enter or + to add each step</div>
+            <div style={{fontSize:10,color:C.dim,marginTop:5}}>Press Enter or + to add each step</div>
           </div>
         )}
 
         {/* Why */}
         <div>
-          <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>WHY DOES THIS MATTER TO YOU?</div>
+          <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>WHY DOES THIS MATTER TO YOU?</div>
           <textarea value={newGoal.why} onChange={e=>setNewGoal(g=>({...g,why:e.target.value}))}
             rows={2} placeholder="The reason behind the goal. This is what keeps you going when motivation drops."
-            style={{width:"100%",background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:16,resize:"none",boxSizing:"border-box",fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}/>
+            style={{width:"100%",background:C.card,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:13,resize:"none",boxSizing:"border-box",fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}/>
         </div>
 
         {/* Target date */}
         <div>
-          <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>TARGET DATE (optional)</div>
+          <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>TARGET DATE (optional)</div>
           <input type="date" value={newGoal.targetDate} onChange={e=>setNewGoal(g=>({...g,targetDate:e.target.value}))}
-            style={{width:"100%",background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:16,boxSizing:"border-box"}}/>
+            style={{width:"100%",background:C.card,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:13,boxSizing:"border-box"}}/>
           {newGoal.targetDate&&(()=>{
             const days=Math.ceil((new Date(newGoal.targetDate)-new Date())/86400000);
-            return <div style={{fontSize:14,color:days<30?C.red:days<90?C.gold:C.accent2,marginTop:4}}>{days>0?`${days} days from today`:"Date has passed"}</div>;
+            return <div style={{fontSize:11,color:days<30?C.red:days<90?C.gold:C.accent2,marginTop:4}}>{days>0?`${days} days from today`:"Date has passed"}</div>;
           })()}
         </div>
 
-        <button onClick={saveGoal} disabled={!newGoal.title.trim()} style={{minHeight:40,minWidth:40,
+        <button onClick={saveGoal} disabled={!newGoal.title.trim()} style={{
           padding:"14px",background:newGoal.title.trim()?`linear-gradient(135deg,${getCatColor(newGoal.category)},${C.warm})`:"#e2d8c8",
           border:"none",borderRadius:12,color:newGoal.title.trim()?"#fff":C.dim,
-          cursor:newGoal.title.trim()?"pointer":"not-allowed",fontSize:17,fontWeight:600,
+          cursor:newGoal.title.trim()?"pointer":"not-allowed",fontSize:15,fontWeight:600,
           fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",
         }}>Save Goal →</button>
       </div>
@@ -3497,20 +3834,20 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
     return (
       <div style={{padding:"16px 16px"}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
-          <button onClick={()=>setView("list")} style={{minHeight:40,minWidth:40,background:"none",border:"none",cursor:"pointer",fontSize:16,color:C.muted}}>← Goals</button>
+          <button onClick={()=>setView("list")} style={{background:"none",border:"none",cursor:"pointer",fontSize:13,color:C.muted}}>← Goals</button>
           <div style={{display:"flex",gap:8}}>
-            <button onClick={()=>{setNewGoal({...goal});setView("add");}} style={{minHeight:40,minWidth:40,fontSize:15,color:C.muted,background:C.bg,border:`1px solid ${C.border}`,borderRadius:20,padding:"5px 12px",cursor:"pointer"}}>Edit</button>
-            <button onClick={()=>deleteGoal(goal.id)} style={{minHeight:40,minWidth:40,fontSize:15,color:C.red,background:C.red+"12",border:`1px solid ${C.red}33`,borderRadius:20,padding:"5px 12px",cursor:"pointer"}}>Delete</button>
+            <button onClick={()=>{setNewGoal({...goal});setView("add");}} style={{fontSize:12,color:C.muted,background:C.bg,border:`1px solid ${C.border}`,borderRadius:20,padding:"5px 12px",cursor:"pointer"}}>Edit</button>
+            <button onClick={()=>deleteGoal(goal.id)} style={{fontSize:12,color:C.red,background:C.red+"12",border:`1px solid ${C.red}33`,borderRadius:20,padding:"5px 12px",cursor:"pointer"}}>Delete</button>
           </div>
         </div>
 
         {/* Goal header */}
-        <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`2px solid ${catColor}44`,borderRadius:16,padding:22,marginBottom:14,boxShadow:`0 0 24px ${catColor}18`}}>
+        <div style={{background:C.card,border:`2px solid ${catColor}44`,borderRadius:16,padding:22,marginBottom:14,boxShadow:`0 0 24px ${catColor}18`}}>
           <div style={{display:"flex",gap:12,alignItems:"flex-start",marginBottom:14}}>
             <div style={{width:44,height:44,borderRadius:12,background:catColor+"22",border:`2px solid ${catColor}44`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0}}>{getCatIcon(goal.category)}</div>
             <div style={{flex:1}}>
               <div style={{fontSize:18,fontWeight:600,color:catColor,marginBottom:2}}>{goal.title}</div>
-              <div style={{fontSize:14,color:C.muted,textTransform:"capitalize"}}>{goal.category} · {goal.type} goal{goal.createdAt?` · Started ${new Date(goal.createdAt+"T12:00:00").toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"})}`:""}</div>
+              <div style={{fontSize:11,color:C.muted,textTransform:"capitalize"}}>{goal.category} · {goal.type} goal{goal.createdAt?` · Started ${new Date(goal.createdAt+"T12:00:00").toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"})}`:""}</div>
             </div>
           </div>
           {/* Progress ring */}
@@ -3522,34 +3859,34 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
                   strokeDasharray={`${(pct/100)*163} 163`} strokeLinecap="round"
                   style={{transition:"stroke-dasharray 0.6s ease",filter:`drop-shadow(0 0 4px ${catColor}66)`}}/>
               </svg>
-              <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,fontWeight:700,color:catColor}}>{pct}%</div>
+              <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,fontWeight:700,color:catColor}}>{pct}%</div>
             </div>
             <div>
-              {goal.type==="number"&&<div style={{fontSize:20,fontWeight:700,color:catColor}}>{parseFloat(goal.currentNumber)||0} <span style={{fontSize:15,color:C.muted,fontWeight:400}}>/ {goal.targetNumber} {goal.targetUnit}</span></div>}
-              {goal.type==="habit"&&<div><div style={{fontSize:20,fontWeight:700,color:catColor}}>{streak} day streak 🔥</div><div style={{fontSize:14,color:C.muted}}>Target: {goal.targetNumber} days</div></div>}
-              {goal.type==="weekly"&&<div><div style={{fontSize:20,fontWeight:700,color:catColor}}>{weeklyCount}/{goal.targetNumber} <span style={{fontSize:15,color:C.muted,fontWeight:400}}>this week</span></div><div style={{fontSize:14,color:C.muted}}>{weeklyConsistency} week{weeklyConsistency===1?"":"s"} hit target</div></div>}
-              {goal.type==="milestone"&&<div style={{fontSize:20,fontWeight:700,color:catColor}}>{(goal.milestones||[]).filter(m=>m.done).length}/{(goal.milestones||[]).length} <span style={{fontSize:15,color:C.muted,fontWeight:400}}>milestones</span></div>}
-              {daysLeft!==null&&<div style={{fontSize:14,color:daysLeft<30?C.red:daysLeft<90?C.gold:C.muted,marginTop:3}}>{daysLeft>0?`${daysLeft} days left`:daysLeft===0?"Due today!":"Overdue by "+Math.abs(daysLeft)+" days"}</div>}
+              {goal.type==="number"&&<div style={{fontSize:20,fontWeight:700,color:catColor}}>{parseFloat(goal.currentNumber)||0} <span style={{fontSize:12,color:C.muted,fontWeight:400}}>/ {goal.targetNumber} {goal.targetUnit}</span></div>}
+              {goal.type==="habit"&&<div><div style={{fontSize:20,fontWeight:700,color:catColor}}>{streak} day streak 🔥</div><div style={{fontSize:11,color:C.muted}}>Target: {goal.targetNumber} days</div></div>}
+              {goal.type==="weekly"&&<div><div style={{fontSize:20,fontWeight:700,color:catColor}}>{weeklyCount}/{goal.targetNumber} <span style={{fontSize:12,color:C.muted,fontWeight:400}}>this week</span></div><div style={{fontSize:11,color:C.muted}}>{weeklyConsistency} week{weeklyConsistency===1?"":"s"} hit target</div></div>}
+              {goal.type==="milestone"&&<div style={{fontSize:20,fontWeight:700,color:catColor}}>{(goal.milestones||[]).filter(m=>m.done).length}/{(goal.milestones||[]).length} <span style={{fontSize:12,color:C.muted,fontWeight:400}}>milestones</span></div>}
+              {daysLeft!==null&&<div style={{fontSize:11,color:daysLeft<30?C.red:daysLeft<90?C.gold:C.muted,marginTop:3}}>{daysLeft>0?`${daysLeft} days left`:daysLeft===0?"Due today!":"Overdue by "+Math.abs(daysLeft)+" days"}</div>}
             </div>
           </div>
-          {goal.why&&<div style={{fontSize:16,color:C.muted,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",padding:"10px 12px",background:catColor+"08",borderRadius:8,lineHeight:1.7}}>"{goal.why}"</div>}
+          {goal.why&&<div style={{fontSize:13,color:C.muted,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",padding:"10px 12px",background:catColor+"08",borderRadius:8,lineHeight:1.7}}>"{goal.why}"</div>}
         </div>
 
         {/* Number goal — log progress */}
         {goal.type==="number"&&(
-          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18,marginBottom:12}}>
-            <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>LOG PROGRESS</div>
+          <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:18,marginBottom:12}}>
+            <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>LOG PROGRESS</div>
             <div style={{display:"flex",gap:10,alignItems:"center"}}>
               <input value={logAmount} onChange={e=>setLogAmount(e.target.value)} type="number"
                 placeholder={`Add ${goal.targetUnit||"amount"}`}
-                style={{flex:1,background:C.bg,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:18,fontFamily:"'DM Mono',monospace"}}/>
-              <button onClick={()=>logProgress(goal.id,logAmount)} style={{minHeight:40,minWidth:40,padding:"10px 20px",background:`linear-gradient(135deg,${catColor},${catColor}aa)`,border:"none",borderRadius:9,color:"#fff",cursor:"pointer",fontSize:16,fontWeight:600}}>+ Add</button>
+                style={{flex:1,background:C.bg,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:16,fontFamily:"'DM Mono',monospace"}}/>
+              <button onClick={()=>logProgress(goal.id,logAmount)} style={{padding:"10px 20px",background:`linear-gradient(135deg,${catColor},${catColor}aa)`,border:"none",borderRadius:9,color:"#fff",cursor:"pointer",fontSize:13,fontWeight:600}}>+ Add</button>
             </div>
             {/* Progress bar */}
             <div style={{background:C.border,borderRadius:6,height:8,marginTop:12,marginBottom:4}}>
               <div style={{width:`${pct}%`,height:8,background:`linear-gradient(90deg,${catColor},${catColor}88)`,borderRadius:6,transition:"width 0.6s ease"}}/>
             </div>
-            <div style={{display:"flex",justifyContent:"space-between",fontSize:13,color:C.muted}}>
+            <div style={{display:"flex",justifyContent:"space-between",fontSize:10,color:C.muted}}>
               <span>{parseFloat(goal.currentNumber)||0} {goal.targetUnit}</span>
               <span>{goal.targetNumber} {goal.targetUnit} target</span>
             </div>
@@ -3558,12 +3895,12 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
 
         {/* Habit goal — daily check-in */}
         {goal.type==="habit"&&(
-          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18,marginBottom:12}}>
-            <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>TODAY'S CHECK-IN</div>
-            <button onClick={()=>markHabitToday(goal.id)} style={{minHeight:40,minWidth:40,
+          <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:18,marginBottom:12}}>
+            <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>TODAY'S CHECK-IN</div>
+            <button onClick={()=>markHabitToday(goal.id)} style={{
               width:"100%",padding:"16px",
               background:doneToday?C.accent2:`linear-gradient(135deg,${catColor},${catColor}88)`,
-              border:"none",borderRadius:12,color:C.text,cursor:"pointer",
+              border:"none",borderRadius:12,color:"#fff",cursor:"pointer",
               fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontStyle:"italic",
               boxShadow:doneToday?`0 0 16px ${C.accent2}44`:`0 0 16px ${catColor}33`,
             }}>
@@ -3571,14 +3908,14 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
             </button>
             {/* Last 21 days grid */}
             <div style={{marginTop:14}}>
-              <div style={{fontSize:13,color:C.muted,marginBottom:8}}>LAST 21 DAYS</div>
+              <div style={{fontSize:10,color:C.muted,marginBottom:8}}>LAST 21 DAYS</div>
               <div style={{display:"flex",gap:3,flexWrap:"wrap"}}>
                 {Array.from({length:21},(_,i)=>{
                   const d=new Date(); d.setDate(d.getDate()-20+i);
                   const ds=getLocalDateStr(d);
                   const done=(goal.habitDays||[]).includes(ds);
                   const isToday=ds===today;
-                  return <div key={i} style={{width:28,height:28,borderRadius:6,background:done?catColor:C.bg,border:`1px solid ${isToday?catColor:done?catColor+"88":C.border}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,color:done?"#fff":C.dim,fontFamily:"'DM Mono',monospace"}}>{d.getDate()}</div>;
+                  return <div key={i} style={{width:28,height:28,borderRadius:6,background:done?catColor:C.bg,border:`1px solid ${isToday?catColor:done?catColor+"88":C.border}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,color:done?"#fff":C.dim,fontFamily:"'DM Mono',monospace"}}>{d.getDate()}</div>;
                 })}
               </div>
             </div>
@@ -3587,22 +3924,22 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
 
         {/* Weekly goal check-in */}
         {goal.type==="weekly"&&(
-          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18,marginBottom:12}}>
-            <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>THIS WEEK</div>
+          <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:18,marginBottom:12}}>
+            <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>THIS WEEK</div>
 
             {(goal.weeklyMode||"count")==="count"&&(
               <>
                 <div style={{display:"flex",gap:8,marginBottom:10}}>
-                  <button onClick={()=>markWeeklyDone(goal.id)} style={{minHeight:40,minWidth:40,
+                  <button onClick={()=>markWeeklyDone(goal.id)} style={{
                     flex:1,padding:"16px",
                     background:weeklyCount>=parseInt(goal.targetNumber||1)?C.accent2:`linear-gradient(135deg,${catColor},${catColor}88)`,
-                    border:"none",borderRadius:12,color:C.text,cursor:"pointer",
+                    border:"none",borderRadius:12,color:"#fff",cursor:"pointer",
                     fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontStyle:"italic",
                     boxShadow:`0 0 16px ${catColor}33`,
                   }}>
                     {weeklyCount>=parseInt(goal.targetNumber||1)?`✓ ${weeklyCount}/${goal.targetNumber} — target hit!`:`Log this week (${weeklyCount}/${goal.targetNumber}) →`}
                   </button>
-                  {weeklyCount>0&&<button onClick={()=>undoWeeklyDone(goal.id)} style={{minHeight:40,minWidth:40,padding:"16px 14px",background:"transparent",border:`1px solid ${C.border}`,borderRadius:12,color:C.muted,cursor:"pointer",fontSize:16}}>Undo</button>}
+                  {weeklyCount>0&&<button onClick={()=>undoWeeklyDone(goal.id)} style={{padding:"16px 14px",background:"transparent",border:`1px solid ${C.border}`,borderRadius:12,color:C.muted,cursor:"pointer",fontSize:13}}>Undo</button>}
                 </div>
                 <div style={{display:"flex",gap:4}}>
                   {Array.from({length:parseInt(goal.targetNumber)||1},(_,i)=>(
@@ -3635,7 +3972,7 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
                           if(done) return {...g, weekLogs: logs.filter(l=>!(l.week===wk&&l.date===ds))};
                           return {...g, weekLogs:[...logs, {week:wk, date:ds}]};
                         }));
-                      }} style={{minHeight:40,minWidth:40,
+                      }} style={{
                         display:"flex",justifyContent:"space-between",alignItems:"center",
                         padding:"12px 14px",borderRadius:10,cursor:"pointer",textAlign:"left",
                         border:`1.5px solid ${done?C.accent2:isToday?catColor:C.border}`,
@@ -3643,14 +3980,14 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
                         opacity:isPast&&!done?0.5:1,
                       }}>
                         <div style={{display:"flex",alignItems:"center",gap:10}}>
-                          <div style={{width:24,height:24,borderRadius:"50%",border:`1.5px solid ${done?C.accent2:C.border}`,background:done?C.accent2:"transparent",display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,color:C.text,flexShrink:0}}>{done?"✓":""}</div>
-                          <div style={{fontSize:16,color:done?C.accent2:C.text,fontWeight:isToday?600:400}}>{d}{isToday?" · Today":""}</div>
+                          <div style={{width:24,height:24,borderRadius:"50%",border:`1.5px solid ${done?C.accent2:C.border}`,background:done?C.accent2:"transparent",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,color:"#fff",flexShrink:0}}>{done?"✓":""}</div>
+                          <div style={{fontSize:13,color:done?C.accent2:C.text,fontWeight:isToday?600:400}}>{d}{isToday?" · Today":""}</div>
                         </div>
-                        <div style={{fontSize:14,color:C.muted}}>{thisDate.toLocaleDateString("en-IN",{day:"numeric",month:"short"})}</div>
+                        <div style={{fontSize:11,color:C.muted}}>{thisDate.toLocaleDateString("en-IN",{day:"numeric",month:"short"})}</div>
                       </button>
                     );
                   })}
-                  <div style={{fontSize:14,color:C.dim,marginTop:4,fontStyle:"italic"}}>{weeklyCount}/{(goal.weeklyDays||[]).length} done this week</div>
+                  <div style={{fontSize:11,color:C.dim,marginTop:4,fontStyle:"italic"}}>{weeklyCount}/{(goal.weeklyDays||[]).length} done this week</div>
                 </div>
               );
             })()}
@@ -3659,15 +3996,15 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
 
         {/* Milestones */}
         {goal.type==="milestone"&&(
-          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18,marginBottom:12}}>
-            <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>MILESTONES</div>
-            {(goal.milestones||[]).length===0?<div style={{fontSize:16,color:C.dim,fontStyle:"italic"}}>No milestones added. Edit goal to add steps.</div>:
+          <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:18,marginBottom:12}}>
+            <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>MILESTONES</div>
+            {(goal.milestones||[]).length===0?<div style={{fontSize:13,color:C.dim,fontStyle:"italic"}}>No milestones added. Edit goal to add steps.</div>:
               (goal.milestones||[]).map((m,i)=>(
-                <div key={i} onClick={()=>toggleMilestone(goal.id,i)} style={{minHeight:40,display:"flex",gap:12,padding:"10px 0",borderBottom:i<goal.milestones.length-1?`1px solid ${C.border}`:"none",cursor:"pointer",alignItems:"flex-start"}}>
-                  <div style={{width:22,height:22,borderRadius:7,border:`2px solid ${m.done?catColor:C.border}`,background:m.done?catColor:"transparent",display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,color:C.text,flexShrink:0,marginTop:1,transition:"all 0.2s"}}>{m.done?"✓":""}</div>
+                <div key={i} onClick={()=>toggleMilestone(goal.id,i)} style={{display:"flex",gap:12,padding:"10px 0",borderBottom:i<goal.milestones.length-1?`1px solid ${C.border}`:"none",cursor:"pointer",alignItems:"flex-start"}}>
+                  <div style={{width:22,height:22,borderRadius:7,border:`2px solid ${m.done?catColor:C.border}`,background:m.done?catColor:"transparent",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,color:"#fff",flexShrink:0,marginTop:1,transition:"all 0.2s"}}>{m.done?"✓":""}</div>
                   <div style={{flex:1}}>
-                    <div style={{fontSize:16,color:m.done?C.dim:C.text,textDecoration:m.done?"line-through":"none",lineHeight:1.5}}>{m.text}</div>
-                    {m.done&&m.doneDate&&<div style={{fontSize:13,color:C.dim,marginTop:2}}>Completed {new Date(m.doneDate+"T12:00:00").toLocaleDateString("en-IN",{day:"numeric",month:"short"})}</div>}
+                    <div style={{fontSize:13,color:m.done?C.dim:C.text,textDecoration:m.done?"line-through":"none",lineHeight:1.5}}>{m.text}</div>
+                    {m.done&&m.doneDate&&<div style={{fontSize:10,color:C.dim,marginTop:2}}>Completed {new Date(m.doneDate+"T12:00:00").toLocaleDateString("en-IN",{day:"numeric",month:"short"})}</div>}
                   </div>
                 </div>
               ))
@@ -3676,11 +4013,11 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
         )}
 
         {/* Notes */}
-        <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:12,padding:16}}>
-          <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>NOTES</div>
+        <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:16}}>
+          <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>NOTES</div>
           <textarea value={goal.notes||""} onChange={e=>up("goals",goals.map(g=>g.id===goal.id?{...g,notes:e.target.value}:g))}
             rows={3} placeholder="Thoughts, obstacles, what's working, what's not…"
-            style={{width:"100%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 12px",fontSize:16,resize:"none",boxSizing:"border-box"}}/>
+            style={{width:"100%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 12px",fontSize:13,resize:"none",boxSizing:"border-box"}}/>
         </div>
       </div>
     );
@@ -3691,16 +4028,16 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
     <div style={{padding:"16px 16px"}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
         <div style={{fontSize:18,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>My Goals</div>
-        <button onClick={()=>{resetForm();setView("add");}} style={{minHeight:40,minWidth:40,padding:"8px 16px",background:`linear-gradient(135deg,${C.accent},${C.warm})`,border:"none",borderRadius:20,color:"#fff",cursor:"pointer",fontSize:15,fontWeight:600}}>+ New Goal</button>
+        <button onClick={()=>{resetForm();setView("add");}} style={{padding:"8px 16px",background:`linear-gradient(135deg,${C.accent},${C.warm})`,border:"none",borderRadius:20,color:"#fff",cursor:"pointer",fontSize:12,fontWeight:600}}>+ New Goal</button>
       </div>
-      <div style={{fontSize:15,color:C.muted,marginBottom:20}}>Any goal. Any kind. The app helps you track and remember.</div>
+      <div style={{fontSize:12,color:C.muted,marginBottom:20}}>Any goal. Any kind. The app helps you track and remember.</div>
 
       {goals.length===0?(
         <div style={{textAlign:"center",padding:"48px 20px"}}>
           <div style={{fontSize:36,marginBottom:14}}>◎</div>
-          <div style={{fontSize:18,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",marginBottom:8,color:C.text}}>No goals yet.</div>
-          <div style={{fontSize:16,color:C.muted,lineHeight:1.7,marginBottom:20}}>Add anything — save ₹2 lakhs for a trip, become an actress, meditate 90 days, post 100 YouTube videos. Every goal you name becomes something the app helps you remember and track.</div>
-          <button onClick={()=>{resetForm();setView("add");}} style={{minHeight:40,minWidth:40,padding:"13px 28px",background:`linear-gradient(135deg,${C.accent},${C.warm})`,border:"none",borderRadius:12,color:"#fff",cursor:"pointer",fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontStyle:"italic"}}>Set your first goal →</button>
+          <div style={{fontSize:16,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",marginBottom:8,color:C.text}}>No goals yet.</div>
+          <div style={{fontSize:13,color:C.muted,lineHeight:1.7,marginBottom:20}}>Add anything — save ₹2 lakhs for a trip, become an actress, meditate 90 days, post 100 YouTube videos. Every goal you name becomes something the app helps you remember and track.</div>
+          <button onClick={()=>{resetForm();setView("add");}} style={{padding:"13px 28px",background:`linear-gradient(135deg,${C.accent},${C.warm})`,border:"none",borderRadius:12,color:"#fff",cursor:"pointer",fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontStyle:"italic"}}>Set your first goal →</button>
         </div>
       ):(
         <div style={{display:"flex",flexDirection:"column",gap:12}}>
@@ -3712,104 +4049,46 @@ function GoalsSection({C, galaxy, profile, up, journalEntries}) {
             const today=getLocalDateStr();
             const doneToday=goal.type==="habit"&&(goal.habitDays||[]).includes(today);
             const daysLeft=goal.targetDate?Math.ceil((new Date(goal.targetDate)-new Date())/86400000):null;
-            const isTrackable=goal.type==="habit"||goal.type==="weekly";
-            const isExpanded=expandedGoalId===goal.id;
-            // Single status dot replaces the old duplicate badges — filled when there's
-            // real progress today/this period, hollow when the goal hasn't moved yet.
-            const onTrack = goal.type==="habit" ? doneToday
-              : goal.type==="weekly" ? weeklyCountList>=(goal.targetNumber||1)
-              : pct>0;
             return(
-              <div key={goal.id}
-                onClick={()=>setExpandedGoalId(id=>id===goal.id?null:goal.id)}
-                style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${catColor}44`,borderRadius:14,padding:isExpanded?16:"11px 14px",transition:"all 0.2s",boxShadow:`0 2px 12px ${catColor}12`,cursor:"pointer"}}>
-                {/* Collapsed row — always visible */}
-                <div style={{display:"flex",gap:10,alignItems:"center"}}>
-                  <div style={{width:30,height:30,borderRadius:8,background:catColor+"22",border:`1px solid ${catColor}44`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,flexShrink:0}}>{getCatIcon(goal.category)}</div>
-                  <div style={{fontSize:15,fontWeight:600,color:catColor,flex:1,minWidth:0,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{goal.title}</div>
-                  <div style={{fontSize:14,fontWeight:700,color:catColor,flexShrink:0}}>{pct}%</div>
-                  <div
-                    title={goal.type==="habit"?(doneToday?"Done today — tap to undo":"Tap to mark done today"):onTrack?"On track":"Needs attention"}
-                    onClick={goal.type==="habit"?(e=>{e.stopPropagation();markHabitToday(goal.id);}):undefined}
-                    style={{width:22,height:22,borderRadius:"50%",flexShrink:0,background:onTrack?catColor:"transparent",border:`2.5px solid ${catColor}`,boxShadow:onTrack?`0 0 8px ${catColor}99`:"none",cursor:goal.type==="habit"?"pointer":"default",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,color:C.text}}>
-                    {goal.type==="habit"&&doneToday?"✓":""}
+              <div key={goal.id} onClick={()=>{setSelectedGoal(goal.id);setView("detail");}} style={{background:C.card,border:`1px solid ${catColor}44`,borderRadius:14,padding:18,cursor:"pointer",transition:"all 0.2s",boxShadow:`0 2px 12px ${catColor}12`}}>
+                <div style={{display:"flex",gap:12,alignItems:"flex-start",marginBottom:10}}>
+                  <div style={{width:38,height:38,borderRadius:10,background:catColor+"22",border:`1px solid ${catColor}44`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>{getCatIcon(goal.category)}</div>
+                  <div style={{flex:1}}>
+                    <div style={{fontSize:14,fontWeight:600,color:catColor,marginBottom:2}}>{goal.title}</div>
+                    <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
+                      <span style={{fontSize:10,color:C.muted,textTransform:"capitalize",padding:"2px 8px",background:catColor+"12",borderRadius:20}}>{goal.type}</span>
+                      <span style={{fontSize:10,color:C.muted,textTransform:"capitalize"}}>{goal.category}</span>
+                      {daysLeft!==null&&<span style={{fontSize:10,color:daysLeft<30?C.red:daysLeft<90?C.gold:C.muted}}>{daysLeft>0?`${daysLeft}d left`:daysLeft===0?"Due today!":"Overdue"}</span>}
+                    </div>
+                  </div>
+                  <div style={{textAlign:"right",flexShrink:0}}>
+                    <div style={{fontSize:16,fontWeight:700,color:catColor}}>{pct}%</div>
+                    {goal.type==="habit"&&<div style={{fontSize:10,color:C.muted}}>{streak}🔥</div>}
+                    {goal.type==="weekly"&&<div style={{fontSize:10,color:C.muted}}>{weeklyCountList}/{goal.targetNumber} wk</div>}
                   </div>
                 </div>
-
-                {/* Pixel progress view — always visible, not gated behind expand */}
-                {isTrackable&&(
-                  <HabitDotGrid goal={goal} C={C} colorIndex={goalIdx} expanded={monthOpenId===goal.id} onToggle={()=>setMonthOpenId(id=>id===goal.id?null:goal.id)}/>
-                )}
-
-                {isExpanded&&(
-                  <div style={{marginTop:14}}>
-                    <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap",marginBottom:10}}>
-                      <span style={{fontSize:12,color:C.muted,textTransform:"capitalize",padding:"2px 8px",background:catColor+"12",borderRadius:20}}>{goal.type}</span>
-                      <span style={{fontSize:12,color:C.muted,textTransform:"capitalize"}}>{goal.category}</span>
-                      {daysLeft!==null&&<span style={{fontSize:12,color:daysLeft<30?C.red:daysLeft<90?C.gold:C.muted}}>{daysLeft>0?`${daysLeft}d left`:daysLeft===0?"Due today!":"Overdue"}</span>}
-                    </div>
-
-                    {/* Milestone goals: show the actual checklist so steps can be
-                        marked done right here — a plain count with nothing to
-                        tap was the bug. If there are no steps yet, there's
-                        nothing to mark, so skip the meaningless 0% bar and
-                        point at Edit instead. */}
-                    {goal.type==="milestone"&&(goal.milestones||[]).length===0&&(
-                      <div onClick={e=>{e.stopPropagation();setNewGoal({...goal});setView("add");}} style={{fontSize:14,color:C.muted,padding:"10px 12px",border:`1px dashed ${C.border}`,borderRadius:10,cursor:"pointer",textAlign:"center"}}>
-                        No steps added yet — tap to add steps to track
-                      </div>
-                    )}
-                    {goal.type==="milestone"&&(goal.milestones||[]).length>0&&(
-                      <div>
-                        {goal.milestones.map((m,i)=>(
-                          <div key={i} onClick={e=>{e.stopPropagation();toggleMilestone(goal.id,i);}} style={{minHeight:40,display:"flex",gap:10,padding:"8px 0",borderBottom:i<goal.milestones.length-1?`1px solid ${C.border}`:"none",cursor:"pointer",alignItems:"flex-start"}}>
-                            <div style={{width:20,height:20,borderRadius:6,border:`2px solid ${m.done?catColor:C.border}`,background:m.done?catColor:"transparent",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,color:C.text,flexShrink:0,marginTop:1}}>{m.done?"✓":""}</div>
-                            <div style={{fontSize:14,color:m.done?C.dim:C.text,textDecoration:m.done?"line-through":"none",lineHeight:1.4}}>{m.text}</div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Number goals — actually log progress here, not just
-                        a static count */}
-                    {goal.type==="number"&&(
-                      <div onClick={e=>e.stopPropagation()} style={{display:"flex",gap:8,alignItems:"center",marginTop:10}}>
-                        <div style={{fontSize:13,color:C.muted,flexShrink:0}}>{parseFloat(goal.currentNumber)||0}/{goal.targetNumber||"—"} {goal.targetUnit}</div>
-                        <input value={logAmount} onChange={e=>setLogAmount(e.target.value)} type="number"
-                          placeholder={`Add ${goal.targetUnit||"amount"}`}
-                          style={{flex:1,minWidth:0,background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"7px 10px",fontSize:14}}/>
-                        <button onClick={()=>{logProgress(goal.id,logAmount);setLogAmount("");}} style={{minHeight:40,minWidth:40,padding:"7px 14px",background:catColor,border:"none",borderRadius:8,color:"#fff",cursor:"pointer",fontSize:13,fontWeight:600,flexShrink:0}}>+ Add</button>
-                      </div>
-                    )}
-
-                    {/* Weekly goals — mark today directly, same as habits */}
-                    {goal.type==="weekly"&&(
-                      <div onClick={e=>e.stopPropagation()} style={{display:"flex",gap:8,alignItems:"center",marginTop:10}}>
-                        <div style={{fontSize:13,color:C.muted,flexShrink:0}}>{weeklyCountList}/{goal.targetNumber||1} this week</div>
-                        <button onClick={()=>markWeeklyDone(goal.id)} style={{minHeight:40,minWidth:40,marginLeft:"auto",padding:"7px 16px",background:catColor,border:"none",borderRadius:20,color:"#fff",cursor:"pointer",fontSize:13,fontWeight:600}}>+ Mark today</button>
-                      </div>
-                    )}
-
-                    {/* Progress bar — only meaningful when there's something
-                        to show progress of */}
-                    {!(goal.type==="milestone"&&(goal.milestones||[]).length===0)&&(
-                      <div style={{background:C.border,borderRadius:4,height:5,marginTop:10}}>
-                        <div style={{width:`${pct}%`,height:5,background:`linear-gradient(90deg,${catColor},${catColor}88)`,borderRadius:4,transition:"width 0.6s ease",minWidth:pct>0?4:0}}/>
-                      </div>
-                    )}
-                    {/* Quick actions */}
-                    <div style={{marginTop:10,display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
-                      <div style={{marginLeft:"auto",display:"flex",gap:6}}>
-                        <button onClick={e=>{e.stopPropagation();setNewGoal({...goal});setView("add");}} style={{fontSize:13,color:C.muted,background:"transparent",border:`1px solid ${C.border}`,borderRadius:20,padding:"6px 14px",cursor:"pointer",minHeight:40,minWidth:40}}>Edit</button>
-                        <button onClick={e=>{e.stopPropagation();deleteGoal(goal.id);}} style={{fontSize:13,color:C.red,background:"transparent",border:`1px solid ${C.red}33`,borderRadius:20,padding:"6px 14px",cursor:"pointer",minHeight:40,minWidth:40}}>Delete</button>
-                      </div>
-                    </div>
-                  </div>
+                {/* Progress bar */}
+                <div style={{background:C.border,borderRadius:4,height:5}}>
+                  <div style={{width:`${pct}%`,height:5,background:`linear-gradient(90deg,${catColor},${catColor}88)`,borderRadius:4,transition:"width 0.6s ease",minWidth:pct>0?4:0}}/>
+                </div>
+                {/* Quick actions */}
+                <div style={{marginTop:10,display:"flex",gap:8,alignItems:"center"}}>
+                  {goal.type==="number"&&<div style={{fontSize:12,color:C.muted}}>{parseFloat(goal.currentNumber)||0} / {goal.targetNumber} {goal.targetUnit}</div>}
+                  {goal.type==="milestone"&&<div style={{fontSize:12,color:C.muted}}>{(goal.milestones||[]).filter(m=>m.done).length}/{(goal.milestones||[]).length} steps done</div>}
+                  {goal.type==="habit"&&(
+                    <button onClick={e=>{e.stopPropagation();markHabitToday(goal.id);}} style={{padding:"5px 12px",background:doneToday?C.accent2+"22":"transparent",border:`1px solid ${doneToday?C.accent2:C.border}`,borderRadius:20,cursor:"pointer",fontSize:11,color:doneToday?C.accent2:C.muted}}>
+                      {doneToday?"✓ Done today":"Mark today"}
+                    </button>
+                  )}
+                  <div style={{marginLeft:"auto",fontSize:11,color:C.dim}}>tap to open →</div>
+                </div>
+                {(goal.type==="habit"||goal.type==="weekly")&&(
+                  <HabitDotGrid goal={goal} C={C} colorIndex={goalIdx}/>
                 )}
               </div>
             );
           })}
-          <button onClick={()=>{resetForm();setView("add");}} style={{minHeight:40,minWidth:40,padding:"13px",background:"transparent",border:`1px dashed ${C.border}`,borderRadius:12,cursor:"pointer",fontSize:16,color:C.muted,textAlign:"center"}}>+ Add another goal</button>
+          <button onClick={()=>{resetForm();setView("add");}} style={{padding:"13px",background:"transparent",border:`1px dashed ${C.border}`,borderRadius:12,cursor:"pointer",fontSize:13,color:C.muted,textAlign:"center"}}>+ Add another goal</button>
         </div>
       )}
     </div>
@@ -3877,12 +4156,12 @@ function MonthlyTimeline({C, journalEntries, todayStr}) {
   return (
     <div>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
-        <button onClick={()=>setViewMonth(m=>{const d=new Date(m.year,m.month-1);return{year:d.getFullYear(),month:d.getMonth()};})} style={{minHeight:40,minWidth:40,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:8,padding:"6px 12px",cursor:"pointer",fontSize:16,color:C.muted}}>‹</button>
-        <div style={{fontSize:17,fontWeight:600}}>{MONTH_NAMES[viewMonth.month]} {viewMonth.year}</div>
-        <button onClick={()=>setViewMonth(m=>{const d=new Date(m.year,m.month+1);return{year:d.getFullYear(),month:d.getMonth()};})} style={{minHeight:40,minWidth:40,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:8,padding:"6px 12px",cursor:"pointer",fontSize:16,color:C.muted}}>›</button>
+        <button onClick={()=>setViewMonth(m=>{const d=new Date(m.year,m.month-1);return{year:d.getFullYear(),month:d.getMonth()};})} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:"6px 12px",cursor:"pointer",fontSize:13,color:C.muted}}>‹</button>
+        <div style={{fontSize:15,fontWeight:600}}>{MONTH_NAMES[viewMonth.month]} {viewMonth.year}</div>
+        <button onClick={()=>setViewMonth(m=>{const d=new Date(m.year,m.month+1);return{year:d.getFullYear(),month:d.getMonth()};})} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:8,padding:"6px 12px",cursor:"pointer",fontSize:13,color:C.muted}}>›</button>
       </div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2,marginBottom:6}}>
-        {["Su","Mo","Tu","We","Th","Fr","Sa"].map(d=><div key={d} style={{textAlign:"center",fontSize:12,color:C.muted,fontFamily:"'DM Mono',monospace",fontWeight:700}}>{d}</div>)}
+        {["Su","Mo","Tu","We","Th","Fr","Sa"].map(d=><div key={d} style={{textAlign:"center",fontSize:9,color:"rgba(255,255,255,0.7)",fontFamily:"'DM Mono',monospace",fontWeight:700}}>{d}</div>)}
       </div>
       <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2}}>
         {Array(new Date(viewMonth.year,viewMonth.month,1).getDay()).fill(null).map((_,i)=><div key={"e"+i}/>)}
@@ -3890,22 +4169,22 @@ function MonthlyTimeline({C, journalEntries, todayStr}) {
           const isToday=ds===todayStr;
           const mc=entry?.mood?getMoodColorLocal(entry.mood):null;
           return(
-            <div key={day} style={{aspectRatio:"1",borderRadius:5,background:mc?mc+"28":C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${isToday?C.accent:mc?mc+"55":C.border}`,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:0}}>
-              <div style={{fontSize:12,fontWeight:isToday?700:400,color:isToday?C.accent:C.text}}>{day}</div>
-              {entry?.mood&&<span style={{fontSize:12}}>{MOOD_OPTIONS_LOCAL.find(m=>m.val===entry.mood)?.emoji||""}</span>}
+            <div key={day} style={{aspectRatio:"1",borderRadius:5,background:mc?mc+"28":C.card,border:`1px solid ${isToday?C.accent:mc?mc+"55":C.border}`,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:0}}>
+              <div style={{fontSize:9,fontWeight:isToday?700:400,color:isToday?C.accent:C.text}}>{day}</div>
+              {entry?.mood&&<span style={{fontSize:9}}>{MOOD_OPTIONS_LOCAL.find(m=>m.val===entry.mood)?.emoji||""}</span>}
               {entry?.ritualDone===7&&<div style={{width:3,height:3,borderRadius:"50%",background:C.accent2}}/>}
             </div>
           );
         })}
       </div>
       <div style={{marginTop:10,display:"flex",gap:6,flexWrap:"wrap"}}>
-        {MOOD_OPTIONS_LOCAL.map(m=><div key={m.val} style={{display:"flex",alignItems:"center",gap:3,fontSize:12,color:C.muted}}><span>{m.emoji}</span>{m.label||m.val}</div>)}
-        <div style={{display:"flex",alignItems:"center",gap:3,fontSize:12,color:C.muted}}><div style={{width:5,height:5,borderRadius:"50%",background:C.accent2}}/> ritual</div>
+        {MOOD_OPTIONS_LOCAL.map(m=><div key={m.val} style={{display:"flex",alignItems:"center",gap:3,fontSize:9,color:C.muted}}><span>{m.emoji}</span>{m.label||m.val}</div>)}
+        <div style={{display:"flex",alignItems:"center",gap:3,fontSize:9,color:C.muted}}><div style={{width:5,height:5,borderRadius:"50%",background:C.accent2}}/> ritual</div>
       </div>
       {/* Month stats */}
       {monthData.filter(d=>d.entry).length>0&&(
-        <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:11,padding:14,marginTop:12}}>
-          <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:9}}>{MONTH_NAMES[viewMonth.month].toUpperCase()} IN NUMBERS</div>
+        <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:11,padding:14,marginTop:12}}>
+          <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:9}}>{MONTH_NAMES[viewMonth.month].toUpperCase()} IN NUMBERS</div>
           <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:7}}>
             {[
               {l:"Days logged",v:monthData.filter(d=>d.entry).length,c:C.accent},
@@ -3913,8 +4192,8 @@ function MonthlyTimeline({C, journalEntries, todayStr}) {
               {l:"Full rituals",v:monthData.filter(d=>d.entry?.ritualDone===7).length,c:C.accent2},
             ].map((n,i)=>(
               <div key={i} style={{padding:"8px 6px",background:C.bg,borderRadius:7,textAlign:"center"}}>
-                <div style={{fontSize:17,fontWeight:700,color:n.c}}>{n.v}</div>
-                <div style={{fontSize:12,color:C.dim}}>{n.l}</div>
+                <div style={{fontSize:15,fontWeight:700,color:n.c}}>{n.v}</div>
+                <div style={{fontSize:9,color:C.dim}}>{n.l}</div>
               </div>
             ))}
           </div>
@@ -3987,12 +4266,12 @@ function EmotionalGraph({C, galaxy, journalEntries, profile}) {
   if (journalEntries.length === 0) return (
     <div style={{textAlign:"center",padding:"40px 20px",color:C.dim}}>
       <div style={{fontSize:28,marginBottom:10}}>〰</div>
-      <div style={{fontSize:16,fontStyle:"italic",lineHeight:1.7}}>Your emotional graph builds as you journal. Start logging your mood and energy daily — over time you'll see your patterns, peaks, and what shapes your state of mind.</div>
+      <div style={{fontSize:13,fontStyle:"italic",lineHeight:1.7}}>Your emotional graph builds as you journal. Start logging your mood and energy daily — over time you'll see your patterns, peaks, and what shapes your state of mind.</div>
     </div>
   );
 
   if (data.length < 2) return (
-    <div style={{textAlign:"center",padding:"30px",color:C.dim,fontSize:16,fontStyle:"italic"}}>Not enough data for this range yet. Try a wider range or keep journaling.</div>
+    <div style={{textAlign:"center",padding:"30px",color:C.dim,fontSize:13,fontStyle:"italic"}}>Not enough data for this range yet. Try a wider range or keep journaling.</div>
   );
 
   return (
@@ -4000,7 +4279,7 @@ function EmotionalGraph({C, galaxy, journalEntries, profile}) {
       {/* Range selector */}
       <div style={{display:"flex",gap:5,marginBottom:16}}>
         {[{v:"week",l:"7D"},{v:"month",l:"1M"},{v:"3month",l:"3M"},{v:"year",l:"1Y"},{v:"all",l:"All"}].map(r=>(
-          <button key={r.v} onClick={()=>{setRange(r.v);setHoveredIdx(null);setSelectedEntry(null);}} style={{minHeight:40,minWidth:40,flex:1,padding:"6px",borderRadius:20,border:`1px solid ${range===r.v?C.accent:C.border}`,background:range===r.v?C.accent+"18":"transparent",cursor:"pointer",fontSize:14,color:range===r.v?C.accent:C.muted}}>{r.l}</button>
+          <button key={r.v} onClick={()=>{setRange(r.v);setHoveredIdx(null);setSelectedEntry(null);}} style={{flex:1,padding:"6px",borderRadius:20,border:`1px solid ${range===r.v?C.accent:C.border}`,background:range===r.v?C.accent+"18":"transparent",cursor:"pointer",fontSize:11,color:range===r.v?C.accent:C.muted}}>{r.l}</button>
         ))}
       </div>
 
@@ -4011,15 +4290,15 @@ function EmotionalGraph({C, galaxy, journalEntries, profile}) {
           {l:"Best day",v:data.length?MOOD_EMOJI[data.reduce((a,b)=>a.score>b.score?a:b).mood]||"🙂":"—",c:C.accent2},
           {l:"Days tracked",v:data.length,c:C.accent},
         ].map((n,i)=>(
-          <div key={i} style={{padding:"9px 8px",background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,borderRadius:8,textAlign:"center",border:`1px solid ${C.border}`}}>
-            <div style={{fontSize:18,fontWeight:700,color:n.c}}>{n.v}</div>
-            <div style={{fontSize:12,color:C.dim}}>{n.l}</div>
+          <div key={i} style={{padding:"9px 8px",background:C.card,borderRadius:8,textAlign:"center",border:`1px solid ${C.border}`}}>
+            <div style={{fontSize:16,fontWeight:700,color:n.c}}>{n.v}</div>
+            <div style={{fontSize:9,color:C.dim}}>{n.l}</div>
           </div>
         ))}
       </div>
 
       {/* SVG Chart */}
-      <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:14,padding:"8px 4px 4px",position:"relative",overflow:"visible"}}>
+      <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:14,padding:"8px 4px 4px",position:"relative",overflow:"visible"}}>
         <svg width="100%" viewBox={`0 0 ${W} ${H}`} style={{display:"block",overflow:"visible"}}>
           <defs>
             <linearGradient id={accentId} x1="0%" y1="0%" x2="0%" y2="100%">
@@ -4048,7 +4327,7 @@ function EmotionalGraph({C, galaxy, journalEntries, profile}) {
             const isHovered=hoveredIdx===i;
             const isSelected=selectedEntry?.date===d.date;
             return(
-              <g key={i} style={{minHeight:40,cursor:"pointer"}} onClick={()=>setSelectedEntry(selectedEntry?.date===d.date?null:d)}>
+              <g key={i} style={{cursor:"pointer"}} onClick={()=>setSelectedEntry(selectedEntry?.date===d.date?null:d)}>
                 {/* Hover area */}
                 <circle cx={x} cy={y} r="12" fill="transparent"/>
                 {/* Point */}
@@ -4090,26 +4369,26 @@ function EmotionalGraph({C, galaxy, journalEntries, profile}) {
 
       {/* Selected entry detail */}
       {selectedEntry&&(
-        <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`2px solid ${lineColor}55`,borderRadius:13,padding:18,marginTop:12,animation:"fadeUp 0.3s ease"}}>
+        <div style={{background:C.card,border:`2px solid ${lineColor}55`,borderRadius:13,padding:18,marginTop:12,animation:"fadeUp 0.3s ease"}}>
           <div style={{display:"flex",gap:10,alignItems:"center",marginBottom:10}}>
             <span style={{fontSize:28}}>{MOOD_EMOJI[selectedEntry.mood]||"◎"}</span>
             <div>
-              <div style={{fontSize:16,fontWeight:600}}>{new Date(selectedEntry.date+"T12:00:00").toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}</div>
-              <div style={{fontSize:15,color:lineColor}}>Energy {selectedEntry.score}/10 · {selectedEntry.mood||"no mood logged"}</div>
+              <div style={{fontSize:14,fontWeight:600}}>{new Date(selectedEntry.date+"T12:00:00").toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}</div>
+              <div style={{fontSize:12,color:lineColor}}>Energy {selectedEntry.score}/10 · {selectedEntry.mood||"no mood logged"}</div>
             </div>
-            <button onClick={()=>setSelectedEntry(null)} style={{minHeight:40,minWidth:40,marginLeft:"auto",background:"none",border:"none",cursor:"pointer",color:C.muted,fontSize:18}}>×</button>
+            <button onClick={()=>setSelectedEntry(null)} style={{marginLeft:"auto",background:"none",border:"none",cursor:"pointer",color:C.muted,fontSize:16}}>×</button>
           </div>
           {selectedEntry.freeWrite&&(
-            <div style={{fontSize:16,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",color:C.text,lineHeight:1.8,marginBottom:10,padding:"10px 12px",background:lineColor+"10",borderRadius:8}}>
+            <div style={{fontSize:14,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",color:C.text,lineHeight:1.8,marginBottom:10,padding:"10px 12px",background:lineColor+"10",borderRadius:8}}>
               "{selectedEntry.freeWrite}"
             </div>
           )}
           {Object.entries(selectedEntry.prompts||{}).filter(([,v])=>v).map(([k,v])=>(
-            <div key={k} style={{fontSize:15,color:C.muted,lineHeight:1.6,marginBottom:4}}>
+            <div key={k} style={{fontSize:12,color:C.muted,lineHeight:1.6,marginBottom:4}}>
               <span style={{color:C.accent}}>{["How am I really feeling?","What happened today?","What am I grateful for?","What did I avoid?","What do I need?","Best moment?","What drained me?","What am I learning?"][parseInt(k)]?.slice(0,30)}…</span> {String(v).slice(0,120)}
             </div>
           ))}
-          {selectedEntry.ritualDone===7&&<div style={{fontSize:14,color:C.accent2,marginTop:6}}>✓ Completed full morning ritual this day</div>}
+          {selectedEntry.ritualDone===7&&<div style={{fontSize:11,color:C.accent2,marginTop:6}}>✓ Completed full morning ritual this day</div>}
         </div>
       )}
 
@@ -4133,8 +4412,8 @@ function EmotionalGraph({C, galaxy, journalEntries, profile}) {
         if(insights.length===0)return null;
         return(
           <div style={{background:C.accent+"10",border:`1px solid ${C.accent}33`,borderRadius:10,padding:"12px 14px",marginTop:12}}>
-            <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:8}}>◉ PATTERNS</div>
-            {insights.map((ins,i)=><div key={i} style={{fontSize:15,color:C.text,lineHeight:1.6,marginBottom:i<insights.length-1?5:0}}>{ins}</div>)}
+            <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:8}}>◉ PATTERNS</div>
+            {insights.map((ins,i)=><div key={i} style={{fontSize:12,color:C.text,lineHeight:1.6,marginBottom:i<insights.length-1?5:0}}>{ins}</div>)}
           </div>
         );
       })()}
@@ -4163,15 +4442,15 @@ function SleepEducationNote({C}){
   const [open,setOpen]=useState(false);
   return (
     <div style={{marginTop:12}}>
-      <button onClick={()=>setOpen(o=>!o)} style={{minHeight:40,minWidth:40,
+      <button onClick={()=>setOpen(o=>!o)} style={{
         background:"transparent",border:"none",cursor:"pointer",padding:0,
-        fontSize:14,color:C.accent3,fontFamily:"'DM Mono',monospace",letterSpacing:0.5,
+        fontSize:11,color:C.accent3,fontFamily:"'DM Mono',monospace",letterSpacing:0.5,
         display:"flex",alignItems:"center",gap:5,
       }}>
         {open?"▾":"▸"} Why does sleep affect mood so much?
       </button>
       {open&&(
-        <div style={{marginTop:8,fontSize:15,color:C.muted,lineHeight:1.8}}>
+        <div style={{marginTop:8,fontSize:12,color:C.muted,lineHeight:1.8}}>
           <p style={{margin:"0 0 8px 0"}}>
             Sleep is when the brain restores the part responsible for slowing down big reactions before they turn into snapping or shutting down — that part gets noticeably weaker after a short night.
           </p>
@@ -4216,12 +4495,12 @@ function SleepPausePrompt({todayEntry, journalEntries, C}){
 
   return (
     <div style={{marginTop:12,padding:"13px 14px",background:C.accent3+"10",border:`1px solid ${C.accent3}40`,borderRadius:10}}>
-      <div style={{fontSize:16,color:C.text,lineHeight:1.7,marginBottom:10}}>
+      <div style={{fontSize:13,color:C.text,lineHeight:1.7,marginBottom:10}}>
         You've logged under 6 hours for {streak} nights in a row. On stretches like this, your own data tends to show harder moods — more snapping, more spiraling. No need to do anything with this right now — just a moment to notice before the day moves on.
       </div>
-      <button onClick={()=>setDismissed(true)} style={{minHeight:40,minWidth:40,
+      <button onClick={()=>setDismissed(true)} style={{
         background:"transparent",border:`1px solid ${C.accent3}44`,borderRadius:8,
-        padding:"6px 12px",fontSize:14,color:C.accent3,cursor:"pointer",
+        padding:"6px 12px",fontSize:11,color:C.accent3,cursor:"pointer",
       }}>Got it</button>
     </div>
   );
@@ -4297,15 +4576,12 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
 
   // Find highlights — best moments
   function findHighlights() {
-    // Best moment prompt index
-    const bestMomentIdx = JOURNAL_PROMPTS.indexOf("What was the best moment of today?");
-    return journalEntries.filter(e =>
+    const positive = journalEntries.filter(e =>
       ["happy","energised","good","calm"].includes(e.mood) ||
-      (e.energy && e.energy >= 7) ||
-      (e.freeWrite && (e.freeWrite.toLowerCase().includes("proud") || e.freeWrite.toLowerCase().includes("great") || e.freeWrite.toLowerCase().includes("amazing") || e.freeWrite.toLowerCase().includes("achieved") || e.freeWrite.toLowerCase().includes("happy") || e.freeWrite.toLowerCase().includes("loved") || e.freeWrite.toLowerCase().includes("grateful"))) ||
-      (bestMomentIdx>=0 && e.prompts?.[bestMomentIdx] && e.prompts[bestMomentIdx].trim().length>5) ||
-      Object.values(e.prompts||{}).some(v=>typeof v==="string"&&v.trim().length>10)
-    ).slice(0, 15);
+      (e.energy && e.energy >= 8) ||
+      (e.freeWrite && (e.freeWrite.toLowerCase().includes("proud") || e.freeWrite.toLowerCase().includes("great") || e.freeWrite.toLowerCase().includes("amazing") || e.freeWrite.toLowerCase().includes("achieved") || e.freeWrite.toLowerCase().includes("happy")))
+    ).slice(0, 10);
+    return positive;
   }
 
   // Build monthly data
@@ -4324,11 +4600,11 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
   return (
     <div style={{padding:"16px 16px"}}>
       <div style={{fontSize:18,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",marginBottom:6}}>Journal</div>
-      <div style={{fontSize:15,color:C.muted,marginBottom:16}}>Your inner life, recorded. Every entry is yours — private, permanent, searchable.</div>
+      <div style={{fontSize:12,color:C.muted,marginBottom:16}}>Your inner life, recorded. Every entry is yours — private, permanent, searchable.</div>
 
       <div style={{display:"flex",gap:5,marginBottom:18,overflowX:"auto"}}>
         {[{v:"today",l:"Today"},{v:"history",l:"Past Entries"},{v:"weekly",l:"This Week"},{v:"monthly",l:"Timeline"},{v:"graph",l:"📈 Graph"},{v:"highlights",l:"✦ Highlights"}].map(t=>(
-          <button key={t.v} onClick={()=>setView(t.v)} style={{minHeight:40,minWidth:40,flexShrink:0,padding:"7px 13px",borderRadius:20,border:`1px solid ${view===t.v?C.accent:C.border}`,background:view===t.v?C.accent+"15":"transparent",cursor:"pointer",fontSize:14,color:view===t.v?C.accent:C.muted}}>{t.l}</button>
+          <button key={t.v} onClick={()=>setView(t.v)} style={{flexShrink:0,padding:"7px 13px",borderRadius:20,border:`1px solid ${view===t.v?C.accent:C.border}`,background:view===t.v?C.accent+"15":"transparent",cursor:"pointer",fontSize:11,color:view===t.v?C.accent:C.muted}}>{t.l}</button>
         ))}
       </div>
 
@@ -4337,38 +4613,38 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
         <div style={{display:"flex",flexDirection:"column",gap:14}}>
           {/* Date header */}
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-            <div style={{fontSize:16,color:C.muted}}>{new Date().toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"})}</div>
-            {todayExisting&&<div style={{fontSize:14,color:C.accent2,padding:"3px 9px",background:C.accent2+"15",borderRadius:20}}>✓ Saved today</div>}
+            <div style={{fontSize:13,color:C.muted}}>{new Date().toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"})}</div>
+            {todayExisting&&<div style={{fontSize:11,color:C.accent2,padding:"3px 9px",background:C.accent2+"15",borderRadius:20}}>✓ Saved today</div>}
           </div>
 
           {/* Mood selector */}
-          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
-            <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>HOW ARE YOU FEELING?</div>
+          <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+            <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>HOW ARE YOU FEELING?</div>
             <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
               {MOOD_OPTIONS.map(m=>(
-                <button key={m.val} onClick={()=>setTodayEntry(e=>({...e,mood:m.val}))} style={{minHeight:40,minWidth:40,
+                <button key={m.val} onClick={()=>setTodayEntry(e=>({...e,mood:m.val}))} style={{
                   display:"flex",flexDirection:"column",alignItems:"center",gap:3,
                   padding:"8px 10px",borderRadius:10,cursor:"pointer",
                   border:`2px solid ${todayEntry.mood===m.val?m.color:C.border}`,
                   background:todayEntry.mood===m.val?m.color+"18":"transparent",
                 }}>
                   <span style={{fontSize:20}}>{m.emoji}</span>
-                  <span style={{fontSize:12,color:todayEntry.mood===m.val?m.color:C.muted}}>{m.label}</span>
+                  <span style={{fontSize:9,color:todayEntry.mood===m.val?m.color:C.muted}}>{m.label}</span>
                 </button>
               ))}
             </div>
           </div>
 
           {/* Energy level */}
-          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
-            <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>ENERGY LEVEL TODAY · {todayEntry.energy}/10</div>
+          <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+            <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>ENERGY LEVEL TODAY · {todayEntry.energy}/10</div>
             <input type="range" min="1" max="10" value={todayEntry.energy||5} onChange={e=>setTodayEntry(en=>({...en,energy:parseInt(e.target.value)}))} style={{width:"100%",accentColor:C.accent}}/>
-            <div style={{display:"flex",justifyContent:"space-between",fontSize:13,color:C.dim,marginTop:4}}><span>Drained</span><span>Alive</span></div>
+            <div style={{display:"flex",justifyContent:"space-between",fontSize:10,color:C.dim,marginTop:4}}><span>Drained</span><span>Alive</span></div>
           </div>
 
           {/* Sleep */}
-          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
-            <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>
+          <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+            <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>
               🌙 SLEEP {(()=>{
                 const h=sleepHoursFromTimes(todayEntry.bedtime,todayEntry.wakeTime);
                 return h!=null?` · ${h}h`:"";
@@ -4376,31 +4652,31 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
             </div>
             <div style={{display:"flex",gap:10,marginBottom:12}}>
               <div style={{flex:1}}>
-                <div style={{fontSize:13,color:C.muted,marginBottom:5}}>Bedtime</div>
-                <input type="time" value={todayEntry.bedtime||""} onChange={e=>setTodayEntry(en=>({...en,bedtime:e.target.value}))} style={{width:"100%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 10px",fontSize:16,boxSizing:"border-box"}}/>
+                <div style={{fontSize:10,color:C.muted,marginBottom:5}}>Bedtime</div>
+                <input type="time" value={todayEntry.bedtime||""} onChange={e=>setTodayEntry(en=>({...en,bedtime:e.target.value}))} style={{width:"100%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 10px",fontSize:13,boxSizing:"border-box"}}/>
               </div>
               <div style={{flex:1}}>
-                <div style={{fontSize:13,color:C.muted,marginBottom:5}}>Wake time</div>
-                <input type="time" value={todayEntry.wakeTime||""} onChange={e=>setTodayEntry(en=>({...en,wakeTime:e.target.value}))} style={{width:"100%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 10px",fontSize:16,boxSizing:"border-box"}}/>
+                <div style={{fontSize:10,color:C.muted,marginBottom:5}}>Wake time</div>
+                <input type="time" value={todayEntry.wakeTime||""} onChange={e=>setTodayEntry(en=>({...en,wakeTime:e.target.value}))} style={{width:"100%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 10px",fontSize:13,boxSizing:"border-box"}}/>
               </div>
             </div>
-            <div style={{fontSize:13,color:C.muted,marginBottom:8}}>Sleep quality</div>
+            <div style={{fontSize:10,color:C.muted,marginBottom:8}}>Sleep quality</div>
             <div style={{display:"flex",gap:6}}>
               {[{v:"poor",l:"Poor",emoji:"😴"},{v:"restless",l:"Restless",emoji:"😣"},{v:"okay",l:"Okay",emoji:"😐"},{v:"good",l:"Good",emoji:"🙂"},{v:"great",l:"Great",emoji:"😌"}].map(q=>(
-                <button key={q.v} onClick={()=>setTodayEntry(en=>({...en,sleepQuality:q.v}))} style={{minHeight:40,minWidth:40,
+                <button key={q.v} onClick={()=>setTodayEntry(en=>({...en,sleepQuality:q.v}))} style={{
                   flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:3,
                   padding:"7px 4px",borderRadius:8,cursor:"pointer",
                   border:`1.5px solid ${todayEntry.sleepQuality===q.v?C.accent3:C.border}`,
                   background:todayEntry.sleepQuality===q.v?C.accent3+"15":"transparent",
                 }}>
-                  <span style={{fontSize:18}}>{q.emoji}</span>
-                  <span style={{fontSize:12,color:todayEntry.sleepQuality===q.v?C.accent3:C.muted}}>{q.l}</span>
+                  <span style={{fontSize:16}}>{q.emoji}</span>
+                  <span style={{fontSize:8,color:todayEntry.sleepQuality===q.v?C.accent3:C.muted}}>{q.l}</span>
                 </button>
               ))}
             </div>
             {(()=>{
               const h=sleepHoursFromTimes(todayEntry.bedtime,todayEntry.wakeTime);
-              if(h!=null&&h<6)return<div style={{marginTop:10,fontSize:14,color:C.gold,fontStyle:"italic"}}>Under 6 hours — this often shows up as low energy, cravings, and mood dips the next day.</div>;
+              if(h!=null&&h<6)return<div style={{marginTop:10,fontSize:11,color:C.gold,fontStyle:"italic"}}>Under 6 hours — this often shows up as low energy, cravings, and mood dips the next day.</div>;
               return null;
             })()}
 
@@ -4412,31 +4688,31 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
           </div>
 
           {/* Screen time + eye/exhaustion tracking */}
-          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
-            <div style={{fontSize:13,color:C.accent2,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>📱 SCREEN TIME & EYE HEALTH</div>
+          <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+            <div style={{fontSize:10,color:C.accent2,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>📱 SCREEN TIME & EYE HEALTH</div>
 
             <div style={{marginBottom:14}}>
-              <div style={{fontSize:14,color:C.muted,marginBottom:8}}>Hours on screens today <span style={{color:C.dim}}>(check Settings → Screen Time on your phone)</span></div>
+              <div style={{fontSize:11,color:C.muted,marginBottom:8}}>Hours on screens today <span style={{color:C.dim}}>(check Settings → Screen Time on your phone)</span></div>
               <div style={{display:"flex",gap:8,alignItems:"center"}}>
                 <input
                   type="number" min="0" max="24" step="0.5"
                   value={todayEntry.screenTime||""}
                   onChange={e=>setTodayEntry(en=>({...en,screenTime:e.target.value}))}
                   placeholder="e.g. 6.5"
-                  style={{width:90,background:C.bg,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"9px 12px",fontSize:18,fontFamily:"'DM Mono',monospace"}}/>
-                <div style={{fontSize:16,color:C.muted}}>hours</div>
+                  style={{width:90,background:C.bg,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"9px 12px",fontSize:16,fontFamily:"'DM Mono',monospace"}}/>
+                <div style={{fontSize:13,color:C.muted}}>hours</div>
               </div>
               {parseFloat(todayEntry.screenTime)>8&&(
-                <div style={{fontSize:14,color:C.gold,marginTop:6,fontStyle:"italic"}}>Over 8 hours — eye strain and disrupted sleep are well-documented at this level.</div>
+                <div style={{fontSize:11,color:C.gold,marginTop:6,fontStyle:"italic"}}>Over 8 hours — eye strain and disrupted sleep are well-documented at this level.</div>
               )}
             </div>
 
             <div style={{marginBottom:14}}>
-              <div style={{fontSize:14,color:C.muted,marginBottom:8}}>Eyes feel…</div>
+              <div style={{fontSize:11,color:C.muted,marginBottom:8}}>Eyes feel…</div>
               <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
                 {[{v:"fine",l:"😊 Fine"},{v:"tired",l:"😔 Tired"},{v:"strained",l:"😫 Strained"},{v:"dry",l:"🔥 Dry/burning"},{v:"blurry",l:"😵 Blurry"}].map(o=>(
-                  <button key={o.v} onClick={()=>setTodayEntry(en=>({...en,eyeStrain:en.eyeStrain===o.v?null:o.v}))} style={{minHeight:40,minWidth:40,
-                    padding:"6px 12px",borderRadius:20,cursor:"pointer",fontSize:15,
+                  <button key={o.v} onClick={()=>setTodayEntry(en=>({...en,eyeStrain:en.eyeStrain===o.v?null:o.v}))} style={{
+                    padding:"6px 12px",borderRadius:20,cursor:"pointer",fontSize:12,
                     border:`1px solid ${todayEntry.eyeStrain===o.v?C.accent2:C.border}`,
                     background:todayEntry.eyeStrain===o.v?C.accent2+"15":"transparent",
                     color:todayEntry.eyeStrain===o.v?C.accent2:C.muted,
@@ -4446,11 +4722,11 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
             </div>
 
             <div>
-              <div style={{fontSize:14,color:C.muted,marginBottom:8}}>Energy / exhaustion level</div>
+              <div style={{fontSize:11,color:C.muted,marginBottom:8}}>Energy / exhaustion level</div>
               <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
                 {[{v:"energised",l:"⚡ Energised"},{v:"okay",l:"😐 Okay"},{v:"tired",l:"😴 Tired"},{v:"exhausted",l:"😩 Exhausted"},{v:"drained",l:"🪫 Completely drained"}].map(o=>(
-                  <button key={o.v} onClick={()=>setTodayEntry(en=>({...en,exhaustion:en.exhaustion===o.v?null:o.v}))} style={{minHeight:40,minWidth:40,
-                    padding:"6px 12px",borderRadius:20,cursor:"pointer",fontSize:15,
+                  <button key={o.v} onClick={()=>setTodayEntry(en=>({...en,exhaustion:en.exhaustion===o.v?null:o.v}))} style={{
+                    padding:"6px 12px",borderRadius:20,cursor:"pointer",fontSize:12,
                     border:`1px solid ${todayEntry.exhaustion===o.v?C.accent:C.border}`,
                     background:todayEntry.exhaustion===o.v?C.accent+"15":"transparent",
                     color:todayEntry.exhaustion===o.v?C.accent:C.muted,
@@ -4458,7 +4734,7 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
                 ))}
               </div>
               {(todayEntry.exhaustion==="exhausted"||todayEntry.exhaustion==="drained")&&(
-                <div style={{fontSize:14,color:C.gold,marginTop:8,lineHeight:1.6,fontStyle:"italic"}}>
+                <div style={{fontSize:11,color:C.gold,marginTop:8,lineHeight:1.6,fontStyle:"italic"}}>
                   Exhaustion this persistent is worth tracking against your sleep hours and screen time — patterns usually become visible within a week of consistent logging.
                 </div>
               )}
@@ -4466,17 +4742,36 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
           </div>
 
 
+          {/* Goal check-in */}
+          {(profile.goals||[]).length>0&&(
+            <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+              <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>GOAL CHECK-IN</div>
+              {(profile.goals||[]).filter(g=>!g.done).slice(0,4).map((goal,i)=>(
+                <div key={goal.id} style={{display:"flex",gap:10,padding:"8px 0",borderBottom:i<Math.min(3,(profile.goals||[]).length-1)?`1px solid ${C.border}`:"none",alignItems:"center"}}>
+                  <button onClick={()=>setTodayEntry(e=>({...e,goals:{...e.goals,[goal.id]:!e.goals?.[goal.id]}}))} style={{
+                    width:22,height:22,borderRadius:6,flexShrink:0,
+                    border:`2px solid ${todayEntry.goals?.[goal.id]?C.accent2:C.border}`,
+                    background:todayEntry.goals?.[goal.id]?C.accent2:"transparent",
+                    cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,color:"#fff",
+                  }}>{todayEntry.goals?.[goal.id]?"✓":""}</button>
+                  <div style={{flex:1,fontSize:13,color:C.text,opacity:todayEntry.goals?.[goal.id]?0.5:1}}>{goal.title||goal.title||goal.text||"Unnamed goal"}</div>
+                  <div style={{fontSize:10,color:C.muted,padding:"2px 7px",background:C.bg,borderRadius:20,textTransform:"capitalize"}}>{goal.category||goal.type||""}</div>
+                </div>
+              ))}
+            </div>
+          )}
+
           {/* Structured prompts */}
-          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
-            <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>REFLECT · 3 QUESTIONS</div>
+          <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+            <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>REFLECT · 3 QUESTIONS</div>
             {selectedPrompts.map((pi, i) => (
               <div key={i} style={{marginBottom:i<2?16:0}}>
-                <div style={{fontSize:15,color:C.accent,marginBottom:6,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif"}}>{JOURNAL_PROMPTS[pi]}</div>
+                <div style={{fontSize:12,color:C.accent,marginBottom:6,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif"}}>{JOURNAL_PROMPTS[pi]}</div>
                 <textarea
                   value={todayEntry.prompts?.[pi]||""}
                   onChange={e=>setTodayEntry(en=>({...en,prompts:{...en.prompts,[pi]:e.target.value}}))}
                   rows={2} placeholder="Write honestly. No one reads this but you."
-                  style={{width:"100%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"10px 12px",fontSize:16,resize:"none",boxSizing:"border-box",fontFamily:"'Jost',sans-serif",lineHeight:1.6}}
+                  style={{width:"100%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"10px 12px",fontSize:13,resize:"none",boxSizing:"border-box",fontFamily:"'Jost',sans-serif",lineHeight:1.6}}
                 />
               </div>
             ))}
@@ -4484,26 +4779,26 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
               Math.floor(Math.random()*JOURNAL_PROMPTS.length),
               Math.floor(Math.random()*JOURNAL_PROMPTS.length),
               Math.floor(Math.random()*JOURNAL_PROMPTS.length),
-            ])} style={{minHeight:40,minWidth:40,marginTop:10,fontSize:14,color:C.muted,background:"transparent",border:`1px solid ${C.border}`,borderRadius:20,padding:"4px 12px",cursor:"pointer"}}>Different prompts</button>
+            ])} style={{marginTop:10,fontSize:11,color:C.muted,background:"transparent",border:`1px solid ${C.border}`,borderRadius:20,padding:"4px 12px",cursor:"pointer"}}>Different prompts</button>
           </div>
 
           {/* Free write */}
-          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
-            <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>FREE WRITE — anything on your mind</div>
+          <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+            <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>FREE WRITE — anything on your mind</div>
             <textarea
               value={todayEntry.freeWrite||""}
               onChange={e=>setTodayEntry(en=>({...en,freeWrite:e.target.value}))}
               rows={5} placeholder="Stream of consciousness. A memory. Something that happened. Something you felt. Something you want to remember…"
-              style={{width:"100%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"12px 14px",fontSize:16,resize:"none",boxSizing:"border-box",fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",lineHeight:1.8}}
+              style={{width:"100%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"12px 14px",fontSize:14,resize:"none",boxSizing:"border-box",fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",lineHeight:1.8}}
             />
-            <div style={{fontSize:13,color:C.dim,marginTop:4}}>{(todayEntry.freeWrite||"").length} characters · This entry will be saved to your timeline</div>
+            <div style={{fontSize:10,color:C.dim,marginTop:4}}>{(todayEntry.freeWrite||"").length} characters · This entry will be saved to your timeline</div>
           </div>
 
           {/* Save */}
-          <button onClick={saveEntry} style={{minHeight:40,minWidth:40,
+          <button onClick={saveEntry} style={{
             width:"100%",padding:"14px",
             background:saving?C.accent2:`linear-gradient(135deg,${C.accent},${C.warm})`,
-            border:"none",borderRadius:12,color:C.text,cursor:"pointer",
+            border:"none",borderRadius:12,color:"#fff",cursor:"pointer",
             fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontStyle:"italic",
             transition:"background 0.3s",
           }}>
@@ -4518,23 +4813,23 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
           {journalEntries.length===0?(
             <div style={{textAlign:"center",padding:"40px",color:C.dim}}>
               <div style={{fontSize:28,marginBottom:10}}>📔</div>
-              <div style={{fontSize:16,fontStyle:"italic"}}>No entries yet. Start writing today.</div>
+              <div style={{fontSize:14,fontStyle:"italic"}}>No entries yet. Start writing today.</div>
             </div>
           ):journalEntries.slice(0,20).map((entry,i)=>(
-            <div key={entry.date} style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:12,padding:18,marginBottom:10,borderLeft:`4px solid ${getMoodColor(entry.mood)}`}}>
+            <div key={entry.date} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:18,marginBottom:10,borderLeft:`4px solid ${getMoodColor(entry.mood)}`}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
                 <div>
-                  <div style={{fontSize:16,fontWeight:600}}>{new Date(entry.date+"T12:00:00").toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}</div>
+                  <div style={{fontSize:13,fontWeight:600}}>{new Date(entry.date+"T12:00:00").toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}</div>
                   <div style={{display:"flex",gap:8,marginTop:4,alignItems:"center"}}>
                     {entry.mood&&<span style={{fontSize:18}}>{MOOD_OPTIONS.find(m=>m.val===entry.mood)?.emoji}</span>}
-                    {entry.energy&&<span style={{fontSize:14,color:C.muted}}>Energy {entry.energy}/10</span>}
-                    {entry.ritualDone===7&&<span style={{fontSize:13,color:C.accent2,padding:"1px 7px",background:C.accent2+"15",borderRadius:20}}>✓ Full ritual</span>}
+                    {entry.energy&&<span style={{fontSize:11,color:C.muted}}>Energy {entry.energy}/10</span>}
+                    {entry.ritualDone===7&&<span style={{fontSize:10,color:C.accent2,padding:"1px 7px",background:C.accent2+"15",borderRadius:20}}>✓ Full ritual</span>}
                   </div>
                 </div>
               </div>
-              {entry.freeWrite&&<div style={{fontSize:16,color:C.text,lineHeight:1.7,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",marginBottom:8}}>"{entry.freeWrite.slice(0,200)}{entry.freeWrite.length>200?"…":""}"</div>}
+              {entry.freeWrite&&<div style={{fontSize:13,color:C.text,lineHeight:1.7,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",marginBottom:8}}>"{entry.freeWrite.slice(0,200)}{entry.freeWrite.length>200?"…":""}"</div>}
               {Object.entries(entry.prompts||{}).filter(([,v])=>v).slice(0,1).map(([k,v])=>(
-                <div key={k} style={{fontSize:15,color:C.muted,lineHeight:1.6}}>{JOURNAL_PROMPTS[parseInt(k)]?.slice(0,40)}… → {String(v).slice(0,100)}</div>
+                <div key={k} style={{fontSize:12,color:C.muted,lineHeight:1.6}}>{JOURNAL_PROMPTS[parseInt(k)]?.slice(0,40)}… → {String(v).slice(0,100)}</div>
               ))}
             </div>
           ))}
@@ -4546,12 +4841,12 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
         <div>
           {!digest?(
             <div style={{textAlign:"center",padding:"40px",color:C.dim}}>
-              <div style={{fontSize:16,fontStyle:"italic"}}>Write in your journal for a few days to see your weekly digest.</div>
+              <div style={{fontSize:14,fontStyle:"italic"}}>Write in your journal for a few days to see your weekly digest.</div>
             </div>
           ):(
             <div style={{display:"flex",flexDirection:"column",gap:12}}>
-              <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.accent}33`,borderRadius:14,padding:20}}>
-                <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>THIS WEEK · {digest.count} ENTRIES</div>
+              <div style={{background:C.card,border:`1px solid ${C.accent}33`,borderRadius:14,padding:20}}>
+                <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>THIS WEEK · {digest.count} ENTRIES</div>
                 <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,marginBottom:14}}>
                   {[
                     {l:"Entries",v:digest.count,c:C.accent},
@@ -4560,24 +4855,24 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
                   ].map((n,i)=>(
                     <div key={i} style={{padding:"10px 8px",background:C.bg,borderRadius:8,textAlign:"center"}}>
                       <div style={{fontSize:18,fontWeight:700,color:n.c}}>{n.v}</div>
-                      <div style={{fontSize:13,color:C.dim}}>{n.l}</div>
+                      <div style={{fontSize:10,color:C.dim}}>{n.l}</div>
                     </div>
                   ))}
                 </div>
                 {digest.topMood&&(
-                  <div style={{padding:"10px 14px",background:getMoodColor(digest.topMood[0])+"15",border:`1px solid ${getMoodColor(digest.topMood[0])}33`,borderRadius:8,marginBottom:10,fontSize:16,color:C.text}}>
+                  <div style={{padding:"10px 14px",background:getMoodColor(digest.topMood[0])+"15",border:`1px solid ${getMoodColor(digest.topMood[0])}33`,borderRadius:8,marginBottom:10,fontSize:13,color:C.text}}>
                     Most frequent mood: <strong>{digest.topMood[0]}</strong> {MOOD_OPTIONS.find(m=>m.val===digest.topMood[0])?.emoji} — {digest.topMood[1]} times
                   </div>
                 )}
                 {digest.bestDay&&(
-                  <div style={{padding:"10px 14px",background:C.accent2+"12",border:`1px solid ${C.accent2}33`,borderRadius:8,marginBottom:10,fontSize:16,color:C.text}}>
+                  <div style={{padding:"10px 14px",background:C.accent2+"12",border:`1px solid ${C.accent2}33`,borderRadius:8,marginBottom:10,fontSize:13,color:C.text}}>
                     Best energy day: <strong>{new Date(digest.bestDay.date+"T12:00:00").toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"short"})}</strong> · {digest.bestDay.energy}/10
                   </div>
                 )}
               </div>
               {/* Mood bar chart for week */}
-              <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
-                <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>ENERGY THIS WEEK</div>
+              <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+                <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>ENERGY THIS WEEK</div>
                 <div style={{display:"flex",gap:6,alignItems:"flex-end",height:80}}>
                   {Array.from({length:7},(_,i)=>{
                     const d=new Date(); d.setDate(d.getDate()-6+i);
@@ -4588,8 +4883,8 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
                     return(
                       <div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:4}}>
                         <div style={{width:"100%",height:h,background:entry?C.accent:C.border,borderRadius:"4px 4px 0 0",transition:"height 0.5s",minHeight:4,opacity:isToday?1:0.7}}/>
-                        <div style={{fontSize:12,color:isToday?C.accent:C.dim}}>{["Su","Mo","Tu","We","Th","Fr","Sa"][d.getDay()]}</div>
-                        {entry?.mood&&<span style={{fontSize:15}}>{MOOD_OPTIONS.find(m=>m.val===entry.mood)?.emoji||""}</span>}
+                        <div style={{fontSize:9,color:isToday?C.accent:C.dim}}>{["Su","Mo","Tu","We","Th","Fr","Sa"][d.getDay()]}</div>
+                        {entry?.mood&&<span style={{fontSize:12}}>{MOOD_OPTIONS.find(m=>m.val===entry.mood)?.emoji||""}</span>}
                       </div>
                     );
                   })}
@@ -4597,14 +4892,14 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
               </div>
               {/* Goal completion this week */}
               {(profile.goals||[]).length>0&&(
-                <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
-                  <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>GOALS THIS WEEK</div>
+                <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+                  <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>GOALS THIS WEEK</div>
                   {(profile.goals||[]).slice(0,4).map((goal,i)=>{
                     const completedDays=journalEntries.filter(e=>new Date(e.date)>=new Date(Date.now()-7*86400000)&&e.goals?.[goal.id]).length;
                     return(
                       <div key={goal.id} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:i<3?`1px solid ${C.border}`:"none",alignItems:"center"}}>
-                        <div style={{fontSize:15,flex:1,color:C.text}}>{(goal.title||goal.text||"Goal").slice(0,40)}</div>
-                        <div style={{fontSize:14,color:completedDays>=5?C.accent2:completedDays>=3?C.gold:C.red,padding:"2px 8px",background:(completedDays>=5?C.accent2:completedDays>=3?C.gold:C.red)+"15",borderRadius:20}}>{completedDays}/7 days</div>
+                        <div style={{fontSize:12,flex:1,color:C.text}}>{(goal.title||goal.text||"Goal").slice(0,40)}</div>
+                        <div style={{fontSize:11,color:completedDays>=5?C.accent2:completedDays>=3?C.gold:C.red,padding:"2px 8px",background:(completedDays>=5?C.accent2:completedDays>=3?C.gold:C.red)+"15",borderRadius:20}}>{completedDays}/7 days</div>
                       </div>
                     );
                   })}
@@ -4612,12 +4907,12 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
               )}
               {/* Highlights from this week */}
               {digest.highlights.length>0&&(
-                <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
-                  <div style={{fontSize:13,color:C.gold,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>✦ FROM YOUR JOURNAL THIS WEEK</div>
+                <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+                  <div style={{fontSize:10,color:C.gold,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>✦ FROM YOUR JOURNAL THIS WEEK</div>
                   {digest.highlights.map((e,i)=>(
                     <div key={i} style={{padding:"10px 12px",background:C.bg,borderRadius:8,marginBottom:8,borderLeft:`3px solid ${getMoodColor(e.mood)}`}}>
-                      <div style={{fontSize:13,color:C.muted,marginBottom:4}}>{new Date(e.date+"T12:00:00").toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"short"})}</div>
-                      <div style={{fontSize:16,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",color:C.text,lineHeight:1.7}}>"{e.freeWrite.slice(0,150)}…"</div>
+                      <div style={{fontSize:10,color:C.muted,marginBottom:4}}>{new Date(e.date+"T12:00:00").toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"short"})}</div>
+                      <div style={{fontSize:13,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",color:C.text,lineHeight:1.7}}>"{e.freeWrite.slice(0,150)}…"</div>
                     </div>
                   ))}
                 </div>
@@ -4636,38 +4931,27 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
       {/* ── HIGHLIGHTS ── */}
       {view==="highlights"&&(
         <div>
-          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.gold}33`,borderRadius:14,padding:20,marginBottom:14}}>
-            <div style={{fontSize:13,color:C.gold,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:6}}>✦ YOUR MEMORY KEEPER</div>
-            <div style={{fontSize:16,color:C.muted,lineHeight:1.7,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif"}}>Good days slip away. This section holds them for you — the proud moments, the high energy days, the things worth remembering.</div>
+          <div style={{background:C.card,border:`1px solid ${C.gold}33`,borderRadius:14,padding:20,marginBottom:14}}>
+            <div style={{fontSize:10,color:C.gold,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:6}}>✦ YOUR MEMORY KEEPER</div>
+            <div style={{fontSize:14,color:C.muted,lineHeight:1.7,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif"}}>Good days slip away. This section holds them for you — the proud moments, the high energy days, the things worth remembering.</div>
           </div>
           {highlights.length===0?(
             <div style={{textAlign:"center",padding:"40px",color:C.dim}}>
               <div style={{fontSize:28,marginBottom:10}}>✦</div>
-              <div style={{fontSize:16,fontStyle:"italic",lineHeight:1.7}}>Your highlight reel builds as you write. Log your good days here and they will never disappear.</div>
+              <div style={{fontSize:14,fontStyle:"italic",lineHeight:1.7}}>Your highlight reel builds as you write. Log your good days here and they will never disappear.</div>
             </div>
           ):highlights.map((entry,i)=>(
-            <div key={entry.date} style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${getMoodColor(entry.mood)}44`,borderRadius:13,padding:18,marginBottom:12,borderLeft:`4px solid ${getMoodColor(entry.mood)}`}}>
+            <div key={entry.date} style={{background:C.card,border:`1px solid ${getMoodColor(entry.mood)}44`,borderRadius:13,padding:18,marginBottom:12,borderLeft:`4px solid ${getMoodColor(entry.mood)}`}}>
               <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:8}}>
                 <span style={{fontSize:22}}>{MOOD_OPTIONS.find(m=>m.val===entry.mood)?.emoji||"✦"}</span>
                 <div>
-                  <div style={{fontSize:16,fontWeight:600}}>{new Date(entry.date+"T12:00:00").toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}</div>
-                  {entry.energy&&<div style={{fontSize:14,color:C.muted}}>Energy {entry.energy}/10 · {entry.mood}</div>}
+                  <div style={{fontSize:13,fontWeight:600}}>{new Date(entry.date+"T12:00:00").toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long",year:"numeric"})}</div>
+                  {entry.energy&&<div style={{fontSize:11,color:C.muted}}>Energy {entry.energy}/10 · {entry.mood}</div>}
                 </div>
               </div>
-              {entry.freeWrite&&<div style={{fontSize:16,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",color:C.text,lineHeight:1.8,marginBottom:8}}>"{entry.freeWrite}"</div>}
-              {(()=>{
-                const bestMomentIdx = JOURNAL_PROMPTS.indexOf("What was the best moment of today?");
-                const bestMoment = bestMomentIdx>=0 ? entry.prompts?.[bestMomentIdx] : null;
-                if(bestMoment && bestMoment.trim()) return (
-                  <div style={{background:C.gold+"12",border:`1px solid ${C.gold}33`,borderRadius:8,padding:"8px 12px",marginBottom:8}}>
-                    <div style={{fontSize:12,color:C.gold,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:3}}>BEST MOMENT</div>
-                    <div style={{fontSize:16,color:C.text,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",lineHeight:1.7}}>"{bestMoment}"</div>
-                  </div>
-                );
-                return null;
-              })()}
-              {Object.entries(entry.prompts||{}).filter(([k,v])=>v&&JOURNAL_PROMPTS.indexOf("What was the best moment of today?")!==parseInt(k)).map(([k,v])=>(
-                <div key={k} style={{fontSize:15,color:C.muted,lineHeight:1.6,marginBottom:4}}>
+              {entry.freeWrite&&<div style={{fontSize:14,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",color:C.text,lineHeight:1.8,marginBottom:8}}>"{entry.freeWrite}"</div>}
+              {Object.entries(entry.prompts||{}).filter(([,v])=>v).map(([k,v])=>(
+                <div key={k} style={{fontSize:12,color:C.muted,lineHeight:1.6,marginBottom:4}}>
                   <span style={{color:C.accent}}>{JOURNAL_PROMPTS[parseInt(k)]?.slice(0,35)}…</span> {String(v)}
                 </div>
               ))}
@@ -4683,11 +4967,11 @@ function JournalSection({C, galaxy, profile, journalEntries, setJournalEntries, 
             if(sameDayPast.length===0)return null;
             return(
               <div style={{background:C.accent+"10",border:`1px solid ${C.accent}33`,borderRadius:13,padding:18,marginTop:8}}>
-                <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>ON THIS DAY IN THE PAST</div>
+                <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>ON THIS DAY IN THE PAST</div>
                 {sameDayPast.map((entry,i)=>(
                   <div key={i} style={{padding:"10px 12px",background:C.bg,borderRadius:8,marginBottom:8}}>
-                    <div style={{fontSize:14,color:C.muted,marginBottom:4}}>{new Date(entry.date+"T12:00:00").toLocaleDateString("en-IN",{day:"numeric",month:"long",year:"numeric"})}</div>
-                    {entry.freeWrite&&<div style={{fontSize:16,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",color:C.text,lineHeight:1.7}}>"{entry.freeWrite.slice(0,200)}"</div>}
+                    <div style={{fontSize:11,color:C.muted,marginBottom:4}}>{new Date(entry.date+"T12:00:00").toLocaleDateString("en-IN",{day:"numeric",month:"long",year:"numeric"})}</div>
+                    {entry.freeWrite&&<div style={{fontSize:13,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",color:C.text,lineHeight:1.7}}>"{entry.freeWrite.slice(0,200)}"</div>}
                   </div>
                 ))}
               </div>
@@ -4829,12 +5113,12 @@ function MorningSection({C,galaxy,completedSteps,setCompletedSteps,gratitude,set
 
   if(view==="journal")return(
     <div style={{padding:"20px 16px"}}>
-      <button onClick={()=>setView("list")} style={{minHeight:40,minWidth:40,background:"none",border:"none",cursor:"pointer",fontSize:16,color:C.muted,marginBottom:20}}>← Morning</button>
+      <button onClick={()=>setView("list")} style={{background:"none",border:"none",cursor:"pointer",fontSize:13,color:C.muted,marginBottom:20}}>← Morning</button>
       <div style={{fontSize:20,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",marginBottom:18}}>📔 Daily Journal</div>
       {["How am I really feeling?","What is weighing on me?","What do I need that I'm not giving myself?","Free write:"].map((q,i)=>(
         <div key={i} style={{marginBottom:16}}>
-          <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>{q.toUpperCase()}</div>
-          <textarea rows={3} value={journalEntries[i]} onChange={e=>setJournalEntries(a=>{const n=[...a];n[i]=e.target.value;return n;})} placeholder="Write here…" style={{width:"100%",background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:10,color:C.text,padding:"12px 14px",fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",fontSize:17,lineHeight:1.7,resize:"none",boxSizing:"border-box"}}/>
+          <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>{q.toUpperCase()}</div>
+          <textarea rows={3} value={journalEntries[i]} onChange={e=>setJournalEntries(a=>{const n=[...a];n[i]=e.target.value;return n;})} placeholder="Write here…" style={{width:"100%",background:C.card,border:`1px solid ${C.border}`,borderRadius:10,color:C.text,padding:"12px 14px",fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",fontSize:15,lineHeight:1.7,resize:"none",boxSizing:"border-box"}}/>
         </div>
       ))}
     </div>
@@ -4843,35 +5127,35 @@ function MorningSection({C,galaxy,completedSteps,setCompletedSteps,gratitude,set
   if(view==="step")return(
     <div style={{padding:"16px"}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
-        <button onClick={()=>setView("list")} style={{minHeight:40,minWidth:40,background:"none",border:"none",cursor:"pointer",fontSize:16,color:C.muted}}>← Back</button>
-        <div style={{fontSize:14,color:C.muted,fontFamily:"'DM Mono',monospace"}}>{doneCount}/{STEPS.length} done</div>
+        <button onClick={()=>setView("list")} style={{background:"none",border:"none",cursor:"pointer",fontSize:13,color:C.muted}}>← Back</button>
+        <div style={{fontSize:11,color:C.muted,fontFamily:"'DM Mono',monospace"}}>{doneCount}/{STEPS.length} done</div>
         <div style={{display:"flex",gap:3}}>
-          {STEPS.map((s,i)=><div key={i} onClick={()=>setStep(i)} style={{minHeight:40,width:16,height:16,borderRadius:"50%",background:completedSteps.includes(s.id)?C.accent2:i===step?cur.color:C.border,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,color:C.text}}>{completedSteps.includes(s.id)?"✓":""}</div>)}
+          {STEPS.map((s,i)=><div key={i} onClick={()=>setStep(i)} style={{width:16,height:16,borderRadius:"50%",background:completedSteps.includes(s.id)?C.accent2:i===step?cur.color:C.border,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",fontSize:8,color:"#fff"}}>{completedSteps.includes(s.id)?"✓":""}</div>)}
         </div>
       </div>
-      <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`2px solid ${cur.color}44`,borderRadius:16,overflow:"hidden",boxShadow:`0 6px 24px ${cur.color}15`}}>
+      <div style={{background:C.card,border:`2px solid ${cur.color}44`,borderRadius:16,overflow:"hidden",boxShadow:`0 6px 24px ${cur.color}15`}}>
         <div style={{background:`linear-gradient(135deg,${cur.color}18,transparent)`,padding:"22px 22px 16px",borderBottom:`1px solid ${cur.color}22`}}>
           <div style={{fontSize:38,marginBottom:6,animation:"slowBreath 4s infinite"}}>{cur.icon}</div>
           <div style={{fontSize:20,fontWeight:400,fontFamily:"'Cormorant Garamond',serif",marginBottom:3}}>{cur.title}</div>
-          <div style={{fontSize:16,color:cur.color,fontStyle:"italic"}}>{cur.inst}</div>
+          <div style={{fontSize:14,color:cur.color,fontStyle:"italic"}}>{cur.inst}</div>
         </div>
         <div style={{padding:"14px 22px",borderBottom:`1px solid ${C.border}`,display:"flex",alignItems:"center",gap:14}}>
-          <div style={{flex:1}}>{timerOn?<div style={{fontSize:40,fontFamily:"'DM Mono',monospace",color:cur.color,fontWeight:300}}>{fmt(timerSec)}</div>:<div style={{fontSize:16,color:C.muted}}>{Math.floor(cur.dur/60)} min timer</div>}</div>
-          <button onClick={()=>timerOn?(clearInterval(timerRef.current),setTimerOn(false)):startTimer(cur.dur)} style={{minHeight:40,minWidth:40,padding:"9px 18px",background:timerOn?C.border:cur.color,border:"none",borderRadius:22,color:timerOn?C.muted:"#fff",cursor:"pointer",fontSize:15,fontWeight:600}}>{timerOn?"Pause":"Start"}</button>
+          <div style={{flex:1}}>{timerOn?<div style={{fontSize:40,fontFamily:"'DM Mono',monospace",color:cur.color,fontWeight:300}}>{fmt(timerSec)}</div>:<div style={{fontSize:13,color:C.muted}}>{Math.floor(cur.dur/60)} min timer</div>}</div>
+          <button onClick={()=>timerOn?(clearInterval(timerRef.current),setTimerOn(false)):startTimer(cur.dur)} style={{padding:"9px 18px",background:timerOn?C.border:cur.color,border:"none",borderRadius:22,color:timerOn?C.muted:"#fff",cursor:"pointer",fontSize:12,fontWeight:600}}>{timerOn?"Pause":"Start"}</button>
         </div>
         <div style={{padding:"14px 22px",borderBottom:`1px solid ${C.border}`}}>
-          <div style={{fontSize:13,color:C.dim,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:6}}>WHY THIS MATTERS</div>
-          <div style={{fontSize:16,lineHeight:1.8,color:C.text}}>{cur.why}</div>
+          <div style={{fontSize:10,color:C.dim,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:6}}>WHY THIS MATTERS</div>
+          <div style={{fontSize:13,lineHeight:1.8,color:C.text}}>{cur.why}</div>
         </div>
         <div style={{padding:"12px 22px",background:cur.color+"08",borderBottom:`1px solid ${C.border}`}}>
-          <div style={{fontSize:13,color:cur.color,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:5}}>MINDFUL CUE</div>
-          <div style={{fontSize:16,fontStyle:"italic",color:C.text,lineHeight:1.7}}>{cur.cue}</div>
+          <div style={{fontSize:10,color:cur.color,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:5}}>MINDFUL CUE</div>
+          <div style={{fontSize:13,fontStyle:"italic",color:C.text,lineHeight:1.7}}>{cur.cue}</div>
         </div>
-        {cur.id==="gratitude"&&<div style={{padding:"14px 22px",borderBottom:`1px solid ${C.border}`}}>{gratitude.map((g,i)=><input key={i} value={g} onChange={e=>setGratitude(a=>{const n=[...a];n[i]=e.target.value;return n;})} placeholder={["Something small and warm…","Someone who showed up for you…","Something your body did today…"][i]} style={{width:"100%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 11px",fontSize:16,marginBottom:7,boxSizing:"border-box"}}/>)}</div>}
-        {cur.id==="priorities"&&<div style={{padding:"14px 22px",borderBottom:`1px solid ${C.border}`}}>{priorities.map((p,i)=><div key={i} style={{display:"flex",gap:8,alignItems:"center",marginBottom:7}}><div style={{width:20,height:20,borderRadius:"50%",background:cur.color+"22",border:`1px solid ${cur.color}44`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,color:cur.color,flexShrink:0}}>{i+1}</div><input value={p} onChange={e=>setPriorities(a=>{const n=[...a];n[i]=e.target.value;return n;})} placeholder={["Most important today…","For my body or health…","For something that matters only to me…"][i]} style={{flex:1,background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 11px",fontSize:15}}/></div>)}</div>}
+        {cur.id==="gratitude"&&<div style={{padding:"14px 22px",borderBottom:`1px solid ${C.border}`}}>{gratitude.map((g,i)=><input key={i} value={g} onChange={e=>setGratitude(a=>{const n=[...a];n[i]=e.target.value;return n;})} placeholder={["Something small and warm…","Someone who showed up for you…","Something your body did today…"][i]} style={{width:"100%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 11px",fontSize:13,marginBottom:7,boxSizing:"border-box"}}/>)}</div>}
+        {cur.id==="priorities"&&<div style={{padding:"14px 22px",borderBottom:`1px solid ${C.border}`}}>{priorities.map((p,i)=><div key={i} style={{display:"flex",gap:8,alignItems:"center",marginBottom:7}}><div style={{width:20,height:20,borderRadius:"50%",background:cur.color+"22",border:`1px solid ${cur.color}44`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:10,color:cur.color,flexShrink:0}}>{i+1}</div><input value={p} onChange={e=>setPriorities(a=>{const n=[...a];n[i]=e.target.value;return n;})} placeholder={["Most important today…","For my body or health…","For something that matters only to me…"][i]} style={{flex:1,background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 11px",fontSize:12}}/></div>)}</div>}
         <div style={{padding:"16px 22px",display:"flex",gap:10}}>
-          <button onClick={()=>markDone(cur.id)} style={{minHeight:40,minWidth:40,flex:1,padding:"13px",background:completedSteps.includes(cur.id)?C.accent2:`linear-gradient(135deg,${cur.color},${C.warm})`,border:"none",borderRadius:12,color:"#fff",cursor:"pointer",fontSize:16,fontWeight:600}}>{completedSteps.includes(cur.id)?"✓ Done":"Mark Complete →"}</button>
-          {step<STEPS.length-1&&<button onClick={()=>setStep(s=>s+1)} style={{minHeight:40,minWidth:40,padding:"13px 16px",background:"transparent",border:`1px solid ${C.border}`,borderRadius:12,color:C.muted,cursor:"pointer",fontSize:15}}>Skip</button>}
+          <button onClick={()=>markDone(cur.id)} style={{flex:1,padding:"13px",background:completedSteps.includes(cur.id)?C.accent2:`linear-gradient(135deg,${cur.color},${C.warm})`,border:"none",borderRadius:12,color:"#fff",cursor:"pointer",fontSize:14,fontWeight:600}}>{completedSteps.includes(cur.id)?"✓ Done":"Mark Complete →"}</button>
+          {step<STEPS.length-1&&<button onClick={()=>setStep(s=>s+1)} style={{padding:"13px 16px",background:"transparent",border:`1px solid ${C.border}`,borderRadius:12,color:C.muted,cursor:"pointer",fontSize:12}}>Skip</button>}
         </div>
       </div>
     </div>
@@ -4880,24 +5164,24 @@ function MorningSection({C,galaxy,completedSteps,setCompletedSteps,gratitude,set
   return(
     <div style={{padding:"20px 16px"}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:16}}>
-        <div><div style={{fontSize:18,fontWeight:600,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}><span style={{marginRight:8,verticalAlign:"middle"}}><IconMorning size={20} active={true} C={C}/></span>Morning Ritual</div><div style={{fontSize:15,color:C.muted}}>{doneCount} of {STEPS.length} complete{allDone?" · ✓":""}</div></div>
-        <button onClick={()=>setView("journal")} style={{minHeight:40,minWidth:40,padding:"7px 12px",background:C.bg,border:`1px solid ${C.border}`,borderRadius:20,cursor:"pointer",fontSize:15,color:C.muted}}>📔 Journal</button>
+        <div><div style={{fontSize:18,fontWeight:600,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}><span style={{marginRight:8,verticalAlign:"middle"}}><IconMorning size={20} active={true} C={C}/></span>Morning Ritual</div><div style={{fontSize:12,color:C.muted}}>{doneCount} of {STEPS.length} complete{allDone?" · ✓":""}</div></div>
+        <button onClick={()=>setView("journal")} style={{padding:"7px 12px",background:C.bg,border:`1px solid ${C.border}`,borderRadius:20,cursor:"pointer",fontSize:12,color:C.muted}}>📔 Journal</button>
       </div>
-      <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:12,padding:"14px 16px",marginBottom:14,display:"flex",gap:14,alignItems:"center"}}>
+      <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:"14px 16px",marginBottom:14,display:"flex",gap:14,alignItems:"center"}}>
         <div style={{position:"relative",width:48,height:48,flexShrink:0}}>
           <svg width="48" height="48" style={{transform:"rotate(-90deg)"}}><circle cx="24" cy="24" r="19" fill="none" stroke={C.border} strokeWidth="5"/><circle cx="24" cy="24" r="19" fill="none" stroke={allDone?C.accent2:C.accent} strokeWidth="5" strokeDasharray="119" strokeDashoffset={119*(1-doneCount/STEPS.length)} strokeLinecap="round" style={{transition:"stroke-dashoffset 0.5s"}}/></svg>
-          <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:14,fontWeight:700,color:allDone?C.accent2:C.accent}}>{Math.round((doneCount/STEPS.length)*100)}%</div>
+          <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:700,color:allDone?C.accent2:C.accent}}>{Math.round((doneCount/STEPS.length)*100)}%</div>
         </div>
-        <div><div style={{fontSize:16,fontWeight:600}}>{allDone?"Morning ritual complete ✓":`${STEPS.length-doneCount} steps remaining`}</div><div style={{fontSize:14,color:C.muted,marginTop:2}}>~20 minutes · Sets up your entire day</div></div>
+        <div><div style={{fontSize:13,fontWeight:600}}>{allDone?"Morning ritual complete ✓":`${STEPS.length-doneCount} steps remaining`}</div><div style={{fontSize:11,color:C.muted,marginTop:2}}>~20 minutes · Sets up your entire day</div></div>
       </div>
-      <button onClick={()=>{const nextStep=STEPS.findIndex(s=>!completedSteps.includes(s.id));setStep(nextStep>=0?nextStep:0);setView("step");}} style={{minHeight:40,minWidth:40,width:"100%",padding:"15px",background:`linear-gradient(135deg,${C.accent},${C.warm})`,border:"none",borderRadius:14,color:"#fff",cursor:"pointer",fontFamily:"'Cormorant Garamond',serif",fontSize:19,fontStyle:"italic",fontWeight:400,marginBottom:12,boxShadow:`0 6px 18px ${C.accent}33`}}>
+      <button onClick={()=>{const nextStep=STEPS.findIndex(s=>!completedSteps.includes(s.id));setStep(nextStep>=0?nextStep:0);setView("step");}} style={{width:"100%",padding:"15px",background:`linear-gradient(135deg,${C.accent},${C.warm})`,border:"none",borderRadius:14,color:"#fff",cursor:"pointer",fontFamily:"'Cormorant Garamond',serif",fontSize:19,fontStyle:"italic",fontWeight:400,marginBottom:12,boxShadow:`0 6px 18px ${C.accent}33`}}>
         {doneCount===0?"Begin Ritual →":allDone?"Review Ritual ✓":"Continue Ritual →"}
       </button>
       {STEPS.map((s,i)=>(
-        <div key={i} onClick={()=>{setStep(i);setView("step");}} style={{minHeight:40,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${completedSteps.includes(s.id)?C.accent2+"66":C.border}`,borderRadius:10,padding:"12px 14px",marginBottom:7,cursor:"pointer",display:"flex",gap:12,alignItems:"center",borderLeft:`4px solid ${completedSteps.includes(s.id)?C.accent2:s.color}`}}>
+        <div key={i} onClick={()=>{setStep(i);setView("step");}} style={{background:C.card,border:`1px solid ${completedSteps.includes(s.id)?C.accent2+"66":C.border}`,borderRadius:10,padding:"12px 14px",marginBottom:7,cursor:"pointer",display:"flex",gap:12,alignItems:"center",borderLeft:`4px solid ${completedSteps.includes(s.id)?C.accent2:s.color}`}}>
           <span style={{fontSize:18}}>{completedSteps.includes(s.id)?"✅":s.icon}</span>
-          <div style={{flex:1}}><div style={{fontSize:16,fontWeight:600,color:completedSteps.includes(s.id)?C.accent2:C.text}}>{s.title}</div><div style={{fontSize:14,color:C.muted}}>{Math.floor(s.dur/60)} min</div></div>
-          <div style={{fontSize:14,color:C.dim}}>→</div>
+          <div style={{flex:1}}><div style={{fontSize:13,fontWeight:600,color:completedSteps.includes(s.id)?C.accent2:C.text}}>{s.title}</div><div style={{fontSize:11,color:C.muted}}>{Math.floor(s.dur/60)} min</div></div>
+          <div style={{fontSize:11,color:C.dim}}>→</div>
         </div>
       ))}
     </div>
@@ -5022,22 +5306,22 @@ function PranayamaTimer({C, galaxy}) {
     <div>
       <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:16}}>
         {PRANAYAMA_TECHNIQUES.map((t,i) => (
-          <div key={t.id} style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${selected===i?t.color:C.border}`,borderRadius:12,overflow:"hidden",borderLeft:`4px solid ${t.color}`}}>
+          <div key={t.id} style={{background:C.card,border:`1px solid ${selected===i?t.color:C.border}`,borderRadius:12,overflow:"hidden",borderLeft:`4px solid ${t.color}`}}>
             <div style={{padding:"14px 16px"}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:6}}>
                 <div>
-                  <div style={{fontSize:16,fontWeight:700,color:t.color}}>{t.name}</div>
-                  <div style={{fontSize:14,color:C.muted}}>{t.sub} · {t.rounds} rounds</div>
+                  <div style={{fontSize:14,fontWeight:700,color:t.color}}>{t.name}</div>
+                  <div style={{fontSize:11,color:C.muted}}>{t.sub} · {t.rounds} rounds</div>
                 </div>
-                <button onClick={()=>startSession(t)} style={{minHeight:40,minWidth:40,padding:"8px 16px",background:`linear-gradient(135deg,${t.color},${t.color}aa)`,border:"none",borderRadius:20,color:"#fff",cursor:"pointer",fontSize:15,fontWeight:600,flexShrink:0}}>Begin</button>
+                <button onClick={()=>startSession(t)} style={{padding:"8px 16px",background:`linear-gradient(135deg,${t.color},${t.color}aa)`,border:"none",borderRadius:20,color:"#fff",cursor:"pointer",fontSize:12,fontWeight:600,flexShrink:0}}>Begin</button>
               </div>
-              <div style={{fontSize:15,color:C.muted,marginBottom:6}}>{t.benefit}</div>
+              <div style={{fontSize:12,color:C.muted,marginBottom:6}}>{t.benefit}</div>
               <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
                 {t.phases.map((p,j) => (
-                  <div key={j} style={{fontSize:14,padding:"3px 9px",background:t.color+"18",border:`1px solid ${t.color}33`,borderRadius:20,color:t.color}}>{p.label} {p.dur}s</div>
+                  <div key={j} style={{fontSize:11,padding:"3px 9px",background:t.color+"18",border:`1px solid ${t.color}33`,borderRadius:20,color:t.color}}>{p.label} {p.dur}s</div>
                 ))}
               </div>
-              {t.caution!=="None"&&<div style={{fontSize:14,color:C.muted,marginTop:6,fontStyle:"italic"}}>⚠ {t.caution}</div>}
+              {t.caution!=="None"&&<div style={{fontSize:11,color:C.muted,marginTop:6,fontStyle:"italic"}}>⚠ {t.caution}</div>}
             </div>
           </div>
         ))}
@@ -5056,8 +5340,8 @@ function PranayamaTimer({C, galaxy}) {
   return (
     <div style={{display:"flex",flexDirection:"column",alignItems:"center",padding:"0 0 20px"}}>
       {/* Technique name */}
-      <div style={{fontSize:14,color:technique.color,fontFamily:"'DM Mono',monospace",letterSpacing:3,marginBottom:4}}>{technique.name.toUpperCase()}</div>
-      <div style={{fontSize:16,color:C.muted,marginBottom:24}}>Round {roundCount+1} of {technique.rounds}</div>
+      <div style={{fontSize:11,color:technique.color,fontFamily:"'DM Mono',monospace",letterSpacing:3,marginBottom:4}}>{technique.name.toUpperCase()}</div>
+      <div style={{fontSize:13,color:C.muted,marginBottom:24}}>Round {roundCount+1} of {technique.rounds}</div>
 
       {/* Breathing circle */}
       <div style={{position:"relative",width:circleSize,height:circleSize,display:"flex",alignItems:"center",justifyContent:"center",marginBottom:24}}>
@@ -5080,7 +5364,7 @@ function PranayamaTimer({C, galaxy}) {
         <div style={{position:"relative",zIndex:1,textAlign:"center",transform:`scale(${scale})`,transition:"transform 0.1s ease"}}>
           <div style={{fontSize:36,marginBottom:4}}>{technique.icon}</div>
           <div style={{fontSize:22,fontWeight:300,fontFamily:"'Cormorant Garamond',serif",color:technique.color}}>{Math.ceil(timeLeft)}</div>
-          <div style={{fontSize:16,color:technique.color,fontWeight:600,marginTop:2}}>{phase.label}</div>
+          <div style={{fontSize:13,color:technique.color,fontWeight:600,marginTop:2}}>{phase.label}</div>
         </div>
       </div>
 
@@ -5088,10 +5372,10 @@ function PranayamaTimer({C, galaxy}) {
       <div style={{width:"100%",maxWidth:280,background:C.border,borderRadius:4,height:4,marginBottom:16}}>
         <div style={{width:`${Math.min(100,totalProgress*100)}%`,height:4,background:technique.color,borderRadius:4,transition:"width 0.1s"}}/>
       </div>
-      <div style={{fontSize:14,color:C.muted,marginBottom:20}}>{Math.ceil(elapsedRef.current)}s of {totalTime}s total</div>
+      <div style={{fontSize:11,color:C.muted,marginBottom:20}}>{Math.ceil(elapsedRef.current)}s of {totalTime}s total</div>
 
       {/* Stop button */}
-      <button onClick={stopSession} style={{minHeight:40,minWidth:40,padding:"12px 32px",background:"transparent",border:`2px solid ${technique.color}`,borderRadius:24,color:technique.color,cursor:"pointer",fontSize:16,fontWeight:600}}>Stop Session</button>
+      <button onClick={stopSession} style={{padding:"12px 32px",background:"transparent",border:`2px solid ${technique.color}`,borderRadius:24,color:technique.color,cursor:"pointer",fontSize:14,fontWeight:600}}>Stop Session</button>
     </div>
   );
 }
@@ -5111,9 +5395,9 @@ function WellnessSection({C,galaxy,profile,moveLog,setMoveLog,todayPhase,meditat
 
   if(view==="breathe")return(
     <div style={{padding:"20px 16px"}}>
-      <button onClick={()=>setView("home")} style={{minHeight:40,minWidth:40,background:"none",border:"none",cursor:"pointer",fontSize:16,color:C.muted,marginBottom:18}}>← Wellness</button>
+      <button onClick={()=>setView("home")} style={{background:"none",border:"none",cursor:"pointer",fontSize:13,color:C.muted,marginBottom:18}}>← Wellness</button>
       <div style={{fontSize:18,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",marginBottom:6}}>Pranayama</div>
-      <div style={{fontSize:15,color:C.muted,marginBottom:20}}>Tap a technique to begin. The circle guides your breath.</div>
+      <div style={{fontSize:12,color:C.muted,marginBottom:20}}>Tap a technique to begin. The circle guides your breath.</div>
       <PranayamaTimer C={C} galaxy={galaxy}/>
     </div>
   );
@@ -5122,20 +5406,20 @@ function WellnessSection({C,galaxy,profile,moveLog,setMoveLog,todayPhase,meditat
   // Yoga view
   if(view==="yoga") return(
     <div style={{padding:"16px 16px"}}>
-      <button onClick={()=>setView("home")} style={{minHeight:40,minWidth:40,background:"none",border:"none",cursor:"pointer",fontSize:16,color:C.muted,marginBottom:16}}>← Wellness</button>
+      <button onClick={()=>setView("home")} style={{background:"none",border:"none",cursor:"pointer",fontSize:13,color:C.muted,marginBottom:16}}>← Wellness</button>
       <div style={{fontSize:18,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",marginBottom:6}}>Yoga Asanas</div>
-      <div style={{fontSize:15,color:C.muted,marginBottom:16}}>{Object.values(YOGA_LIBRARY).reduce((a,l)=>a+(l.poses?.length||0),0)} poses · Tap a category to explore</div>
+      <div style={{fontSize:12,color:C.muted,marginBottom:16}}>{Object.values(YOGA_LIBRARY).reduce((a,l)=>a+(l.poses?.length||0),0)} poses · Tap a category to explore</div>
       {/* Category selector */}
       {!selectedCat&&(
         <div style={{display:"flex",flexDirection:"column",gap:10}}>
           {Object.entries(YOGA_LIBRARY).map(([key,lib])=>(
-            <button key={key} onClick={()=>setSelectedCat(key)} style={{minHeight:40,minWidth:40,padding:"16px",background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${lib.color}44`,borderRadius:13,cursor:"pointer",textAlign:"left",borderLeft:`4px solid ${lib.color}`}}>
+            <button key={key} onClick={()=>setSelectedCat(key)} style={{padding:"16px",background:C.card,border:`1px solid ${lib.color}44`,borderRadius:13,cursor:"pointer",textAlign:"left",borderLeft:`4px solid ${lib.color}`}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                 <div>
-                  <div style={{fontSize:16,fontWeight:600,color:lib.color}}>{lib.label}</div>
-                  <div style={{fontSize:14,color:C.muted,marginTop:3}}>{lib.poses?.length||0} poses · {lib.desc||""}</div>
+                  <div style={{fontSize:14,fontWeight:600,color:lib.color}}>{lib.label}</div>
+                  <div style={{fontSize:11,color:C.muted,marginTop:3}}>{lib.poses?.length||0} poses · {lib.desc||""}</div>
                 </div>
-                <div style={{fontSize:14,color:lib.color,padding:"3px 9px",background:lib.color+"15",borderRadius:20}}>→</div>
+                <div style={{fontSize:11,color:lib.color,padding:"3px 9px",background:lib.color+"15",borderRadius:20}}>→</div>
               </div>
             </button>
           ))}
@@ -5148,8 +5432,8 @@ function WellnessSection({C,galaxy,profile,moveLog,setMoveLog,todayPhase,meditat
         return(
           <div>
             <div style={{display:"flex",gap:8,alignItems:"center",marginBottom:14}}>
-              <button onClick={()=>setSelectedCat(null)} style={{minHeight:40,minWidth:40,background:"none",border:"none",cursor:"pointer",fontSize:16,color:C.muted}}>← All</button>
-              <div style={{fontSize:16,fontWeight:600,color:lib.color}}>{lib.label}</div>
+              <button onClick={()=>setSelectedCat(null)} style={{background:"none",border:"none",cursor:"pointer",fontSize:13,color:C.muted}}>← All</button>
+              <div style={{fontSize:14,fontWeight:600,color:lib.color}}>{lib.label}</div>
             </div>
             {(lib.poses||[]).map((pose,i)=>(
               <PoseCard key={i} pose={pose} color={lib.color} C={C} open={openPose===pose.name} setOpen={()=>setOpenPose(openPose===pose.name?null:pose.name)}/>
@@ -5165,8 +5449,8 @@ function WellnessSection({C,galaxy,profile,moveLog,setMoveLog,todayPhase,meditat
     <div style={{padding:"20px 16px"}}>
       <div style={{fontSize:18,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",marginBottom:16}}>Wellness</div>
       {/* Meditation */}
-      <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:14,padding:22,marginBottom:12,textAlign:"center"}}>
-        <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>GUIDED MEDITATION · ANXIETY & QUIET MIND</div>
+      <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:14,padding:22,marginBottom:12,textAlign:"center"}}>
+        <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>GUIDED MEDITATION · ANXIETY & QUIET MIND</div>
 
         <audio
           ref={medAudioRef}
@@ -5181,7 +5465,7 @@ function WellnessSection({C,galaxy,profile,moveLog,setMoveLog,todayPhase,meditat
         />
 
         <div style={{fontSize:48,fontWeight:300,fontFamily:"'Cormorant Garamond',serif",color:medOn?C.accent:C.dim,animation:medOn?"slowBreath 4s infinite":"none"}}>{fmt(medSec)}</div>
-        <div style={{fontSize:14,color:C.muted,marginBottom:14}}>{medOn?"Breathe. Just be here.":"20 min guided meditation for anxiety — mindful movement"}</div>
+        <div style={{fontSize:11,color:C.muted,marginBottom:14}}>{medOn?"Breathe. Just be here.":"20 min guided meditation for anxiety — mindful movement"}</div>
 
         {/* Progress bar, scrubbable */}
         <input
@@ -5205,33 +5489,33 @@ function WellnessSection({C,galaxy,profile,moveLog,setMoveLog,todayPhase,meditat
             audio.play().catch(()=>{});
             setMedOn(true);
           }
-        }} style={{minHeight:40,minWidth:40,padding:"12px 32px",background:medOn?C.border:`linear-gradient(135deg,${C.accent2},${C.accent3})`,border:"none",borderRadius:26,color:medOn?C.muted:"#fff",cursor:"pointer",fontSize:16,fontWeight:600,animation:!medOn?"ringPulse 2s infinite":"none"}}>
+        }} style={{padding:"12px 32px",background:medOn?C.border:`linear-gradient(135deg,${C.accent2},${C.accent3})`,border:"none",borderRadius:26,color:medOn?C.muted:"#fff",cursor:"pointer",fontSize:14,fontWeight:600,animation:!medOn?"ringPulse 2s infinite":"none"}}>
           {medOn?"Pause":medSec<medDuration&&medSec>0?"Resume":"Begin Guided Session"}
         </button>
       </div>
       <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:12}}>
-        <button onClick={()=>setView("breathe")} style={{minHeight:40,minWidth:40,padding:"18px",background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:14,cursor:"pointer",textAlign:"left"}}>
+        <button onClick={()=>setView("breathe")} style={{padding:"18px",background:C.card,border:`1px solid ${C.border}`,borderRadius:14,cursor:"pointer",textAlign:"left"}}>
           <div style={{fontSize:26,marginBottom:6}}>🌬️️</div>
-          <div style={{fontSize:16,fontWeight:600}}>Pranayama</div>
-          <div style={{fontSize:14,color:C.muted}}>4 breathwork techniques</div>
+          <div style={{fontSize:13,fontWeight:600}}>Pranayama</div>
+          <div style={{fontSize:11,color:C.muted}}>4 breathwork techniques</div>
         </button>
-        <button onClick={()=>setView("yoga")} style={{minHeight:40,minWidth:40,padding:"18px",background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:14,cursor:"pointer",textAlign:"left"}}>
+        <button onClick={()=>setView("yoga")} style={{padding:"18px",background:C.card,border:`1px solid ${C.border}`,borderRadius:14,cursor:"pointer",textAlign:"left"}}>
           <div style={{fontSize:26,marginBottom:6}}>🧘</div>
-          <div style={{fontSize:16,fontWeight:600}}>Yoga Asanas</div>
-          <div style={{fontSize:14,color:C.muted}}>{Object.values(YOGA_LIBRARY).reduce((a,l)=>a+(l.poses?.length||0),0)} poses · {Object.keys(YOGA_LIBRARY).length} categories</div>
+          <div style={{fontSize:13,fontWeight:600}}>Yoga Asanas</div>
+          <div style={{fontSize:11,color:C.muted}}>{Object.values(YOGA_LIBRARY).reduce((a,l)=>a+(l.poses?.length||0),0)} poses · {Object.keys(YOGA_LIBRARY).length} categories</div>
         </button>
       </div>
       {/* Recommended today */}
       {recommendedCats.length>0&&(
-        <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:12,padding:"14px 16px",marginBottom:12}}>
-          <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>RECOMMENDED FOR YOUR GOAL TODAY</div>
+        <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:"14px 16px",marginBottom:12}}>
+          <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>RECOMMENDED FOR YOUR GOAL TODAY</div>
           <div style={{display:"flex",gap:7,flexWrap:"wrap"}}>
-            {recommendedCats.map(cat=>{const lib=YOGA_LIBRARY[cat];if(!lib)return null;return<button key={cat} onClick={()=>{setSelectedCat(cat);setView("yoga");}} style={{minHeight:40,minWidth:40,padding:"6px 12px",background:lib.color+"15",border:`1px solid ${lib.color}44`,borderRadius:20,cursor:"pointer",fontSize:15,color:lib.color}}>{lib.label}</button>;})}
+            {recommendedCats.map(cat=>{const lib=YOGA_LIBRARY[cat];if(!lib)return null;return<button key={cat} onClick={()=>{setSelectedCat(cat);setView("yoga");}} style={{padding:"6px 12px",background:lib.color+"15",border:`1px solid ${lib.color}44`,borderRadius:20,cursor:"pointer",fontSize:12,color:lib.color}}>{lib.label}</button>;})}
           </div>
         </div>
       )}
-      <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:12,padding:"16px 18px"}}>
-        <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>LOG MOVEMENT</div>
+      <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:"16px 18px"}}>
+        <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>LOG MOVEMENT</div>
         <MoveLogger moveLog={moveLog} setMoveLog={setMoveLog} C={C}/>
       </div>
     </div>
@@ -5240,19 +5524,19 @@ function WellnessSection({C,galaxy,profile,moveLog,setMoveLog,todayPhase,meditat
 
 function PoseCard({pose,color,C,open,setOpen}){
   return(
-    <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${open?color:C.border}`,borderRadius:12,marginBottom:9,overflow:"hidden",transition:"all 0.2s"}}>
-      <div onClick={setOpen} style={{minHeight:40,padding:"12px 16px",cursor:"pointer",borderLeft:`3px solid ${color}`}}>
+    <div style={{background:C.card,border:`1px solid ${open?color:C.border}`,borderRadius:12,marginBottom:9,overflow:"hidden",transition:"all 0.2s"}}>
+      <div onClick={setOpen} style={{padding:"12px 16px",cursor:"pointer",borderLeft:`3px solid ${color}`}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <div><div style={{fontSize:16,fontWeight:600}}>{pose.name} <span style={{fontSize:14,color:C.muted,fontWeight:400}}>{pose.en}</span></div><div style={{fontSize:14,color:C.muted,marginTop:2}}>{pose.dur} · {pose.benefit.split("·")[0].split(",")[0]}</div></div>
-          <span style={{color:C.dim,fontSize:16}}>{open?"−":"+"}</span>
+          <div><div style={{fontSize:13,fontWeight:600}}>{pose.name} <span style={{fontSize:11,color:C.muted,fontWeight:400}}>{pose.en}</span></div><div style={{fontSize:11,color:C.muted,marginTop:2}}>{pose.dur} · {pose.benefit.split("·")[0].split(",")[0]}</div></div>
+          <span style={{color:C.dim,fontSize:14}}>{open?"−":"+"}</span>
         </div>
       </div>
       {open&&(
         <div style={{padding:"0 16px 14px",borderTop:`1px solid ${C.border}`,background:C.bg}}>
-          <div style={{fontSize:14,color:C.accent2,marginTop:10,marginBottom:8,lineHeight:1.6}}>{pose.benefit}</div>
-          {pose.steps?.map((s,j)=><div key={j} style={{display:"flex",gap:8,padding:"5px 0",borderBottom:j<pose.steps.length-1?`1px solid ${C.border}`:"none"}}><div style={{width:16,height:16,borderRadius:"50%",background:color+"22",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,color,flexShrink:0}}>{j+1}</div><div style={{fontSize:15,color:C.text,lineHeight:1.6}}>{s}</div></div>)}
-          {pose.note&&<div style={{marginTop:8,padding:"7px 10px",background:color+"12",borderRadius:7,fontSize:14,color:C.text}}>💡 {pose.note}</div>}
-          {pose.caution&&<div style={{marginTop:6,padding:"7px 10px",background:"#ff000008",border:"1px solid #f8717133",borderRadius:7,fontSize:14,color:C.muted}}>⚠ {pose.caution}</div>}
+          <div style={{fontSize:11,color:C.accent2,marginTop:10,marginBottom:8,lineHeight:1.6}}>{pose.benefit}</div>
+          {pose.steps?.map((s,j)=><div key={j} style={{display:"flex",gap:8,padding:"5px 0",borderBottom:j<pose.steps.length-1?`1px solid ${C.border}`:"none"}}><div style={{width:16,height:16,borderRadius:"50%",background:color+"22",display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,color,flexShrink:0}}>{j+1}</div><div style={{fontSize:12,color:C.text,lineHeight:1.6}}>{s}</div></div>)}
+          {pose.note&&<div style={{marginTop:8,padding:"7px 10px",background:color+"12",borderRadius:7,fontSize:11,color:C.text}}>💡 {pose.note}</div>}
+          {pose.caution&&<div style={{marginTop:6,padding:"7px 10px",background:"#ff000008",border:"1px solid #f8717133",borderRadius:7,fontSize:11,color:C.muted}}>⚠ {pose.caution}</div>}
         </div>
       )}
     </div>
@@ -5264,15 +5548,15 @@ function MoveLogger({moveLog,setMoveLog,C}){
   return(
     <div>
       <div style={{display:"flex",gap:7,marginBottom:10}}>
-        <input value={act} onChange={e=>setAct(e.target.value)} placeholder="e.g. Morning walk, yoga, cycling…" style={{flex:1,background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 11px",fontSize:16}}/>
-        <select value={dur} onChange={e=>setDur(e.target.value)} style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.muted,padding:"9px 7px",fontSize:15}}>
+        <input value={act} onChange={e=>setAct(e.target.value)} placeholder="e.g. Morning walk, yoga, cycling…" style={{flex:1,background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 11px",fontSize:13}}/>
+        <select value={dur} onChange={e=>setDur(e.target.value)} style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.muted,padding:"9px 7px",fontSize:12}}>
           {["15","20","30","45","60","90"].map(d=><option key={d}>{d} min</option>)}
         </select>
-        <button onClick={()=>{if(!act.trim())return;setMoveLog(l=>[...l,{id:Date.now(),activity:act,duration:parseInt(dur),date:getLocalDateStr(),time:new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})}]);setAct("");}} style={{minHeight:40,minWidth:40,padding:"9px 14px",background:C.accent2,border:"none",borderRadius:8,color:"#fff",cursor:"pointer",fontSize:16}}>+</button>
+        <button onClick={()=>{if(!act.trim())return;setMoveLog(l=>[...l,{id:Date.now(),activity:act,duration:parseInt(dur),date:getLocalDateStr(),time:new Date().toLocaleTimeString("en-IN",{hour:"2-digit",minute:"2-digit"})}]);setAct("");}} style={{padding:"9px 14px",background:C.accent2,border:"none",borderRadius:8,color:"#fff",cursor:"pointer",fontSize:13}}>+</button>
       </div>
-      {moveLog.length===0?<div style={{fontSize:15,color:C.dim,fontStyle:"italic"}}>No movement logged today.</div>:
-        moveLog.map((m,i)=><div key={m.id} style={{display:"flex",justifyContent:"space-between",fontSize:15,padding:"5px 0",borderBottom:i<moveLog.length-1?`1px solid ${C.border}`:"none"}}>
-          <span>🏃 {m.activity}</span><span style={{color:C.muted,fontFamily:"'DM Mono',monospace",fontSize:14}}>{m.duration} min · {m.time}</span>
+      {moveLog.length===0?<div style={{fontSize:12,color:C.dim,fontStyle:"italic"}}>No movement logged today.</div>:
+        moveLog.map((m,i)=><div key={m.id} style={{display:"flex",justifyContent:"space-between",fontSize:12,padding:"5px 0",borderBottom:i<moveLog.length-1?`1px solid ${C.border}`:"none"}}>
+          <span>🏃 {m.activity}</span><span style={{color:C.muted,fontFamily:"'DM Mono',monospace",fontSize:11}}>{m.duration} min · {m.time}</span>
         </div>)}
     </div>
   );
@@ -5641,74 +5925,74 @@ function SupplementsPanel({C, profile, up}){
     return (
       <div style={{display:"flex",flexDirection:"column",gap:14}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <div style={{fontSize:17,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>{editing?"Edit Supplement":"Add Supplement"}</div>
-          <button onClick={resetForm} style={{minHeight:40,minWidth:40,background:"transparent",border:"none",color:C.muted,cursor:"pointer",fontSize:16}}>Cancel</button>
+          <div style={{fontSize:15,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>{editing?"Edit Supplement":"Add Supplement"}</div>
+          <button onClick={resetForm} style={{background:"transparent",border:"none",color:C.muted,cursor:"pointer",fontSize:13}}>Cancel</button>
         </div>
 
         <div>
-          <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>NAME</div>
+          <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>NAME</div>
           <input value={form.name} onChange={e=>setForm(f=>({...f,name:e.target.value}))}
             placeholder="e.g. Carbamide Forte Chelated Iron"
-            style={{width:"100%",boxSizing:"border-box",background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:16}}/>
+            style={{width:"100%",boxSizing:"border-box",background:C.card,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:14}}/>
         </div>
 
         <div>
-          <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>WHAT'S IN IT — type exactly what's on the label, one line each</div>
+          <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>WHAT'S IN IT — type exactly what's on the label, one line each</div>
           <textarea
             value={form.rawText||""}
             onChange={e=>setForm(f=>({...f, rawText:e.target.value}))}
             placeholder={"Iron (from Ferrous Bisglycinate) 29mg\nVitamin C (Ascorbic Acid) 65mg\nZinc (from Zinc Gluconate) 13.2mg\nVitamin B9 (Folic Acid) 129.41mcg\nVitamin B12 (Cyanocobalamin) 2.2mcg"}
             rows={5}
-            style={{width:"100%",boxSizing:"border-box",background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:16,fontFamily:"'DM Mono',monospace",lineHeight:1.6,resize:"vertical"}}/>
-          <button onClick={interpretLabel} disabled={!form.rawText?.trim()||aiLoading} style={{minHeight:40,minWidth:40,
+            style={{width:"100%",boxSizing:"border-box",background:C.card,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:13,fontFamily:"'DM Mono',monospace",lineHeight:1.6,resize:"vertical"}}/>
+          <button onClick={interpretLabel} disabled={!form.rawText?.trim()||aiLoading} style={{
             marginTop:8,padding:"9px 16px",borderRadius:9,border:"none",cursor:form.rawText?.trim()?"pointer":"not-allowed",
-            background:form.rawText?.trim()?accent:C.border,color:C.text,fontSize:15,fontWeight:600,
+            background:form.rawText?.trim()?accent:C.border,color:"#fff",fontSize:12,fontWeight:600,
           }}>{aiLoading?"Reading label…":"Read this label →"}</button>
 
           {form.nutrients?.length>0 && (
             <div style={{marginTop:12,display:"flex",flexDirection:"column",gap:6}}>
-              <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1}}>UNDERSTOOD AS</div>
+              <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1}}>UNDERSTOOD AS</div>
               {form.nutrients.map((row,idx)=>(
                 <div key={idx} style={{background:C.bg,borderRadius:9,padding:"10px"}}>
                   <div style={{display:"flex",alignItems:"center",gap:8}}>
                     <div style={{flex:1}}>
-                      <div style={{fontSize:15,color:C.text,fontWeight:600}}>{NUTRIENT_FIELDS.find(nf=>nf.key===row.key)?.label || row.key}</div>
-                      {row.note&&<div style={{fontSize:13,color:C.dim,fontStyle:"italic",marginTop:1}}>{row.note}</div>}
+                      <div style={{fontSize:12,color:C.text,fontWeight:600}}>{NUTRIENT_FIELDS.find(nf=>nf.key===row.key)?.label || row.key}</div>
+                      {row.note&&<div style={{fontSize:10,color:C.dim,fontStyle:"italic",marginTop:1}}>{row.note}</div>}
                     </div>
                     <input value={row.amount} onChange={e=>updateNutrientRow(idx,"amount",e.target.value)}
                       type="number"
-                      style={{width:64,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:7,color:C.text,padding:"5px 8px",fontSize:16,fontFamily:"'DM Mono',monospace"}}/>
-                    <div style={{fontSize:13,color:C.muted,width:32}}>{NUTRIENT_FIELDS.find(nf=>nf.key===row.key)?.unit||""}</div>
-                    <button onClick={()=>removeNutrientRow(idx)} style={{minHeight:40,minWidth:40,background:"transparent",border:"none",color:C.red||"#e05a5a",cursor:"pointer",fontSize:17,padding:"2px 4px"}}>×</button>
+                      style={{width:64,background:C.card,border:`1px solid ${C.border}`,borderRadius:7,color:C.text,padding:"5px 8px",fontSize:13,fontFamily:"'DM Mono',monospace"}}/>
+                    <div style={{fontSize:10,color:C.muted,width:32}}>{NUTRIENT_FIELDS.find(nf=>nf.key===row.key)?.unit||""}</div>
+                    <button onClick={()=>removeNutrientRow(idx)} style={{background:"transparent",border:"none",color:C.red||"#e05a5a",cursor:"pointer",fontSize:15,padding:"2px 4px"}}>×</button>
                   </div>
-                  {row.whatItDoes&&<div style={{fontSize:14,color:C.muted,marginTop:6,lineHeight:1.6,paddingTop:6,borderTop:`1px solid ${C.border}`}}>{row.whatItDoes}</div>}
+                  {row.whatItDoes&&<div style={{fontSize:11,color:C.muted,marginTop:6,lineHeight:1.6,paddingTop:6,borderTop:`1px solid ${C.border}`}}>{row.whatItDoes}</div>}
                 </div>
               ))}
-              <div style={{fontSize:14,color:C.dim,marginTop:2,fontStyle:"italic"}}>Edit any amount above if something looks off before saving.</div>
+              <div style={{fontSize:11,color:C.dim,marginTop:2,fontStyle:"italic"}}>Edit any amount above if something looks off before saving.</div>
             </div>
           )}
 
           {form.excludedLines?.length>0 && (
             <div style={{marginTop:10,padding:"10px 12px",background:C.bg,borderRadius:9,border:`1px solid ${C.border}`}}>
-              <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>NOT COUNTED SEPARATELY</div>
+              <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>NOT COUNTED SEPARATELY</div>
               {form.excludedLines.map((it,i)=>(
-                <div key={i} style={{fontSize:14,color:C.dim,marginBottom:i<form.excludedLines.length-1?4:0,lineHeight:1.5}}>
+                <div key={i} style={{fontSize:11,color:C.dim,marginBottom:i<form.excludedLines.length-1?4:0,lineHeight:1.5}}>
                   <span style={{color:C.muted}}>{it.input}</span>{it.note?` — ${it.note}`:" — not a tracked nutrient"}
                 </div>
               ))}
             </div>
           )}
-          <div style={{fontSize:14,color:C.dim,marginTop:8,fontStyle:"italic",lineHeight:1.6}}>
+          <div style={{fontSize:11,color:C.dim,marginTop:8,fontStyle:"italic",lineHeight:1.6}}>
             Add the main ingredient and any small absorption-boosting add-ons exactly as printed on your label — e.g. Iron 29mg, Vitamin C 65mg, Zinc 13.2mg, all in one supplement.
           </div>
         </div>
 
         <div>
-          <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>HOW OFTEN</div>
+          <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>HOW OFTEN</div>
           <div style={{display:"flex",gap:6,marginBottom:10}}>
             {[{v:"daily",l:"Every day"},{v:"weekly",l:"Specific days"}].map(o=>(
-              <button key={o.v} onClick={()=>setForm(f=>({...f,frequency:o.v}))} style={{minHeight:40,minWidth:40,
-                flex:1,padding:"9px 8px",borderRadius:9,cursor:"pointer",fontSize:15,
+              <button key={o.v} onClick={()=>setForm(f=>({...f,frequency:o.v}))} style={{
+                flex:1,padding:"9px 8px",borderRadius:9,cursor:"pointer",fontSize:12,
                 border:`1.5px solid ${form.frequency===o.v?accent:C.border}`,
                 background:form.frequency===o.v?accent+"15":"transparent",
                 color:form.frequency===o.v?accent:C.muted,
@@ -5723,8 +6007,8 @@ function SupplementsPanel({C, profile, up}){
                   <button key={d} onClick={()=>setForm(f=>{
                     const days=f.days||[];
                     return {...f, days: selected ? days.filter(x=>x!==d) : [...days,d]};
-                  })} style={{minHeight:40,minWidth:40,
-                    width:42,height:36,borderRadius:9,cursor:"pointer",fontSize:14,fontWeight:600,
+                  })} style={{
+                    width:42,height:36,borderRadius:9,cursor:"pointer",fontSize:11,fontWeight:600,
                     border:`1.5px solid ${selected?accent:C.border}`,
                     background:selected?accent:"transparent",
                     color:selected?"#fff":C.muted,
@@ -5736,11 +6020,11 @@ function SupplementsPanel({C, profile, up}){
         </div>
 
         <div>
-          <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>TIME OF DAY (optional)</div>
+          <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:6}}>TIME OF DAY (optional)</div>
           <div style={{display:"flex",gap:6}}>
             {[{v:"morning",l:"Morning"},{v:"afternoon",l:"Afternoon"},{v:"evening",l:"Evening"},{v:"any",l:"Anytime"}].map(o=>(
-              <button key={o.v} onClick={()=>setForm(f=>({...f,timeOfDay:o.v}))} style={{minHeight:40,minWidth:40,
-                flex:1,padding:"8px 4px",borderRadius:9,cursor:"pointer",fontSize:13,
+              <button key={o.v} onClick={()=>setForm(f=>({...f,timeOfDay:o.v}))} style={{
+                flex:1,padding:"8px 4px",borderRadius:9,cursor:"pointer",fontSize:10,
                 border:`1px solid ${form.timeOfDay===o.v?accent:C.border}`,
                 background:form.timeOfDay===o.v?accent+"15":"transparent",
                 color:form.timeOfDay===o.v?accent:C.muted,
@@ -5749,10 +6033,10 @@ function SupplementsPanel({C, profile, up}){
           </div>
         </div>
 
-        <button onClick={saveSupplement} disabled={!form.name.trim()} style={{minHeight:40,minWidth:40,
+        <button onClick={saveSupplement} disabled={!form.name.trim()} style={{
           padding:"13px",borderRadius:11,border:"none",cursor:form.name.trim()?"pointer":"not-allowed",
           background:form.name.trim()?`linear-gradient(135deg,${accent},${C.accent})`:C.border,
-          color:C.text,fontSize:16,fontWeight:600,marginTop:4,
+          color:"#fff",fontSize:14,fontWeight:600,marginTop:4,
         }}>{editing?"Save Changes":"Add Supplement"}</button>
       </div>
     );
@@ -5761,7 +6045,7 @@ function SupplementsPanel({C, profile, up}){
   return (
     <div style={{display:"flex",flexDirection:"column",gap:12}}>
       {dueToday.length>0 && (
-        <div style={{fontSize:14,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1}}>
+        <div style={{fontSize:11,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1}}>
           TODAY · {takenCount}/{dueToday.length} taken
         </div>
       )}
@@ -5769,7 +6053,7 @@ function SupplementsPanel({C, profile, up}){
       {dueToday.length===0 && supplements.length===0 && (
         <div style={{textAlign:"center",padding:"30px 20px",color:C.dim}}>
           <div style={{fontSize:28,marginBottom:10}}>💊</div>
-          <div style={{fontSize:16,fontStyle:"italic",lineHeight:1.7}}>No supplements added yet. Set them up once, then just check them off each day.</div>
+          <div style={{fontSize:13,fontStyle:"italic",lineHeight:1.7}}>No supplements added yet. Set them up once, then just check them off each day.</div>
         </div>
       )}
 
@@ -5777,43 +6061,43 @@ function SupplementsPanel({C, profile, up}){
         const isExpanded = expandedId===s.id;
         return (
         <div key={s.id} style={{
-          background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${s.takenToday?accent+"55":C.border}`,
+          background:C.card,border:`1px solid ${s.takenToday?accent+"55":C.border}`,
           borderRadius:13,overflow:"hidden",
         }}>
           <div style={{display:"flex",alignItems:"center",gap:12,padding:"13px 14px"}}>
-            <button onClick={()=>toggleTakenToday(s.id)} style={{minHeight:40,minWidth:40,
+            <button onClick={()=>toggleTakenToday(s.id)} style={{
               width:30,height:30,borderRadius:"50%",flexShrink:0,cursor:"pointer",
               border:`2px solid ${s.takenToday?accent:C.border}`,
               background:s.takenToday?accent:"transparent",
-              display:"flex",alignItems:"center",justifyContent:"center",fontSize:17,color:C.text,
+              display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,color:"#fff",
             }}>{s.takenToday?"✓":""}</button>
             <div style={{flex:1}}>
-              <div style={{fontSize:16,fontWeight:600,color:s.takenToday?C.muted:C.text,textDecoration:s.takenToday?"line-through":"none"}}>💊 {s.name}</div>
-              <div style={{fontSize:14,color:C.muted,marginTop:2}}>
+              <div style={{fontSize:13,fontWeight:600,color:s.takenToday?C.muted:C.text,textDecoration:s.takenToday?"line-through":"none"}}>💊 {s.name}</div>
+              <div style={{fontSize:11,color:C.muted,marginTop:2}}>
                 {(s.nutrients||[]).map(n=>NUTRIENT_FIELDS.find(nf=>nf.key===n.key)?.label).filter(Boolean).join(", ")||"No nutrients specified"}
                 {s.timeOfDay!=="any"?` · ${s.timeOfDay}`:""}
               </div>
             </div>
             {(s.nutrients||[]).some(n=>n.whatItDoes)&&(
-              <button onClick={()=>setExpandedId(isExpanded?null:s.id)} style={{minHeight:40,minWidth:40,
+              <button onClick={()=>setExpandedId(isExpanded?null:s.id)} style={{
                 background:isExpanded?accent+"15":"transparent",border:`1px solid ${isExpanded?accent:C.border}`,
-                color:isExpanded?accent:C.dim,cursor:"pointer",fontSize:16,width:26,height:26,borderRadius:"50%",
+                color:isExpanded?accent:C.dim,cursor:"pointer",fontSize:13,width:26,height:26,borderRadius:"50%",
                 display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,
               }}>ⓘ</button>
             )}
-            <button onClick={()=>{setForm({...s, rawText:""});setEditing(s);setShowAdd(true);}} style={{minHeight:40,minWidth:40,background:"transparent",border:"none",color:C.dim,cursor:"pointer",fontSize:14,padding:"4px 8px"}}>Edit</button>
-            <button onClick={()=>deleteSupplement(s.id)} style={{minHeight:40,minWidth:40,background:"transparent",border:"none",color:C.red||"#e05a5a",cursor:"pointer",fontSize:14,padding:"4px 8px"}}>×</button>
+            <button onClick={()=>{setForm({...s, rawText:""});setEditing(s);setShowAdd(true);}} style={{background:"transparent",border:"none",color:C.dim,cursor:"pointer",fontSize:11,padding:"4px 8px"}}>Edit</button>
+            <button onClick={()=>deleteSupplement(s.id)} style={{background:"transparent",border:"none",color:C.red||"#e05a5a",cursor:"pointer",fontSize:11,padding:"4px 8px"}}>×</button>
           </div>
 
           {isExpanded && (
             <div style={{padding:"4px 14px 14px",display:"flex",flexDirection:"column",gap:10,borderTop:`1px solid ${C.border}`,paddingTop:12}}>
-              <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1}}>WHAT'S ACTUALLY IN THIS</div>
+              <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1}}>WHAT'S ACTUALLY IN THIS</div>
               {(s.nutrients||[]).map((n,i)=>{
                 const field = NUTRIENT_FIELDS.find(nf=>nf.key===n.key);
                 return (
                   <div key={i}>
-                    <div style={{fontSize:15,fontWeight:600,color:C.text}}>{field?.label||n.key} — {n.amount}{field?.unit||""}</div>
-                    {n.whatItDoes&&<div style={{fontSize:14,color:C.muted,marginTop:3,lineHeight:1.6}}>{n.whatItDoes}</div>}
+                    <div style={{fontSize:12,fontWeight:600,color:C.text}}>{field?.label||n.key} — {n.amount}{field?.unit||""}</div>
+                    {n.whatItDoes&&<div style={{fontSize:11,color:C.muted,marginTop:3,lineHeight:1.6}}>{n.whatItDoes}</div>}
                   </div>
                 );
               })}
@@ -5825,22 +6109,22 @@ function SupplementsPanel({C, profile, up}){
 
       {supplements.filter(s=>!isDueToday(s)).length>0&&(
         <div style={{marginTop:8}}>
-          <div style={{fontSize:13,color:C.dim,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>NOT DUE TODAY</div>
+          <div style={{fontSize:10,color:C.dim,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>NOT DUE TODAY</div>
           {supplements.filter(s=>!isDueToday(s)).map(s=>(
             <div key={s.id} style={{display:"flex",alignItems:"center",gap:10,padding:"8px 14px",opacity:0.5}}>
-              <div style={{fontSize:15}}>💊 {s.name}</div>
-              <div style={{fontSize:13,color:C.dim}}>· {(s.days||[]).join(", ")||"—"}</div>
+              <div style={{fontSize:12}}>💊 {s.name}</div>
+              <div style={{fontSize:10,color:C.dim}}>· {(s.days||[]).join(", ")||"—"}</div>
             </div>
           ))}
         </div>
       )}
 
-      <button onClick={()=>setShowAdd(true)} style={{minHeight:40,minWidth:40,
+      <button onClick={()=>setShowAdd(true)} style={{
         padding:"12px",borderRadius:11,border:`1px dashed ${C.border}`,
-        background:"transparent",cursor:"pointer",color:C.muted,fontSize:16,marginTop:4,
+        background:"transparent",cursor:"pointer",color:C.muted,fontSize:13,marginTop:4,
       }}>+ Add a supplement</button>
 
-      <div style={{fontSize:14,color:C.dim,lineHeight:1.7,fontStyle:"italic",marginTop:6}}>
+      <div style={{fontSize:11,color:C.dim,lineHeight:1.7,fontStyle:"italic",marginTop:6}}>
         What you check off here counts toward today's nutrient totals on the Today and Insights tabs — so the app won't tell you you're "low" on something you're already supplementing.
       </div>
     </div>
@@ -5981,10 +6265,10 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
     <div style={{padding:"20px 16px"}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
         <div style={{fontSize:18,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>Food & Nutrition</div>
-        <div style={{fontSize:15,color:C.accent3}}>💧{waterLog}ml</div>
+        <div style={{fontSize:12,color:C.accent3}}>💧{waterLog}ml</div>
       </div>
       <div style={{display:"flex",gap:5,marginBottom:18}}>
-        {[{v:"today",l:"Today"},{v:"add",l:"+ Log"},{v:"analysis",l:"Analysis"},{v:"health",l:"🩺 Insights"},{v:"supplements",l:"💊 Supps"}].map(t=><button key={t.v} onClick={()=>setView(t.v)} style={{minHeight:40,minWidth:40,flex:1,padding:"8px",borderRadius:20,border:`1px solid ${view===t.v?C.accent:C.border}`,background:view===t.v?C.accent+"15":"transparent",cursor:"pointer",fontSize:14,color:view===t.v?C.accent:C.muted}}>{t.l}</button>)}
+        {[{v:"today",l:"Today"},{v:"add",l:"+ Log"},{v:"analysis",l:"Analysis"},{v:"health",l:"🩺 Insights"},{v:"supplements",l:"💊 Supps"}].map(t=><button key={t.v} onClick={()=>setView(t.v)} style={{flex:1,padding:"8px",borderRadius:20,border:`1px solid ${view===t.v?C.accent:C.border}`,background:view===t.v?C.accent+"15":"transparent",cursor:"pointer",fontSize:11,color:view===t.v?C.accent:C.muted}}>{t.l}</button>)}
       </div>
 
       {view==="today"&&(
@@ -6001,10 +6285,10 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
             ].map((n,i)=>{
               const pct=Math.round((parseFloat(n.v)/n.t)*100);
               const color=sc(pct,n.isMax);
-              return<div key={i} style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${color}33`,borderRadius:10,padding:"10px 8px",textAlign:"center"}}>
-                <div style={{fontSize:14,color:C.muted,marginBottom:2}}>{n.l}</div>
-                <div style={{fontSize:17,fontWeight:700,color}}>{n.v}<span style={{fontSize:12,color:C.dim,fontWeight:400}}>/{n.t}</span></div>
-                <div style={{fontSize:12,color:C.dim,marginBottom:4}}>{n.u}{n.isMax?" limit":""}</div>
+              return<div key={i} style={{background:C.card,border:`1px solid ${color}33`,borderRadius:10,padding:"10px 8px",textAlign:"center"}}>
+                <div style={{fontSize:11,color:C.muted,marginBottom:2}}>{n.l}</div>
+                <div style={{fontSize:15,fontWeight:700,color}}>{n.v}<span style={{fontSize:9,color:C.dim,fontWeight:400}}>/{n.t}</span></div>
+                <div style={{fontSize:9,color:C.dim,marginBottom:4}}>{n.u}{n.isMax?" limit":""}</div>
                 <div style={{background:C.border,borderRadius:3,height:3}}><div style={{width:`${Math.min(100,pct)}%`,height:3,background:color,borderRadius:3,transition:"width 0.5s"}}/></div>
               </div>;
             })}
@@ -6021,72 +6305,72 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
             if(alerts.length===0&&todayFood.cal>needs.cal*0.3)alerts.push({msg:"Looking balanced today ✓",type:"good"});
             return alerts.length>0?(
               <div style={{display:"flex",flexDirection:"column",gap:6,marginBottom:14}}>
-                {alerts.map((a,i)=><div key={i} style={{padding:"8px 12px",background:a.type==="good"?C.accent2+"12":a.type==="limit"?C.gold+"12":C.red+"10",border:`1px solid ${a.type==="good"?C.accent2:a.type==="limit"?C.gold:C.red}33`,borderRadius:8,fontSize:15,color:C.text,lineHeight:1.5}}>{a.type==="good"?"✓ ":a.type==="limit"?"⚠ ":"→ "}{a.msg}</div>)}
+                {alerts.map((a,i)=><div key={i} style={{padding:"8px 12px",background:a.type==="good"?C.accent2+"12":a.type==="limit"?C.gold+"12":C.red+"10",border:`1px solid ${a.type==="good"?C.accent2:a.type==="limit"?C.gold:C.red}33`,borderRadius:8,fontSize:12,color:C.text,lineHeight:1.5}}>{a.type==="good"?"✓ ":a.type==="limit"?"⚠ ":"→ "}{a.msg}</div>)}
               </div>
             ):null;
           })()}
           {/* Water quick add */}
-          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.accent3}33`,borderRadius:10,padding:"12px 14px",marginBottom:12}}>
-            <div style={{fontSize:13,color:C.accent3,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>💧 WATER INTAKE · {waterLog}ml of {needs.water}ml</div>
+          <div style={{background:C.card,border:`1px solid ${C.accent3}33`,borderRadius:10,padding:"12px 14px",marginBottom:12}}>
+            <div style={{fontSize:10,color:C.accent3,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>💧 WATER INTAKE · {waterLog}ml of {needs.water}ml</div>
             <div style={{background:C.border,borderRadius:6,height:6,marginBottom:10}}><div style={{width:`${Math.min(100,Math.round((waterLog/needs.water)*100))}%`,height:6,background:`linear-gradient(90deg,${C.accent3},#38bdf8)`,borderRadius:6,transition:"width 0.4s"}}/></div>
             <div style={{display:"flex",gap:7}}>
-              {[1,2,3,4].map(g=><button key={g} onClick={()=>setWaterLog(w=>w+(g*250))} style={{minHeight:40,minWidth:40,flex:1,padding:"8px 0",background:C.accent3+"15",border:`1px solid ${C.accent3}44`,borderRadius:8,cursor:"pointer",fontSize:15,color:C.accent3}}>+{g} glass{g>1?"es":""}</button>)}
+              {[1,2,3,4].map(g=><button key={g} onClick={()=>setWaterLog(w=>w+(g*250))} style={{flex:1,padding:"8px 0",background:C.accent3+"15",border:`1px solid ${C.accent3}44`,borderRadius:8,cursor:"pointer",fontSize:12,color:C.accent3}}>+{g} glass{g>1?"es":""}</button>)}
             </div>
           </div>
           {foodLogs.filter(l=>l.date===todayStr).length===0
-            ?<div style={{textAlign:"center",padding:"28px",color:C.dim,fontStyle:"italic",fontSize:16}}>No food logged today. Tap + Log Food or tell My Space what you ate.</div>
+            ?<div style={{textAlign:"center",padding:"28px",color:C.dim,fontStyle:"italic",fontSize:13}}>No food logged today. Tap + Log Food or tell My Space what you ate.</div>
             :foodLogs.filter(l=>l.date===todayStr).map((log,i)=>{
               const n=calcLoggedNutrition(log);
-              return<div key={log.id} style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:11,padding:"12px 14px",marginBottom:8}}>
+              return<div key={log.id} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:11,padding:"12px 14px",marginBottom:8}}>
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-                  <div><div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",marginBottom:2}}>{log.meal} · {log.time}</div><div style={{fontSize:16,fontWeight:600}}>{(log.foods||[]).join(", ")}</div></div>
-                  <div style={{fontSize:17,fontWeight:700,color:C.accent}}>{Math.round(n.cal)}<span style={{fontSize:12,color:C.dim}}>kcal</span></div>
+                  <div><div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",marginBottom:2}}>{log.meal} · {log.time}</div><div style={{fontSize:14,fontWeight:600}}>{(log.foods||[]).join(", ")}</div></div>
+                  <div style={{fontSize:15,fontWeight:700,color:C.accent}}>{Math.round(n.cal)}<span style={{fontSize:9,color:C.dim}}>kcal</span></div>
                 </div>
                 <div style={{display:"flex",gap:10,marginTop:5,flexWrap:"wrap"}}>
-                  {[["P",n.protein,C.accent2],["C",n.carbs,C.gold],["Fe",n.iron,C.red]].map(([l,v,c],j)=><span key={j} style={{fontSize:14,color:c,fontFamily:"'DM Mono',monospace"}}>{l}:{typeof v==="number"?v.toFixed(1):v}</span>)}
-                  {log.water>0&&<span style={{fontSize:14,color:C.accent3}}>💧{log.water} glasses</span>}
+                  {[["P",n.protein,C.accent2],["C",n.carbs,C.gold],["Fe",n.iron,C.red]].map(([l,v,c],j)=><span key={j} style={{fontSize:11,color:c,fontFamily:"'DM Mono',monospace"}}>{l}:{typeof v==="number"?v.toFixed(1):v}</span>)}
+                  {log.water>0&&<span style={{fontSize:11,color:C.accent3}}>💧{log.water} glasses</span>}
                 </div>
-                {log.symptoms?.length>0&&<div style={{marginTop:5,display:"flex",gap:4,flexWrap:"wrap"}}>{log.symptoms.map((s,j)=><span key={j} style={{fontSize:13,padding:"2px 7px",background:C.red+"12",border:`1px solid ${C.red}33`,borderRadius:10,color:C.red}}>{s}</span>)}</div>}
+                {log.symptoms?.length>0&&<div style={{marginTop:5,display:"flex",gap:4,flexWrap:"wrap"}}>{log.symptoms.map((s,j)=><span key={j} style={{fontSize:10,padding:"2px 7px",background:C.red+"12",border:`1px solid ${C.red}33`,borderRadius:10,color:C.red}}>{s}</span>)}</div>}
               </div>;
             })
           }
-          <button onClick={()=>setView("add")} style={{minHeight:40,minWidth:40,width:"100%",padding:"12px",background:`linear-gradient(135deg,${C.accent},${C.warm})`,border:"none",borderRadius:11,color:"#fff",cursor:"pointer",fontSize:16,fontWeight:600,marginTop:4}}>+ Log Food</button>
+          <button onClick={()=>setView("add")} style={{width:"100%",padding:"12px",background:`linear-gradient(135deg,${C.accent},${C.warm})`,border:"none",borderRadius:11,color:"#fff",cursor:"pointer",fontSize:13,fontWeight:600,marginTop:4}}>+ Log Food</button>
         </div>
       )}
 
       {view==="add"&&(
         <div>
-          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:14,padding:20,display:"flex",flexDirection:"column",gap:14}}>
+          <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:14,padding:20,display:"flex",flexDirection:"column",gap:14}}>
             <div>
-              <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>WHICH DAY?</div>
+              <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>WHICH DAY?</div>
               <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
                 {(()=>{
                   const yesterday=getLocalDateStr(new Date(Date.now()-86400000));
                   return [
                     {l:"Today",v:""},
                     {l:"Yesterday",v:yesterday},
-                  ].map(o=><button key={o.l} onClick={()=>setNewFood(f=>({...f,logDate:o.v}))} style={{minHeight:40,minWidth:40,padding:"6px 12px",borderRadius:20,border:`1px solid ${newFood.logDate===o.v?C.accent:C.border}`,background:newFood.logDate===o.v?C.accent+"15":"transparent",cursor:"pointer",fontSize:14,color:newFood.logDate===o.v?C.accent:C.muted}}>{o.l}</button>);
+                  ].map(o=><button key={o.l} onClick={()=>setNewFood(f=>({...f,logDate:o.v}))} style={{padding:"6px 12px",borderRadius:20,border:`1px solid ${newFood.logDate===o.v?C.accent:C.border}`,background:newFood.logDate===o.v?C.accent+"15":"transparent",cursor:"pointer",fontSize:11,color:newFood.logDate===o.v?C.accent:C.muted}}>{o.l}</button>);
                 })()}
                 <input type="date" value={newFood.logDate||todayStr} max={todayStr}
                   onChange={e=>setNewFood(f=>({...f,logDate:e.target.value===todayStr?"":e.target.value}))}
-                  style={{padding:"6px 10px",borderRadius:20,border:`1px solid ${newFood.logDate&&newFood.logDate!==getLocalDateStr(new Date(Date.now()-86400000))?C.accent:C.border}`,background:"transparent",color:C.text,fontSize:14,fontFamily:"'DM Mono',monospace"}}/>
+                  style={{padding:"6px 10px",borderRadius:20,border:`1px solid ${newFood.logDate&&newFood.logDate!==getLocalDateStr(new Date(Date.now()-86400000))?C.accent:C.border}`,background:"transparent",color:C.text,fontSize:11,fontFamily:"'DM Mono',monospace"}}/>
               </div>
-              {newFood.logDate && <div style={{fontSize:14,color:C.gold,marginTop:6,fontStyle:"italic"}}>Logging for {new Date(newFood.logDate+"T12:00:00").toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"short"})} — this won't count toward today's totals.</div>}
+              {newFood.logDate && <div style={{fontSize:11,color:C.gold,marginTop:6,fontStyle:"italic"}}>Logging for {new Date(newFood.logDate+"T12:00:00").toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"short"})} — this won't count toward today's totals.</div>}
             </div>
             <div>
-              <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>MEAL</div>
+              <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>MEAL</div>
               <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-                {["Breakfast","Lunch","Snack","Dinner","Late night"].map(m=><button key={m} onClick={()=>setNewFood(f=>({...f,meal:m}))} style={{minHeight:40,minWidth:40,padding:"6px 12px",borderRadius:20,border:`1px solid ${newFood.meal===m?C.accent:C.border}`,background:newFood.meal===m?C.accent+"15":"transparent",cursor:"pointer",fontSize:14,color:newFood.meal===m?C.accent:C.muted}}>{m}</button>)}
+                {["Breakfast","Lunch","Snack","Dinner","Late night"].map(m=><button key={m} onClick={()=>setNewFood(f=>({...f,meal:m}))} style={{padding:"6px 12px",borderRadius:20,border:`1px solid ${newFood.meal===m?C.accent:C.border}`,background:newFood.meal===m?C.accent+"15":"transparent",cursor:"pointer",fontSize:11,color:newFood.meal===m?C.accent:C.muted}}>{m}</button>)}
               </div>
             </div>
             <div>
-              <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>WHAT DID YOU EAT? (comma separated)</div>
-              <textarea value={newFood.foods} onChange={e=>setNewFood(f=>({...f,foods:e.target.value}))} rows={2} placeholder="Be specific — e.g. masala chai with milk and 1 tsp sugar, 2 whole wheat rotis with dal makhani, banana, nimbu paani" style={{width:"100%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"11px 13px",fontSize:16,resize:"none",boxSizing:"border-box"}}/>
+              <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>WHAT DID YOU EAT? (comma separated)</div>
+              <textarea value={newFood.foods} onChange={e=>setNewFood(f=>({...f,foods:e.target.value}))} rows={2} placeholder="Be specific — e.g. masala chai with milk and 1 tsp sugar, 2 whole wheat rotis with dal makhani, banana, nimbu paani" style={{width:"100%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"11px 13px",fontSize:13,resize:"none",boxSizing:"border-box"}}/>
             </div>
             {/* Water timing */}
             <div>
-              <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>💧 WATER</div>
-              <div style={{fontSize:14,color:C.dim,marginBottom:10,padding:"7px 10px",background:C.accent3+"10",border:`1px solid ${C.accent3}22`,borderRadius:7,lineHeight:1.6}}>
+              <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>💧 WATER</div>
+              <div style={{fontSize:11,color:C.dim,marginBottom:10,padding:"7px 10px",background:C.accent3+"10",border:`1px solid ${C.accent3}22`,borderRadius:7,lineHeight:1.6}}>
                 For best digestion — drink water <strong>20–30 min before meals</strong> or <strong>45–60 min after</strong>. During meals, sip only if needed. Large amounts dilute stomach acid and slow digestion.
               </div>
               <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:6}}>
@@ -6096,8 +6380,8 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
                   {v:"after",l:"After meal",tip:"Wait 30–45 min for best absorption"},
                   {v:"independent",l:"Between meals",tip:"Best time — full absorption, no interference"},
                 ].map(opt=>(
-                  <button key={opt.v} onClick={()=>setNewFood(f=>({...f,waterTiming:f.waterTiming===opt.v?null:opt.v}))} style={{minHeight:40,minWidth:40,
-                    padding:"7px 12px",borderRadius:20,cursor:"pointer",fontSize:14,
+                  <button key={opt.v} onClick={()=>setNewFood(f=>({...f,waterTiming:f.waterTiming===opt.v?null:opt.v}))} style={{
+                    padding:"7px 12px",borderRadius:20,cursor:"pointer",fontSize:11,
                     border:`1px solid ${newFood.waterTiming===opt.v?C.accent3:C.border}`,
                     background:newFood.waterTiming===opt.v?C.accent3+"20":"transparent",
                     color:newFood.waterTiming===opt.v?C.accent3:C.muted,
@@ -6105,7 +6389,7 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
                 ))}
               </div>
               {newFood.waterTiming&&(
-                <div style={{fontSize:14,color:C.muted,fontStyle:"italic",padding:"6px 10px",background:C.bg,borderRadius:7,lineHeight:1.6}}>
+                <div style={{fontSize:11,color:C.muted,fontStyle:"italic",padding:"6px 10px",background:C.bg,borderRadius:7,lineHeight:1.6}}>
                   {{
                     before:"✓ Good choice. Water 20–30 min before meals stimulates digestive juices and prepares the stomach.",
                     during:"⚠ Sipping a little water during meals is fine. Avoid large glasses — it dilutes stomach acid and slows digestion.",
@@ -6115,9 +6399,9 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
                 </div>
               )}
               <div style={{marginTop:8,display:"flex",gap:6,alignItems:"center"}}>
-                <div style={{fontSize:14,color:C.muted}}>Glasses logged:</div>
+                <div style={{fontSize:11,color:C.muted}}>Glasses logged:</div>
                 <div style={{display:"flex",gap:4}}>
-                  {[0,1,2,3,4].map(g=><button key={g} onClick={()=>setNewFood(f=>({...f,water:g}))} style={{minHeight:40,minWidth:40,width:30,height:30,borderRadius:"50%",border:`2px solid ${newFood.water===g?C.accent3:C.border}`,background:newFood.water===g?C.accent3+"22":"transparent",cursor:"pointer",fontSize:14,color:newFood.water===g?C.accent3:C.muted,fontWeight:600}}>{g}</button>)}
+                  {[0,1,2,3,4].map(g=><button key={g} onClick={()=>setNewFood(f=>({...f,water:g}))} style={{width:30,height:30,borderRadius:"50%",border:`2px solid ${newFood.water===g?C.accent3:C.border}`,background:newFood.water===g?C.accent3+"22":"transparent",cursor:"pointer",fontSize:11,color:newFood.water===g?C.accent3:C.muted,fontWeight:600}}>{g}</button>)}
                 </div>
               </div>
             </div>
@@ -6133,36 +6417,36 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
               const {warnings,tips}=checkFoodCombos(foods);
               return<div style={{display:"flex",flexDirection:"column",gap:8}}>
                 <div style={{padding:"11px 14px",background:C.bg,border:`1px solid ${C.border}`,borderRadius:9}}>
-                  <div style={{fontSize:13,color:C.accent2,fontFamily:"'DM Mono',monospace",marginBottom:7}}>NUTRITION PREVIEW{aiLoading?" · estimating…":aiEstimate?" · AI-assisted":""}</div>
+                  <div style={{fontSize:10,color:C.accent2,fontFamily:"'DM Mono',monospace",marginBottom:7}}>NUTRITION PREVIEW{aiLoading?" · estimating…":aiEstimate?" · AI-assisted":""}</div>
                   <div style={{display:"flex",gap:10,flexWrap:"wrap"}}>
-                    {[["",Math.round(n.cal),"kcal"],["",Math.round(n.protein),"g protein"],["",n.iron.toFixed(1),"mg iron"],["",Math.round(n.calcium),"mg Ca"],["",Math.round(n.vitC),"mg VitC"]].map(([ic,v,u],i)=><span key={i} style={{fontSize:15,color:C.text}}>{ic} {v}{u}</span>)}
+                    {[["",Math.round(n.cal),"kcal"],["",Math.round(n.protein),"g protein"],["",n.iron.toFixed(1),"mg iron"],["",Math.round(n.calcium),"mg Ca"],["",Math.round(n.vitC),"mg VitC"]].map(([ic,v,u],i)=><span key={i} style={{fontSize:12,color:C.text}}>{ic} {v}{u}</span>)}
                   </div>
                   {aiEstimate&&aiEstimate.items.length>0&&(
-                    <div style={{fontSize:13,color:C.muted,marginTop:6,fontStyle:"italic"}}>
+                    <div style={{fontSize:10,color:C.muted,marginTop:6,fontStyle:"italic"}}>
                       AI-estimated: {aiEstimate.items.join(", ")}
                     </div>
                   )}
                 </div>
                 {warnings.map((w,i)=>(
-                  <div key={i} style={{padding:"9px 12px",background:w.severity==="high"?C.red+"12":C.gold+"12",border:`1px solid ${w.severity==="high"?C.red:C.gold}44`,borderRadius:8,fontSize:15,color:C.text,lineHeight:1.6}}>
+                  <div key={i} style={{padding:"9px 12px",background:w.severity==="high"?C.red+"12":C.gold+"12",border:`1px solid ${w.severity==="high"?C.red:C.gold}44`,borderRadius:8,fontSize:12,color:C.text,lineHeight:1.6}}>
                     ⚠ {w.msg}
                   </div>
                 ))}
                 {tips.map((t,i)=>(
-                  <div key={i} style={{padding:"9px 12px",background:C.accent2+"10",border:`1px solid ${C.accent2}33`,borderRadius:8,fontSize:15,color:C.text,lineHeight:1.6}}>
+                  <div key={i} style={{padding:"9px 12px",background:C.accent2+"10",border:`1px solid ${C.accent2}33`,borderRadius:8,fontSize:12,color:C.text,lineHeight:1.6}}>
                     <strong>{t.combo}</strong> — {t.why}
                   </div>
                 ))}
               </div>;
             })()}
             <div>
-              <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>SYMPTOMS AFTER</div>
+              <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>SYMPTOMS AFTER</div>
               <div style={{display:"flex",flexWrap:"wrap",gap:5}}>
-                {["gas","bloating","heaviness","acidity","fatigue","brain fog","nausea","felt great","energised"].map(s=><button key={s} onClick={()=>setNewFood(f=>({...f,symptoms:f.symptoms.includes(s)?f.symptoms.filter(x=>x!==s):[...f.symptoms,s]}))} style={{minHeight:40,minWidth:40,padding:"5px 9px",borderRadius:20,border:`1px solid ${newFood.symptoms.includes(s)?C.accent:C.border}`,background:newFood.symptoms.includes(s)?C.accent+"15":"transparent",cursor:"pointer",fontSize:14,color:newFood.symptoms.includes(s)?C.accent:C.muted}}>{s}</button>)}
+                {["gas","bloating","heaviness","acidity","fatigue","brain fog","nausea","felt great","energised"].map(s=><button key={s} onClick={()=>setNewFood(f=>({...f,symptoms:f.symptoms.includes(s)?f.symptoms.filter(x=>x!==s):[...f.symptoms,s]}))} style={{padding:"5px 9px",borderRadius:20,border:`1px solid ${newFood.symptoms.includes(s)?C.accent:C.border}`,background:newFood.symptoms.includes(s)?C.accent+"15":"transparent",cursor:"pointer",fontSize:11,color:newFood.symptoms.includes(s)?C.accent:C.muted}}>{s}</button>)}
               </div>
             </div>
-            <input value={newFood.note} onChange={e=>setNewFood(f=>({...f,note:e.target.value}))} placeholder="Notes (optional)…" style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 11px",fontSize:15}}/>
-            <button onClick={addFood} style={{minHeight:40,minWidth:40,padding:"13px",background:`linear-gradient(135deg,${C.accent},${C.warm})`,border:"none",borderRadius:11,color:"#fff",cursor:"pointer",fontSize:16,fontWeight:600}}>Save Entry ✓</button>
+            <input value={newFood.note} onChange={e=>setNewFood(f=>({...f,note:e.target.value}))} placeholder="Notes (optional)…" style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 11px",fontSize:12}}/>
+            <button onClick={addFood} style={{padding:"13px",background:`linear-gradient(135deg,${C.accent},${C.warm})`,border:"none",borderRadius:11,color:"#fff",cursor:"pointer",fontSize:14,fontWeight:600}}>Save Entry ✓</button>
           </div>
         </div>
       )}
@@ -6171,93 +6455,93 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
         const signals=detectHealthSignals(foodLogs,profile);
         return(
           <div>
-            <div style={{fontSize:16,color:C.muted,marginBottom:16,lineHeight:1.7}}>
+            <div style={{fontSize:13,color:C.muted,marginBottom:16,lineHeight:1.7}}>
               Based on your food logs and symptoms, the app has detected these patterns. Tap each to see what's happening, what to avoid, and what actually helps.
             </div>
 
             {signals.length===0&&(
               <div style={{textAlign:"center",padding:"40px 20px",color:C.dim}}>
                 <div style={{fontSize:28,marginBottom:10}}>🔍</div>
-                <div style={{fontSize:16,fontStyle:"italic",lineHeight:1.7}}>No patterns detected yet. Log meals with symptoms for a few days and the app will start recognising what affects you specifically.</div>
-                <div style={{marginTop:12,fontSize:15,color:C.muted}}>Tip: When logging food, always select the symptoms you feel after eating.</div>
+                <div style={{fontSize:14,fontStyle:"italic",lineHeight:1.7}}>No patterns detected yet. Log meals with symptoms for a few days and the app will start recognising what affects you specifically.</div>
+                <div style={{marginTop:12,fontSize:12,color:C.muted}}>Tip: When logging food, always select the symptoms you feel after eating.</div>
               </div>
             )}
 
             {signals.map((signal,si)=>(
-              <div key={si} style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`2px solid ${signal.color}44`,borderRadius:14,marginBottom:16,overflow:"hidden",boxShadow:`0 0 20px ${signal.color}12`}}>
+              <div key={si} style={{background:C.card,border:`2px solid ${signal.color}44`,borderRadius:14,marginBottom:16,overflow:"hidden",boxShadow:`0 0 20px ${signal.color}12`}}>
                 {/* Header */}
                 <div style={{padding:"16px 18px",background:`linear-gradient(135deg,${signal.color}18,transparent)`,borderBottom:`1px solid ${signal.color}22`}}>
                   <div style={{display:"flex",gap:12,alignItems:"center",marginBottom:8}}>
                     <span style={{fontSize:28}}>{signal.icon}</span>
                     <div>
-                      <div style={{fontSize:17,fontWeight:700,color:signal.color}}>{signal.label}</div>
-                      <div style={{fontSize:14,color:C.muted}}>Detected from: {signal.matchedSymptoms.slice(0,3).join(", ")}</div>
+                      <div style={{fontSize:15,fontWeight:700,color:signal.color}}>{signal.label}</div>
+                      <div style={{fontSize:11,color:C.muted}}>Detected from: {signal.matchedSymptoms.slice(0,3).join(", ")}</div>
                     </div>
                   </div>
-                  <div style={{fontSize:16,color:C.text,lineHeight:1.75}}>{signal.explanation}</div>
+                  <div style={{fontSize:13,color:C.text,lineHeight:1.75}}>{signal.explanation}</div>
                 </div>
 
                 {/* What to avoid */}
                 <div style={{padding:"14px 18px",borderBottom:`1px solid ${C.border}`}}>
-                  <div style={{fontSize:13,color:C.red,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>✗ WHAT TO AVOID</div>
+                  <div style={{fontSize:10,color:C.red,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>✗ WHAT TO AVOID</div>
                   {signal.whatToAvoid.map((item,i)=>(
                     <div key={i} style={{display:"flex",gap:8,padding:"6px 0",borderBottom:i<signal.whatToAvoid.length-1?`1px solid ${C.border}`:"none",alignItems:"flex-start"}}>
                       <div style={{width:6,height:6,borderRadius:"50%",background:C.red,marginTop:6,flexShrink:0}}/>
-                      <div style={{fontSize:16,color:C.text,lineHeight:1.6}}>{item}</div>
+                      <div style={{fontSize:13,color:C.text,lineHeight:1.6}}>{item}</div>
                     </div>
                   ))}
                 </div>
 
                 {/* Smart combinations */}
                 <div style={{padding:"14px 18px",borderBottom:`1px solid ${C.border}`}}>
-                  <div style={{fontSize:13,color:C.accent2,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>✓ SMART COMBINATIONS</div>
+                  <div style={{fontSize:10,color:C.accent2,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>✓ SMART COMBINATIONS</div>
                   {signal.smartCombos.map((item,i)=>(
                     <div key={i} style={{padding:"10px 12px",background:C.accent2+"10",border:`1px solid ${C.accent2}22`,borderRadius:8,marginBottom:8}}>
-                      <div style={{fontSize:16,fontWeight:600,color:C.accent2,marginBottom:3}}>{item.combo}</div>
-                      <div style={{fontSize:15,color:C.text,lineHeight:1.6}}>{item.why}</div>
+                      <div style={{fontSize:13,fontWeight:600,color:C.accent2,marginBottom:3}}>{item.combo}</div>
+                      <div style={{fontSize:12,color:C.text,lineHeight:1.6}}>{item.why}</div>
                     </div>
                   ))}
                 </div>
 
                 {/* Lifestyle tips */}
                 <div style={{padding:"14px 18px",borderBottom:`1px solid ${C.border}`}}>
-                  <div style={{fontSize:13,color:signal.color,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>◉ LIFESTYLE</div>
+                  <div style={{fontSize:10,color:signal.color,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>◉ LIFESTYLE</div>
                   {signal.lifestyle.map((item,i)=>(
                     <div key={i} style={{display:"flex",gap:8,padding:"5px 0",borderBottom:i<signal.lifestyle.length-1?`1px solid ${C.border}`:"none",alignItems:"flex-start"}}>
                       <div style={{width:6,height:6,borderRadius:"50%",background:signal.color,marginTop:6,flexShrink:0}}/>
-                      <div style={{fontSize:15,color:C.text,lineHeight:1.6}}>{item}</div>
+                      <div style={{fontSize:12,color:C.text,lineHeight:1.6}}>{item}</div>
                     </div>
                   ))}
                 </div>
 
                 {/* Foods to eat */}
                 <div style={{padding:"14px 18px",borderBottom:`1px solid ${C.border}`}}>
-                  <div style={{fontSize:13,color:C.gold,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:8}}>🍽 EAT MORE OF</div>
+                  <div style={{fontSize:10,color:C.gold,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:8}}>🍽 EAT MORE OF</div>
                   <div style={{display:"flex",flexWrap:"wrap",gap:6}}>
                     {signal.foodsToEat.map((f,i)=>(
-                      <span key={i} style={{fontSize:15,padding:"4px 10px",background:C.gold+"15",border:`1px solid ${C.gold}33`,borderRadius:20,color:C.text}}>{f}</span>
+                      <span key={i} style={{fontSize:12,padding:"4px 10px",background:C.gold+"15",border:`1px solid ${C.gold}33`,borderRadius:20,color:C.text}}>{f}</span>
                     ))}
                   </div>
                 </div>
 
                 {/* Medical note */}
                 <div style={{padding:"12px 18px",background:signal.color+"08"}}>
-                  <div style={{fontSize:14,color:signal.color,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:4}}>⚕ NOTE</div>
-                  <div style={{fontSize:15,color:C.muted,lineHeight:1.7}}>{signal.medNote}</div>
+                  <div style={{fontSize:11,color:signal.color,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:4}}>⚕ NOTE</div>
+                  <div style={{fontSize:12,color:C.muted,lineHeight:1.7}}>{signal.medNote}</div>
                 </div>
               </div>
             ))}
 
             {/* All conditions reference */}
             {signals.length>0&&(
-              <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:12,padding:16,marginTop:8}}>
-                <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>OTHER CONDITIONS TO KNOW</div>
+              <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:16,marginTop:8}}>
+                <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>OTHER CONDITIONS TO KNOW</div>
                 <div style={{display:"flex",flexWrap:"wrap",gap:8}}>
                   {Object.values(HEALTH_SIGNALS).filter(s=>!signals.find(d=>d.label===s.label)).map((s,i)=>(
-                    <div key={i} style={{fontSize:14,padding:"4px 11px",background:C.bg,border:`1px solid ${C.border}`,borderRadius:20,color:C.muted}}>{s.icon} {s.label}</div>
+                    <div key={i} style={{fontSize:11,padding:"4px 11px",background:C.bg,border:`1px solid ${C.border}`,borderRadius:20,color:C.muted}}>{s.icon} {s.label}</div>
                   ))}
                 </div>
-                <div style={{fontSize:14,color:C.dim,marginTop:8}}>Log meals with symptoms for these to appear when relevant.</div>
+                <div style={{fontSize:11,color:C.dim,marginTop:8}}>Log meals with symptoms for these to appear when relevant.</div>
               </div>
             )}
           </div>
@@ -6267,22 +6551,22 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
             {view==="analysis"&&(
         <div>
           <div style={{display:"flex",gap:5,marginBottom:14}}>
-            {["daily","monthly","yearly"].map(r=><button key={r} onClick={()=>setRange(r)} style={{minHeight:40,minWidth:40,flex:1,padding:"7px",borderRadius:20,border:`1px solid ${range===r?C.accent:C.border}`,background:range===r?C.accent+"15":"transparent",cursor:"pointer",fontSize:14,color:range===r?C.accent:C.muted,textTransform:"capitalize"}}>{r}</button>)}
+            {["daily","monthly","yearly"].map(r=><button key={r} onClick={()=>setRange(r)} style={{flex:1,padding:"7px",borderRadius:20,border:`1px solid ${range===r?C.accent:C.border}`,background:range===r?C.accent+"15":"transparent",cursor:"pointer",fontSize:11,color:range===r?C.accent:C.muted,textTransform:"capitalize"}}>{r}</button>)}
           </div>
 
           {/* Sugar clarification */}
-          <div style={{background:C.gold+"12",border:`1px solid ${C.gold}33`,borderRadius:10,padding:"10px 14px",marginBottom:14,fontSize:15,color:C.text,lineHeight:1.6}}>
+          <div style={{background:C.gold+"12",border:`1px solid ${C.gold}33`,borderRadius:10,padding:"10px 14px",marginBottom:14,fontSize:12,color:C.text,lineHeight:1.6}}>
             💡 <strong>Added sugar vs natural sugar:</strong> Natural sugar in fruits and milk is fine — not tracked as a limit. Only <em>added sugar</em> (from sweets, biscuits, chai sugar, packaged foods) is the limit of 25g/day.
           </div>
 
           {/* Collagen support note */}
-          <div style={{background:C.accent2+"12",border:`1px solid ${C.accent2}33`,borderRadius:10,padding:"10px 14px",marginBottom:16,fontSize:15,color:C.text,lineHeight:1.6}}>
+          <div style={{background:C.accent2+"12",border:`1px solid ${C.accent2}33`,borderRadius:10,padding:"10px 14px",marginBottom:16,fontSize:12,color:C.text,lineHeight:1.6}}>
             ✨ <strong>Collagen Support Score:</strong> Collagen production drops ~1%/year after 25. You can't eat collagen directly — but Protein + Vitamin C + Zinc together stimulate your body to make it. Watch those three.
           </div>
 
           {ORDERED_CATEGORIES.map((cat,ci)=>(
             <div key={ci} style={{marginBottom:20}}>
-              <div style={{fontSize:14,color:cat.color,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>{cat.label}</div>
+              <div style={{fontSize:11,color:cat.color,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>{cat.label}</div>
               <div style={{display:"flex",flexDirection:"column",gap:8}}>
                 {cat.items.map((n,i)=>{
                   const mult=range==="monthly"?30:range==="yearly"?365:1;
@@ -6310,26 +6594,26 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
                     vitE:"Eat: walnuts, sunflower seeds, spinach, sweet potato",
                   };
                   return(
-                    <div key={i} style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:10,padding:"12px 14px",borderLeft:`3px solid ${color}`}}>
+                    <div key={i} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:10,padding:"12px 14px",borderLeft:`3px solid ${color}`}}>
                       <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:4}}>
                         <div style={{display:"flex",gap:7,alignItems:"center"}}>
-                          <span style={{fontSize:16}}>{n.icon}</span>
+                          <span style={{fontSize:14}}>{n.icon}</span>
                           <div>
-                            <div style={{fontSize:15,fontWeight:600}}>{n.l}</div>
-                            <div style={{fontSize:13,color:C.muted}}>{intake.toFixed(1)} / {target} {n.u} {n.isMax?"(limit)":"(target)"}</div>
+                            <div style={{fontSize:12,fontWeight:600}}>{n.l}</div>
+                            <div style={{fontSize:10,color:C.muted}}>{intake.toFixed(1)} / {target} {n.u} {n.isMax?"(limit)":"(target)"}</div>
                           </div>
                         </div>
                         <div style={{textAlign:"right",flexShrink:0}}>
-                          <div style={{fontSize:16,fontWeight:700,color}}>{n.noUpperConcern&&pct>999?"999+":pct}%</div>
-                          <div style={{fontSize:12,color,padding:"2px 7px",background:color+"15",borderRadius:10}}>{statusLabel}</div>
+                          <div style={{fontSize:14,fontWeight:700,color}}>{n.noUpperConcern&&pct>999?"999+":pct}%</div>
+                          <div style={{fontSize:9,color,padding:"2px 7px",background:color+"15",borderRadius:10}}>{statusLabel}</div>
                         </div>
                       </div>
                       <div style={{background:C.border,borderRadius:3,height:4,marginBottom:n.why||FOOD_SOURCES[n.k]?6:0}}>
                         <div style={{width:`${Math.min(100,pct)}%`,height:4,background:color,borderRadius:3,transition:"width 0.5s"}}/>
                       </div>
-                      {n.why&&<div style={{fontSize:13,color:C.muted,fontStyle:"italic",marginBottom:3}}>{n.why}</div>}
+                      {n.why&&<div style={{fontSize:10,color:C.muted,fontStyle:"italic",marginBottom:3}}>{n.why}</div>}
                       {(pct<50||( n.isMax&&pct>90))&&FOOD_SOURCES[n.k]&&(
-                        <div style={{fontSize:14,color:n.isMax?C.gold:C.red,marginTop:3,lineHeight:1.5}}>
+                        <div style={{fontSize:11,color:n.isMax?C.gold:C.red,marginTop:3,lineHeight:1.5}}>
                           {n.isMax?"⚠ ":"→ "}{FOOD_SOURCES[n.k]}
                         </div>
                       )}
@@ -6350,9 +6634,7 @@ function FoodSection({C,galaxy,foodLogs,setFoodLogs,waterLog,setWaterLog,needs,t
 // ══════════════════════════════════════════════════════════════
 //  CYCLE TRACKER
 // ══════════════════════════════════════════════════════════════
-function CycleSection({C,galaxy,profile,setProfile,periodLogs,setPeriodLogs,symptoms,setSymptoms,savePeriodToCloud}){
-  const PHASE_COLORS = galaxy ? PHASE_COLORS_GALAXY : PHASE_COLORS_EARTH;
-  const PHASE_BG = galaxy ? null : PHASE_BG_EARTH;
+function CycleSection({C,profile,setProfile,periodLogs,setPeriodLogs,symptoms,setSymptoms,savePeriodToCloud}){
   const[view,setView]=useState("cal");
   const[calMonth,setCalMonth]=useState(()=>{const n=new Date();return{year:n.getFullYear(),month:n.getMonth()};});
   const[selectedDay,setSelectedDay]=useState(null);
@@ -6364,19 +6646,7 @@ function CycleSection({C,galaxy,profile,setProfile,periodLogs,setPeriodLogs,symp
   const FLOW_LABELS={spotting:"Spotting",light:"Light",medium:"Medium",heavy:"Heavy",very_heavy:"Very Heavy"};
   const up=(k,v)=>setProfile(p=>({...p,[k]:v}));
 
-  function inPeriod(ds,p){
-    if(!p.startDate)return false;
-    const d=new Date(ds),s=new Date(p.startDate);
-    if(p.endDate) return d>=s && d<=new Date(p.endDate);
-    // No end date logged yet — the period is still ongoing. Treat any day
-    // from the start up to a reasonable expected length as still "in
-    // period" instead of only matching the single start date, which was
-    // wrongly falling through to Follicular the moment a period without
-    // a closed end date reached its second day.
-    const expectedLen = parseInt(profile.periodLength)||5;
-    const cap = new Date(s); cap.setDate(cap.getDate()+expectedLen-1);
-    return d>=s && d<=cap;
-  }
+  function inPeriod(ds,p){if(!p.startDate)return false;const d=new Date(ds),s=new Date(p.startDate),e=p.endDate?new Date(p.endDate):new Date(p.startDate);return d>=s&&d<=e;}
   function phaseForDate(ds){const lp=periodLogs.find(p=>inPeriod(ds,p));if(lp)return"menstrual";return getPhase(profile.lastPeriodStart,parseInt(profile.cycleLength)||28,parseInt(profile.periodLength)||5,ds);}
   function dur(p){if(!p.startDate||!p.endDate)return null;return Math.round((new Date(p.endDate)-new Date(p.startDate))/86400000)+1;}
   function savePeriod(){
@@ -6422,46 +6692,45 @@ function CycleSection({C,galaxy,profile,setProfile,periodLogs,setPeriodLogs,symp
     <div style={{padding:"16px 16px"}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
         <div style={{fontSize:18,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>Menstrual Tracker</div>
+        <button onClick={()=>{setEditPeriod(null);setNp({startDate:"",endDate:"",flow:"medium",notes:"",symptoms:[]});setView("log");}} style={{padding:"6px 12px",background:PHASE_COLORS.menstrual+"18",border:`1px solid ${PHASE_COLORS.menstrual}44`,borderRadius:20,cursor:"pointer",fontSize:11,color:PHASE_COLORS.menstrual}}>+ Log Period</button>
       </div>
       <div style={{display:"flex",gap:4,marginBottom:14}}>
-        {[{id:"cal",l:"Calendar"},{id:"history",l:"Overview"}].map(t=><button key={t.id} onClick={()=>setView(t.id)} style={{minHeight:40,minWidth:40,flex:1,padding:"7px",borderRadius:8,border:"none",cursor:"pointer",background:view===t.id?PHASE_COLORS.menstrual+"22":"transparent",color:view===t.id?PHASE_COLORS.menstrual:C.muted,fontWeight:view===t.id?600:400,fontSize:14}}>{t.l}</button>)}
+        {[{id:"cal",l:"Calendar"},{id:"log",l:"Log"},{id:"overview",l:"Overview"},{id:"history",l:"History"}].map(t=><button key={t.id} onClick={()=>setView(t.id)} style={{flex:1,padding:"7px",borderRadius:8,border:"none",cursor:"pointer",background:view===t.id?PHASE_COLORS.menstrual+"22":"transparent",color:view===t.id?PHASE_COLORS.menstrual:C.muted,fontWeight:view===t.id?600:400,fontSize:11}}>{t.l}</button>)}
       </div>
 
       {view==="cal"&&(
         <div>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
-            <button onClick={()=>setCalMonth(m=>{const d=new Date(m.year,m.month-1,1);return{year:d.getFullYear(),month:d.getMonth()};})} style={{minHeight:40,minWidth:40,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:7,padding:"6px 12px",cursor:"pointer",fontSize:16,color:C.muted}}>‹</button>
-            <div style={{fontSize:17,fontWeight:600}}>{MONTH_NAMES[calMonth.month]} {calMonth.year}</div>
-            <button onClick={()=>setCalMonth(m=>{const d=new Date(m.year,m.month+1,1);return{year:d.getFullYear(),month:d.getMonth()};})} style={{minHeight:40,minWidth:40,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:7,padding:"6px 12px",cursor:"pointer",fontSize:16,color:C.muted}}>›</button>
+            <button onClick={()=>setCalMonth(m=>{const d=new Date(m.year,m.month-1,1);return{year:d.getFullYear(),month:d.getMonth()};})} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:7,padding:"6px 12px",cursor:"pointer",fontSize:13,color:C.muted}}>‹</button>
+            <div style={{fontSize:15,fontWeight:600}}>{MONTH_NAMES[calMonth.month]} {calMonth.year}</div>
+            <button onClick={()=>setCalMonth(m=>{const d=new Date(m.year,m.month+1,1);return{year:d.getFullYear(),month:d.getMonth()};})} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:7,padding:"6px 12px",cursor:"pointer",fontSize:13,color:C.muted}}>›</button>
           </div>
           {/* Phase legend — current phase highlighted */}
           <div style={{display:"flex",gap:5,flexWrap:"wrap",marginBottom:12}}>
-            {(()=>{const todayPhaseHere=phaseForDate(todayStr);return Object.entries(PHASE_INFO).map(([k,v])=>{
-              const isCurrent=todayPhaseHere===k;
-              return<div key={k} style={{display:"flex",alignItems:"center",gap:4,padding:"5px 11px",background:PHASE_BG?PHASE_BG[k]:PHASE_COLORS[k]+(isCurrent?"33":"12"),borderRadius:20,border:`1.5px solid ${PHASE_COLORS[k]}${isCurrent?"cc":"66"}`,transition:"all 0.2s",boxShadow:isCurrent?`0 0 5px ${PHASE_COLORS[k]}55`:"none"}}>
+            {Object.entries(PHASE_INFO).map(([k,v])=>{
+              const isCurrent=profile.cyclePhase===k;
+              return<div key={k} style={{display:"flex",alignItems:"center",gap:4,padding:"5px 11px",background:PHASE_COLORS[k]+(isCurrent?"44":"18"),borderRadius:20,border:`1.5px solid ${PHASE_COLORS[k]}88`,transition:"all 0.2s",boxShadow:isCurrent?`0 0 10px ${PHASE_COLORS[k]}99, 0 0 20px ${PHASE_COLORS[k]}44`:"none"}}>
                 <div style={{width:isCurrent?8:5,height:isCurrent?8:5,borderRadius:"50%",background:PHASE_COLORS[k],boxShadow:isCurrent?`0 0 6px ${PHASE_COLORS[k]}`:"none"}}/>
                 <div style={{fontSize:isCurrent?10:9,color:PHASE_COLORS[k],fontWeight:isCurrent?700:400}}>{v.icon} {v.label}{isCurrent?" ← you":""}</div>
               </div>;
-            })})()}
+            })}
           </div>
           {/* Today's phase banner */}
-          {(()=>{
-            const todayPhaseHere2=phaseForDate(todayStr);
-            if(!todayPhaseHere2) return null;
-            const ph=PHASE_INFO[todayPhaseHere2];
-            const pc=PHASE_COLORS[todayPhaseHere2];
+          {profile.cyclePhase&&(()=>{
+            const ph=PHASE_INFO[profile.cyclePhase];
+            const pc=PHASE_COLORS[profile.cyclePhase];
             const todayDay=calDays.find(d=>d&&d.ds===todayStr);
             const dayNum=todayDay?.cycleDay;
             return<div style={{background:pc+"18",border:`1px solid ${pc}44`,borderRadius:11,padding:"12px 14px",marginBottom:12,display:"flex",gap:10,alignItems:"center"}}>
               <div style={{fontSize:26}}>{ph?.icon}</div>
               <div>
-                <div style={{fontSize:16,fontWeight:700,color:pc}}>{ph?.label} {dayNum?`· Day ${dayNum}`:""}</div>
-                <div style={{fontSize:15,color:C.muted,lineHeight:1.5}}>{ph?.desc}</div>
+                <div style={{fontSize:13,fontWeight:700,color:pc}}>{ph?.label} {dayNum?`· Day ${dayNum}`:""}</div>
+                <div style={{fontSize:12,color:C.muted,lineHeight:1.5}}>{ph?.desc}</div>
               </div>
             </div>;
           })()}
-          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:11,marginBottom:12}}>
-            <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2,marginBottom:5}}>{["Su","Mo","Tu","We","Th","Fr","Sa"].map(d=><div key={d} style={{textAlign:"center",fontSize:12,color:C.muted,fontFamily:"'DM Mono',monospace",fontWeight:700}}>{d}</div>)}</div>
+          <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:11,marginBottom:12}}>
+            <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2,marginBottom:5}}>{["Su","Mo","Tu","We","Th","Fr","Sa"].map(d=><div key={d} style={{textAlign:"center",fontSize:9,color:"rgba(255,255,255,0.7)",fontFamily:"'DM Mono',monospace",fontWeight:700}}>{d}</div>)}</div>
             <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2}}>
               {calDays.map((day,i)=>{
                 if(!day)return<div key={i}/>;
@@ -6470,11 +6739,11 @@ function CycleSection({C,galaxy,profile,setProfile,periodLogs,setPeriodLogs,symp
                 const pc=day.phase?PHASE_COLORS[day.phase]:null;
                 return<button key={i} onClick={()=>setSelectedDay(isSel?null:day.ds)} style={{
                   padding:"4px 1px",borderRadius:6,minHeight:36,cursor:"pointer",position:"relative",
-                  border:`2px solid ${isToday?C.accent:isSel?pc||"#555":pc?pc+"77":C.border}`,
-                  background:day.lp?fc+"66":pc?(PHASE_BG?PHASE_BG[day.phase]:pc+"45"):C.cream,
-                  boxShadow:isToday?`0 0 0 2px ${C.accent}`:"none",
+                  border:`2px solid ${isToday?C.accent:isSel?pc||"#555":pc?pc+"66":"rgba(255,255,255,0.08)"}`,
+                  background:day.lp?fc+"66":pc?pc+"38":"rgba(255,255,255,0.04)",
+                  boxShadow:isToday?`0 0 0 2px ${C.accent}`:pc?`inset 0 0 0 1px ${pc}44`:"none",
                 }}>
-                  <div style={{fontSize:15,fontWeight:700,color:C.text,textAlign:"center",textShadow:galaxy?"0 1px 4px rgba(0,0,0,0.6)":"none"}}>{day.d}</div>
+                  <div style={{fontSize:12,fontWeight:700,color:"#fff",textAlign:"center",textShadow:"0 1px 4px rgba(0,0,0,0.6)"}}>{day.d}</div>
                   {day.lp
                     ?<div style={{width:6,height:6,borderRadius:"50%",background:fc,margin:"1px auto 0",boxShadow:`0 0 4px ${fc}`}}/>
                     :pc?<div style={{width:5,height:5,borderRadius:"50%",background:pc,margin:"1px auto 0",opacity:0.9,boxShadow:`0 0 3px ${pc}`}}/>
@@ -6487,63 +6756,84 @@ function CycleSection({C,galaxy,profile,setProfile,periodLogs,setPeriodLogs,symp
             const day=calDays.find(d=>d&&d.ds===selectedDay);
             const pc=day?.phase?PHASE_COLORS[day.phase]:C.accent;
             const daySym=symptoms[selectedDay]||[];
-            return<div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${pc}55`,borderRadius:13,padding:16,marginBottom:11}}>
+            return<div style={{background:C.card,border:`1px solid ${pc}55`,borderRadius:13,padding:16,marginBottom:11}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:8}}>
-                <div><div style={{fontSize:16,fontWeight:700}}>{new Date(selectedDay+"T12:00:00").toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"})}</div>{day?.phase&&<div style={{fontSize:14,color:pc,marginTop:2}}>{PHASE_INFO[day.phase]?.icon} {PHASE_INFO[day.phase]?.label} · {PHASE_INFO[day.phase]?.desc}</div>}</div>
-                {day?.lp&&<button onClick={()=>{setEditPeriod(day.lp);setNp({...day.lp});setView("log");}} style={{minHeight:40,minWidth:40,padding:"4px 9px",background:C.red+"15",border:`1px solid ${C.red}44`,borderRadius:20,cursor:"pointer",fontSize:14,color:C.red}}>Edit</button>}
+                <div><div style={{fontSize:13,fontWeight:700}}>{new Date(selectedDay+"T12:00:00").toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"long"})}</div>{day?.phase&&<div style={{fontSize:11,color:pc,marginTop:2}}>{PHASE_INFO[day.phase]?.icon} {PHASE_INFO[day.phase]?.label} · {PHASE_INFO[day.phase]?.desc}</div>}</div>
+                {day?.lp&&<button onClick={()=>{setEditPeriod(day.lp);setNp({...day.lp});setView("log");}} style={{padding:"4px 9px",background:C.red+"15",border:`1px solid ${C.red}44`,borderRadius:20,cursor:"pointer",fontSize:11,color:C.red}}>Edit</button>}
               </div>
-              {day?.lp&&<div style={{padding:"7px 10px",background:FLOW_COLORS[day.lp.flow]+"18",border:`1px solid ${FLOW_COLORS[day.lp.flow]}44`,borderRadius:7,marginBottom:9,fontSize:15}}>🩸 {FLOW_LABELS[day.lp.flow]} flow{day.lp.endDate?` · ${dur(day.lp)} days`:""}</div>}
-              <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>LOG SYMPTOMS</div>
+              {day?.lp&&<div style={{padding:"7px 10px",background:FLOW_COLORS[day.lp.flow]+"18",border:`1px solid ${FLOW_COLORS[day.lp.flow]}44`,borderRadius:7,marginBottom:9,fontSize:12}}>🩸 {FLOW_LABELS[day.lp.flow]} flow{day.lp.endDate?` · ${dur(day.lp)} days`:""}</div>}
+              <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>LOG SYMPTOMS</div>
               <div style={{display:"flex",flexWrap:"wrap",gap:5}}>
-                {["cramps","bloating","fatigue","mood swings","headache","backache","cravings","spotting","breast tenderness","nausea","no symptoms"].map(s=><button key={s} onClick={()=>setSymptoms(p=>({...p,[selectedDay]:daySym.includes(s)?daySym.filter(x=>x!==s):[...daySym,s]}))} style={{minHeight:40,minWidth:40,padding:"4px 8px",borderRadius:20,border:`1px solid ${daySym.includes(s)?pc:C.border}`,background:daySym.includes(s)?pc+"18":"transparent",cursor:"pointer",fontSize:13,color:daySym.includes(s)?pc:C.muted}}>{s}</button>)}
+                {["cramps","bloating","fatigue","mood swings","headache","backache","cravings","spotting","breast tenderness","nausea","no symptoms"].map(s=><button key={s} onClick={()=>setSymptoms(p=>({...p,[selectedDay]:daySym.includes(s)?daySym.filter(x=>x!==s):[...daySym,s]}))} style={{padding:"4px 8px",borderRadius:20,border:`1px solid ${daySym.includes(s)?pc:C.border}`,background:daySym.includes(s)?pc+"18":"transparent",cursor:"pointer",fontSize:10,color:daySym.includes(s)?pc:C.muted}}>{s}</button>)}
               </div>
             </div>;
           })()}
-          {(()=>{const pred=nextPred();if(!pred)return null;const{date,days}=pred;const late=days<0;return<div style={{background:late?C.red+"12":PHASE_COLORS.menstrual+"12",border:`1px solid ${late?C.red:PHASE_COLORS.menstrual}33`,borderRadius:11,padding:"13px 15px"}}><div style={{fontSize:13,color:late?C.red:PHASE_COLORS.menstrual,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:5}}>{late?"⚠ PERIOD MAY BE LATE":"NEXT PERIOD"}</div><div style={{fontSize:18,fontWeight:700,color:late?C.red:PHASE_COLORS.menstrual}}>{date.toLocaleDateString("en-IN",{day:"numeric",month:"long"})}</div><div style={{fontSize:14,color:C.muted,marginTop:2}}>{days>0?`${days} days away`:days===0?"Expected today":`${Math.abs(days)} days overdue`}</div></div>;})}()
+          {(()=>{const pred=nextPred();if(!pred)return null;const{date,days}=pred;const late=days<0;return<div style={{background:late?C.red+"12":PHASE_COLORS.menstrual+"12",border:`1px solid ${late?C.red:PHASE_COLORS.menstrual}33`,borderRadius:11,padding:"13px 15px"}}><div style={{fontSize:10,color:late?C.red:PHASE_COLORS.menstrual,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:5}}>{late?"⚠ PERIOD MAY BE LATE":"NEXT PERIOD"}</div><div style={{fontSize:17,fontWeight:700,color:late?C.red:PHASE_COLORS.menstrual}}>{date.toLocaleDateString("en-IN",{day:"numeric",month:"long"})}</div><div style={{fontSize:11,color:C.muted,marginTop:2}}>{days>0?`${days} days away`:days===0?"Expected today":`${Math.abs(days)} days overdue`}</div></div>;})}()
         </div>
       )}
 
       {view==="log"&&(
-        <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:20,display:"flex",flexDirection:"column",gap:14}}>
-          <div style={{fontSize:16,fontWeight:600,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>{editPeriod?"Edit Period":"Log a Period"}</div>
+        <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:20,display:"flex",flexDirection:"column",gap:14}}>
+          <div style={{fontSize:14,fontWeight:600,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>{editPeriod?"Edit Period":"Log a Period"}</div>
           <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
-            {[{l:"STARTED",k:"startDate"},{l:"ENDED",k:"endDate"}].map((f,i)=><div key={i}><div style={{fontSize:12,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:5}}>{f.l}</div><input type="date" value={np[f.k]} onChange={e=>setNp(p=>({...p,[f.k]:e.target.value}))} style={{width:"100%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:7,color:C.text,padding:"9px",fontSize:16,boxSizing:"border-box"}}/></div>)}
+            {[{l:"STARTED",k:"startDate"},{l:"ENDED",k:"endDate"}].map((f,i)=><div key={i}><div style={{fontSize:9,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:5}}>{f.l}</div><input type="date" value={np[f.k]} onChange={e=>setNp(p=>({...p,[f.k]:e.target.value}))} style={{width:"100%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:7,color:C.text,padding:"9px",fontSize:13,boxSizing:"border-box"}}/></div>)}
           </div>
-          {np.startDate&&np.endDate&&(()=>{const d=Math.round((new Date(np.endDate)-new Date(np.startDate))/86400000)+1;return<div style={{padding:"7px 11px",background:PHASE_COLORS.menstrual+"12",border:`1px solid ${PHASE_COLORS.menstrual}33`,borderRadius:7,fontSize:15,color:PHASE_COLORS.menstrual}}>{d} days · {d<=3?"Short":d<=5?"Normal":d<=7?"Long":"Very long — mention to doctor if new"}</div>;})()} 
+          {np.startDate&&np.endDate&&(()=>{const d=Math.round((new Date(np.endDate)-new Date(np.startDate))/86400000)+1;return<div style={{padding:"7px 11px",background:PHASE_COLORS.menstrual+"12",border:`1px solid ${PHASE_COLORS.menstrual}33`,borderRadius:7,fontSize:12,color:PHASE_COLORS.menstrual}}>{d} days · {d<=3?"Short":d<=5?"Normal":d<=7?"Long":"Very long — mention to doctor if new"}</div>;})()} 
           <div>
-            <div style={{fontSize:12,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:9}}>FLOW INTENSITY</div>
+            <div style={{fontSize:9,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:9}}>FLOW INTENSITY</div>
             <div style={{display:"flex",flexDirection:"column",gap:6}}>
-              {[{v:"spotting",l:"Spotting",d:"Very light, only on wiping"},{v:"light",l:"Light",d:"Less than 1 pad/day"},{v:"medium",l:"Medium",d:"1–2 pads/day · Normal"},{v:"heavy",l:"Heavy",d:"3–4 pads/day"},{v:"very_heavy",l:"Very Heavy",d:"Every 1–2 hrs · Clots present"}].map(f=><button key={f.v} onClick={()=>setNp(p=>({...p,flow:f.v}))} style={{minHeight:40,minWidth:40,padding:"9px 12px",borderRadius:8,textAlign:"left",cursor:"pointer",border:`2px solid ${np.flow===f.v?FLOW_COLORS[f.v]:C.border}`,background:np.flow===f.v?FLOW_COLORS[f.v]+"18":"transparent"}}><div style={{fontSize:15,fontWeight:600,color:np.flow===f.v?FLOW_COLORS[f.v]:C.text}}>{f.l}</div><div style={{fontSize:14,color:C.muted}}>{f.d}</div></button>)}
+              {[{v:"spotting",l:"Spotting",d:"Very light, only on wiping"},{v:"light",l:"Light",d:"Less than 1 pad/day"},{v:"medium",l:"Medium",d:"1–2 pads/day · Normal"},{v:"heavy",l:"Heavy",d:"3–4 pads/day"},{v:"very_heavy",l:"Very Heavy",d:"Every 1–2 hrs · Clots present"}].map(f=><button key={f.v} onClick={()=>setNp(p=>({...p,flow:f.v}))} style={{padding:"9px 12px",borderRadius:8,textAlign:"left",cursor:"pointer",border:`2px solid ${np.flow===f.v?FLOW_COLORS[f.v]:C.border}`,background:np.flow===f.v?FLOW_COLORS[f.v]+"18":"transparent"}}><div style={{fontSize:12,fontWeight:600,color:np.flow===f.v?FLOW_COLORS[f.v]:C.text}}>{f.l}</div><div style={{fontSize:11,color:C.muted}}>{f.d}</div></button>)}
             </div>
           </div>
           <div>
-            <div style={{fontSize:12,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>SYMPTOMS</div>
+            <div style={{fontSize:9,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>SYMPTOMS</div>
             <div style={{display:"flex",flexWrap:"wrap",gap:5}}>
-              {["cramps","severe cramps","bloating","constipation","diarrhea","fatigue","nausea","headache","backache","tender breasts","acne","mood swings","irritability","anxiety","low mood","insomnia","cravings","clots","spotting before","spotting after","none"].map(s=><button key={s} onClick={()=>setNp(p=>({...p,symptoms:p.symptoms.includes(s)?p.symptoms.filter(x=>x!==s):[...p.symptoms,s]}))} style={{minHeight:40,minWidth:40,padding:"5px 9px",borderRadius:20,border:`1px solid ${np.symptoms.includes(s)?PHASE_COLORS.menstrual:C.border}`,background:np.symptoms.includes(s)?PHASE_COLORS.menstrual+"18":"transparent",cursor:"pointer",fontSize:14,color:np.symptoms.includes(s)?PHASE_COLORS.menstrual:C.muted}}>{s}</button>)}
+              {["cramps","severe cramps","bloating","fatigue","nausea","headache","backache","mood swings","cravings","clots","spotting before","spotting after","none"].map(s=><button key={s} onClick={()=>setNp(p=>({...p,symptoms:p.symptoms.includes(s)?p.symptoms.filter(x=>x!==s):[...p.symptoms,s]}))} style={{padding:"5px 9px",borderRadius:20,border:`1px solid ${np.symptoms.includes(s)?PHASE_COLORS.menstrual:C.border}`,background:np.symptoms.includes(s)?PHASE_COLORS.menstrual+"18":"transparent",cursor:"pointer",fontSize:11,color:np.symptoms.includes(s)?PHASE_COLORS.menstrual:C.muted}}>{s}</button>)}
             </div>
           </div>
-          <textarea value={np.notes} onChange={e=>setNp(p=>({...p,notes:e.target.value}))} rows={2} placeholder="Anything unusual? e.g. came early, heavier than usual, darker colour…" style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 11px",fontSize:15,resize:"none"}}/>
+          <textarea value={np.notes} onChange={e=>setNp(p=>({...p,notes:e.target.value}))} rows={2} placeholder="Anything unusual? e.g. came early, heavier than usual, darker colour…" style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 11px",fontSize:12,resize:"none"}}/>
           <div style={{display:"flex",gap:9}}>
-            <button onClick={()=>{setView("cal");setEditPeriod(null);}} style={{minHeight:40,minWidth:40,padding:"11px 16px",background:"transparent",border:`1px solid ${C.border}`,borderRadius:9,cursor:"pointer",color:C.muted,fontSize:15}}>Cancel</button>
-            <button onClick={savePeriod} disabled={!np.startDate} style={{minHeight:40,minWidth:40,flex:1,padding:"13px",background:np.startDate?`linear-gradient(135deg,${PHASE_COLORS.menstrual},#d4855a)`:"#e2d8c8",border:"none",borderRadius:9,color:np.startDate?"#fff":C.dim,cursor:np.startDate?"pointer":"not-allowed",fontSize:16,fontWeight:600}}>{editPeriod?"Save Changes ✓":"Log Period ✓"}</button>
+            <button onClick={()=>{setView("cal");setEditPeriod(null);}} style={{padding:"11px 16px",background:"transparent",border:`1px solid ${C.border}`,borderRadius:9,cursor:"pointer",color:C.muted,fontSize:12}}>Cancel</button>
+            <button onClick={savePeriod} disabled={!np.startDate} style={{flex:1,padding:"13px",background:np.startDate?`linear-gradient(135deg,${PHASE_COLORS.menstrual},#d4855a)`:"#e2d8c8",border:"none",borderRadius:9,color:np.startDate?"#fff":C.dim,cursor:np.startDate?"pointer":"not-allowed",fontSize:13,fontWeight:600}}>{editPeriod?"Save Changes ✓":"Log Period ✓"}</button>
           </div>
-          {editPeriod&&<button onClick={()=>{setPeriodLogs(l=>l.filter(p=>p.id!==editPeriod.id));setEditPeriod(null);setView("cal");}} style={{minHeight:40,minWidth:40,padding:"8px",background:"transparent",border:`1px solid ${C.red}44`,borderRadius:7,cursor:"pointer",color:C.red,fontSize:14}}>Delete this entry</button>}
+          {editPeriod&&<button onClick={()=>{setPeriodLogs(l=>l.filter(p=>p.id!==editPeriod.id));setEditPeriod(null);setView("cal");}} style={{padding:"8px",background:"transparent",border:`1px solid ${C.red}44`,borderRadius:7,cursor:"pointer",color:C.red,fontSize:11}}>Delete this entry</button>}
         </div>
       )}
 
+      {view==="overview"&&(()=>{
+        const an=analysis();const pred=nextPred();
+        const allSym={};periodLogs.forEach(p=>p.symptoms?.forEach(s=>{allSym[s]=(allSym[s]||0)+1;}));
+        const topSym=Object.entries(allSym).sort((a,b)=>b[1]-a[1]).slice(0,5);
+        return<div>
+          {!an?<div style={{textAlign:"center",padding:"40px",color:C.dim}}><div style={{fontSize:28,marginBottom:10}}>🌙</div><div style={{fontStyle:"italic",fontSize:13}}>Log at least 2 periods to see your cycle overview.</div><button onClick={()=>setView("log")} style={{marginTop:12,padding:"10px 20px",background:`linear-gradient(135deg,${PHASE_COLORS.menstrual},#d4855a)`,border:"none",borderRadius:11,color:"#fff",cursor:"pointer",fontSize:12}}>Log First Period</button></div>:
+          <div style={{display:"flex",flexDirection:"column",gap:11}}>
+            <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+              <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>CYCLE STATS · {an.total} PERIODS</div>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:9,marginBottom:10}}>
+                {[{l:"Avg cycle",v:an.avgCycle?`${an.avgCycle}d`:"—",c:PHASE_COLORS.follicular},{l:"Shortest",v:an.minCycle?`${an.minCycle}d`:"—",c:C.accent2},{l:"Longest",v:an.maxCycle?`${an.maxCycle}d`:"—",c:C.accent},{l:"Avg duration",v:an.avgDur?`${an.avgDur}d`:"—",c:PHASE_COLORS.menstrual},{l:"Min",v:an.minCycle?`${an.minCycle}d`:"—",c:C.accent2},{l:"Max",v:an.maxCycle?`${an.maxCycle}d`:"—",c:C.accent}].map((n,i)=><div key={i} style={{padding:"8px 6px",background:C.bg,borderRadius:7,textAlign:"center"}}><div style={{fontSize:14,fontWeight:700,color:n.c}}>{n.v}</div><div style={{fontSize:9,color:C.dim}}>{n.l}</div></div>)}
+              </div>
+              <div style={{padding:"7px 11px",background:an.irregular?C.gold+"15":C.accent2+"15",border:`1px solid ${an.irregular?C.gold:C.accent2}44`,borderRadius:7,fontSize:11,color:C.text}}>{an.irregular?"⚠ Variation over 7 days. Some is normal — worth noting with a doctor.":"✓ Fairly regular cycle"}</div>
+            </div>
+            {pred&&<div style={{background:PHASE_COLORS.menstrual+"12",border:`1px solid ${PHASE_COLORS.menstrual}33`,borderRadius:11,padding:"13px 15px"}}><div style={{fontSize:10,color:PHASE_COLORS.menstrual,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:5}}>NEXT PERIOD</div><div style={{fontSize:17,fontWeight:700,color:PHASE_COLORS.menstrual}}>{pred.date.toLocaleDateString("en-IN",{day:"numeric",month:"long",year:"numeric"})}</div><div style={{fontSize:11,color:C.muted,marginTop:2}}>{pred.days>0?`${pred.days} days away`:pred.days===0?"Today":"Overdue by "+Math.abs(pred.days)+" days"} · {pred.cl}-day avg</div></div>}
+            {periodLogs.slice(0,5).map((p,i)=><div key={p.id} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:11,padding:"12px 14px",display:"flex",gap:10,alignItems:"center"}}><div style={{width:32,height:32,borderRadius:7,background:FLOW_COLORS[p.flow]+"22",border:`2px solid ${FLOW_COLORS[p.flow]}44`,display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",flexShrink:0}}><div style={{fontSize:11,fontWeight:700,color:FLOW_COLORS[p.flow]}}>{dur(p)||"?"}</div><div style={{fontSize:7,color:FLOW_COLORS[p.flow]}}>days</div></div><div style={{flex:1}}><div style={{fontSize:12,fontWeight:600}}>{new Date(p.startDate+"T12:00:00").toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"})}</div><div style={{fontSize:11,color:FLOW_COLORS[p.flow]}}>{FLOW_LABELS[p.flow]}{p.notes?` · "${p.notes}"`:""}  </div></div><button onClick={()=>{setEditPeriod(p);setNp({...p});setView("log");}} style={{padding:"4px 9px",background:C.bg,border:`1px solid ${C.border}`,borderRadius:20,cursor:"pointer",fontSize:10,color:C.muted}}>Edit</button></div>)}
+            {topSym.length>0&&<div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:11,padding:"14px 16px"}}><div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>COMMON SYMPTOMS</div>{topSym.map(([s,cnt],i)=><div key={i} style={{display:"flex",justifyContent:"space-between",padding:"5px 0",borderBottom:i<topSym.length-1?`1px solid ${C.border}`:"none"}}><span style={{fontSize:12}}>{s}</span><div style={{display:"flex",gap:5,alignItems:"center"}}><div style={{width:Math.min(50,cnt*14),height:4,background:PHASE_COLORS.menstrual,borderRadius:2}}/><span style={{fontSize:10,color:C.muted}}>{cnt}x</span></div></div>)}</div>}
+          </div>}
+        </div>;
+      })()}
+
       {view==="history"&&(
         <div>
-          {periodLogs.length===0?<div style={{textAlign:"center",padding:"40px",color:C.dim,fontStyle:"italic",fontSize:16}}>No periods logged yet.</div>:
-            periodLogs.map((p,i)=><div key={p.id} style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:11,padding:"12px 14px",marginBottom:8}}>
+          {periodLogs.length===0?<div style={{textAlign:"center",padding:"40px",color:C.dim,fontStyle:"italic",fontSize:13}}>No periods logged yet.</div>:
+            periodLogs.map((p,i)=><div key={p.id} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:11,padding:"12px 14px",marginBottom:8}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
-                <div><div style={{fontSize:16,fontWeight:700}}>{new Date(p.startDate+"T12:00:00").toLocaleDateString("en-IN",{day:"numeric",month:"long",year:"numeric"})}</div><div style={{fontSize:14,color:C.muted,marginTop:1}}>{p.endDate?`Ended ${new Date(p.endDate+"T12:00:00").toLocaleDateString("en-IN",{day:"numeric",month:"short"})} · ${dur(p)} days`:"End date not set"}</div></div>
-                <div style={{display:"flex",gap:5,alignItems:"center"}}><div style={{padding:"2px 8px",background:FLOW_COLORS[p.flow]+"22",border:`1px solid ${FLOW_COLORS[p.flow]}44`,borderRadius:20,fontSize:13,color:FLOW_COLORS[p.flow]}}>{FLOW_LABELS[p.flow]}</div><button onClick={()=>{setEditPeriod(p);setNp({...p});setView("log");}} style={{minHeight:40,minWidth:40,padding:"3px 8px",background:C.bg,border:`1px solid ${C.border}`,borderRadius:20,cursor:"pointer",fontSize:13,color:C.muted}}>Edit</button></div>
+                <div><div style={{fontSize:13,fontWeight:700}}>{new Date(p.startDate+"T12:00:00").toLocaleDateString("en-IN",{day:"numeric",month:"long",year:"numeric"})}</div><div style={{fontSize:11,color:C.muted,marginTop:1}}>{p.endDate?`Ended ${new Date(p.endDate+"T12:00:00").toLocaleDateString("en-IN",{day:"numeric",month:"short"})} · ${dur(p)} days`:"End date not set"}</div></div>
+                <div style={{display:"flex",gap:5,alignItems:"center"}}><div style={{padding:"2px 8px",background:FLOW_COLORS[p.flow]+"22",border:`1px solid ${FLOW_COLORS[p.flow]}44`,borderRadius:20,fontSize:10,color:FLOW_COLORS[p.flow]}}>{FLOW_LABELS[p.flow]}</div><button onClick={()=>{setEditPeriod(p);setNp({...p});setView("log");}} style={{padding:"3px 8px",background:C.bg,border:`1px solid ${C.border}`,borderRadius:20,cursor:"pointer",fontSize:10,color:C.muted}}>Edit</button></div>
               </div>
-              {p.symptoms?.length>0&&<div style={{fontSize:14,color:C.muted,marginTop:5}}>{p.symptoms.join(" · ")}</div>}
-              {p.notes&&<div style={{fontSize:14,color:C.dim,fontStyle:"italic",marginTop:3}}>"{p.notes}"</div>}
+              {p.symptoms?.length>0&&<div style={{fontSize:11,color:C.muted,marginTop:5}}>{p.symptoms.join(" · ")}</div>}
+              {p.notes&&<div style={{fontSize:11,color:C.dim,fontStyle:"italic",marginTop:3}}>"{p.notes}"</div>}
             </div>)
           }
-          <button onClick={()=>{setEditPeriod(null);setNp({startDate:"",endDate:"",flow:"medium",notes:"",symptoms:[]});setView("log");}} style={{minHeight:40,minWidth:40,width:"100%",padding:"12px",background:`linear-gradient(135deg,${PHASE_COLORS.menstrual},#d4855a)`,border:"none",borderRadius:11,color:"#fff",cursor:"pointer",fontSize:15,fontWeight:600,marginTop:4}}>+ Log New Period</button>
+          <button onClick={()=>{setEditPeriod(null);setNp({startDate:"",endDate:"",flow:"medium",notes:"",symptoms:[]});setView("log");}} style={{width:"100%",padding:"12px",background:`linear-gradient(135deg,${PHASE_COLORS.menstrual},#d4855a)`,border:"none",borderRadius:11,color:"#fff",cursor:"pointer",fontSize:12,fontWeight:600,marginTop:4}}>+ Log New Period</button>
         </div>
       )}
     </div>
@@ -6688,11 +6978,11 @@ function DayDashboard({C, galaxy, profile, todayFood, needs, completedSteps, jou
   }
 
   return (
-    <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:16,overflow:"hidden",marginBottom:14}}>
+    <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:16,overflow:"hidden",marginBottom:14}}>
 
       {/* Q1: HOW AM I */}
       <div style={{padding:"20px 18px",background:scoreBg}}>
-        <div style={{fontSize:12,color:scoreColor,fontFamily:"'DM Mono',monospace",letterSpacing:3,marginBottom:12}}>🪞 HOW AM I?</div>
+        <div style={{fontSize:9,color:scoreColor,fontFamily:"'DM Mono',monospace",letterSpacing:3,marginBottom:12}}>🪞 HOW AM I?</div>
         <div style={{display:"flex",alignItems:"center",gap:16}}>
           <div style={{fontSize:56,fontWeight:800,color:scoreColor,lineHeight:1,fontFamily:"'DM Mono',monospace"}}>{score}</div>
           <div style={{flex:1}}>
@@ -6700,7 +6990,7 @@ function DayDashboard({C, galaxy, profile, todayFood, needs, completedSteps, jou
             <div style={{background:C.border,borderRadius:6,height:8,marginBottom:6}}>
               <div style={{width:`${score}%`,height:8,background:scoreColor,borderRadius:6,transition:"width 0.8s ease"}}/>
             </div>
-            <div style={{fontSize:15,color:scoreColor,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif"}}>
+            <div style={{fontSize:12,color:scoreColor,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif"}}>
               {score>=80?"Really good today":score>=65?"Doing well":score>=45?"Okay, hanging in":score>=30?"Rough day":"Hard day — that's okay"}
             </div>
             {mood&&<div style={{fontSize:18,marginTop:4}}>{MOOD_EMOJI[mood]||""}</div>}
@@ -6712,12 +7002,12 @@ function DayDashboard({C, galaxy, profile, todayFood, needs, completedSteps, jou
 
       {/* Q2: WHY */}
       <div style={{padding:"14px 18px"}}>
-        <div style={{fontSize:12,color:C.accent2,fontFamily:"'DM Mono',monospace",letterSpacing:3,marginBottom:10}}>⬆ WHY?</div>
+        <div style={{fontSize:9,color:C.accent2,fontFamily:"'DM Mono',monospace",letterSpacing:3,marginBottom:10}}>⬆ WHY?</div>
         {ups.length > 0
           ? <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-              {ups.map((u,i)=><div key={i} style={{fontSize:15,padding:"5px 11px",background:C.accent2+"18",border:`1px solid ${C.accent2}33`,borderRadius:20,color:C.accent2}}>{u}</div>)}
+              {ups.map((u,i)=><div key={i} style={{fontSize:12,padding:"5px 11px",background:C.accent2+"18",border:`1px solid ${C.accent2}33`,borderRadius:20,color:C.accent2}}>{u}</div>)}
             </div>
-          : <div style={{fontSize:15,color:C.dim,fontStyle:"italic"}}>Log your mood and food to see what's working.</div>
+          : <div style={{fontSize:12,color:C.dim,fontStyle:"italic"}}>Log your mood and food to see what's working.</div>
         }
       </div>
 
@@ -6725,12 +7015,12 @@ function DayDashboard({C, galaxy, profile, todayFood, needs, completedSteps, jou
 
       {/* Q3: WHY NOT BETTER */}
       <div style={{padding:"14px 18px"}}>
-        <div style={{fontSize:12,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:3,marginBottom:10}}>⬇ WHY NOT BETTER?</div>
+        <div style={{fontSize:9,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:3,marginBottom:10}}>⬇ WHY NOT BETTER?</div>
         {downs.length > 0
           ? <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-              {downs.map((d,i)=><div key={i} style={{fontSize:15,padding:"5px 11px",background:C.red+"12",border:`1px solid ${C.red}33`,borderRadius:20,color:C.muted}}>{d}</div>)}
+              {downs.map((d,i)=><div key={i} style={{fontSize:12,padding:"5px 11px",background:C.red+"12",border:`1px solid ${C.red}33`,borderRadius:20,color:C.muted}}>{d}</div>)}
             </div>
-          : <div style={{fontSize:15,color:C.accent2,fontStyle:"italic"}}>Nothing dragging you down today.</div>
+          : <div style={{fontSize:12,color:C.accent2,fontStyle:"italic"}}>Nothing dragging you down today.</div>
         }
       </div>
 
@@ -6738,16 +7028,16 @@ function DayDashboard({C, galaxy, profile, todayFood, needs, completedSteps, jou
 
       {/* Q4: NOW WHAT */}
       <div style={{padding:"14px 18px 18px"}}>
-        <div style={{fontSize:12,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:3,marginBottom:10}}>✦ NOW WHAT?</div>
-        <div style={{fontSize:17,color:C.text,lineHeight:1.6,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>{action}</div>
+        <div style={{fontSize:9,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:3,marginBottom:10}}>✦ NOW WHAT?</div>
+        <div style={{fontSize:15,color:C.text,lineHeight:1.6,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>{action}</div>
       </div>
 
       {DIVIDER}
 
       {/* Mirror tap */}
-      <button onClick={getAIInsight} style={{minHeight:40,minWidth:40,width:"100%",padding:"14px 18px",background:"transparent",border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
-        <span style={{fontSize:16}}>🪞</span>
-        <span style={{fontSize:16,color:C.muted,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>
+      <button onClick={getAIInsight} style={{width:"100%",padding:"14px 18px",background:"transparent",border:"none",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>
+        <span style={{fontSize:14}}>🪞</span>
+        <span style={{fontSize:13,color:C.muted,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>
           {loading?"Reading your day…":insight&&expanded?`"${insight}"`:insight?"Tap to see the mirror insight":"What does today say about you?"}
         </span>
       </button>
@@ -6835,8 +7125,8 @@ function TodaysMirror({C,galaxy,profile,todayFood,needs,ritualDone,moveMin,compl
           <div style={{display:"flex",gap:8,alignItems:"center"}}>
             <span style={{fontSize:22}}>🪞</span>
             <div>
-              <div style={{fontSize:16,fontWeight:700,fontFamily:"'Cormorant Garamond',serif",letterSpacing:1}}>Today's You</div>
-              <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:2}}>{new Date().toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"short"}).toUpperCase()}</div>
+              <div style={{fontSize:13,fontWeight:700,fontFamily:"'Cormorant Garamond',serif",letterSpacing:1}}>Today's You</div>
+              <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:2}}>{new Date().toLocaleDateString("en-IN",{weekday:"long",day:"numeric",month:"short"}).toUpperCase()}</div>
             </div>
           </div>
           <span style={{fontSize:22}}>✨</span>
@@ -6846,23 +7136,23 @@ function TodaysMirror({C,galaxy,profile,todayFood,needs,ritualDone,moveMin,compl
         <div style={{display:"flex",flexDirection:"column",gap:7}}>
           {mood&&(
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-              <div style={{fontSize:14,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1}}>MOOD</div>
+              <div style={{fontSize:11,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1}}>MOOD</div>
               <div style={{display:"flex",gap:5,alignItems:"center"}}>
                 <span style={{fontSize:18}}>{MOOD_EMOJI[mood]||"🙂"}</span>
-                <span style={{fontSize:15,color:C.text,textTransform:"capitalize"}}>{mood}</span>
+                <span style={{fontSize:12,color:C.text,textTransform:"capitalize"}}>{mood}</span>
               </div>
             </div>
           )}
           {energy&&(
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-              <div style={{fontSize:14,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1}}>ENERGY</div>
-              <div style={{fontSize:16,letterSpacing:1}}>{ENERGY_BARS[energyBars]||"▮"} <span style={{fontSize:14,color:C.muted}}>{energy}/10</span></div>
+              <div style={{fontSize:11,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1}}>ENERGY</div>
+              <div style={{fontSize:13,letterSpacing:1}}>{ENERGY_BARS[energyBars]||"▮"} <span style={{fontSize:11,color:C.muted}}>{energy}/10</span></div>
             </div>
           )}
           {identity.length>0&&(
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-              <div style={{fontSize:14,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1}}>IDENTITY</div>
-              <div style={{fontSize:15,color:glowCol,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif"}}>{identity.join(" · ")}</div>
+              <div style={{fontSize:11,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1}}>IDENTITY</div>
+              <div style={{fontSize:12,color:glowCol,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif"}}>{identity.join(" · ")}</div>
             </div>
           )}
         </div>
@@ -6872,26 +7162,26 @@ function TodaysMirror({C,galaxy,profile,todayFood,needs,ritualDone,moveMin,compl
       <div style={{padding:"12px 18px",borderBottom:`1px solid ${borderCol}`}}>
         {pos.map((p,i)=>(
           <div key={i} style={{display:"flex",gap:7,padding:"4px 0",alignItems:"flex-start"}}>
-            <span style={{color:C.accent2,fontSize:15,marginTop:1,flexShrink:0}}>+</span>
-            <div style={{fontSize:15,color:C.text,lineHeight:1.5}}>{p}</div>
+            <span style={{color:C.accent2,fontSize:12,marginTop:1,flexShrink:0}}>+</span>
+            <div style={{fontSize:12,color:C.text,lineHeight:1.5}}>{p}</div>
           </div>
         ))}
         {neg.map((n,i)=>(
           <div key={i} style={{display:"flex",gap:7,padding:"4px 0",alignItems:"flex-start"}}>
-            <span style={{color:C.muted,fontSize:15,marginTop:1,flexShrink:0}}>−</span>
-            <div style={{fontSize:15,color:C.muted,lineHeight:1.5}}>{n}</div>
+            <span style={{color:C.muted,fontSize:12,marginTop:1,flexShrink:0}}>−</span>
+            <div style={{fontSize:12,color:C.muted,lineHeight:1.5}}>{n}</div>
           </div>
         ))}
         {pos.length===0&&neg.length===0&&(
-          <div style={{fontSize:15,color:C.muted,fontStyle:"italic"}}>Log your mood and food to see your daily picture here.</div>
+          <div style={{fontSize:12,color:C.muted,fontStyle:"italic"}}>Log your mood and food to see your daily picture here.</div>
         )}
       </div>
 
       {/* Overall */}
       <div style={{padding:"10px 18px",borderBottom:`1px solid ${borderCol}`}}>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <div style={{fontSize:14,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1}}>OVERALL</div>
-          <div style={{fontSize:16,color:overallGood?C.accent2:C.muted,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif"}}>
+          <div style={{fontSize:11,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1}}>OVERALL</div>
+          <div style={{fontSize:13,color:overallGood?C.accent2:C.muted,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif"}}>
             {overallGood?"A good day.":"Still a day that counted."}
           </div>
         </div>
@@ -6900,16 +7190,16 @@ function TodaysMirror({C,galaxy,profile,todayFood,needs,ritualDone,moveMin,compl
       {/* THE INSIGHT — tap to reveal */}
       <div>
         {!mirrorOpen?(
-          <button onClick={()=>getMirrorInsight(buildSummary())} style={{minHeight:40,minWidth:40,
+          <button onClick={()=>getMirrorInsight(buildSummary())} style={{
             width:"100%",padding:"16px 18px",
             background:"transparent",border:"none",cursor:"pointer",
             display:"flex",alignItems:"center",justifyContent:"center",gap:10,
           }}>
-            <span style={{fontSize:16}}>✦</span>
-            <div style={{fontSize:16,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:glowCol}}>
+            <span style={{fontSize:14}}>✦</span>
+            <div style={{fontSize:14,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:glowCol}}>
               Tap to see what today says about you
             </div>
-            <span style={{fontSize:16}}>✦</span>
+            <span style={{fontSize:14}}>✦</span>
           </button>
         ):(
           <div style={{padding:"18px 20px",textAlign:"center"}}>
@@ -6924,7 +7214,7 @@ function TodaysMirror({C,galaxy,profile,todayFood,needs,ritualDone,moveMin,compl
                 <div style={{fontSize:20,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:C.text,lineHeight:1.7,letterSpacing:0.3}}>
                   "{mirrorInsight}"
                 </div>
-                <button onClick={()=>{setMirrorOpen(false);setMirrorInsight("");}} style={{minHeight:40,minWidth:40,marginTop:12,fontSize:14,color:C.muted,background:"transparent",border:`1px solid ${C.border}`,borderRadius:20,padding:"4px 14px",cursor:"pointer"}}>See again</button>
+                <button onClick={()=>{setMirrorOpen(false);setMirrorInsight("");}} style={{marginTop:12,fontSize:11,color:C.muted,background:"transparent",border:`1px solid ${C.border}`,borderRadius:20,padding:"4px 14px",cursor:"pointer"}}>See again</button>
               </>
             )}
           </div>
@@ -6945,7 +7235,7 @@ function TodaysMirror({C,galaxy,profile,todayFood,needs,ritualDone,moveMin,compl
 //  Never resets. Accumulates context via a rolling summary stored
 //  in profile.mirrorSummary, updated each time it generates.
 // ══════════════════════════════════════════════════════════════
-// ── MIRROR SNAPSHOT — card-based "understand yourself in 30 seconds" page ──
+// ============================================================================
 function useCountUp(target, duration=900){
   const [val, setVal] = useState(0);
   useEffect(()=>{
@@ -7014,7 +7304,7 @@ function MirrorSnapshot({C, galaxy, profile, up, journalEntries, foodLogs, weigh
 "mission":{"text":"max 10 words, ONE concrete tiny action for today"},
 "mentor":{"text":"max 20 words, warm and direct, in second person, no cliches"}
 }
-Rules: Observation, never advice-tone except mission/mentor. No paragraphs. If data is too thin for a field, make a reasonable, honest, low-confidence guess rather than inventing false specifics — never fabricate numbers that aren't grounded in what's given.`;
+Rules: Observation, never advice-tone except mission/mentor. No paragraphs. If data is too thin for a field, make a reasonable, honest, low-confidence guess rather than inventing false specifics -- never fabricate numbers that aren't grounded in what's given.`;
 
       const userContent = `Name: ${profile.name||"friend"}
 Recent journal entries:
@@ -7046,12 +7336,12 @@ Generate the JSON now.`;
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const card = (extra={}) => ({background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur, border:`1px solid ${C.border}`, borderRadius:22, padding:24, boxSizing:"border-box", ...extra});
+  const card = (extra={}) => ({background:C.card, border:`1px solid ${C.border}`, borderRadius:22, padding:24, boxSizing:"border-box", ...extra});
   const title = {fontSize:16, fontWeight:600, color:C.muted, display:"flex", alignItems:"center", gap:6, marginBottom:10};
   const insightTxt = {fontSize:22, fontWeight:700, color:C.text, lineHeight:1.3};
   const descTxt = {fontSize:14, color:C.muted, marginTop:6, lineHeight:1.5};
 
-  // Hooks must run unconditionally every render — compute these before any
+  // Hooks must run unconditionally every render -- compute these before any
   // early return below, using safe defaults while cards hasn't loaded yet.
   const conf = useCountUp(cards?.identity?.confidence||0);
   const disc = useCountUp(cards?.identity?.discipline||0);
@@ -7068,7 +7358,7 @@ Generate the JSON now.`;
     );
   }
   if(loading && !cards){
-    return <div style={card({textAlign:"center",color:C.muted,fontSize:15})}>Reading your patterns…</div>;
+    return <div style={card({textAlign:"center",color:C.muted,fontSize:15})}>Reading your patterns...</div>;
   }
 
   return (
@@ -7079,10 +7369,10 @@ Generate the JSON now.`;
           <div style={{fontSize:15,color:C.muted}}>You're becoming:</div>
           <div style={{fontSize:22,fontWeight:700,color:C.text,marginTop:2}}>{cards.becoming?.emoji} {cards.becoming?.trait} <span style={{fontSize:15,color:accent,fontWeight:600}}>{cards.becoming?.delta}</span></div>
         </div>
-        <button onClick={generateCards} disabled={loading} style={{minHeight:40,minWidth:40,padding:"6px 14px",borderRadius:20,border:`1px solid ${C.border}`,background:"transparent",color:C.muted,fontSize:13,cursor:loading?"not-allowed":"pointer"}}>{loading?"Reading…":"↻ Refresh"}</button>
+        <button onClick={generateCards} disabled={loading} style={{minHeight:40,minWidth:40,padding:"6px 14px",borderRadius:20,border:`1px solid ${C.border}`,background:"transparent",color:C.muted,fontSize:13,cursor:loading?"not-allowed":"pointer"}}>{loading?"Reading...":"Γå╗ Refresh"}</button>
       </div>
 
-      {/* Mirror — full width, fades in */}
+      {/* Mirror -- full width, fades in */}
       <div style={card({animation:"fadeUp 0.6s ease"})}>
         <div style={title}>🪞 MIRROR</div>
         <div style={{...insightTxt, fontFamily:"'Cormorant Garamond',serif", fontStyle:"italic"}}>{cards.mirror?.line}</div>
@@ -7092,7 +7382,7 @@ Generate the JSON now.`;
         </details>
       </div>
 
-      {/* Red flag + Strength — half cards */}
+      {/* Red flag + Strength -- half cards */}
       <div style={{display:"flex",gap:12}}>
         <div style={card({flex:1,animation:"mirrorShakeOnce 0.5s ease 0.4s"})}>
           <div style={title}>🚩 RED FLAG</div>
@@ -7100,7 +7390,7 @@ Generate the JSON now.`;
           <div style={descTxt}>{cards.redFlag?.detail}</div>
         </div>
         <div style={card({flex:1})}>
-          <div style={title}>🌱 STRENGTH</div>
+          <div style={title}>≡ƒî STRENGTH</div>
           <div style={{fontSize:16,fontWeight:700,color:C.accent2}}>{cards.strength?.line}</div>
           <div style={descTxt}>{cards.strength?.detail}</div>
         </div>
@@ -7108,7 +7398,7 @@ Generate the JSON now.`;
 
       {/* Today */}
       <div style={card()}>
-        <div style={title}>⚡ TODAY</div>
+        <div style={title}>ΓÜí TODAY</div>
         <div style={insightTxt}>{cards.today?.insight}</div>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginTop:12}}>
           <div>
@@ -7147,7 +7437,7 @@ Generate the JSON now.`;
         </div>
       </div>
 
-      {/* Mission — glows */}
+      {/* Mission -- glows */}
       <div style={card({textAlign:"center",animation:"mirrorGlow 3s ease-in-out infinite"})}>
         <div style={{...title,justifyContent:"center"}}>🎯 ONE THING TODAY</div>
         <div style={insightTxt}>{cards.mission?.text}</div>
@@ -7156,7 +7446,7 @@ Generate the JSON now.`;
 
       {/* Mentor */}
       <div style={card({textAlign:"center",background:"transparent",border:"none"})}>
-        <div style={{...title,justifyContent:"center"}}>💬 INNER MENTOR</div>
+        <div style={{...title,justifyContent:"center"}}>💡 INNER MENTOR</div>
         <div style={{fontSize:17,color:C.text,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",lineHeight:1.6}}>{cards.mentor?.text}</div>
       </div>
 
@@ -7174,7 +7464,7 @@ function HonestMirror({C, galaxy, profile, up, journalEntries, foodLogs, weightL
   const accent = galaxy ? "#c084fc" : C.accent;
 
   // A simple fingerprint of how much data exists right now. Compared against
-  // what existed the last time the mirror was generated — if it's grown,
+  // what existed the last time the mirror was generated -- if it's grown,
   // the reflection is stale and gets refreshed automatically instead of
   // silently showing old text forever.
   const dataFingerprint = `${(journalEntries||[]).length}-${(foodLogs||[]).length}-${(moveLog||[]).length}-${((profile.goals)||[]).length}`;
@@ -7338,7 +7628,7 @@ Generate the honest mirror reflection.`;
   const history = profile.mirrorHistory || [];
 
   // Auto-refresh once per visit if there's genuinely new data since the last
-  // reflection — this is what was missing: the mirror used to only update
+  // reflection -- this is what was missing: the mirror used to only update
   // when the button was tapped, so it could sit stale for weeks.
   useEffect(()=>{
     const hasAnyData = (journalEntries||[]).length>0 || (foodLogs||[]).length>0 || (moveLog||[]).length>0;
@@ -7356,16 +7646,16 @@ Generate the honest mirror reflection.`;
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start"}}>
         <div>
           <div style={{fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",fontSize:22,color:C.text}}>The Mirror</div>
-          <div style={{fontSize:13,color:C.muted,marginTop:3,letterSpacing:1}}>
+          <div style={{fontSize:10,color:C.muted,marginTop:3,letterSpacing:1}}>
             {history.length > 0
               ? `${history.length} reflection${history.length>1?"s":""} · built from all your data`
               : "Reflects everything you've logged, accumulated over time"}
           </div>
         </div>
-        <button onClick={generateMirror} disabled={loading} style={{minHeight:40,minWidth:40,
+        <button onClick={generateMirror} disabled={loading} style={{
           padding:"9px 16px",borderRadius:20,border:`1px solid ${accent}`,
           background:loading?C.border:`${accent}15`,cursor:loading?"not-allowed":"pointer",
-          fontSize:14,color:loading?C.muted:accent,fontWeight:500,
+          fontSize:11,color:loading?C.muted:accent,fontWeight:500,
           whiteSpace:"nowrap",
         }}>
           {loading ? "Reading..." : mirror ? "Regenerate" : "Generate mirror"}
@@ -7374,20 +7664,20 @@ Generate the honest mirror reflection.`;
 
       {/* Current mirror */}
       {mirror && (
-        <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${accent}33`,borderRadius:16,padding:22,position:"relative"}}>
+        <div style={{background:C.card,border:`1px solid ${accent}33`,borderRadius:16,padding:22,position:"relative"}}>
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:14}}>
-            <div style={{fontSize:12,color:C.muted,letterSpacing:2}}>{mirror.date} · {mirror.generatedAt}</div>
-            <button onClick={()=>setExpanded(e=>!e)} style={{minHeight:40,minWidth:40,background:"transparent",border:"none",color:C.muted,cursor:"pointer",fontSize:14}}>
+            <div style={{fontSize:9,color:C.muted,letterSpacing:2}}>{mirror.date} · {mirror.generatedAt}</div>
+            <button onClick={()=>setExpanded(e=>!e)} style={{background:"transparent",border:"none",color:C.muted,cursor:"pointer",fontSize:11}}>
               {expanded?"collapse":"read"}
             </button>
           </div>
 
           {expanded ? (
-            <div style={{fontSize:16,color:C.text,lineHeight:1.85,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",whiteSpace:"pre-wrap"}}>
+            <div style={{fontSize:14,color:C.text,lineHeight:1.85,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",whiteSpace:"pre-wrap"}}>
               {mirror.text}
             </div>
           ) : (
-            <div style={{fontSize:16,color:C.text,lineHeight:1.85,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",overflow:"hidden",display:"-webkit-box",WebkitLineClamp:3,WebkitBoxOrient:"vertical"}}>
+            <div style={{fontSize:14,color:C.text,lineHeight:1.85,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",overflow:"hidden",display:"-webkit-box",WebkitLineClamp:3,WebkitBoxOrient:"vertical"}}>
               {mirror.text}
             </div>
           )}
@@ -7396,12 +7686,12 @@ Generate the honest mirror reflection.`;
 
       {/* No data state */}
       {!mirror && !loading && (
-        <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:16,padding:24,textAlign:"center"}}>
+        <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:16,padding:24,textAlign:"center"}}>
           <div style={{fontSize:28,marginBottom:12}}>🪞</div>
-          <div style={{fontSize:16,color:C.muted,lineHeight:1.75,marginBottom:8}}>
+          <div style={{fontSize:13,color:C.muted,lineHeight:1.75,marginBottom:8}}>
             The mirror reads everything — your journal entries, mood, sleep, food, goals, movement, the words you keep using. The more you log, the deeper it sees.
           </div>
-          <div style={{fontSize:14,color:C.dim,fontStyle:"italic"}}>
+          <div style={{fontSize:11,color:C.dim,fontStyle:"italic"}}>
             Journal a few honest entries first, then generate your first reflection.
           </div>
         </div>
@@ -7410,13 +7700,13 @@ Generate the honest mirror reflection.`;
       {/* Past reflections */}
       {history.length > 1 && (
         <div>
-          <div style={{fontSize:13,color:C.muted,letterSpacing:2,marginBottom:10}}>PAST REFLECTIONS</div>
+          <div style={{fontSize:10,color:C.muted,letterSpacing:2,marginBottom:10}}>PAST REFLECTIONS</div>
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
             {history.slice(1,5).map((h,i)=>(
-              <div key={i} style={{minHeight:40,background:C.bg,border:`1px solid ${C.border}`,borderRadius:12,padding:"12px 14px",cursor:"pointer"}}
+              <div key={i} style={{background:C.bg,border:`1px solid ${C.border}`,borderRadius:12,padding:"12px 14px",cursor:"pointer"}}
                 onClick={()=>setMirror(h)}>
-                <div style={{fontSize:12,color:C.dim,letterSpacing:1,marginBottom:6}}>{h.date}</div>
-                <div style={{fontSize:15,color:C.muted,lineHeight:1.6,overflow:"hidden",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>
+                <div style={{fontSize:9,color:C.dim,letterSpacing:1,marginBottom:6}}>{h.date}</div>
+                <div style={{fontSize:12,color:C.muted,lineHeight:1.6,overflow:"hidden",display:"-webkit-box",WebkitLineClamp:2,WebkitBoxOrient:"vertical",fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>
                   {h.text}
                 </div>
               </div>
@@ -7425,7 +7715,7 @@ Generate the honest mirror reflection.`;
         </div>
       )}
 
-      <div style={{fontSize:14,color:C.dim,lineHeight:1.7,fontStyle:"italic",marginTop:4}}>
+      <div style={{fontSize:11,color:C.dim,lineHeight:1.7,fontStyle:"italic",marginTop:4}}>
         This mirror accumulates. Each reflection builds on everything before it — your patterns, unresolved threads, what's shifting. The longer you use it, the more it knows.
       </div>
     </div>
@@ -7496,9 +7786,9 @@ function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedS
   return(
     <div style={{padding:"20px 16px"}}>
       <div style={{fontSize:18,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",marginBottom:6}}>Progress</div>
-      {profile.fitnessGoal&&<div style={{fontSize:15,color:C.muted,marginBottom:14}}>Goal: <span style={{color:C.accent}}>{profile.fitnessGoal.slice(0,70)}</span></div>}
+      {profile.fitnessGoal&&<div style={{fontSize:12,color:C.muted,marginBottom:14}}>Goal: <span style={{color:C.accent}}>{profile.fitnessGoal.slice(0,70)}</span></div>}
       <div style={{display:"flex",gap:5,marginBottom:16}}>
-        {["today","weight","weekly","insights"].map(v=><button key={v} onClick={()=>setView(v)} style={{minHeight:40,minWidth:40,flex:1,padding:"7px 4px",borderRadius:20,border:`1px solid ${view===v?C.accent:C.border}`,background:view===v?C.accent+"15":"transparent",cursor:"pointer",fontSize:13,color:view===v?C.accent:C.muted,textTransform:"capitalize"}}>{v}</button>)}
+        {["today","weight","weekly","insights"].map(v=><button key={v} onClick={()=>setView(v)} style={{flex:1,padding:"7px 4px",borderRadius:20,border:`1px solid ${view===v?C.accent:C.border}`,background:view===v?C.accent+"15":"transparent",cursor:"pointer",fontSize:10,color:view===v?C.accent:C.muted,textTransform:"capitalize"}}>{v}</button>)}
       </div>
 
       {view==="today"&&(
@@ -7515,16 +7805,16 @@ function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedS
             moveLog={moveLog||[]}
           />
           {/* Calorie balance */}
-          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
-            <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>TODAY'S CALORIE BALANCE</div>
+          <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+            <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>TODAY'S CALORIE BALANCE</div>
             <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:10}}>
-              <div><div style={{fontSize:28,fontWeight:700,color:isLoss?(calDiff<0?C.accent2:C.red):isGain?(calDiff>0?C.accent2:C.gold):C.accent}}>{calDiff>0?"+":""}{calDiff}</div><div style={{fontSize:14,color:C.muted}}>kcal {calDiff>0?"surplus":"deficit"}</div></div>
+              <div><div style={{fontSize:28,fontWeight:700,color:isLoss?(calDiff<0?C.accent2:C.red):isGain?(calDiff>0?C.accent2:C.gold):C.accent}}>{calDiff>0?"+":""}{calDiff}</div><div style={{fontSize:11,color:C.muted}}>kcal {calDiff>0?"surplus":"deficit"}</div></div>
               <div style={{textAlign:"right"}}>
-                <div style={{fontSize:16,color:C.muted}}>Eaten: <span style={{color:C.text,fontWeight:600}}>{Math.round(todayFood.cal)}</span></div>
-                <div style={{fontSize:16,color:C.muted}}>Target: <span style={{color:C.text,fontWeight:600}}>{needs.cal}</span></div>
+                <div style={{fontSize:13,color:C.muted}}>Eaten: <span style={{color:C.text,fontWeight:600}}>{Math.round(todayFood.cal)}</span></div>
+                <div style={{fontSize:13,color:C.muted}}>Target: <span style={{color:C.text,fontWeight:600}}>{needs.cal}</span></div>
               </div>
             </div>
-            <div style={{padding:"8px 12px",background:(isLoss&&calDiff<0)||(isGain&&calDiff>0)?C.accent2+"15":Math.abs(calDiff)<100?C.gold+"15":C.red+"15",border:`1px solid ${(isLoss&&calDiff<0)||(isGain&&calDiff>0)?C.accent2:Math.abs(calDiff)<100?C.gold:C.red}44`,borderRadius:8,fontSize:15,color:C.text}}>
+            <div style={{padding:"8px 12px",background:(isLoss&&calDiff<0)||(isGain&&calDiff>0)?C.accent2+"15":Math.abs(calDiff)<100?C.gold+"15":C.red+"15",border:`1px solid ${(isLoss&&calDiff<0)||(isGain&&calDiff>0)?C.accent2:Math.abs(calDiff)<100?C.gold:C.red}44`,borderRadius:8,fontSize:12,color:C.text}}>
               {isLoss&&calDiff<0?"✓ Calorie deficit — on track for weight loss":isLoss&&calDiff>0?"↑ Over target — slight deficit tomorrow helps":isGain&&calDiff>0?"✓ Calorie surplus — on track for muscle gain":isGain&&calDiff<0?"↓ Below target — eat more to support muscle growth":"✓ Balanced intake today"}
             </div>
           </div>
@@ -7536,11 +7826,11 @@ function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedS
               {icon:"☀",label:"Ritual",value:`${ritualDone}/7`,target:7,pct:Math.min(100,Math.round((ritualDone/7)*100)),color:C.gold},
               {icon:"💧",label:"Water",value:`${Math.round(profile.water||0)+Math.round((foodLogs.filter(l=>l.date===todayStr).reduce((a,l)=>a+(l.water||0),0)*250+parseInt(profile.waterLog||0)))}ml`,target:needs.water,pct:0,color:C.accent3},
             ].map((item,i)=>(
-              <div key={i} style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:11,padding:"12px 8px",textAlign:"center"}}>
+              <div key={i} style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:11,padding:"12px 8px",textAlign:"center"}}>
                 <div style={{fontSize:20,marginBottom:3}}>{item.icon}</div>
-                <div style={{fontSize:16,fontWeight:700,color:item.color}}>{item.value}</div>
+                <div style={{fontSize:13,fontWeight:700,color:item.color}}>{item.value}</div>
                 <div style={{background:C.border,borderRadius:3,height:4,marginTop:5}}><div style={{width:`${item.pct}%`,height:4,background:item.color,borderRadius:3,transition:"width 0.5s"}}/></div>
-                <div style={{fontSize:12,color:C.dim,marginTop:3}}>{item.label}</div>
+                <div style={{fontSize:9,color:C.dim,marginTop:3}}>{item.label}</div>
               </div>
             ))}
           </div>
@@ -7550,12 +7840,12 @@ function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedS
       {view==="weight"&&(
         <div style={{display:"flex",flexDirection:"column",gap:11}}>
           {/* Log weight */}
-          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
-            <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>LOG TODAY'S WEIGHT</div>
+          <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+            <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>LOG TODAY'S WEIGHT</div>
             <div style={{display:"flex",gap:9,alignItems:"center"}}>
               <input value={weightInput} onChange={e=>setWeightInput(e.target.value)} placeholder={`e.g. ${profile.weight}`} type="number" style={{flex:1,background:C.bg,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"11px 13px",fontSize:18,fontFamily:"'DM Mono',monospace"}}/>
-              <div style={{fontSize:16,color:C.muted}}>{profile.weightUnit}</div>
-              <button onClick={logWeight} style={{minHeight:40,minWidth:40,padding:"11px 18px",background:`linear-gradient(135deg,${C.accent},${C.warm})`,border:"none",borderRadius:9,color:"#fff",cursor:"pointer",fontSize:16,fontWeight:600}}>Log</button>
+              <div style={{fontSize:13,color:C.muted}}>{profile.weightUnit}</div>
+              <button onClick={logWeight} style={{padding:"11px 18px",background:`linear-gradient(135deg,${C.accent},${C.warm})`,border:"none",borderRadius:9,color:"#fff",cursor:"pointer",fontSize:13,fontWeight:600}}>Log</button>
             </div>
           </div>
 
@@ -7565,22 +7855,22 @@ function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedS
             if(!gp.goalKg || (!gp.isLoss && !gp.isGain)) return null;
             if(!gp.hasEnoughData){
               return (
-                <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
-                  <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>GOAL PROGRESS · {gp.goalKg}KG {gp.isLoss?"LOSS":"GAIN"}</div>
-                  <div style={{fontSize:16,color:C.muted,lineHeight:1.7,fontStyle:"italic"}}>Log your weight at least twice — a few days apart — and this will show your real progress and a realistic timeline based on how things are actually going.</div>
+                <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+                  <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>GOAL PROGRESS · {gp.goalKg}KG {gp.isLoss?"LOSS":"GAIN"}</div>
+                  <div style={{fontSize:13,color:C.muted,lineHeight:1.7,fontStyle:"italic"}}>Log your weight at least twice — a few days apart — and this will show your real progress and a realistic timeline based on how things are actually going.</div>
                 </div>
               );
             }
             const goalLabel = gp.isLoss ? "lose" : "gain";
             const paceColor = gp.onPace===true ? C.accent2 : gp.onPace===false ? C.gold : C.muted;
             return (
-              <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.accent}33`,borderRadius:13,padding:18}}>
-                <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>GOAL PROGRESS · {goalLabel} {gp.goalKg}kg</div>
+              <div style={{background:C.card,border:`1px solid ${C.accent}33`,borderRadius:13,padding:18}}>
+                <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>GOAL PROGRESS · {goalLabel} {gp.goalKg}kg</div>
 
                 <div style={{marginBottom:14}}>
                   <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}>
-                    <div style={{fontSize:15,color:C.muted}}>{gp.progressKg}kg of {gp.goalKg}kg</div>
-                    <div style={{fontSize:15,color:C.accent,fontWeight:600}}>{gp.progressPct}%</div>
+                    <div style={{fontSize:12,color:C.muted}}>{gp.progressKg}kg of {gp.goalKg}kg</div>
+                    <div style={{fontSize:12,color:C.accent,fontWeight:600}}>{gp.progressPct}%</div>
                   </div>
                   <div style={{height:8,borderRadius:8,background:C.bg,overflow:"hidden"}}>
                     <div style={{width:`${gp.progressPct}%`,height:"100%",background:`linear-gradient(90deg,${C.accent},${C.accent2})`,borderRadius:8}}/>
@@ -7588,21 +7878,21 @@ function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedS
                 </div>
 
                 <div style={{display:"flex",gap:14,marginBottom:14}}>
-                  <div><div style={{fontSize:14,color:C.muted}}>Started</div><div style={{fontSize:18,fontWeight:700}}>{gp.startWeight}<span style={{fontSize:13,color:C.dim}}>{profile.weightUnit}</span></div></div>
+                  <div><div style={{fontSize:11,color:C.muted}}>Started</div><div style={{fontSize:16,fontWeight:700}}>{gp.startWeight}<span style={{fontSize:10,color:C.dim}}>{profile.weightUnit}</span></div></div>
                   <div style={{width:1,background:C.border}}/>
-                  <div><div style={{fontSize:14,color:C.muted}}>Now</div><div style={{fontSize:18,fontWeight:700}}>{gp.currentWeight}<span style={{fontSize:13,color:C.dim}}>{profile.weightUnit}</span></div></div>
+                  <div><div style={{fontSize:11,color:C.muted}}>Now</div><div style={{fontSize:16,fontWeight:700}}>{gp.currentWeight}<span style={{fontSize:10,color:C.dim}}>{profile.weightUnit}</span></div></div>
                   <div style={{width:1,background:C.border}}/>
-                  <div><div style={{fontSize:14,color:C.muted}}>Pace</div><div style={{fontSize:18,fontWeight:700,color:paceColor}}>{gp.actualKgPerWeek>0?"+":""}{gp.actualKgPerWeek}<span style={{fontSize:13,color:C.dim}}>kg/wk</span></div></div>
+                  <div><div style={{fontSize:11,color:C.muted}}>Pace</div><div style={{fontSize:16,fontWeight:700,color:paceColor}}>{gp.actualKgPerWeek>0?"+":""}{gp.actualKgPerWeek}<span style={{fontSize:10,color:C.dim}}>kg/wk</span></div></div>
                 </div>
 
                 {/* The honest part: real projected timeline vs the original ask */}
                 <div style={{padding:"12px 14px",background:paceColor+"12",border:`1px solid ${paceColor}44`,borderRadius:10,marginBottom:12}}>
                   {gp.projectedDaysRemaining===null ? (
-                    <div style={{fontSize:16,color:C.text,lineHeight:1.7}}>
+                    <div style={{fontSize:13,color:C.text,lineHeight:1.7}}>
                       At your current logged pace, there isn't enough movement toward the goal yet to project a realistic date. That's not a failure — it's just what the numbers say so far.
                     </div>
                   ) : (
-                    <div style={{fontSize:16,color:C.text,lineHeight:1.7}}>
+                    <div style={{fontSize:13,color:C.text,lineHeight:1.7}}>
                       At this actual pace, reaching {gp.goalKg}kg will take about <strong>{Math.round(gp.projectedDaysRemaining/30*10)/10} more months</strong> ({gp.remainingKg}kg to go).
                       {gp.originalGoalDays && (
                         gp.onPace
@@ -7615,13 +7905,13 @@ function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedS
 
                 {/* Behavioral context: why the pace is what it is */}
                 <div style={{display:"flex",flexDirection:"column",gap:6}}>
-                  <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1}}>WHAT'S DRIVING THIS PACE</div>
+                  <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1}}>WHAT'S DRIVING THIS PACE</div>
                   {gp.avgCalVsTarget!==null && (
-                    <div style={{fontSize:15,color:C.muted,lineHeight:1.6}}>
+                    <div style={{fontSize:12,color:C.muted,lineHeight:1.6}}>
                       • Average intake over logged days: <strong style={{color:gp.avgCalVsTarget<=0?C.accent2:C.gold}}>{gp.avgCalVsTarget>0?"+":""}{gp.avgCalVsTarget} kcal/day</strong> vs your target{gp.isLoss && gp.avgCalVsTarget>0?" — eating above target slows weight loss, regardless of what the scale says it 'should' do":""}
                     </div>
                   )}
-                  <div style={{fontSize:15,color:C.muted,lineHeight:1.6}}>
+                  <div style={{fontSize:12,color:C.muted,lineHeight:1.6}}>
                     • Movement logged: <strong style={{color:gp.avgMoveMinPerWeek>=60?C.accent2:C.gold}}>{gp.avgMoveMinPerWeek} min/week</strong>{gp.avgMoveMinPerWeek<60?" — very little exercise logged; this alone can meaningfully push out the timeline even with good eating":""}
                   </div>
                 </div>
@@ -7631,16 +7921,16 @@ function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedS
 
           {/* Weight trend */}
           {weightTrend&&(
-            <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
-              <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>WEIGHT TREND · {weightTrend.entries} ENTRIES</div>
+            <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+              <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>WEIGHT TREND · {weightTrend.entries} ENTRIES</div>
               <div style={{display:"flex",gap:14,marginBottom:12}}>
-                <div><div style={{fontSize:14,color:C.muted}}>Starting</div><div style={{fontSize:18,fontWeight:700}}>{weightTrend.first}<span style={{fontSize:14,color:C.dim}}>{profile.weightUnit}</span></div></div>
+                <div><div style={{fontSize:11,color:C.muted}}>Starting</div><div style={{fontSize:18,fontWeight:700}}>{weightTrend.first}<span style={{fontSize:11,color:C.dim}}>{profile.weightUnit}</span></div></div>
                 <div style={{width:1,background:C.border}}/>
-                <div><div style={{fontSize:14,color:C.muted}}>Current</div><div style={{fontSize:18,fontWeight:700}}>{weightTrend.last}<span style={{fontSize:14,color:C.dim}}>{profile.weightUnit}</span></div></div>
+                <div><div style={{fontSize:11,color:C.muted}}>Current</div><div style={{fontSize:18,fontWeight:700}}>{weightTrend.last}<span style={{fontSize:11,color:C.dim}}>{profile.weightUnit}</span></div></div>
                 <div style={{width:1,background:C.border}}/>
-                <div><div style={{fontSize:14,color:C.muted}}>Change</div><div style={{fontSize:18,fontWeight:700,color:weightTrend.onTrack?C.accent2:C.gold}}>{weightTrend.diff>0?"+":""}{weightTrend.diff}<span style={{fontSize:14,color:C.dim}}>{profile.weightUnit}</span></div></div>
+                <div><div style={{fontSize:11,color:C.muted}}>Change</div><div style={{fontSize:18,fontWeight:700,color:weightTrend.onTrack?C.accent2:C.gold}}>{weightTrend.diff>0?"+":""}{weightTrend.diff}<span style={{fontSize:11,color:C.dim}}>{profile.weightUnit}</span></div></div>
               </div>
-              <div style={{padding:"8px 12px",background:weightTrend.onTrack?C.accent2+"15":C.gold+"15",border:`1px solid ${weightTrend.onTrack?C.accent2:C.gold}44`,borderRadius:8,fontSize:15,color:C.text}}>
+              <div style={{padding:"8px 12px",background:weightTrend.onTrack?C.accent2+"15":C.gold+"15",border:`1px solid ${weightTrend.onTrack?C.accent2:C.gold}44`,borderRadius:8,fontSize:12,color:C.text}}>
                 {weightTrend.onTrack?"✓ Moving in the right direction":"→ Progress is gradual — consistency matters more than speed"}
               </div>
             </div>
@@ -7648,12 +7938,12 @@ function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedS
 
           {/* Weight log history */}
           {weightLog.length>0&&(
-            <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
-              <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>HISTORY</div>
+            <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+              <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>HISTORY</div>
               {weightLog.slice(-10).reverse().map((w,i)=>(
                 <div key={i} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:i<Math.min(9,weightLog.length-1)?`1px solid ${C.border}`:"none"}}>
-                  <span style={{fontSize:15,color:C.muted}}>{new Date(w.date+"T12:00:00").toLocaleDateString("en-IN",{day:"numeric",month:"short"})}</span>
-                  <span style={{fontSize:16,fontWeight:600,fontFamily:"'DM Mono',monospace"}}>{w.weight} {w.unit}</span>
+                  <span style={{fontSize:12,color:C.muted}}>{new Date(w.date+"T12:00:00").toLocaleDateString("en-IN",{day:"numeric",month:"short"})}</span>
+                  <span style={{fontSize:13,fontWeight:600,fontFamily:"'DM Mono',monospace"}}>{w.weight} {w.unit}</span>
                 </div>
               ))}
             </div>
@@ -7662,8 +7952,8 @@ function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedS
       )}
 
       {view==="weekly"&&(
-        <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
-          <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>7-DAY AVERAGES</div>
+        <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+          <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>7-DAY AVERAGES</div>
           {[
             {label:"Daily calories",value:`${weekAvg} kcal`,target:`target ${needs.cal}`,on:Math.abs(weekAvg-needs.cal)<200,color:C.accent},
             {label:"Ritual completion",value:`${Math.round((ritualDone/7)*100)}%`,target:"7 steps/day",on:ritualDone>=5,color:C.gold},
@@ -7671,11 +7961,11 @@ function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedS
           ].map((item,i)=>(
             <div key={i} style={{padding:"12px 0",borderBottom:i<2?`1px solid ${C.border}`:"none"}}>
               <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
-                <div style={{fontSize:16,fontWeight:600}}>{item.label}</div>
-                <div style={{fontSize:15,color:item.on?C.accent2:C.gold,padding:"2px 8px",background:(item.on?C.accent2:C.gold)+"15",borderRadius:20}}>{item.on?"On track":"Adjust"}</div>
+                <div style={{fontSize:13,fontWeight:600}}>{item.label}</div>
+                <div style={{fontSize:12,color:item.on?C.accent2:C.gold,padding:"2px 8px",background:(item.on?C.accent2:C.gold)+"15",borderRadius:20}}>{item.on?"On track":"Adjust"}</div>
               </div>
-              <div style={{fontSize:18,fontWeight:700,color:item.color}}>{item.value}</div>
-              <div style={{fontSize:14,color:C.muted}}>{item.target}</div>
+              <div style={{fontSize:16,fontWeight:700,color:item.color}}>{item.value}</div>
+              <div style={{fontSize:11,color:C.muted}}>{item.target}</div>
             </div>
           ))}
         </div>
@@ -7687,10 +7977,10 @@ function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedS
           <div id="full-mirror-analysis"/>
           <HonestMirror C={C} galaxy={galaxy} profile={profile} up={up} journalEntries={journalEntries} foodLogs={foodLogs} weightLog={weightLog} moveLog={moveLog} needs={needs}/>
           <SleepMoodAnalysis journalEntries={journalEntries} C={C}/>
-          <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.accent}33`,borderRadius:13,padding:18}}>
-            <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>◉ PATTERNS YOU'VE SHOWN</div>
+          <div style={{background:C.card,border:`1px solid ${C.accent}33`,borderRadius:13,padding:18}}>
+            <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>◉ PATTERNS YOU'VE SHOWN</div>
             {Object.keys(behaviourProfile).length===0?(
-              <div style={{fontSize:16,color:C.muted,fontStyle:"italic",lineHeight:1.7}}>Keep logging food, mood, and using My Space. Over time, patterns emerge — ones you can't always see from inside them. This is where you start to see yourself clearly.</div>
+              <div style={{fontSize:13,color:C.muted,fontStyle:"italic",lineHeight:1.7}}>Keep logging food, mood, and using My Space. Over time, patterns emerge — ones you can't always see from inside them. This is where you start to see yourself clearly.</div>
             ):(
               <div style={{display:"flex",flexDirection:"column",gap:8}}>
                 {behaviourProfile.topTriggers?.length>0&&<InfoRow label="Common triggers" value={behaviourProfile.topTriggers.join(", ")} C={C} color={C.red}/>}
@@ -7712,7 +8002,7 @@ function ProgressSection({C,galaxy,profile,up,needs,todayFood,moveLog,completedS
 }
 
 function InfoRow({label,value,C,color}){
-  return<div style={{padding:"9px 12px",background:color+"10",border:`1px solid ${color}33`,borderRadius:8}}><div style={{fontSize:13,color:color,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:3}}>{label.toUpperCase()}</div><div style={{fontSize:16,color:C.text}}>{value}</div></div>;
+  return<div style={{padding:"9px 12px",background:color+"10",border:`1px solid ${color}33`,borderRadius:8}}><div style={{fontSize:10,color:color,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:3}}>{label.toUpperCase()}</div><div style={{fontSize:13,color:C.text}}>{value}</div></div>;
 }
 
 // ══════════════════════════════════════════════════════════════
@@ -7858,9 +8148,9 @@ function SleepMoodAnalysis({journalEntries, C}){
 
   if(!analysis.enoughData){
     return (
-      <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
-        <div style={{fontSize:13,color:C.accent3,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>🌙 SLEEP & MOOD PATTERNS</div>
-        <div style={{fontSize:16,color:C.muted,lineHeight:1.7,fontStyle:"italic"}}>
+      <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:18}}>
+        <div style={{fontSize:10,color:C.accent3,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>🌙 SLEEP & MOOD PATTERNS</div>
+        <div style={{fontSize:13,color:C.muted,lineHeight:1.7,fontStyle:"italic"}}>
           Log your sleep (bedtime + wake time) alongside your mood for a few more days — at least 3 days with both logged — and real patterns will start to show up here. So far you have {analysis.count} day{analysis.count===1?"":"s"} with both logged.
         </div>
       </div>
@@ -7869,12 +8159,12 @@ function SleepMoodAnalysis({journalEntries, C}){
 
   return (
     <div style={{display:"flex",flexDirection:"column",gap:10}}>
-      <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.accent3}33`,borderRadius:13,padding:18}}>
-        <div style={{fontSize:13,color:C.accent3,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>🌙 SLEEP & MOOD PATTERNS · {analysis.count} days tracked</div>
+      <div style={{background:C.card,border:`1px solid ${C.accent3}33`,borderRadius:13,padding:18}}>
+        <div style={{fontSize:10,color:C.accent3,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>🌙 SLEEP & MOOD PATTERNS · {analysis.count} days tracked</div>
 
         {/* Current streak warning, if active */}
         {analysis.currentLowSleepStreak>=2&&(
-          <div style={{padding:"11px 14px",background:C.gold+"12",border:`1px solid ${C.gold}44`,borderRadius:10,marginBottom:12,fontSize:16,color:C.text,lineHeight:1.6}}>
+          <div style={{padding:"11px 14px",background:C.gold+"12",border:`1px solid ${C.gold}44`,borderRadius:10,marginBottom:12,fontSize:13,color:C.text,lineHeight:1.6}}>
             ⚠ {analysis.currentLowSleepStreak} nights in a row under 6 hours. This is the kind of stretch your own data links to harder days.
           </div>
         )}
@@ -7884,28 +8174,28 @@ function SleepMoodAnalysis({journalEntries, C}){
           <div style={{display:"flex",gap:10,marginBottom:14}}>
             <div style={{flex:1,background:C.bg,borderRadius:10,padding:"12px 10px",textAlign:"center"}}>
               <div style={{fontSize:20,fontWeight:700,color:"#71b478"}}>{analysis.avgSleepOnEaseDays}h</div>
-              <div style={{fontSize:12,color:C.muted,marginTop:2}}>avg sleep on calm/happy/good days</div>
+              <div style={{fontSize:9,color:C.muted,marginTop:2}}>avg sleep on calm/happy/good days</div>
             </div>
             <div style={{flex:1,background:C.bg,borderRadius:10,padding:"12px 10px",textAlign:"center"}}>
               <div style={{fontSize:20,fontWeight:700,color:"#e05a5a"}}>{analysis.avgSleepOnHardDays}h</div>
-              <div style={{fontSize:12,color:C.muted,marginTop:2}}>avg sleep on angry/sad/anxious/low days</div>
+              <div style={{fontSize:9,color:C.muted,marginTop:2}}>avg sleep on angry/sad/anxious/low days</div>
             </div>
           </div>
         )}
 
         {/* Mood frequency breakdown */}
         <div style={{marginBottom:14}}>
-          <div style={{fontSize:13,color:C.muted,marginBottom:8,fontFamily:"'DM Mono',monospace"}}>HOW OFTEN EACH MOOD SHOWS UP</div>
+          <div style={{fontSize:10,color:C.muted,marginBottom:8,fontFamily:"'DM Mono',monospace"}}>HOW OFTEN EACH MOOD SHOWS UP</div>
           {analysis.moodFrequency.map((m,i)=>{
             const opt = MOOD_OPTIONS.find(o=>o.val===m.mood);
             return (
               <div key={i} style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}>
-                <span style={{fontSize:16,width:20}}>{opt?.emoji||"·"}</span>
-                <div style={{width:64,fontSize:14,color:C.muted}}>{opt?.label||m.mood}</div>
+                <span style={{fontSize:14,width:20}}>{opt?.emoji||"·"}</span>
+                <div style={{width:64,fontSize:11,color:C.muted}}>{opt?.label||m.mood}</div>
                 <div style={{flex:1,height:6,background:C.border,borderRadius:3,overflow:"hidden"}}>
                   <div style={{width:`${m.pct}%`,height:"100%",background:opt?.color||C.muted,borderRadius:3}}/>
                 </div>
-                <div style={{fontSize:14,color:C.text,width:50,textAlign:"right"}}>{m.count}x · {m.pct}%</div>
+                <div style={{fontSize:11,color:C.text,width:50,textAlign:"right"}}>{m.count}x · {m.pct}%</div>
               </div>
             );
           })}
@@ -7914,10 +8204,10 @@ function SleepMoodAnalysis({journalEntries, C}){
         {/* Honest reflections */}
         {reflections.length>0&&(
           <div style={{display:"flex",flexDirection:"column",gap:8}}>
-            <div style={{fontSize:13,color:C.muted,marginBottom:2,fontFamily:"'DM Mono',monospace"}}>WHAT YOUR DATA SHOWS</div>
+            <div style={{fontSize:10,color:C.muted,marginBottom:2,fontFamily:"'DM Mono',monospace"}}>WHAT YOUR DATA SHOWS</div>
             {reflections.map((r,i)=>(
               <div key={i} style={{
-                padding:"11px 14px",borderRadius:10,fontSize:16,lineHeight:1.7,color:C.text,
+                padding:"11px 14px",borderRadius:10,fontSize:13,lineHeight:1.7,color:C.text,
                 background: r.type==="warning" ? C.gold+"10" : C.accent3+"08",
                 border: `1px solid ${r.type==="warning" ? C.gold : C.accent3}30`,
               }}>
@@ -7928,7 +8218,7 @@ function SleepMoodAnalysis({journalEntries, C}){
         )}
 
         {/* Gentle, non-clinical note about deeper support */}
-        <div style={{marginTop:14,padding:"11px 14px",background:C.bg,borderRadius:10,fontSize:15,color:C.muted,lineHeight:1.7,fontStyle:"italic"}}>
+        <div style={{marginTop:14,padding:"11px 14px",background:C.bg,borderRadius:10,fontSize:12,color:C.muted,lineHeight:1.7,fontStyle:"italic"}}>
           This is a mirror, not a diagnosis — it shows you patterns in your own data so you can notice them sooner. If anger, sadness, or wanting to end things keeps showing up, that's worth bringing to a therapist too. Self-awareness and outside support work better together than either alone.
         </div>
       </div>
@@ -7939,7 +8229,7 @@ function SleepMoodAnalysis({journalEntries, C}){
 // ══════════════════════════════════════════════════════════════
 //  MY SPACE
 // ══════════════════════════════════════════════════════════════
-function MySpaceSection({C,galaxy,profile,foodLogs,setFoodLogs,waterLog,setWaterLog,moveLog,setMoveLog,todayFood,needs,canSendAI,recordAIMsg,todayMsgs,planData,setSection,updateBP,behaviourProfile,saveFoodLogEntry,journalEntries=[]}){
+function MySpaceSection({C,galaxy,profile,foodLogs,setFoodLogs,waterLog,setWaterLog,moveLog,setMoveLog,todayFood,needs,canSendAI,recordAIMsg,todayMsgs,planData,setSection,updateBP,behaviourProfile,saveFoodLogEntry}){
   const[msgs,setMsgs]=useState([{role:"assistant",content:`Hey ${profile.name||"there"} ✨\n\nThis is your space. Tell me anything — what you ate, how you feel, what's confusing you, what hurts, what's on your mind. I'll listen, help, and log everything automatically.\n\nWhat's going on today?`}]);
   const[input,setInput]=useState("");
   const[loading,setLoading]=useState(false);
@@ -8021,31 +8311,31 @@ Keep responses warm, direct, 4–6 sentences max unless they ask for more.`;
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
         <div>
           <div style={{fontSize:18,fontWeight:600,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>My Space</div>
-          <div style={{fontSize:14,color:C.muted}}>Your space. Everything here is yours.</div>
+          <div style={{fontSize:11,color:C.muted}}>Your space. Everything here is yours.</div>
         </div>
         {profile.plan!=="trial"&&msgsLeft!==null&&(
-          <div style={{fontSize:14,color:C.muted,fontFamily:"'DM Mono',monospace"}}>{msgsLeft} msgs left today</div>
+          <div style={{fontSize:11,color:C.muted,fontFamily:"'DM Mono',monospace"}}>{msgsLeft} msgs left today</div>
         )}
       </div>
 
       {profile.plan==="trial"&&(
         <div style={{background:C.accent+"12",border:`1px solid ${C.accent}33`,borderRadius:10,padding:"11px 14px",marginBottom:12,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-          <div style={{fontSize:15,color:C.text}}>Unlock your companion</div>
-          <button onClick={()=>setSection("upgrade")} style={{minHeight:40,minWidth:40,padding:"6px 13px",background:`linear-gradient(135deg,${C.accent},${C.warm})`,border:"none",borderRadius:20,color:"#fff",cursor:"pointer",fontSize:14,fontWeight:600}}>Upgrade $5/mo →</button>
+          <div style={{fontSize:12,color:C.text}}>Unlock your companion</div>
+          <button onClick={()=>setSection("upgrade")} style={{padding:"6px 13px",background:`linear-gradient(135deg,${C.accent},${C.warm})`,border:"none",borderRadius:20,color:"#fff",cursor:"pointer",fontSize:11,fontWeight:600}}>Upgrade $5/mo →</button>
         </div>
       )}
 
-      <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,height:390,overflowY:"auto",padding:14,marginBottom:10,display:"flex",flexDirection:"column",gap:11}}>
+      <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,height:390,overflowY:"auto",padding:14,marginBottom:10,display:"flex",flexDirection:"column",gap:11}}>
         {msgs.map((m,i)=>(
           <div key={i} style={{display:"flex",flexDirection:"column",alignItems:m.role==="user"?"flex-end":"flex-start",gap:3}}>
             <div style={{display:"flex",gap:8,alignItems:"flex-end",flexDirection:m.role==="user"?"row-reverse":"row"}}>
-              {m.role==="assistant"&&<div style={{width:28,height:28,borderRadius:"50%",background:`linear-gradient(135deg,${C.accent},${C.warm})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:15,flexShrink:0,color:"#fff",fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>S</div>}
-              <div style={{maxWidth:"80%",padding:"10px 13px",fontSize:16,lineHeight:1.75,background:m.role==="user"?C.accent+"15":m.isLimit?C.gold+"12":C.bg,border:`1px solid ${m.role==="user"?C.accent+"44":m.isLimit?C.gold+"44":C.border}`,borderRadius:m.role==="user"?"13px 13px 2px 13px":"13px 13px 13px 2px",color:C.text,whiteSpace:"pre-wrap"}}>{m.content}</div>
+              {m.role==="assistant"&&<div style={{width:28,height:28,borderRadius:"50%",background:`linear-gradient(135deg,${C.accent},${C.warm})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,flexShrink:0,color:"#fff",fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>S</div>}
+              <div style={{maxWidth:"80%",padding:"10px 13px",fontSize:13,lineHeight:1.75,background:m.role==="user"?C.accent+"15":m.isLimit?C.gold+"12":C.bg,border:`1px solid ${m.role==="user"?C.accent+"44":m.isLimit?C.gold+"44":C.border}`,borderRadius:m.role==="user"?"13px 13px 2px 13px":"13px 13px 13px 2px",color:C.text,whiteSpace:"pre-wrap"}}>{m.content}</div>
             </div>
-            {m.logged&&<div style={{fontSize:13,color:C.accent2,fontFamily:"'DM Mono',monospace",padding:"2px 8px",background:C.accent2+"15",border:`1px solid ${C.accent2}44`,borderRadius:20,marginLeft:m.role==="assistant"?34:0}}>✓ Noted: {m.logged.type?.replace("_log","")}</div>}
+            {m.logged&&<div style={{fontSize:10,color:C.accent2,fontFamily:"'DM Mono',monospace",padding:"2px 8px",background:C.accent2+"15",border:`1px solid ${C.accent2}44`,borderRadius:20,marginLeft:m.role==="assistant"?34:0}}>✓ Noted: {m.logged.type?.replace("_log","")}</div>}
           </div>
         ))}
-        {loading&&<div style={{display:"flex",gap:8}}><div style={{width:28,height:28,borderRadius:"50%",background:`linear-gradient(135deg,${C.accent},${C.warm})`,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",fontSize:15,flexShrink:0}}>S</div><div style={{padding:"10px 13px",background:C.bg,border:`1px solid ${C.border}`,borderRadius:"13px 13px 13px 2px",fontSize:15,color:C.dim,animation:"pulse 1.5s infinite"}}>thinking…</div></div>}
+        {loading&&<div style={{display:"flex",gap:8}}><div style={{width:28,height:28,borderRadius:"50%",background:`linear-gradient(135deg,${C.accent},${C.warm})`,display:"flex",alignItems:"center",justifyContent:"center",color:"#fff",fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",fontSize:12,flexShrink:0}}>S</div><div style={{padding:"10px 13px",background:C.bg,border:`1px solid ${C.border}`,borderRadius:"13px 13px 13px 2px",fontSize:12,color:C.dim,animation:"pulse 1.5s infinite"}}>thinking…</div></div>}
         <div ref={chatRef}/>
       </div>
 
@@ -8053,8 +8343,8 @@ Keep responses warm, direct, 4–6 sentences max unless they ask for more.`;
         <textarea value={input} onChange={e=>setInput(e.target.value)} onKeyDown={e=>{if(e.key==="Enter"&&!e.shiftKey){e.preventDefault();send();}}} rows={2}
           placeholder={profile.plan==="trial"?"Upgrade to chat with me…":"I ate poha this morning… / I'm feeling overwhelmed… / I had chai on empty stomach…"}
           disabled={profile.plan==="trial"}
-          style={{flex:1,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:16,resize:"none",opacity:profile.plan==="trial"?0.5:1}}/>
-        <button onClick={send} disabled={loading||profile.plan==="trial"} style={{minHeight:40,minWidth:40,padding:"10px 16px",background:loading||profile.plan==="trial"?C.border:`linear-gradient(135deg,${C.accent},${C.warm})`,border:"none",borderRadius:9,color:"#fff",cursor:loading||profile.plan==="trial"?"not-allowed":"pointer",fontSize:18}}>→</button>
+          style={{flex:1,background:C.card,border:`1px solid ${C.border}`,borderRadius:9,color:C.text,padding:"10px 13px",fontSize:13,resize:"none",opacity:profile.plan==="trial"?0.5:1}}/>
+        <button onClick={send} disabled={loading||profile.plan==="trial"} style={{padding:"10px 16px",background:loading||profile.plan==="trial"?C.border:`linear-gradient(135deg,${C.accent},${C.warm})`,border:"none",borderRadius:9,color:"#fff",cursor:loading||profile.plan==="trial"?"not-allowed":"pointer",fontSize:17}}>→</button>
       </div>
     </div>
   );
@@ -8066,28 +8356,28 @@ Keep responses warm, direct, 4–6 sentences max unless they ask for more.`;
 function UpgradeSection({C,profile,up,setSection}){
   return(
     <div style={{padding:"24px 16px"}}>
-      <button onClick={()=>setSection("home")} style={{minHeight:40,minWidth:40,background:"none",border:"none",cursor:"pointer",fontSize:16,color:C.muted,marginBottom:20}}>← Back</button>
+      <button onClick={()=>setSection("home")} style={{background:"none",border:"none",cursor:"pointer",fontSize:13,color:C.muted,marginBottom:20}}>← Back</button>
       <div style={{textAlign:"center",marginBottom:28}}>
         <div style={{fontSize:28,fontWeight:300,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",marginBottom:6}}>Your inner life, made visible.</div>
-        <div style={{fontSize:16,color:C.muted}}>स्वाध्याय · Know thyself.</div>
+        <div style={{fontSize:14,color:C.muted}}>स्वाध्याय · Know thyself.</div>
       </div>
       <div style={{display:"flex",flexDirection:"column",gap:14}}>
         {[
           {id:"tier1",name:"Essential",monthly:"$5 / month",yearly:"$59 / year",inr:"₹499 / month · ₹4,999 / year",features:["All modules unlocked","20 AI messages/day in My Space","Behavioural profile builds over time","Cycle tracker + yoga personalisation","Food log + nutrition analysis"],color:C.accent},
           {id:"tier2",name:"Unlimited",monthly:"$11 / month",yearly:"$119 / year",inr:"₹999 / month · ₹9,999 / year",features:["Everything in Essential","Unlimited AI messages in My Space","Deep behavioural memory","Weekly insight report","Priority responses"],color:C.accent2,recommended:true},
         ].map(plan=>(
-          <div key={plan.id} style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`2px solid ${plan.recommended?plan.color:C.border}`,borderRadius:16,padding:22,boxShadow:plan.recommended?`0 0 24px ${plan.color}22`:"none"}}>
-            {plan.recommended&&<div style={{fontSize:13,color:plan.color,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:8}}>✦ MOST POPULAR</div>}
+          <div key={plan.id} style={{background:C.card,border:`2px solid ${plan.recommended?plan.color:C.border}`,borderRadius:16,padding:22,boxShadow:plan.recommended?`0 0 24px ${plan.color}22`:"none"}}>
+            {plan.recommended&&<div style={{fontSize:10,color:plan.color,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:8}}>✦ MOST POPULAR</div>}
             <div style={{fontSize:18,fontWeight:700,color:plan.color,marginBottom:4}}>{plan.name}</div>
             <div style={{fontSize:24,fontWeight:700,marginBottom:2}}>{plan.monthly}</div>
-            <div style={{fontSize:16,color:C.muted,marginBottom:4}}>or {plan.yearly} · {plan.inr}</div>
+            <div style={{fontSize:13,color:C.muted,marginBottom:4}}>or {plan.yearly} · {plan.inr}</div>
             <div style={{marginBottom:16,display:"flex",flexDirection:"column",gap:6}}>
-              {plan.features.map((f,i)=><div key={i} style={{fontSize:16,color:C.text}}>✓ {f}</div>)}
+              {plan.features.map((f,i)=><div key={i} style={{fontSize:13,color:C.text}}>✓ {f}</div>)}
             </div>
-            <button onClick={()=>{up("plan",plan.id);setSection("myspace");}} style={{minHeight:40,minWidth:40,width:"100%",padding:"13px",background:`linear-gradient(135deg,${plan.color},${C.warm})`,border:"none",borderRadius:11,color:"#fff",cursor:"pointer",fontSize:16,fontWeight:600}}>
+            <button onClick={()=>{up("plan",plan.id);setSection("myspace");}} style={{width:"100%",padding:"13px",background:`linear-gradient(135deg,${plan.color},${C.warm})`,border:"none",borderRadius:11,color:"#fff",cursor:"pointer",fontSize:14,fontWeight:600}}>
               Choose {plan.name} →
             </button>
-            <div style={{fontSize:14,color:C.dim,textAlign:"center",marginTop:6}}>Secure payment · Cancel anytime · Your data is always yours</div>
+            <div style={{fontSize:11,color:C.dim,textAlign:"center",marginTop:6}}>Secure payment · Cancel anytime · Your data is always yours</div>
           </div>
         ))}
       </div>
@@ -8134,13 +8424,13 @@ function YourManualSection({C, galaxy, profile, journalEntries, behaviourProfile
   if (!manual) return (
     <div style={{padding:"20px 16px"}}>
       <div style={{fontSize:18,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",marginBottom:8}}>Your Manual</div>
-      <div style={{fontSize:16,color:C.muted,lineHeight:1.8,marginBottom:20}}>
+      <div style={{fontSize:13,color:C.muted,lineHeight:1.8,marginBottom:20}}>
         <em>"I don't tell you who you are. I learn how your mind works and help you live with it."</em>
       </div>
-      <div style={{textAlign:"center",padding:"40px 20px",background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,borderRadius:14,border:`1px solid ${C.border}`}}>
+      <div style={{textAlign:"center",padding:"40px 20px",background:C.card,borderRadius:14,border:`1px solid ${C.border}`}}>
         <div style={{fontSize:32,marginBottom:12}}>📖</div>
-        <div style={{fontSize:16,color:C.muted,lineHeight:1.8}}>Your manual builds as you use the app. Journal for a few days, log your mood and energy, and patterns will start to emerge.</div>
-        <div style={{fontSize:15,color:C.dim,marginTop:10}}>Need at least 5 journal entries to begin.</div>
+        <div style={{fontSize:14,color:C.muted,lineHeight:1.8}}>Your manual builds as you use the app. Journal for a few days, log your mood and energy, and patterns will start to emerge.</div>
+        <div style={{fontSize:12,color:C.dim,marginTop:10}}>Need at least 5 journal entries to begin.</div>
       </div>
     </div>
   );
@@ -8148,41 +8438,41 @@ function YourManualSection({C, galaxy, profile, journalEntries, behaviourProfile
   return (
     <div style={{padding:"16px 16px"}}>
       <div style={{fontSize:18,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",marginBottom:6}}>Your Manual</div>
-      <div style={{fontSize:16,color:C.muted,lineHeight:1.8,marginBottom:16,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif"}}>
+      <div style={{fontSize:13,color:C.muted,lineHeight:1.8,marginBottom:16,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif"}}>
         "Your behaviour is information, not your identity."
       </div>
 
       {/* AI-generated manual */}
       <div style={{background:`linear-gradient(135deg,${C.accent}12,${C.warm}08)`,border:`1px solid ${C.accent}44`,borderRadius:16,padding:20,marginBottom:16}}>
-        <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>🧠 HERE'S HOW YOUR MIND SEEMS TO WORK</div>
+        <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>🧠 HERE'S HOW YOUR MIND SEEMS TO WORK</div>
         {!aiManual&&!loading&&(
           <div>
-            <div style={{fontSize:16,color:C.muted,lineHeight:1.7,marginBottom:14}}>Based on {manual.entryCount} journal entries and your patterns, the app can write a personalised operating manual for you.</div>
-            <button onClick={generateManual} style={{minHeight:40,minWidth:40,padding:"12px 20px",background:`linear-gradient(135deg,${C.accent},${C.warm})`,border:"none",borderRadius:10,color:"#fff",cursor:"pointer",fontSize:16,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>Generate my manual →</button>
+            <div style={{fontSize:13,color:C.muted,lineHeight:1.7,marginBottom:14}}>Based on {manual.entryCount} journal entries and your patterns, the app can write a personalised operating manual for you.</div>
+            <button onClick={generateManual} style={{padding:"12px 20px",background:`linear-gradient(135deg,${C.accent},${C.warm})`,border:"none",borderRadius:10,color:"#fff",cursor:"pointer",fontSize:13,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>Generate my manual →</button>
           </div>
         )}
         {loading&&(
-          <div style={{fontSize:16,color:C.muted,fontStyle:"italic"}}>Reading your patterns…</div>
+          <div style={{fontSize:13,color:C.muted,fontStyle:"italic"}}>Reading your patterns…</div>
         )}
         {aiManual&&(
           <div>
-            <div style={{fontSize:16,color:C.text,lineHeight:1.85,fontFamily:"'Cormorant Garamond',serif",marginBottom:14}}>{aiManual}</div>
-            <button onClick={()=>{setAiManual("");generateManual();}} style={{minHeight:40,minWidth:40,fontSize:14,color:C.muted,background:"transparent",border:`1px solid ${C.border}`,borderRadius:20,padding:"4px 14px",cursor:"pointer"}}>Regenerate</button>
+            <div style={{fontSize:14,color:C.text,lineHeight:1.85,fontFamily:"'Cormorant Garamond',serif",marginBottom:14}}>{aiManual}</div>
+            <button onClick={()=>{setAiManual("");generateManual();}} style={{fontSize:11,color:C.muted,background:"transparent",border:`1px solid ${C.border}`,borderRadius:20,padding:"4px 14px",cursor:"pointer"}}>Regenerate</button>
           </div>
         )}
       </div>
 
       {/* Pattern observations */}
-      <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:14,padding:18,marginBottom:14}}>
-        <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>WHAT WE'VE NOTICED · {manual.entryCount} entries</div>
+      <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:14,padding:18,marginBottom:14}}>
+        <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>WHAT WE'VE NOTICED · {manual.entryCount} entries</div>
         {manual.observations.map((obs, i) => (
           <div key={i} style={{padding:"10px 0",borderBottom:i<manual.observations.length-1?`1px solid ${C.border}`:"none"}}>
-            <div style={{fontSize:16,color:C.text,lineHeight:1.7,marginBottom:6}}>{obs}</div>
+            <div style={{fontSize:13,color:C.text,lineHeight:1.7,marginBottom:6}}>{obs}</div>
             <div style={{display:"flex",gap:8}}>
-              <button onClick={()=>setConfirmed(c=>({...c,[i]:"yes"}))} style={{minHeight:40,minWidth:40,fontSize:14,padding:"3px 11px",borderRadius:20,border:`1px solid ${confirmed[i]==="yes"?C.accent2:C.border}`,background:confirmed[i]==="yes"?C.accent2+"20":"transparent",cursor:"pointer",color:confirmed[i]==="yes"?C.accent2:C.muted}}>
+              <button onClick={()=>setConfirmed(c=>({...c,[i]:"yes"}))} style={{fontSize:11,padding:"3px 11px",borderRadius:20,border:`1px solid ${confirmed[i]==="yes"?C.accent2:C.border}`,background:confirmed[i]==="yes"?C.accent2+"20":"transparent",cursor:"pointer",color:confirmed[i]==="yes"?C.accent2:C.muted}}>
                 ✓ Feels true
               </button>
-              <button onClick={()=>setConfirmed(c=>({...c,[i]:"no"}))} style={{minHeight:40,minWidth:40,fontSize:14,padding:"3px 11px",borderRadius:20,border:`1px solid ${confirmed[i]==="no"?C.red:C.border}`,background:confirmed[i]==="no"?C.red+"15":"transparent",cursor:"pointer",color:confirmed[i]==="no"?C.red:C.muted}}>
+              <button onClick={()=>setConfirmed(c=>({...c,[i]:"no"}))} style={{fontSize:11,padding:"3px 11px",borderRadius:20,border:`1px solid ${confirmed[i]==="no"?C.red:C.border}`,background:confirmed[i]==="no"?C.red+"15":"transparent",cursor:"pointer",color:confirmed[i]==="no"?C.red:C.muted}}>
                 ✗ Not quite
               </button>
             </div>
@@ -8194,12 +8484,12 @@ function YourManualSection({C, galaxy, profile, journalEntries, behaviourProfile
       {manual.suggestions.length > 0 && (
         <div style={{display:"flex",flexDirection:"column",gap:10}}>
           {manual.suggestions.map((sug, i) => (
-            <div key={i} style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${sug.type==="awareness"?C.gold:sug.type==="health"?C.red:C.border}44`,borderRadius:12,padding:16}}>
-              <div style={{fontSize:13,color:sug.type==="awareness"?C.gold:sug.type==="health"?C.red:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>
+            <div key={i} style={{background:C.card,border:`1px solid ${sug.type==="awareness"?C.gold:sug.type==="health"?C.red:C.border}44`,borderRadius:12,padding:16}}>
+              <div style={{fontSize:10,color:sug.type==="awareness"?C.gold:sug.type==="health"?C.red:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>
                 {sug.type==="awareness"?"◉ PATTERN AWARENESS":sug.type==="health"?"⚕ HEALTH NOTE":"◈ SUGGESTION"}
               </div>
-              <div style={{fontSize:16,color:C.text,lineHeight:1.75}}>{sug.text}</div>
-              {sug.action&&<div style={{marginTop:10,fontSize:15,color:C.gold,fontStyle:"italic"}}>{sug.action}</div>}
+              <div style={{fontSize:13,color:C.text,lineHeight:1.75}}>{sug.text}</div>
+              {sug.action&&<div style={{marginTop:10,fontSize:12,color:C.gold,fontStyle:"italic"}}>{sug.action}</div>}
             </div>
           ))}
         </div>
@@ -8208,7 +8498,7 @@ function YourManualSection({C, galaxy, profile, journalEntries, behaviourProfile
       {/* Mirror rule */}
       <div style={{marginTop:16,padding:"16px 18px",background:C.bg,borderRadius:12,border:`1px solid ${C.border}`,textAlign:"center"}}>
         <div style={{fontSize:22,marginBottom:8}}>🪞</div>
-        <div style={{fontSize:16,color:C.muted,lineHeight:1.8,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif"}}>
+        <div style={{fontSize:13,color:C.muted,lineHeight:1.8,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif"}}>
           Missing a goal doesn't make you undisciplined.<br/>
           A hard day doesn't make you broken.<br/>
           Skipping journaling doesn't make you a failure.<br/><br/>
@@ -8225,96 +8515,96 @@ function ProfileSection({C,profile,up,needs,setSection,resetToday,resetAllLogs})
     <div style={{padding:"20px 16px"}}>
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:18}}>
         <div style={{fontSize:18,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>My Profile</div>
-        <button onClick={()=>setSection("upgrade")} style={{minHeight:40,minWidth:40,padding:"6px 13px",background:C.accent+"15",border:`1px solid ${C.accent}44`,borderRadius:20,cursor:"pointer",fontSize:14,color:C.accent}}>Manage Plan</button>
+        <button onClick={()=>setSection("upgrade")} style={{padding:"6px 13px",background:C.accent+"15",border:`1px solid ${C.accent}44`,borderRadius:20,cursor:"pointer",fontSize:11,color:C.accent}}>Manage Plan</button>
       </div>
-      <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:20,marginBottom:14}}>
-        <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>PERSONAL DETAILS</div>
+      <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:20,marginBottom:14}}>
+        <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>PERSONAL DETAILS</div>
         <div style={{display:"flex",flexDirection:"column",gap:12}}>
           {[{l:"Name",k:"name",t:"text"},{l:"Age",k:"age",t:"number"},{l:"Weight (kg)",k:"weight",t:"number"},{l:"Height (cm)",k:"height",t:"number"}].map((f,i)=>(
             <div key={i}>
-              <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:5}}>{f.l.toUpperCase()}</div>
-              <input type={f.t} value={profile[f.k]||""} onChange={e=>up(f.k,e.target.value)} style={{width:"100%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 11px",fontSize:16,boxSizing:"border-box"}}/>
+              <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:5}}>{f.l.toUpperCase()}</div>
+              <input type={f.t} value={profile[f.k]||""} onChange={e=>up(f.k,e.target.value)} style={{width:"100%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 11px",fontSize:14,boxSizing:"border-box"}}/>
             </div>
           ))}
           <div>
-            <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>FITNESS GOAL</div>
-            <textarea value={profile.fitnessGoal||""} onChange={e=>up("fitnessGoal",e.target.value)} rows={2} style={{width:"100%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 11px",fontSize:16,resize:"none",boxSizing:"border-box"}}/>
+            <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:7}}>FITNESS GOAL</div>
+            <textarea value={profile.fitnessGoal||""} onChange={e=>up("fitnessGoal",e.target.value)} rows={2} style={{width:"100%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 11px",fontSize:13,resize:"none",boxSizing:"border-box"}}/>
           </div>
           {profile.gender==="female"&&(
             <div>
-              <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>CYCLE SETTINGS</div>
+              <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>CYCLE SETTINGS</div>
               {[{l:"Last period start",k:"lastPeriodStart",t:"date"},{l:"Cycle length (days)",k:"cycleLength",t:"number"},{l:"Period duration (days)",k:"periodLength",t:"number"}].map((f,i)=>(
                 <div key={i} style={{marginBottom:9}}>
-                  <div style={{fontSize:13,color:C.dim,marginBottom:4}}>{f.l}</div>
-                  <input type={f.t} value={profile[f.k]||""} onChange={e=>up(f.k,e.target.value)} style={{width:"100%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 11px",fontSize:16,boxSizing:"border-box"}}/>
+                  <div style={{fontSize:10,color:C.dim,marginBottom:4}}>{f.l}</div>
+                  <input type={f.t} value={profile[f.k]||""} onChange={e=>up(f.k,e.target.value)} style={{width:"100%",background:C.bg,border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"9px 11px",fontSize:13,boxSizing:"border-box"}}/>
                 </div>
               ))}
             </div>
           )}
         </div>
       </div>
-      <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.accent}33`,borderRadius:11,padding:"14px 16px",marginBottom:14}}>
-        <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:9}}>YOUR DAILY TARGETS</div>
+      <div style={{background:C.card,border:`1px solid ${C.accent}33`,borderRadius:11,padding:"14px 16px",marginBottom:14}}>
+        <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:9}}>YOUR DAILY TARGETS</div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:7}}>
           {[{l:"Calories",v:needs.cal,u:"kcal",c:C.accent},{l:"Protein",v:needs.protein,u:"g",c:C.accent2},{l:"Iron",v:needs.iron,u:"mg",c:C.red},{l:"Calcium",v:needs.calcium,u:"mg",c:C.purple},{l:"Water",v:Math.round(needs.water/250),u:"glasses",c:C.accent3},{l:"Fibre",v:needs.fibre,u:"g",c:C.gold}].map((n,i)=>(
             <div key={i} style={{padding:"9px 6px",background:C.bg,borderRadius:7,textAlign:"center"}}>
-              <div style={{fontSize:16,fontWeight:700,color:n.c}}>{n.v}</div>
-              <div style={{fontSize:12,color:C.dim}}>{n.u}</div>
-              <div style={{fontSize:12,color:C.muted}}>{n.l}</div>
+              <div style={{fontSize:14,fontWeight:700,color:n.c}}>{n.v}</div>
+              <div style={{fontSize:9,color:C.dim}}>{n.u}</div>
+              <div style={{fontSize:9,color:C.muted}}>{n.l}</div>
             </div>
           ))}
         </div>
       </div>
       {/* Your Manual link */}
-      <div onClick={()=>setSection("manual")} style={{minHeight:40,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.accent}33`,borderRadius:12,padding:"14px 18px",marginBottom:12,cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+      <div onClick={()=>setSection("manual")} style={{background:C.card,border:`1px solid ${C.accent}33`,borderRadius:12,padding:"14px 18px",marginBottom:12,cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
         <div>
           <div style={{display:"flex",gap:8,alignItems:"center"}}>
-            <span style={{fontSize:18}}>📖</span>
-            <div style={{fontSize:16,fontWeight:600,color:C.accent}}>Your Manual</div>
+            <span style={{fontSize:16}}>📖</span>
+            <div style={{fontSize:13,fontWeight:600,color:C.accent}}>Your Manual</div>
           </div>
-          <div style={{fontSize:14,color:C.muted,marginTop:2}}>How your mind seems to work · Patterns · Not a diagnosis</div>
+          <div style={{fontSize:11,color:C.muted,marginTop:2}}>How your mind seems to work · Patterns · Not a diagnosis</div>
         </div>
-        <div style={{fontSize:18,color:C.accent}}>→</div>
+        <div style={{fontSize:16,color:C.accent}}>→</div>
       </div>
 
       {/* Goals link */}
-      <div onClick={()=>setSection("goals")} style={{minHeight:40,background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.accent}33`,borderRadius:12,padding:"14px 18px",marginBottom:14,cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
+      <div onClick={()=>setSection("goals")} style={{background:C.card,border:`1px solid ${C.accent}33`,borderRadius:12,padding:"14px 18px",marginBottom:14,cursor:"pointer",display:"flex",justifyContent:"space-between",alignItems:"center"}}>
         <div>
-          <div style={{fontSize:16,fontWeight:600,color:C.accent}}>My Goals</div>
-          <div style={{fontSize:14,color:C.muted,marginTop:2}}>{(profile.goals||[]).length} goals · Tap to manage</div>
+          <div style={{fontSize:13,fontWeight:600,color:C.accent}}>My Goals</div>
+          <div style={{fontSize:11,color:C.muted,marginTop:2}}>{(profile.goals||[]).length} goals · Tap to manage</div>
         </div>
-        <div style={{fontSize:18,color:C.accent}}>→</div>
+        <div style={{fontSize:16,color:C.accent}}>→</div>
       </div>
 
-      <button onClick={()=>setSaved(true)} style={{minHeight:40,minWidth:40,width:"100%",padding:"13px",background:`linear-gradient(135deg,${C.accent},${C.warm})`,border:"none",borderRadius:11,color:"#fff",cursor:"pointer",fontSize:16,fontWeight:600}}>
+      <button onClick={()=>setSaved(true)} style={{width:"100%",padding:"13px",background:`linear-gradient(135deg,${C.accent},${C.warm})`,border:"none",borderRadius:11,color:"#fff",cursor:"pointer",fontSize:14,fontWeight:600}}>
         {saved?"✓ Changes Saved":"Save Changes"}
       </button>
 
       {/* Reset options */}
-      <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:12,padding:16,marginTop:8}}>
-        <div style={{fontSize:13,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:4}}>RESET DATA</div>
-        <div style={{fontSize:14,color:C.dim,marginBottom:12,lineHeight:1.5}}>Use this if you want to start over or clear test entries.</div>
+      <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:12,padding:16,marginTop:8}}>
+        <div style={{fontSize:10,color:C.muted,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:4}}>RESET DATA</div>
+        <div style={{fontSize:11,color:C.dim,marginBottom:12,lineHeight:1.5}}>Use this if you want to start over or clear test entries.</div>
         <div style={{display:"flex",flexDirection:"column",gap:8}}>
           <button onClick={()=>{
             if(window.confirm("Clear today\'s food logs and water? Your profile and past entries stay.")) {
               resetToday();
             }
-          }} style={{minHeight:40,minWidth:40,padding:"12px 14px",background:"transparent",border:`1px solid ${C.border}`,borderRadius:9,cursor:"pointer",fontSize:16,color:C.text,textAlign:"left",display:"flex",gap:10,alignItems:"center"}}>
+          }} style={{padding:"12px 14px",background:"transparent",border:`1px solid ${C.border}`,borderRadius:9,cursor:"pointer",fontSize:13,color:C.text,textAlign:"left",display:"flex",gap:10,alignItems:"center"}}>
             <span style={{fontSize:18}}>🔄</span>
             <div>
               <div style={{fontWeight:600}}>Reset today</div>
-              <div style={{fontSize:14,color:C.muted}}>Clears today\'s food, water and ritual</div>
+              <div style={{fontSize:11,color:C.muted}}>Clears today\'s food, water and ritual</div>
             </div>
           </button>
           <button onClick={()=>{
             if(window.confirm("Reset all food logs, water, journal and ritual data? Your profile settings stay.")) {
               resetAllLogs();
             }
-          }} style={{minHeight:40,minWidth:40,padding:"12px 14px",background:C.red+"08",border:`1px solid ${C.red}33`,borderRadius:9,cursor:"pointer",fontSize:16,color:C.text,textAlign:"left",display:"flex",gap:10,alignItems:"center"}}>
+          }} style={{padding:"12px 14px",background:C.red+"08",border:`1px solid ${C.red}33`,borderRadius:9,cursor:"pointer",fontSize:13,color:C.text,textAlign:"left",display:"flex",gap:10,alignItems:"center"}}>
             <span style={{fontSize:18}}>⚠️</span>
             <div>
               <div style={{fontWeight:600,color:C.red}}>Reset all logs</div>
-              <div style={{fontSize:14,color:C.muted}}>Clears food, water, journal, ritual · Keeps your profile</div>
+              <div style={{fontSize:11,color:C.muted}}>Clears food, water, journal, ritual · Keeps your profile</div>
             </div>
           </button>
           <button onClick={()=>{
@@ -8322,11 +8612,11 @@ function ProfileSection({C,profile,up,needs,setSection,resetToday,resetAllLogs})
               localStorage.clear();
               window.location.reload();
             }
-          }} style={{minHeight:40,minWidth:40,padding:"12px 14px",background:"transparent",border:`1px solid ${C.border}`,borderRadius:9,cursor:"pointer",fontSize:16,color:C.muted,textAlign:"left",display:"flex",gap:10,alignItems:"center"}}>
+          }} style={{padding:"12px 14px",background:"transparent",border:`1px solid ${C.border}`,borderRadius:9,cursor:"pointer",fontSize:13,color:C.muted,textAlign:"left",display:"flex",gap:10,alignItems:"center"}}>
             <span style={{fontSize:18}}>✦</span>
             <div>
               <div>Full reset · Start from scratch</div>
-              <div style={{fontSize:14,color:C.dim}}>Clears everything including profile</div>
+              <div style={{fontSize:11,color:C.dim}}>Clears everything including profile</div>
             </div>
           </button>
         </div>
@@ -8415,21 +8705,21 @@ function NotificationSettings({C, profile}){
   ];
 
   return(
-    <div style={{background:C.card,backdropFilter:C.glassBlur,WebkitBackdropFilter:C.glassBlur,border:`1px solid ${C.border}`,borderRadius:13,padding:20,marginTop:14}}>
-      <div style={{fontSize:13,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>REMINDERS</div>
+    <div style={{background:C.card,border:`1px solid ${C.border}`,borderRadius:13,padding:20,marginTop:14}}>
+      <div style={{fontSize:10,color:C.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:14}}>REMINDERS</div>
 
       {status==="unsupported"&&(
-        <div style={{fontSize:16,color:C.muted,lineHeight:1.7}}>Push notifications aren't supported on this browser. Try Chrome or Edge on Android for full notification support.</div>
+        <div style={{fontSize:13,color:C.muted,lineHeight:1.7}}>Push notifications aren't supported on this browser. Try Chrome or Edge on Android for full notification support.</div>
       )}
 
       {status==="denied"&&(
-        <div style={{fontSize:16,color:C.muted,lineHeight:1.7}}>Notifications were blocked. Go to your browser settings → Site permissions → Notifications → allow for this site, then come back here.</div>
+        <div style={{fontSize:13,color:C.muted,lineHeight:1.7}}>Notifications were blocked. Go to your browser settings → Site permissions → Notifications → allow for this site, then come back here.</div>
       )}
 
       {(status==="idle"||status==="requesting")&&(
         <div>
-          <div style={{fontSize:16,color:C.muted,lineHeight:1.7,marginBottom:12}}>Get nudged at the right time — morning ritual, food log, bedtime. Reminders reach your phone even when the app is closed.</div>
-          <button onClick={enableNotifications} disabled={status==="requesting"} style={{minHeight:40,minWidth:40,padding:"11px 20px",borderRadius:11,border:"none",background:status==="requesting"?C.border:`linear-gradient(135deg,${C.accent},${C.accent2})`,color:"#fff",cursor:"pointer",fontSize:16,fontWeight:600}}>
+          <div style={{fontSize:13,color:C.muted,lineHeight:1.7,marginBottom:12}}>Get nudged at the right time — morning ritual, food log, bedtime. Reminders reach your phone even when the app is closed.</div>
+          <button onClick={enableNotifications} disabled={status==="requesting"} style={{padding:"11px 20px",borderRadius:11,border:"none",background:status==="requesting"?C.border:`linear-gradient(135deg,${C.accent},${C.accent2})`,color:"#fff",cursor:"pointer",fontSize:13,fontWeight:600}}>
             {status==="requesting"?"Setting up…":"Enable reminders"}
           </button>
         </div>
@@ -8437,15 +8727,15 @@ function NotificationSettings({C, profile}){
 
       {status==="granted"&&(
         <div>
-          <div style={{fontSize:14,color:C.accent2,marginBottom:14}}>✓ Notifications enabled</div>
+          <div style={{fontSize:11,color:C.accent2,marginBottom:14}}>✓ Notifications enabled</div>
           <div style={{display:"flex",flexDirection:"column",gap:10,marginBottom:14}}>
             {REMINDER_TYPES.map(r=>(
               <div key={r.k} style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                 <div>
-                  <div style={{fontSize:16,color:C.text}}>{r.l}</div>
-                  <div style={{fontSize:14,color:C.muted}}>{r.time}</div>
+                  <div style={{fontSize:13,color:C.text}}>{r.l}</div>
+                  <div style={{fontSize:11,color:C.muted}}>{r.time}</div>
                 </div>
-                <button onClick={()=>setSettings(s=>({...s,[r.k]:!s[r.k]}))} style={{minHeight:40,minWidth:40,
+                <button onClick={()=>setSettings(s=>({...s,[r.k]:!s[r.k]}))} style={{
                   width:44,height:24,borderRadius:12,border:"none",cursor:"pointer",
                   background:settings[r.k]?C.accent2:C.border,transition:"background 0.2s",
                   position:"relative",
@@ -8458,7 +8748,7 @@ function NotificationSettings({C, profile}){
               </div>
             ))}
           </div>
-          <button onClick={saveSettings} style={{minHeight:40,minWidth:40,padding:"9px 20px",borderRadius:9,border:`1px solid ${C.border}`,background:"transparent",cursor:"pointer",fontSize:15,color:C.muted}}>
+          <button onClick={saveSettings} style={{padding:"9px 20px",borderRadius:9,border:`1px solid ${C.border}`,background:"transparent",cursor:"pointer",fontSize:12,color:C.muted}}>
             {saved?"✓ Saved":"Save preferences"}
           </button>
         </div>
@@ -8950,27 +9240,27 @@ Question: ${q || "Give a deep, personalised Vedic reading covering: core persona
       <div style={{textAlign:"center",marginBottom:24}}>
         <div style={{fontSize:30,marginBottom:8,color:G.accent}}>✦</div>
         <div style={{fontSize:22,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",marginBottom:6}}>Your Birth Chart</div>
-        <div style={{fontSize:16,color:G.muted,lineHeight:1.7}}>Jyotish maps your inner world from the exact moment you were born. The more precise the birth time, the more accurate the reading.</div>
+        <div style={{fontSize:13,color:G.muted,lineHeight:1.7}}>Jyotish maps your inner world from the exact moment you were born. The more precise the birth time, the more accurate the reading.</div>
       </div>
       <div style={{display:"flex",flexDirection:"column",gap:14}}>
         <BCField label="DATE OF BIRTH *" G={G}><input type="date" value={bd.dob} onChange={e=>setBd(d=>({...d,dob:e.target.value}))} style={bcInput(G)}/></BCField>
         <BCField label="BIRTH TIME" G={G}>
           <div style={{display:"flex",gap:6,marginBottom:8}}>
             {[{v:"yes",l:"I know exactly"},{v:"approx",l:"Rough idea"},{v:"no",l:"Don't know"}].map(o=>(
-              <button key={o.v} onClick={()=>setBd(d=>({...d,knowsTime:o.v}))} style={{minHeight:40,minWidth:40,flex:1,padding:"8px 4px",borderRadius:8,border:`1px solid ${bd.knowsTime===o.v?G.accent:G.border}`,background:bd.knowsTime===o.v?G.accent+"18":"transparent",cursor:"pointer",fontSize:14,color:bd.knowsTime===o.v?G.accent:G.muted}}>{o.l}</button>
+              <button key={o.v} onClick={()=>setBd(d=>({...d,knowsTime:o.v}))} style={{flex:1,padding:"8px 4px",borderRadius:8,border:`1px solid ${bd.knowsTime===o.v?G.accent:G.border}`,background:bd.knowsTime===o.v?G.accent+"18":"transparent",cursor:"pointer",fontSize:11,color:bd.knowsTime===o.v?G.accent:G.muted}}>{o.l}</button>
             ))}
           </div>
           {bd.knowsTime!=="no"&&<input type="time" value={bd.time} onChange={e=>setBd(d=>({...d,time:e.target.value}))} style={bcInput(G)}/>}
-          {bd.knowsTime==="no"&&<div style={{fontSize:15,color:G.muted,padding:"10px 12px",background:G.card,borderRadius:8,border:`1px solid ${G.border}`,lineHeight:1.6}}>Without birth time, Lagna cannot be precisely calculated. You can manually select your Lagna below if you know it.</div>}
+          {bd.knowsTime==="no"&&<div style={{fontSize:12,color:G.muted,padding:"10px 12px",background:G.card,borderRadius:8,border:`1px solid ${G.border}`,lineHeight:1.6}}>Without birth time, Lagna cannot be precisely calculated. You can manually select your Lagna below if you know it.</div>}
         </BCField>
         <BCField label="BIRTH PLACE" G={G}><input value={bd.place} onChange={e=>setBd(d=>({...d,place:e.target.value}))} placeholder="City, State, Country" style={bcInput(G)}/></BCField>
         <div style={{padding:"14px 16px",background:G.card,border:`1px solid ${G.gold}44`,borderRadius:12}}>
-          <div style={{fontSize:13,color:G.gold,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>ALREADY KNOW YOUR SIGNS? (More accurate)</div>
+          <div style={{fontSize:10,color:G.gold,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>ALREADY KNOW YOUR SIGNS? (More accurate)</div>
           <div style={{display:"flex",flexDirection:"column",gap:10}}>
             {[{l:"Lagna (Rising Sign)",k:"manualLagna"},{l:"Moon Sign (Chandra Rashi)",k:"manualMoon"},{l:"Sun Sign (Surya Rashi)",k:"manualSun"}].map((f,i)=>(
               <div key={i}>
-                <div style={{fontSize:13,color:G.muted,marginBottom:5}}>{f.l}</div>
-                <select value={bd[f.k]} onChange={e=>setBd(d=>({...d,[f.k]:e.target.value}))} style={{...bcInput(G),fontSize:16}}>
+                <div style={{fontSize:10,color:G.muted,marginBottom:5}}>{f.l}</div>
+                <select value={bd[f.k]} onChange={e=>setBd(d=>({...d,[f.k]:e.target.value}))} style={{...bcInput(G),fontSize:13}}>
                   <option value="">Calculate automatically</option>
                   {RASHIS_V.map(r=><option key={r.name} value={r.en}>{r.symbol} {r.en} ({r.name})</option>)}
                 </select>
@@ -8990,7 +9280,7 @@ Question: ${q || "Give a deep, personalised Vedic reading covering: core persona
       up("manualMoon", bd.manualMoon);
       up("manualSun", bd.manualSun);
     }
-  }} disabled={!bd.dob} style={{minHeight:40,minWidth:40,padding:"15px",background:bd.dob?`linear-gradient(135deg,${G.accent},${G.warm})`:G.border,border:"none",borderRadius:12,color:"#fff",cursor:bd.dob?"pointer":"not-allowed",fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontStyle:"italic",marginTop:6}}>
+  }} disabled={!bd.dob} style={{padding:"15px",background:bd.dob?`linear-gradient(135deg,${G.accent},${G.warm})`:G.border,border:"none",borderRadius:12,color:"#fff",cursor:bd.dob?"pointer":"not-allowed",fontFamily:"'Cormorant Garamond',serif",fontSize:20,fontStyle:"italic",marginTop:6}}>
           {bd.dob?"Read My Chart →":"Enter date of birth to continue"}
         </button>
       </div>
@@ -9007,45 +9297,45 @@ Question: ${q || "Give a deep, personalised Vedic reading covering: core persona
         <div style={{background:"linear-gradient(135deg,#0a0520,#1a0a3a)",borderRadius:14,padding:"18px 18px 14px",marginBottom:14,position:"relative",overflow:"hidden"}}>
           {[...Array(16)].map((_,i)=><div key={i} style={{position:"absolute",left:`${(i*37)%100}%`,top:`${(i*53)%100}%`,width:i%4===0?2.5:1.5,height:i%4===0?2.5:1.5,borderRadius:"50%",background:"#e8e0ff",opacity:0.15+Math.sin(i)*0.1}}/>)}
           <div style={{position:"relative",zIndex:1}}>
-            <div style={{fontSize:13,color:"#c084fc88",fontFamily:"'DM Mono',monospace",letterSpacing:3,marginBottom:6}}>✦ JYOTISH · VEDIC BIRTH CHART</div>
+            <div style={{fontSize:10,color:"#c084fc88",fontFamily:"'DM Mono',monospace",letterSpacing:3,marginBottom:6}}>✦ JYOTISH · VEDIC BIRTH CHART</div>
             <div style={{fontSize:22,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:"#ede8ff",marginBottom:4}}>
               {chart?.lagna?.en} Rising · {chart?.moon?.en} Moon · {chart?.sun?.en} Sun
             </div>
-            <div style={{fontSize:15,color:"#7a6fa8"}}>
+            <div style={{fontSize:12,color:"#7a6fa8"}}>
               {chart?.nakshatra?.name} Nakshatra · {chart?.md?.current?.planet} Mahadasha
               {chart?.ss?.isSadeSati?" · ⚠ Sade Sati Active":""}
             </div>
           </div>
         </div>
         <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12}}>
-          <div style={{fontSize:17,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>✦ Vedic Birth Chart</div>
-          <button onClick={()=>setStep("input")} style={{minHeight:40,minWidth:40,fontSize:14,color:G.muted,background:"transparent",border:`1px solid ${G.border}`,borderRadius:20,padding:"4px 12px",cursor:"pointer"}}>Edit</button>
+          <div style={{fontSize:15,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>✦ Vedic Birth Chart</div>
+          <button onClick={()=>setStep("input")} style={{fontSize:11,color:G.muted,background:"transparent",border:`1px solid ${G.border}`,borderRadius:20,padding:"4px 12px",cursor:"pointer"}}>Edit</button>
         </div>
         <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8,marginBottom:12}}>
           {[{sign:chart.lagna,label:"Lagna",icon:"⬆"},{sign:chart.moon,label:"Chandra",icon:"🌙"},{sign:chart.sun,label:"Surya",icon:"☀"}].map((item,i)=>(
             <div key={i} style={{background:G.card,border:`1px solid ${item.sign.color}44`,borderRadius:12,padding:"12px 8px",textAlign:"center",boxShadow:`0 0 20px ${item.sign.color}18`,position:"relative",overflow:"hidden",minHeight:90}}>
               <ConstellationBg sign={item.sign.en} size={120} opacity={0.18}/>
               <div style={{position:"relative",zIndex:1}}>
-                <div style={{fontSize:12,color:G.muted,fontFamily:"'DM Mono',monospace",marginBottom:4}}>{item.icon} {item.label}</div>
+                <div style={{fontSize:9,color:G.muted,fontFamily:"'DM Mono',monospace",marginBottom:4}}>{item.icon} {item.label}</div>
                 <div style={{fontSize:24,marginBottom:3}}>{item.sign.symbol}</div>
-                <div style={{fontSize:15,fontWeight:700,color:item.sign.color}}>{item.sign.en}</div>
-                <div style={{fontSize:12,color:G.dim}}>{item.sign.element}</div>
+                <div style={{fontSize:12,fontWeight:700,color:item.sign.color}}>{item.sign.en}</div>
+                <div style={{fontSize:9,color:G.dim}}>{item.sign.element}</div>
               </div>
             </div>
           ))}
         </div>
         {/* Quick status bar */}
         <div style={{display:"flex",gap:8,flexWrap:"wrap",marginBottom:14}}>
-          <div style={{fontSize:14,padding:"4px 10px",background:MAHADASHA_INFO[chart.md.current?.planet]?.color+"22",border:`1px solid ${MAHADASHA_INFO[chart.md.current?.planet]?.color}44`,borderRadius:20,color:MAHADASHA_INFO[chart.md.current?.planet]?.color}}>
+          <div style={{fontSize:11,padding:"4px 10px",background:MAHADASHA_INFO[chart.md.current?.planet]?.color+"22",border:`1px solid ${MAHADASHA_INFO[chart.md.current?.planet]?.color}44`,borderRadius:20,color:MAHADASHA_INFO[chart.md.current?.planet]?.color}}>
             {chart.md.current?.planet} Mahadasha
           </div>
-          {chart.ad?.current&&<div style={{fontSize:14,padding:"4px 10px",background:MAHADASHA_INFO[chart.ad.current.planet]?.color+"18",border:`1px solid ${MAHADASHA_INFO[chart.ad.current.planet]?.color}33`,borderRadius:20,color:MAHADASHA_INFO[chart.ad.current.planet]?.color}}>
+          {chart.ad?.current&&<div style={{fontSize:11,padding:"4px 10px",background:MAHADASHA_INFO[chart.ad.current.planet]?.color+"18",border:`1px solid ${MAHADASHA_INFO[chart.ad.current.planet]?.color}33`,borderRadius:20,color:MAHADASHA_INFO[chart.ad.current.planet]?.color}}>
             {chart.ad.current.planet} Antardasha
           </div>}
-          {chart.ss.isSadeSati&&<div style={{fontSize:14,padding:"4px 10px",background:"#7090a844",border:"1px solid #7090a866",borderRadius:20,color:"#7090a8"}}>
+          {chart.ss.isSadeSati&&<div style={{fontSize:11,padding:"4px 10px",background:"#7090a844",border:"1px solid #7090a866",borderRadius:20,color:"#7090a8"}}>
             ⚠ Sade Sati Active
           </div>}
-          {chart.ss.isDhaiya&&!chart.ss.isSadeSati&&<div style={{fontSize:14,padding:"4px 10px",background:"#7090a822",border:"1px solid #7090a844",borderRadius:20,color:"#7090a8"}}>
+          {chart.ss.isDhaiya&&!chart.ss.isSadeSati&&<div style={{fontSize:11,padding:"4px 10px",background:"#7090a822",border:"1px solid #7090a844",borderRadius:20,color:"#7090a8"}}>
             Dhaiya Active
           </div>}
         </div>
@@ -9054,7 +9344,7 @@ Question: ${q || "Give a deep, personalised Vedic reading covering: core persona
       {/* Tabs */}
       <div style={{overflowX:"auto",display:"flex",borderBottom:`1px solid ${G.border}`,padding:"0 4px",background:G.surface,WebkitOverflowScrolling:"touch"}}>
         {TABS.map(t=>(
-          <button key={t.id} onClick={()=>setActiveTab(t.id)} style={{minHeight:40,minWidth:40,flexShrink:0,padding:"10px 12px",border:"none",background:"none",cursor:"pointer",fontFamily:"'Jost',sans-serif",fontSize:14,color:activeTab===t.id?G.accent:G.muted,borderBottom:activeTab===t.id?`2px solid ${G.accent}`:"2px solid transparent",whiteSpace:"nowrap"}}>
+          <button key={t.id} onClick={()=>setActiveTab(t.id)} style={{flexShrink:0,padding:"10px 12px",border:"none",background:"none",cursor:"pointer",fontFamily:"'Jost',sans-serif",fontSize:11,color:activeTab===t.id?G.accent:G.muted,borderBottom:activeTab===t.id?`2px solid ${G.accent}`:"2px solid transparent",whiteSpace:"nowrap"}}>
             {t.l}
           </button>
         ))}
@@ -9065,7 +9355,7 @@ Question: ${q || "Give a deep, personalised Vedic reading covering: core persona
         {/* ── OVERVIEW ── */}
         {activeTab==="overview"&&(
           <div>
-            <div style={{background:G.card,border:`1px solid ${G.border}`,borderRadius:14,padding:20,marginBottom:14,fontFamily:"'Cormorant Garamond',serif",fontSize:18,fontStyle:"italic",lineHeight:2,color:G.text}}>
+            <div style={{background:G.card,border:`1px solid ${G.border}`,borderRadius:14,padding:20,marginBottom:14,fontFamily:"'Cormorant Garamond',serif",fontSize:16,fontStyle:"italic",lineHeight:2,color:G.text}}>
               You are <span style={{color:chart.lagna.color,fontWeight:600}}>{chart.lagna.en} rising</span> — the face you show the world.
               At your emotional core, <span style={{color:chart.moon.color,fontWeight:600}}>{chart.moon.en} Moon</span> — the self that exists before the world asks anything of you.
               Your consciousness grows toward <span style={{color:chart.sun.color,fontWeight:600}}>{chart.sun.en} Sun</span> — who you are becoming.
@@ -9077,15 +9367,15 @@ Question: ${q || "Give a deep, personalised Vedic reading covering: core persona
               {sign:chart.sun,lens:"Sun — Who you're becoming",desc:chart.sun.personality.slice(0,3).join(" · ")},
             ].map((item,i)=>(
               <div key={i} style={{padding:"12px 16px",background:item.sign.color+"12",border:`1px solid ${item.sign.color}33`,borderRadius:10,marginBottom:9}}>
-                <div style={{fontSize:13,color:item.sign.color,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:3}}>{item.lens.toUpperCase()}</div>
-                <div style={{fontSize:16,fontWeight:600,color:item.sign.color,marginBottom:3}}>{item.sign.en}</div>
-                <div style={{fontSize:16,color:G.text,lineHeight:1.6}}>{item.desc}</div>
+                <div style={{fontSize:10,color:item.sign.color,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:3}}>{item.lens.toUpperCase()}</div>
+                <div style={{fontSize:14,fontWeight:600,color:item.sign.color,marginBottom:3}}>{item.sign.en}</div>
+                <div style={{fontSize:13,color:G.text,lineHeight:1.6}}>{item.desc}</div>
               </div>
             ))}
             <div style={{background:G.card,border:`1px solid ${G.gold}33`,borderRadius:12,padding:"14px 16px"}}>
-              <div style={{fontSize:13,color:G.gold,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:8}}>✦ NAKSHATRA · {chart.nakshatra.name}</div>
-              <div style={{fontSize:16,color:G.text,lineHeight:1.7,marginBottom:6}}>{chart.nakshatra.gift}</div>
-              <div style={{fontSize:15,color:G.red}}>Shadow: {chart.nakshatra.shadow}</div>
+              <div style={{fontSize:10,color:G.gold,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:8}}>✦ NAKSHATRA · {chart.nakshatra.name}</div>
+              <div style={{fontSize:13,color:G.text,lineHeight:1.7,marginBottom:6}}>{chart.nakshatra.gift}</div>
+              <div style={{fontSize:12,color:G.red}}>Shadow: {chart.nakshatra.shadow}</div>
             </div>
           </div>
         )}
@@ -9102,17 +9392,17 @@ Question: ${q || "Give a deep, personalised Vedic reading covering: core persona
                 <div style={{display:"flex",gap:12,alignItems:"center",marginBottom:12}}>
                   <div style={{fontSize:34}}>{item.sign.symbol}</div>
                   <div>
-                    <div style={{fontSize:14,color:item.sign.color,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:2}}>{item.lens}</div>
+                    <div style={{fontSize:11,color:item.sign.color,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:2}}>{item.lens}</div>
                     <div style={{fontSize:18,fontWeight:600,color:item.sign.color}}>{item.sign.en} · {item.sign.name}</div>
-                    <div style={{fontSize:14,color:G.muted}}>{item.sign.element} · {item.sign.quality} · Ruled by {item.sign.rulingEn}</div>
+                    <div style={{fontSize:11,color:G.muted}}>{item.sign.element} · {item.sign.quality} · Ruled by {item.sign.rulingEn}</div>
                   </div>
                 </div>
                 <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:12}}>
-                  {item.sign.personality.map((t,j)=><span key={j} style={{fontSize:14,padding:"4px 10px",background:item.sign.color+"22",border:`1px solid ${item.sign.color}44`,borderRadius:20,color:item.sign.color}}>{t}</span>)}
+                  {item.sign.personality.map((t,j)=><span key={j} style={{fontSize:11,padding:"4px 10px",background:item.sign.color+"22",border:`1px solid ${item.sign.color}44`,borderRadius:20,color:item.sign.color}}>{t}</span>)}
                 </div>
-                <div style={{fontSize:16,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",lineHeight:1.8,color:G.text,padding:"12px 14px",background:G.surface,borderRadius:8,marginBottom:10}}>"{item.sign.strength}"</div>
-                <div style={{fontSize:15,color:G.gold,marginBottom:6,fontStyle:"italic"}}>Life theme: {item.sign.lifeTheme}</div>
-                <div style={{fontSize:15,color:G.warm}}>Relationships: {item.sign.relationships}</div>
+                <div style={{fontSize:14,fontStyle:"italic",fontFamily:"'Cormorant Garamond',serif",lineHeight:1.8,color:G.text,padding:"12px 14px",background:G.surface,borderRadius:8,marginBottom:10}}>"{item.sign.strength}"</div>
+                <div style={{fontSize:12,color:G.gold,marginBottom:6,fontStyle:"italic"}}>Life theme: {item.sign.lifeTheme}</div>
+                <div style={{fontSize:12,color:G.warm}}>Relationships: {item.sign.relationships}</div>
               </div>
             ))}
           </div>
@@ -9121,7 +9411,7 @@ Question: ${q || "Give a deep, personalised Vedic reading covering: core persona
         {/* ── DASHA ── */}
         {activeTab==="dasha"&&(
           <div>
-            <div style={{fontSize:16,color:G.muted,marginBottom:16,lineHeight:1.7}}>The Vimshottari Dasha divides your life into planetary chapters — each planet rules a period and colours every decision, relationship, and opportunity within it.</div>
+            <div style={{fontSize:13,color:G.muted,marginBottom:16,lineHeight:1.7}}>The Vimshottari Dasha divides your life into planetary chapters — each planet rules a period and colours every decision, relationship, and opportunity within it.</div>
 
             {/* Current Mahadasha */}
             {chart.md.current&&(()=>{
@@ -9132,23 +9422,23 @@ Question: ${q || "Give a deep, personalised Vedic reading covering: core persona
               const pct=Math.round((doneMs/totalMs)*100);
               return(
                 <div style={{background:G.card,border:`2px solid ${info.color}66`,borderRadius:14,padding:20,marginBottom:14,boxShadow:`0 0 24px ${info.color}22`}}>
-                  <div style={{fontSize:13,color:info.color,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>◉ CURRENT MAHADASHA — ACTIVE NOW</div>
+                  <div style={{fontSize:10,color:info.color,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>◉ CURRENT MAHADASHA — ACTIVE NOW</div>
                   <div style={{display:"flex",gap:14,alignItems:"flex-start",marginBottom:14}}>
                     <div style={{padding:"12px 16px",background:info.color+"22",border:`2px solid ${info.color}44`,borderRadius:10,textAlign:"center",minWidth:80,flexShrink:0}}>
                       <div style={{fontSize:18,fontWeight:700,color:info.color}}>{chart.md.current.planet}</div>
-                      <div style={{fontSize:12,color:G.dim}}>{info.en}</div>
-                      <div style={{fontSize:12,color:G.muted,marginTop:4}}>{chart.md.current.years} years</div>
+                      <div style={{fontSize:9,color:G.dim}}>{info.en}</div>
+                      <div style={{fontSize:9,color:G.muted,marginTop:4}}>{chart.md.current.years} years</div>
                     </div>
                     <div>
-                      <div style={{fontSize:15,color:info.color,marginBottom:4,fontWeight:600}}>{info.theme}</div>
-                      <div style={{fontSize:14,color:G.muted,marginBottom:2}}>{fmtDate(chart.md.current.start)} → {fmtDate(chart.md.current.end)}</div>
+                      <div style={{fontSize:12,color:info.color,marginBottom:4,fontWeight:600}}>{info.theme}</div>
+                      <div style={{fontSize:11,color:G.muted,marginBottom:2}}>{fmtDate(chart.md.current.start)} → {fmtDate(chart.md.current.end)}</div>
                       <div style={{background:G.border,borderRadius:4,height:5,marginTop:8,marginBottom:4}}><div style={{width:`${pct}%`,height:5,background:info.color,borderRadius:4}}/></div>
-                      <div style={{fontSize:13,color:G.dim}}>{pct}% complete</div>
+                      <div style={{fontSize:10,color:G.dim}}>{pct}% complete</div>
                     </div>
                   </div>
-                  <div style={{fontSize:16,lineHeight:1.75,color:G.text,marginBottom:10}}>{info.good?`✓ Supports: ${info.good}`:""}</div>
-                  {info.challenging&&<div style={{fontSize:15,color:G.red,lineHeight:1.6,marginBottom:10}}>⚠ Watch for: {info.challenging}</div>}
-                  <div style={{fontSize:15,color:G.accent2}}>Remedy: {info.remedy}</div>
+                  <div style={{fontSize:13,lineHeight:1.75,color:G.text,marginBottom:10}}>{info.good?`✓ Supports: ${info.good}`:""}</div>
+                  {info.challenging&&<div style={{fontSize:12,color:G.red,lineHeight:1.6,marginBottom:10}}>⚠ Watch for: {info.challenging}</div>}
+                  <div style={{fontSize:12,color:G.accent2}}>Remedy: {info.remedy}</div>
                 </div>
               );
             })()}
@@ -9162,19 +9452,19 @@ Question: ${q || "Give a deep, personalised Vedic reading covering: core persona
               const pct=Math.round((doneMs/totalMs)*100);
               return(
                 <div style={{background:G.card,border:`1px solid ${info.color}44`,borderRadius:12,padding:18,marginBottom:14}}>
-                  <div style={{fontSize:13,color:info.color,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>◈ CURRENT ANTARDASHA (SUB-PERIOD)</div>
+                  <div style={{fontSize:10,color:info.color,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>◈ CURRENT ANTARDASHA (SUB-PERIOD)</div>
                   <div style={{display:"flex",gap:10,alignItems:"center",marginBottom:10}}>
                     <div style={{padding:"8px 12px",background:info.color+"18",border:`1px solid ${info.color}44`,borderRadius:8,textAlign:"center",minWidth:60,flexShrink:0}}>
-                      <div style={{fontSize:16,fontWeight:700,color:info.color}}>{chart.ad.current.planet}</div>
-                      <div style={{fontSize:12,color:G.dim}}>Antardasha</div>
+                      <div style={{fontSize:14,fontWeight:700,color:info.color}}>{chart.ad.current.planet}</div>
+                      <div style={{fontSize:9,color:G.dim}}>Antardasha</div>
                     </div>
                     <div>
-                      <div style={{fontSize:15,color:info.color,fontWeight:600}}>{chart.md.current?.planet}–{chart.ad.current.planet} period</div>
-                      <div style={{fontSize:14,color:G.muted}}>{fmtDate(chart.ad.current.start)} → {fmtDate(chart.ad.current.end)}</div>
+                      <div style={{fontSize:12,color:info.color,fontWeight:600}}>{chart.md.current?.planet}–{chart.ad.current.planet} period</div>
+                      <div style={{fontSize:11,color:G.muted}}>{fmtDate(chart.ad.current.start)} → {fmtDate(chart.ad.current.end)}</div>
                     </div>
                   </div>
                   <div style={{background:G.border,borderRadius:3,height:4,marginBottom:10}}><div style={{width:`${Math.min(100,pct)}%`,height:4,background:info.color,borderRadius:3}}/></div>
-                  <button onClick={()=>setExpandedAntardasha(e=>!e)} style={{minHeight:40,minWidth:40,fontSize:15,color:G.muted,background:"transparent",border:`1px solid ${G.border}`,borderRadius:20,padding:"4px 12px",cursor:"pointer"}}>
+                  <button onClick={()=>setExpandedAntardasha(e=>!e)} style={{fontSize:12,color:G.muted,background:"transparent",border:`1px solid ${G.border}`,borderRadius:20,padding:"4px 12px",cursor:"pointer"}}>
                     {expandedAntardasha?"Hide":"Show all"} sub-periods
                   </button>
                   {expandedAntardasha&&chart.ad.antardashas&&(
@@ -9184,9 +9474,9 @@ Question: ${q || "Give a deep, personalised Vedic reading covering: core persona
                         const isCurrent=ad.start<=now&&ad.end>now;
                         const info2=MAHADASHA_INFO[ad.planet];
                         return<div key={i} style={{display:"flex",gap:8,padding:"7px 10px",background:isCurrent?info2.color+"18":G.surface,border:`1px solid ${isCurrent?info2.color:G.border}`,borderRadius:8,alignItems:"center"}}>
-                          <div style={{fontSize:14,fontWeight:isCurrent?700:400,color:isCurrent?info2.color:G.muted,width:60,flexShrink:0}}>{ad.planet}</div>
-                          <div style={{fontSize:13,color:G.dim,flex:1}}>{fmtDateShort(ad.start)} → {fmtDateShort(ad.end)}</div>
-                          {isCurrent&&<div style={{fontSize:12,color:info2.color,padding:"2px 7px",background:info2.color+"22",borderRadius:20}}>NOW</div>}
+                          <div style={{fontSize:11,fontWeight:isCurrent?700:400,color:isCurrent?info2.color:G.muted,width:60,flexShrink:0}}>{ad.planet}</div>
+                          <div style={{fontSize:10,color:G.dim,flex:1}}>{fmtDateShort(ad.start)} → {fmtDateShort(ad.end)}</div>
+                          {isCurrent&&<div style={{fontSize:9,color:info2.color,padding:"2px 7px",background:info2.color+"22",borderRadius:20}}>NOW</div>}
                         </div>;
                       })}
                     </div>
@@ -9197,7 +9487,7 @@ Question: ${q || "Give a deep, personalised Vedic reading covering: core persona
 
             {/* Dasha timeline */}
             <div style={{background:G.card,border:`1px solid ${G.border}`,borderRadius:12,padding:18}}>
-              <div style={{fontSize:13,color:G.muted,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>YOUR COMPLETE DASHA TIMELINE</div>
+              <div style={{fontSize:10,color:G.muted,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>YOUR COMPLETE DASHA TIMELINE</div>
               {chart.md.dashas.filter(d=>new Date(d.end)>new Date(new Date().getFullYear()-5,0)).slice(0,12).map((d,i)=>{
                 const now=new Date();
                 const isCurrent=d.start<=now&&d.end>now;
@@ -9205,15 +9495,15 @@ Question: ${q || "Give a deep, personalised Vedic reading covering: core persona
                 const info=MAHADASHA_INFO[d.planet];
                 return<div key={i} style={{display:"flex",gap:10,padding:"8px 0",borderBottom:i<11?`1px solid ${G.border}`:"none",alignItems:"center",opacity:isPast?0.5:1}}>
                   <div style={{width:40,height:40,borderRadius:8,background:isCurrent?info.color+"33":G.surface,border:`2px solid ${isCurrent?info.color:G.border}`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                    <div style={{fontSize:14,fontWeight:700,color:isCurrent?info.color:G.muted}}>{d.planet.slice(0,4)}</div>
+                    <div style={{fontSize:11,fontWeight:700,color:isCurrent?info.color:G.muted}}>{d.planet.slice(0,4)}</div>
                   </div>
                   <div style={{flex:1}}>
-                    <div style={{fontSize:16,fontWeight:isCurrent?700:400,color:isCurrent?info.color:G.text}}>{info.en} · {d.years} years</div>
-                    <div style={{fontSize:13,color:G.dim}}>{fmtDateShort(d.start)} → {fmtDateShort(d.end)}</div>
-                    {isCurrent&&<div style={{fontSize:14,color:info.color,marginTop:2}}>{info.theme}</div>}
+                    <div style={{fontSize:13,fontWeight:isCurrent?700:400,color:isCurrent?info.color:G.text}}>{info.en} · {d.years} years</div>
+                    <div style={{fontSize:10,color:G.dim}}>{fmtDateShort(d.start)} → {fmtDateShort(d.end)}</div>
+                    {isCurrent&&<div style={{fontSize:11,color:info.color,marginTop:2}}>{info.theme}</div>}
                   </div>
-                  {isCurrent&&<div style={{fontSize:12,color:info.color,padding:"3px 8px",background:info.color+"22",borderRadius:20,flexShrink:0}}>NOW</div>}
-                  {isPast&&<div style={{fontSize:12,color:G.dim,padding:"3px 8px",background:G.surface,borderRadius:20,flexShrink:0}}>Done</div>}
+                  {isCurrent&&<div style={{fontSize:9,color:info.color,padding:"3px 8px",background:info.color+"22",borderRadius:20,flexShrink:0}}>NOW</div>}
+                  {isPast&&<div style={{fontSize:9,color:G.dim,padding:"3px 8px",background:G.surface,borderRadius:20,flexShrink:0}}>Done</div>}
                 </div>;
               })}
             </div>
@@ -9223,25 +9513,25 @@ Question: ${q || "Give a deep, personalised Vedic reading covering: core persona
         {/* ── SADE SATI ── */}
         {activeTab==="sadesati"&&(
           <div>
-            <div style={{fontSize:16,color:G.muted,marginBottom:16,lineHeight:1.7}}>Sade Sati is Saturn's 7.5-year transit through the sign before, on, and after your Moon sign. It is one of Jyotish's most significant periods — often marked by transformation, hard lessons, and eventual breakthrough.</div>
+            <div style={{fontSize:13,color:G.muted,marginBottom:16,lineHeight:1.7}}>Sade Sati is Saturn's 7.5-year transit through the sign before, on, and after your Moon sign. It is one of Jyotish's most significant periods — often marked by transformation, hard lessons, and eventual breakthrough.</div>
 
             {/* Status */}
             <div style={{background:G.card,border:`2px solid ${chart.ss.isSadeSati?"#7090a8":"#7090a844"}`,borderRadius:14,padding:20,marginBottom:14,boxShadow:chart.ss.isSadeSati?"0 0 24px #7090a822":"none"}}>
-              <div style={{fontSize:13,color:"#7090a8",fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>SADE SATI STATUS — YOUR {chart.moon.en} MOON</div>
+              <div style={{fontSize:10,color:"#7090a8",fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>SADE SATI STATUS — YOUR {chart.moon.en} MOON</div>
               <div style={{display:"flex",gap:12,alignItems:"center",marginBottom:14}}>
                 <div style={{fontSize:32}}>{chart.ss.isSadeSati?"⚠":"✓"}</div>
                 <div>
                   <div style={{fontSize:18,fontWeight:700,color:chart.ss.isSadeSati?"#7090a8":"#71b478"}}>
                     {chart.ss.isSadeSati?"Sade Sati Active":chart.ss.isDhaiya?"Dhaiya (2.5 yr) Active":"Not in Sade Sati"}
                   </div>
-                  {chart.ss.isSadeSati&&<div style={{fontSize:16,color:G.muted,marginTop:3}}>{chart.ss.phase}</div>}
+                  {chart.ss.isSadeSati&&<div style={{fontSize:13,color:G.muted,marginTop:3}}>{chart.ss.phase}</div>}
                   {!chart.ss.isSadeSati&&!chart.ss.isDhaiya&&chart.ss.futureSS&&(
-                    <div style={{fontSize:16,color:G.muted,marginTop:3}}>Next Sade Sati begins around {fmtDate(chart.ss.futureSS.start)}</div>
+                    <div style={{fontSize:13,color:G.muted,marginTop:3}}>Next Sade Sati begins around {fmtDate(chart.ss.futureSS.start)}</div>
                   )}
                 </div>
               </div>
               {chart.ss.currentSaturn&&(
-                <div style={{padding:"10px 14px",background:"#7090a812",border:"1px solid #7090a833",borderRadius:8,fontSize:15,color:G.text,lineHeight:1.7}}>
+                <div style={{padding:"10px 14px",background:"#7090a812",border:"1px solid #7090a833",borderRadius:8,fontSize:12,color:G.text,lineHeight:1.7}}>
                   Saturn currently transiting <strong>{RASHIS_V[chart.ss.currentSaturn.sign]?.en}</strong> until {fmtDate(chart.ss.currentSaturn.end)}
                 </div>
               )}
@@ -9249,8 +9539,8 @@ Question: ${q || "Give a deep, personalised Vedic reading covering: core persona
 
             {/* What it means */}
             <div style={{background:G.card,border:`1px solid ${G.border}`,borderRadius:12,padding:18,marginBottom:14}}>
-              <div style={{fontSize:13,color:G.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>WHAT SADE SATI ACTUALLY MEANS</div>
-              <div style={{fontSize:16,color:G.text,lineHeight:1.8,marginBottom:12}}>Sade Sati is not a curse — it is Saturn doing its job. Saturn is the great teacher. It removes what is no longer serving you, even when you're not ready to let it go. The discomfort is the medicine.</div>
+              <div style={{fontSize:10,color:G.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>WHAT SADE SATI ACTUALLY MEANS</div>
+              <div style={{fontSize:13,color:G.text,lineHeight:1.8,marginBottom:12}}>Sade Sati is not a curse — it is Saturn doing its job. Saturn is the great teacher. It removes what is no longer serving you, even when you're not ready to let it go. The discomfort is the medicine.</div>
               <div style={{display:"flex",flexDirection:"column",gap:8}}>
                 {[
                   {phase:"1st Phase (Saturn in sign before Moon)",effect:"Career pressure, financial challenges, restlessness, travel",color:"#f0c040"},
@@ -9258,8 +9548,8 @@ Question: ${q || "Give a deep, personalised Vedic reading covering: core persona
                   {phase:"3rd Phase (Saturn in sign after Moon)",effect:"Gradual relief. Lessons integrating. New foundations forming.",color:"#71b478"},
                 ].map((p,i)=>(
                   <div key={i} style={{padding:"9px 12px",background:p.color+"10",border:`1px solid ${p.color}33`,borderRadius:8}}>
-                    <div style={{fontSize:14,fontWeight:600,color:p.color,marginBottom:3}}>{p.phase}</div>
-                    <div style={{fontSize:15,color:G.text,lineHeight:1.6}}>{p.effect}</div>
+                    <div style={{fontSize:11,fontWeight:600,color:p.color,marginBottom:3}}>{p.phase}</div>
+                    <div style={{fontSize:12,color:G.text,lineHeight:1.6}}>{p.effect}</div>
                   </div>
                 ))}
               </div>
@@ -9267,19 +9557,19 @@ Question: ${q || "Give a deep, personalised Vedic reading covering: core persona
 
             {/* What to do */}
             <div style={{background:G.card,border:`1px solid ${G.border}`,borderRadius:12,padding:18,marginBottom:14}}>
-              <div style={{fontSize:13,color:G.accent2,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>WHAT TO DO DURING SADE SATI</div>
+              <div style={{fontSize:10,color:G.accent2,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>WHAT TO DO DURING SADE SATI</div>
               {["Worship Shani every Saturday — Shani Mandir or light sesame oil lamp","Recite Shani Chalisa or Hanuman Chalisa — Hanuman protects from Saturn's harshness","Donate: black sesame, mustard oil, black cloth on Saturdays","Feed the poor or donate to those who work hard for little — Saturn respects service","Wear blue sapphire (Neelam) only after consulting a qualified astrologer","Avoid major new ventures in 2nd phase — consolidate and endure","Exercise discipline — Saturn rewards those who work hard and honestly","Accept delays — resistance worsens the lessons. Cooperation makes them shorter."].map((r,i)=>(
                 <div key={i} style={{display:"flex",gap:8,padding:"6px 0",borderBottom:i<7?`1px solid ${G.border}`:"none",alignItems:"flex-start"}}>
                   <div style={{width:5,height:5,borderRadius:"50%",background:"#7090a8",marginTop:7,flexShrink:0}}/>
-                  <div style={{fontSize:15,color:G.text,lineHeight:1.6}}>{r}</div>
+                  <div style={{fontSize:12,color:G.text,lineHeight:1.6}}>{r}</div>
                 </div>
               ))}
             </div>
 
             {/* Sade Sati for Virgo Moon specifically */}
             <div style={{background:"#7090a812",border:"1px solid #7090a833",borderRadius:12,padding:18}}>
-              <div style={{fontSize:13,color:"#7090a8",fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>FOR {chart.moon.en.toUpperCase()} MOON SPECIFICALLY</div>
-              <div style={{fontSize:16,color:G.text,lineHeight:1.8}}>
+              <div style={{fontSize:10,color:"#7090a8",fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>FOR {chart.moon.en.toUpperCase()} MOON SPECIFICALLY</div>
+              <div style={{fontSize:13,color:G.text,lineHeight:1.8}}>
                 {chart.moon.en === "Virgo"
                   ? "Virgo Moon Sade Sati (when Saturn is in Leo, Virgo, or Libra) brings health concerns, work pressure, criticism from self and others, perfectionism overload, and digestive issues. The lesson: you are not your productivity. Your worth is not your output. Saturn in Virgo teaches acceptance of imperfection — the exact wound Virgo Moon carries."
                   : chart.moon.en === "Scorpio"
@@ -9293,46 +9583,46 @@ Question: ${q || "Give a deep, personalised Vedic reading covering: core persona
         {/* ── DOSHAS ── */}
         {activeTab==="doshas"&&(
           <div>
-            <div style={{fontSize:16,color:G.muted,marginBottom:16,lineHeight:1.7}}>Doshas are planetary afflictions in the birth chart. They are not punishments — they are karmic contracts showing where work needs to be done in this life.</div>
+            <div style={{fontSize:13,color:G.muted,marginBottom:16,lineHeight:1.7}}>Doshas are planetary afflictions in the birth chart. They are not punishments — they are karmic contracts showing where work needs to be done in this life.</div>
             {chart.doshas.map((dosha,i)=>(
               <div key={i} style={{background:G.card,border:`1px solid ${dosha.present?dosha.color:G.border}`,borderRadius:14,marginBottom:12,overflow:"hidden"}}>
-                <div onClick={()=>setExpandedDosha(expandedDosha===i?null:i)} style={{minHeight:40,padding:"16px 18px",cursor:"pointer",borderLeft:`4px solid ${dosha.present?dosha.color:"#71b478"}`}}>
+                <div onClick={()=>setExpandedDosha(expandedDosha===i?null:i)} style={{padding:"16px 18px",cursor:"pointer",borderLeft:`4px solid ${dosha.present?dosha.color:"#71b478"}`}}>
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
                     <div style={{display:"flex",gap:10,alignItems:"center"}}>
                       <span style={{fontSize:22}}>{dosha.icon}</span>
                       <div>
-                        <div style={{fontSize:16,fontWeight:700}}>{dosha.name}</div>
-                        <div style={{fontSize:14,padding:"2px 9px",background:dosha.present?dosha.color+"22":"#71b47822",border:`1px solid ${dosha.present?dosha.color:"#71b47844"}`,borderRadius:20,color:dosha.present?dosha.color:"#71b478",display:"inline-block",marginTop:3}}>
+                        <div style={{fontSize:14,fontWeight:700}}>{dosha.name}</div>
+                        <div style={{fontSize:11,padding:"2px 9px",background:dosha.present?dosha.color+"22":"#71b47822",border:`1px solid ${dosha.present?dosha.color:"#71b47844"}`,borderRadius:20,color:dosha.present?dosha.color:"#71b478",display:"inline-block",marginTop:3}}>
                           {dosha.severity}
                         </div>
                       </div>
                     </div>
-                    <span style={{color:G.dim,fontSize:16}}>{expandedDosha===i?"−":"+"}</span>
+                    <span style={{color:G.dim,fontSize:13}}>{expandedDosha===i?"−":"+"}</span>
                   </div>
-                  <div style={{fontSize:16,color:G.text,lineHeight:1.7}}>{dosha.explanation}</div>
+                  <div style={{fontSize:13,color:G.text,lineHeight:1.7}}>{dosha.explanation}</div>
                 </div>
                 {expandedDosha===i&&(
                   <div style={{borderTop:`1px solid ${G.border}`,background:G.surface}}>
                     <div style={{padding:"14px 18px",borderBottom:`1px solid ${G.border}`}}>
-                      <div style={{fontSize:13,color:G.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>EFFECTS</div>
+                      <div style={{fontSize:10,color:G.muted,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>EFFECTS</div>
                       {dosha.effects.map((e,j)=><div key={j} style={{display:"flex",gap:8,padding:"5px 0",borderBottom:j<dosha.effects.length-1?`1px solid ${G.border}`:"none",alignItems:"flex-start"}}>
                         <div style={{width:5,height:5,borderRadius:"50%",background:dosha.present?dosha.color:"#71b478",marginTop:7,flexShrink:0}}/>
-                        <div style={{fontSize:15,color:G.text,lineHeight:1.6}}>{e}</div>
+                        <div style={{fontSize:12,color:G.text,lineHeight:1.6}}>{e}</div>
                       </div>)}
                     </div>
                     <div style={{padding:"14px 18px",borderBottom:`1px solid ${G.border}`}}>
-                      <div style={{fontSize:13,color:G.accent2,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>REMEDIES</div>
+                      <div style={{fontSize:10,color:G.accent2,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>REMEDIES</div>
                       {dosha.remedies.map((r,j)=><div key={j} style={{display:"flex",gap:8,padding:"5px 0",borderBottom:j<dosha.remedies.length-1?`1px solid ${G.border}`:"none",alignItems:"flex-start"}}>
                         <div style={{width:5,height:5,borderRadius:"50%",background:G.accent2,marginTop:7,flexShrink:0}}/>
-                        <div style={{fontSize:15,color:G.text,lineHeight:1.6}}>{r}</div>
+                        <div style={{fontSize:12,color:G.text,lineHeight:1.6}}>{r}</div>
                       </div>)}
                     </div>
                     {dosha.cancellations?.length>0&&(
                       <div style={{padding:"14px 18px"}}>
-                        <div style={{fontSize:13,color:G.gold,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>CANCELLATION FACTORS</div>
+                        <div style={{fontSize:10,color:G.gold,fontFamily:"'DM Mono',monospace",letterSpacing:1,marginBottom:8}}>CANCELLATION FACTORS</div>
                         {dosha.cancellations.map((c,j)=><div key={j} style={{display:"flex",gap:8,padding:"5px 0",borderBottom:j<dosha.cancellations.length-1?`1px solid ${G.border}`:"none",alignItems:"flex-start"}}>
                           <div style={{width:5,height:5,borderRadius:"50%",background:G.gold,marginTop:7,flexShrink:0}}/>
-                          <div style={{fontSize:15,color:G.text,lineHeight:1.6}}>{c}</div>
+                          <div style={{fontSize:12,color:G.text,lineHeight:1.6}}>{c}</div>
                         </div>)}
                       </div>
                     )}
@@ -9340,7 +9630,7 @@ Question: ${q || "Give a deep, personalised Vedic reading covering: core persona
                 )}
               </div>
             ))}
-            <div style={{padding:"12px 16px",background:G.accent+"10",border:`1px solid ${G.accent}33`,borderRadius:10,fontSize:15,color:G.muted,lineHeight:1.7}}>
+            <div style={{padding:"12px 16px",background:G.accent+"10",border:`1px solid ${G.accent}33`,borderRadius:10,fontSize:12,color:G.muted,lineHeight:1.7}}>
               Note: Accurate dosha analysis requires your complete planetary positions (all 9 grahas). For a full dosha reading, consult a qualified Jyotishi with your precise birth details.
             </div>
           </div>
@@ -9350,33 +9640,33 @@ Question: ${q || "Give a deep, personalised Vedic reading covering: core persona
         {activeTab==="nakshatra"&&(
           <div>
             <div style={{background:G.card,border:`2px solid ${G.gold}44`,borderRadius:14,padding:20,marginBottom:16}}>
-              <div style={{fontSize:13,color:G.gold,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>✦ YOUR BIRTH NAKSHATRA — {chart.nakshatra.name}</div>
-              <div style={{fontSize:14,color:G.muted,marginBottom:12}}>Lord: {chart.nakshatra.lord} · Symbol: {chart.nakshatra.symbol} · Deity: {chart.nakshatra.deity} · Nature: {chart.nakshatra.nature}</div>
+              <div style={{fontSize:10,color:G.gold,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>✦ YOUR BIRTH NAKSHATRA — {chart.nakshatra.name}</div>
+              <div style={{fontSize:11,color:G.muted,marginBottom:12}}>Lord: {chart.nakshatra.lord} · Symbol: {chart.nakshatra.symbol} · Deity: {chart.nakshatra.deity} · Nature: {chart.nakshatra.nature}</div>
               <div style={{display:"flex",flexWrap:"wrap",gap:6,marginBottom:12}}>
-                {chart.nakshatra.qualities?.map((q,i)=><span key={i} style={{fontSize:14,padding:"3px 9px",background:G.gold+"18",border:`1px solid ${G.gold}33`,borderRadius:20,color:G.gold}}>{q}</span>)}
+                {chart.nakshatra.qualities?.map((q,i)=><span key={i} style={{fontSize:11,padding:"3px 9px",background:G.gold+"18",border:`1px solid ${G.gold}33`,borderRadius:20,color:G.gold}}>{q}</span>)}
               </div>
-              <div style={{padding:"10px 14px",background:G.accent2+"12",border:`1px solid ${G.accent2}33`,borderRadius:8,fontSize:16,color:G.text,lineHeight:1.7,marginBottom:8}}>
+              <div style={{padding:"10px 14px",background:G.accent2+"12",border:`1px solid ${G.accent2}33`,borderRadius:8,fontSize:13,color:G.text,lineHeight:1.7,marginBottom:8}}>
                 <span style={{color:G.accent2,fontWeight:600}}>Gift: </span>{chart.nakshatra.gift}
               </div>
-              <div style={{padding:"10px 14px",background:G.red+"10",border:`1px solid ${G.red}33`,borderRadius:8,fontSize:16,color:G.text,lineHeight:1.7}}>
+              <div style={{padding:"10px 14px",background:G.red+"10",border:`1px solid ${G.red}33`,borderRadius:8,fontSize:13,color:G.text,lineHeight:1.7}}>
                 <span style={{color:G.red,fontWeight:600}}>Shadow: </span>{chart.nakshatra.shadow}
               </div>
             </div>
             <div style={{background:G.card,border:`1px solid ${G.border}`,borderRadius:12,padding:18}}>
-              <div style={{fontSize:13,color:G.muted,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>ALL 27 NAKSHATRAS</div>
+              <div style={{fontSize:10,color:G.muted,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:12}}>ALL 27 NAKSHATRAS</div>
               {NAKSHATRAS_V.map((n,i)=>(
-                <div key={i} onClick={()=>setExpandedNak(expandedNak===i?null:i)} style={{minHeight:40,padding:"9px 0",borderBottom:i<26?`1px solid ${G.border}`:"none",cursor:"pointer"}}>
+                <div key={i} onClick={()=>setExpandedNak(expandedNak===i?null:i)} style={{padding:"9px 0",borderBottom:i<26?`1px solid ${G.border}`:"none",cursor:"pointer"}}>
                   <div style={{display:"flex",justifyContent:"space-between",alignItems:"center"}}>
                     <div style={{display:"flex",gap:8,alignItems:"center"}}>
-                      <div style={{width:20,height:20,borderRadius:"50%",background:n.name===chart.nakshatra.name?G.gold+"33":G.surface,border:`1px solid ${n.name===chart.nakshatra.name?G.gold:G.border}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,color:n.name===chart.nakshatra.name?G.gold:G.muted,flexShrink:0}}>{i+1}</div>
+                      <div style={{width:20,height:20,borderRadius:"50%",background:n.name===chart.nakshatra.name?G.gold+"33":G.surface,border:`1px solid ${n.name===chart.nakshatra.name?G.gold:G.border}`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:9,color:n.name===chart.nakshatra.name?G.gold:G.muted,flexShrink:0}}>{i+1}</div>
                       <div>
-                        <div style={{fontSize:15,fontWeight:n.name===chart.nakshatra.name?700:400,color:n.name===chart.nakshatra.name?G.gold:G.text}}>{n.name}{n.name===chart.nakshatra.name?" ← yours":""}</div>
-                        <div style={{fontSize:13,color:G.dim}}>{n.lord} · {n.symbol}</div>
+                        <div style={{fontSize:12,fontWeight:n.name===chart.nakshatra.name?700:400,color:n.name===chart.nakshatra.name?G.gold:G.text}}>{n.name}{n.name===chart.nakshatra.name?" ← yours":""}</div>
+                        <div style={{fontSize:10,color:G.dim}}>{n.lord} · {n.symbol}</div>
                       </div>
                     </div>
-                    <span style={{color:G.dim,fontSize:14}}>{expandedNak===i?"−":"+"}</span>
+                    <span style={{color:G.dim,fontSize:11}}>{expandedNak===i?"−":"+"}</span>
                   </div>
-                  {expandedNak===i&&<div style={{marginTop:8,padding:"9px 12px",background:G.surface,borderRadius:8,fontSize:15,color:G.text,lineHeight:1.7}}>
+                  {expandedNak===i&&<div style={{marginTop:8,padding:"9px 12px",background:G.surface,borderRadius:8,fontSize:12,color:G.text,lineHeight:1.7}}>
                     <div style={{color:G.accent2,marginBottom:3}}>Gift: {n.gift}</div>
                     <div style={{color:G.red,marginBottom:3}}>Shadow: {n.shadow}</div>
                     <div style={{color:G.muted}}>Nature: {n.nature} · Deity: {n.deity}</div>
@@ -9390,7 +9680,7 @@ Question: ${q || "Give a deep, personalised Vedic reading covering: core persona
         {/* ── TIMING ── */}
         {activeTab==="timing"&&(
           <div>
-            <div style={{fontSize:16,color:G.muted,marginBottom:16,lineHeight:1.7}}>Auspicious windows for key life decisions — based on your current Dasha and Saturn transits.</div>
+            <div style={{fontSize:13,color:G.muted,marginBottom:16,lineHeight:1.7}}>Auspicious windows for key life decisions — based on your current Dasha and Saturn transits.</div>
             {[
               {domain:"💼 Career & Recognition",color:G.accent3,
                green:{w:"Now — Sep 2026",r:`${chart.md.current?.planet} Mahadasha with ${chart.ad?.current?.planet} Antardasha supports career action. Current energy favours bold moves, portfolio updates, negotiation.`,action:"Update portfolio. Negotiate salary. Apply to target roles. Start the business."},
@@ -9414,23 +9704,23 @@ Question: ${q || "Give a deep, personalised Vedic reading covering: core persona
                red:{w:"Aug 15 – Sep 5 2026",r:"Mercury retrograde exact. Avoid booking travel during this window."}},
             ].map((item,i)=>(
               <div key={i} style={{background:G.card,border:`1px solid ${item.color}44`,borderRadius:14,padding:20,marginBottom:12}}>
-                <div style={{fontSize:16,fontWeight:700,color:item.color,marginBottom:14}}>{item.domain}</div>
+                <div style={{fontSize:14,fontWeight:700,color:item.color,marginBottom:14}}>{item.domain}</div>
                 {[{label:"✅ GO",data:item.green,c:"#34d399"},{label:"⚠️ CAUTION",data:item.yellow,c:"#fbbf24"},{label:"🛑 WAIT",data:item.red,c:G.red}].map((row,j)=>(
                   <div key={j} style={{padding:"9px 12px",background:row.c+"10",border:`1px solid ${row.c}33`,borderRadius:8,marginBottom:8}}>
                     <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:4}}>
-                      <div style={{fontSize:13,fontWeight:700,color:row.c,fontFamily:"'DM Mono',monospace"}}>{row.label}</div>
-                      <div style={{fontSize:13,color:row.c,padding:"1px 8px",background:row.c+"15",borderRadius:20}}>{row.data.w}</div>
+                      <div style={{fontSize:10,fontWeight:700,color:row.c,fontFamily:"'DM Mono',monospace"}}>{row.label}</div>
+                      <div style={{fontSize:10,color:row.c,padding:"1px 8px",background:row.c+"15",borderRadius:20}}>{row.data.w}</div>
                     </div>
-                    <div style={{fontSize:15,color:G.text,lineHeight:1.6,marginBottom:row.data.action?4:0}}>{row.data.r}</div>
-                    {row.data.action&&<div style={{fontSize:14,color:row.c}}>→ {row.data.action}</div>}
+                    <div style={{fontSize:12,color:G.text,lineHeight:1.6,marginBottom:row.data.action?4:0}}>{row.data.r}</div>
+                    {row.data.action&&<div style={{fontSize:11,color:row.c}}>→ {row.data.action}</div>}
                   </div>
                 ))}
               </div>
             ))}
             {/* Rahu-Jupiter specific insight */}
             <div style={{background:`linear-gradient(135deg,${G.accent}18,${G.gold}08)`,border:`1px solid ${G.accent}44`,borderRadius:12,padding:18}}>
-              <div style={{fontSize:13,color:G.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>✦ YOUR DASHA WINDOW — {chart.md.current?.planet} MAHADASHA</div>
-              <div style={{fontSize:16,color:G.text,lineHeight:1.8}}>{chart.md.current && MAHADASHA_INFO[chart.md.current.planet] ? `${MAHADASHA_INFO[chart.md.current.planet].en} Mahadasha is the ${chart.md.current.years}-year chapter you are in now. ${MAHADASHA_INFO[chart.md.current.planet].good}. The window closes ${fmtDate(chart.md.current.end)} — use it consciously.` : "Your current planetary period shapes all timing windows above."}</div>
+              <div style={{fontSize:10,color:G.accent,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:10}}>✦ YOUR DASHA WINDOW — {chart.md.current?.planet} MAHADASHA</div>
+              <div style={{fontSize:13,color:G.text,lineHeight:1.8}}>{chart.md.current && MAHADASHA_INFO[chart.md.current.planet] ? `${MAHADASHA_INFO[chart.md.current.planet].en} Mahadasha is the ${chart.md.current.years}-year chapter you are in now. ${MAHADASHA_INFO[chart.md.current.planet].good}. The window closes ${fmtDate(chart.md.current.end)} — use it consciously.` : "Your current planetary period shapes all timing windows above."}</div>
             </div>
           </div>
         )}
@@ -9438,7 +9728,7 @@ Question: ${q || "Give a deep, personalised Vedic reading covering: core persona
         {/* ── AI READING ── */}
         {activeTab==="ai"&&(
           <div>
-            <div style={{fontSize:16,color:G.muted,marginBottom:16,lineHeight:1.7}}>
+            <div style={{fontSize:13,color:G.muted,marginBottom:16,lineHeight:1.7}}>
               AI reads your specific combination — {chart.lagna.en} rising, {chart.moon.en} Moon, {chart.sun.en} Sun, {chart.nakshatra.name} Nakshatra — and synthesises what this means for your life right now.
             </div>
             <div style={{display:"flex",flexWrap:"wrap",gap:7,marginBottom:14}}>
@@ -9451,27 +9741,27 @@ Question: ${q || "Give a deep, personalised Vedic reading covering: core persona
                 "What shadow work does my chart show I need?",
                 "What is my dharma in this lifetime?",
               ].map((q,i)=>(
-                <button key={i} onClick={()=>{setAiQ(q);askAI(q);}} style={{minHeight:40,minWidth:40,padding:"6px 12px",background:G.surface,border:`1px solid ${G.border}`,borderRadius:20,cursor:"pointer",fontSize:14,color:G.muted}}>{q}</button>
+                <button key={i} onClick={()=>{setAiQ(q);askAI(q);}} style={{padding:"6px 12px",background:G.surface,border:`1px solid ${G.border}`,borderRadius:20,cursor:"pointer",fontSize:11,color:G.muted}}>{q}</button>
               ))}
             </div>
             <div style={{display:"flex",gap:8,marginBottom:14}}>
-              <input value={aiQ} onChange={e=>setAiQ(e.target.value)} onKeyDown={e=>e.key==="Enter"&&askAI(aiQ)} placeholder="Ask anything about your chart…" style={{flex:1,background:G.card,border:`1px solid ${G.border}`,borderRadius:9,color:G.text,padding:"10px 13px",fontSize:16}}/>
-              <button onClick={()=>askAI(aiQ)} disabled={aiLoading} style={{minHeight:40,minWidth:40,padding:"10px 16px",background:aiLoading?G.border:`linear-gradient(135deg,${G.accent},${G.warm})`,border:"none",borderRadius:9,color:"#fff",cursor:aiLoading?"not-allowed":"pointer",fontSize:17}}>→</button>
+              <input value={aiQ} onChange={e=>setAiQ(e.target.value)} onKeyDown={e=>e.key==="Enter"&&askAI(aiQ)} placeholder="Ask anything about your chart…" style={{flex:1,background:G.card,border:`1px solid ${G.border}`,borderRadius:9,color:G.text,padding:"10px 13px",fontSize:13}}/>
+              <button onClick={()=>askAI(aiQ)} disabled={aiLoading} style={{padding:"10px 16px",background:aiLoading?G.border:`linear-gradient(135deg,${G.accent},${G.warm})`,border:"none",borderRadius:9,color:"#fff",cursor:aiLoading?"not-allowed":"pointer",fontSize:15}}>→</button>
             </div>
             {(aiInsight||aiLoading)&&(
               <div style={{background:G.card,border:`1px solid ${G.accent}44`,borderRadius:13,padding:20,boxShadow:`0 0 20px ${G.accent}15`}}>
                 <div style={{display:"flex",gap:10,alignItems:"flex-start"}}>
-                  <div style={{width:28,height:28,borderRadius:"50%",background:`linear-gradient(135deg,${G.accent},${G.warm})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,flexShrink:0,color:"#fff"}}>✦</div>
+                  <div style={{width:28,height:28,borderRadius:"50%",background:`linear-gradient(135deg,${G.accent},${G.warm})`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:13,flexShrink:0,color:"#fff"}}>✦</div>
                   {aiLoading
-                    ?<div style={{fontSize:16,color:G.muted,animation:"pulse 1.5s infinite"}}>Reading your chart…</div>
-                    :<div style={{fontSize:16,lineHeight:1.85,color:G.text,whiteSpace:"pre-wrap"}}>{aiInsight}</div>}
+                    ?<div style={{fontSize:13,color:G.muted,animation:"pulse 1.5s infinite"}}>Reading your chart…</div>
+                    :<div style={{fontSize:13,lineHeight:1.85,color:G.text,whiteSpace:"pre-wrap"}}>{aiInsight}</div>}
                 </div>
               </div>
             )}
             {!aiInsight&&!aiLoading&&(
               <div style={{textAlign:"center",padding:"32px",color:G.muted}}>
                 <div style={{fontSize:28,marginBottom:10}}>✦</div>
-                <div style={{fontSize:16,fontStyle:"italic",lineHeight:1.7}}>Tap a question or ask your own. The AI reads your specific chart — not generic Scorpio or Virgo content.</div>
+                <div style={{fontSize:13,fontStyle:"italic",lineHeight:1.7}}>Tap a question or ask your own. The AI reads your specific chart — not generic Scorpio or Virgo content.</div>
               </div>
             )}
           </div>
@@ -9483,10 +9773,10 @@ Question: ${q || "Give a deep, personalised Vedic reading covering: core persona
 }
 
 function BCField({label,G,children}){
-  return <div><div style={{fontSize:13,color:G.muted,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:7}}>{label}</div>{children}</div>;
+  return <div><div style={{fontSize:10,color:G.muted,fontFamily:"'DM Mono',monospace",letterSpacing:2,marginBottom:7}}>{label}</div>{children}</div>;
 }
 function bcInput(G){
-  return{width:"100%",background:G.card,border:`1px solid ${G.border}`,borderRadius:9,color:G.text,padding:"11px 13px",fontSize:16,boxSizing:"border-box"};
+  return{width:"100%",background:G.card,border:`1px solid ${G.border}`,borderRadius:9,color:G.text,padding:"11px 13px",fontSize:14,boxSizing:"border-box"};
 }// ── AUTH SCREEN ────────────────────────────────────────────────
 function AuthScreen({ C, onAuth }) {
   const [mode, setMode] = useState('login'); // login | signup | magic
@@ -9552,11 +9842,11 @@ function AuthScreen({ C, onAuth }) {
             <div style={{ fontSize: 32, marginBottom: 12 }}>📧</div>
             <div style={{ fontSize: 16, fontFamily: "'Cormorant Garamond',serif", fontStyle: 'italic', marginBottom: 8 }}>Check your email</div>
             <div style={{ fontSize: 13, color: '#9088a0', lineHeight: 1.7 }}>We sent a magic link to <strong>{email}</strong>. Tap it to sign in — no password needed.</div>
-            <button onClick={() => setSent(false)} style={{minHeight:40,minWidth:40, marginTop: 16, fontSize: 12, color: '#9088a0', background: 'transparent', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>Use a different email</button>
+            <button onClick={() => setSent(false)} style={{ marginTop: 16, fontSize: 12, color: '#9088a0', background: 'transparent', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>Use a different email</button>
           </div>
         ) : (
           <>
-            <button onClick={handleGoogle} disabled={loading} style={{minHeight:40,minWidth:40,
+            <button onClick={handleGoogle} disabled={loading} style={{
               width: '100%', padding: '12px 14px', background: '#fff',
               border: '1px solid rgba(255,255,255,0.18)', borderRadius: 12, color: '#3f372f',
               cursor: 'pointer', fontSize: 14, marginBottom: 14, fontWeight: 500,
@@ -9566,7 +9856,7 @@ function AuthScreen({ C, onAuth }) {
 
             <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:16}}>
               <div style={{height:1,background:'#eadfce',flex:1}}/>
-              <div style={{fontSize:14,color:'#c4a882',fontFamily:"'DM Mono',monospace"}}>OR EMAIL</div>
+              <div style={{fontSize:11,color:'#c4a882',fontFamily:"'DM Mono',monospace"}}>OR EMAIL</div>
               <div style={{height:1,background:'#eadfce',flex:1}}/>
             </div>
 
@@ -9596,7 +9886,7 @@ function AuthScreen({ C, onAuth }) {
 
             {mode !== 'magic' ? (
               <>
-                <button onClick={handleEmailAuth} disabled={loading} style={{minHeight:40,minWidth:40,
+                <button onClick={handleEmailAuth} disabled={loading} style={{
                   width: '100%', padding: '13px', background: 'linear-gradient(135deg,#b5622a,#d4855a)',
                   border: 'none', borderRadius: 12, color: '#fff', cursor: 'pointer', fontSize: 15,
                   fontFamily: "'Cormorant Garamond',serif", fontStyle: 'italic', marginBottom: 12,
@@ -9604,24 +9894,24 @@ function AuthScreen({ C, onAuth }) {
                   {loading ? '...' : mode === 'signup' ? 'Create account →' : 'Sign in →'}
                 </button>
                 <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#9088a0' }}>
-                  <button onClick={() => setMode(mode === 'login' ? 'signup' : 'login')} style={{minHeight:40,minWidth:40, background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#b5622a', textDecoration: 'underline' }}>
+                  <button onClick={() => setMode(mode === 'login' ? 'signup' : 'login')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#b5622a', textDecoration: 'underline' }}>
                     {mode === 'login' ? 'Create account' : 'Already have account'}
                   </button>
-                  <button onClick={() => setMode('magic')} style={{minHeight:40,minWidth:40, background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#9088a0', textDecoration: 'underline' }}>
+                  <button onClick={() => setMode('magic')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#9088a0', textDecoration: 'underline' }}>
                     Magic link instead
                   </button>
                 </div>
               </>
             ) : (
               <>
-                <button onClick={handleMagicLink} disabled={loading} style={{minHeight:40,minWidth:40,
+                <button onClick={handleMagicLink} disabled={loading} style={{
                   width: '100%', padding: '13px', background: 'linear-gradient(135deg,#b5622a,#d4855a)',
                   border: 'none', borderRadius: 12, color: '#fff', cursor: 'pointer', fontSize: 15,
                   fontFamily: "'Cormorant Garamond',serif", fontStyle: 'italic', marginBottom: 12,
                 }}>
                   {loading ? '...' : 'Send magic link →'}
                 </button>
-                <button onClick={() => setMode('login')} style={{minHeight:40,minWidth:40, background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#9088a0', textDecoration: 'underline', width: '100%' }}>
+                <button onClick={() => setMode('login')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#9088a0', textDecoration: 'underline', width: '100%' }}>
                   Use password instead
                 </button>
               </>
