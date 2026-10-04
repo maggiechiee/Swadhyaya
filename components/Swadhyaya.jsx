@@ -3207,6 +3207,49 @@ function blankTask(){
     notes:"", completions:{}, createdAt:""};
 }
 
+// Matches GoalsSection's own week-key logic (ISO week, Monday-start) so a
+// weekly goal's completion on Today lines up with its own progress view.
+// Kept as a separate top-level copy rather than sharing GoalsSection's
+// internal getWeekKey, to avoid touching that already-working code.
+function getISOWeekKey(dateStr) {
+  const d = dateStr ? new Date(dateStr+"T12:00:00") : new Date();
+  const target = new Date(d.valueOf());
+  const dayNr = (d.getDay()+6)%7;
+  target.setDate(target.getDate()-dayNr+3);
+  const firstThursday = new Date(target.getFullYear(),0,4);
+  const weekNum = 1+Math.round(((target-firstThursday)/86400000-3+((firstThursday.getDay()+6)%7))/7);
+  return `${target.getFullYear()}-W${String(weekNum).padStart(2,"0")}`;
+}
+
+const GOAL_DAY_LABELS = ["Mon","Tue","Wed","Thu","Fri","Sat","Sun"];
+
+// Whether a recurring goal (daily habit, or weekly goal scheduled to
+// specific days) is due on a given date. Milestone goals aren't recurring
+// -- those show up via their own targetDate, handled separately in
+// TodaySection. A "count"-mode weekly goal (X times/week, no fixed days)
+// also isn't shown here since it has no specific day of its own.
+function goalOccursOnDate(goal, dateStr) {
+  if (goal.type === "habit") {
+    if (goal.createdAt && dateStr < goal.createdAt.slice(0,10)) return false;
+    return true;
+  }
+  if (goal.type === "weekly" && goal.weeklyMode === "days") {
+    const d = new Date(dateStr+"T12:00:00");
+    const label = GOAL_DAY_LABELS[(d.getDay()+6)%7];
+    return (goal.weeklyDays||[]).includes(label);
+  }
+  return false;
+}
+
+function isGoalDoneOnDate(goal, dateStr) {
+  if (goal.type === "habit") return (goal.habitDays||[]).includes(dateStr);
+  if (goal.type === "weekly" && goal.weeklyMode === "days") {
+    const wk = getISOWeekKey(dateStr);
+    return (goal.weekLogs||[]).some(l=>l.week===wk && l.date===dateStr);
+  }
+  return false;
+}
+
 function TodaySection({C, galaxy, profile, up}) {
   const [selectedDate, setSelectedDate] = useState(getLocalDateStr());
   const [view, setView] = useState("list"); // list | add
@@ -3246,21 +3289,46 @@ function TodaySection({C, galaxy, profile, up}) {
   }
 
   // Per-date counts that drive the little dots under each calendar day.
+  // Recurring goals (daily habits, weekly goals on fixed days) count as
+  // "to-do" items here alongside tasks, since they behave the same way --
+  // only milestone deadlines get the separate gold dot.
   function dayLoad(dStr){
     const t = tasks.filter(x=>taskOccursOnDate(x,dStr));
+    const rg = goals.filter(x=>!x.done && goalOccursOnDate(x,dStr));
     const g = goals.filter(x=>x.targetDate===dStr && !x.done);
-    const doneCount = t.filter(x=>(x.completions||{})[dStr]).length;
-    return {taskCount:t.length, goalCount:g.length, doneCount, allDone: t.length>0 && doneCount===t.length};
+    const doneCount = t.filter(x=>(x.completions||{})[dStr]).length + rg.filter(x=>isGoalDoneOnDate(x,dStr)).length;
+    const totalCount = t.length + rg.length;
+    return {taskCount:totalCount, goalCount:g.length, doneCount, allDone: totalCount>0 && doneCount===totalCount};
   }
 
   const tasksForDay = tasks.filter(t=>taskOccursOnDate(t, selectedDate));
+  const recurringGoalsForDay = goals.filter(g=>!g.done && goalOccursOnDate(g, selectedDate));
   const goalsForDay = goals.filter(g=>g.targetDate===selectedDate && !g.done);
   // Overdue milestone goals only surface on today's own view, not on every past date.
   const overdueGoals = selectedDate===todayStr
     ? goals.filter(g=>g.targetDate && g.targetDate<todayStr && !g.done)
     : [];
 
-  const doneToday = tasksForDay.filter(t=>(t.completions||{})[selectedDate]).length;
+  const doneToday = tasksForDay.filter(t=>(t.completions||{})[selectedDate]).length
+    + recurringGoalsForDay.filter(g=>isGoalDoneOnDate(g,selectedDate)).length;
+  const totalToday = tasksForDay.length + recurringGoalsForDay.length;
+
+  function toggleGoalDoneOnDate(goalId, dateStr){
+    up("goals", goals.map(g=>{
+      if (g.id !== goalId) return g;
+      if (g.type === "habit") {
+        const days = g.habitDays || [];
+        return days.includes(dateStr) ? {...g, habitDays: days.filter(d=>d!==dateStr)} : {...g, habitDays:[...days, dateStr]};
+      }
+      if (g.type === "weekly" && g.weeklyMode === "days") {
+        const wk = getISOWeekKey(dateStr);
+        const logs = g.weekLogs || [];
+        const exists = logs.some(l=>l.week===wk && l.date===dateStr);
+        return exists ? {...g, weekLogs: logs.filter(l=>!(l.week===wk && l.date===dateStr))} : {...g, weekLogs:[...logs, {week:wk, date:dateStr}]};
+      }
+      return g;
+    }));
+  }
 
   const selectedLabel = useMemo(()=>{
     const d = new Date(selectedDate+"T12:00:00");
@@ -3451,9 +3519,9 @@ function TodaySection({C, galaxy, profile, up}) {
 
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:12,paddingBottom:8,borderBottom:`1px solid ${C.border||"#e0d8c8"}`}}>
         <div style={{fontSize:17,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:C.text}}>{selectedLabel}</div>
-        {tasksForDay.length>0 && (
-          <div style={{fontSize:12,color:doneToday===tasksForDay.length?"#3c9650":(C.subtext||"#9088a0")}}>
-            {doneToday}/{tasksForDay.length} done
+        {totalToday>0 && (
+          <div style={{fontSize:12,color:doneToday===totalToday?"#3c9650":(C.subtext||"#9088a0")}}>
+            {doneToday}/{totalToday} done
           </div>
         )}
       </div>
@@ -3480,41 +3548,54 @@ function TodaySection({C, galaxy, profile, up}) {
         </div>
       )}
 
-      {tasksForDay.length===0 && goalsForDay.length===0 && overdueGoals.length===0 ? (
+      {totalToday===0 && goalsForDay.length===0 && overdueGoals.length===0 ? (
         <div style={{textAlign:"center",padding:"30px 0",color:C.subtext||"#9088a0"}}>
           <div style={{fontSize:15,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>Nothing on the books.</div>
         </div>
       ) : null}
 
       {(()=>{
-        const pending = tasksForDay.filter(t=>!(t.completions||{})[selectedDate]);
-        const finished = tasksForDay.filter(t=>(t.completions||{})[selectedDate]);
-        const row = (t, done) => (
-          <div key={t.id} style={{display:"flex",alignItems:"center",gap:10,padding:"11px 14px",borderRadius:10,border:`1px solid ${C.border||"#e0d8c8"}`,marginBottom:8,background:done?"transparent":(C.card||"transparent")}}>
-            <div onClick={()=>toggleTaskDone(t.id,selectedDate)}
-              style={{width:22,height:22,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,color:"#fff",
-                border:`2px solid ${getCatColor(t.category)}`,background:done?getCatColor(t.category):"transparent",cursor:"pointer",flexShrink:0}}>
-              {done?"✓":""}
+        // Tasks and recurring goals (daily habits, weekly goals on fixed
+        // days) share one list here -- from a "what do I need to do today"
+        // view they're the same kind of thing, just tracked in two
+        // different places in the data.
+        const items = [
+          ...tasksForDay.map(t=>({kind:"task", id:t.id, title:t.title, category:t.category, done:!!(t.completions||{})[selectedDate], tag: t.recurrence!=="once"?t.recurrence:null, notes:t.notes, raw:t})),
+          ...recurringGoalsForDay.map(g=>({kind:"goal", id:g.id, title:g.title, category:g.category, done:isGoalDoneOnDate(g,selectedDate), tag: g.type==="habit"?"daily":"weekly", notes:null, raw:g})),
+        ];
+        const pending = items.filter(i=>!i.done);
+        const finished = items.filter(i=>i.done);
+        const row = (item) => {
+          const done = item.done;
+          const toggle = item.kind==="task" ? ()=>toggleTaskDone(item.id,selectedDate) : ()=>toggleGoalDoneOnDate(item.id,selectedDate);
+          return (
+            <div key={item.kind+item.id} style={{display:"flex",alignItems:"center",gap:10,padding:"11px 14px",borderRadius:10,border:`1px solid ${C.border||"#e0d8c8"}`,marginBottom:8,background:done?"transparent":(C.card||"transparent")}}>
+              <div onClick={toggle}
+                style={{width:22,height:22,borderRadius:"50%",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,color:"#fff",
+                  border:`2px solid ${getCatColor(item.category)}`,background:done?getCatColor(item.category):"transparent",cursor:"pointer",flexShrink:0}}>
+                {done?"✓":""}
+              </div>
+              <div style={{flex:1,fontSize:14,color:C.text,textDecoration:done?"line-through":"none",opacity:done?0.55:1,cursor:item.kind==="task"?"pointer":"default"}} onClick={item.kind==="task"?()=>startEdit(item.raw):undefined}>
+                {item.title}
+                {item.kind==="goal" && <span style={{fontSize:10,color:getCatColor(item.category),marginLeft:6}}>◎ goal · {item.tag}</span>}
+                {item.kind==="task" && item.tag && <span style={{fontSize:10,color:C.subtext||"#9088a0",marginLeft:6}}>↻ {item.tag}</span>}
+                {item.notes && <div style={{fontSize:11,color:C.subtext||"#9088a0",marginTop:2}}>{item.notes}</div>}
+              </div>
             </div>
-            <div style={{flex:1,fontSize:14,color:C.text,textDecoration:done?"line-through":"none",opacity:done?0.55:1,cursor:"pointer"}} onClick={()=>startEdit(t)}>
-              {t.title}
-              {t.recurrence!=="once" && <span style={{fontSize:10,color:C.subtext||"#9088a0",marginLeft:6}}>↻ {t.recurrence}</span>}
-              {t.notes && <div style={{fontSize:11,color:C.subtext||"#9088a0",marginTop:2}}>{t.notes}</div>}
-            </div>
-          </div>
-        );
+          );
+        };
         return (
           <>
             {pending.length>0 && (
               <div style={{marginBottom:16}}>
                 <div style={{fontSize:12,color:C.subtext||"#9088a0",marginBottom:8,fontWeight:600}}>To do</div>
-                {pending.map(t=>row(t,false))}
+                {pending.map(row)}
               </div>
             )}
             {finished.length>0 && (
               <div style={{marginBottom:16}}>
                 <div style={{fontSize:12,color:"#3c9650",marginBottom:8,fontWeight:600}}>Done</div>
-                {finished.map(t=>row(t,true))}
+                {finished.map(row)}
               </div>
             )}
           </>
@@ -9284,11 +9365,17 @@ function BirthChartSection({C, profile, up}) {
 - Sade Sati active: ${chart.ss.isSadeSati ? "YES — " + chart.ss.phase : "No"}
 - DOB: ${bd.dob}, Time: ${bd.time || "unknown"}, Place: ${bd.place || "unknown"}
 
-Question: ${q || "Give a deep, personalised Vedic reading covering: core personality synthesis of these three signs, current life phase interpretation (Mahadasha + Antardasha), what this person needs to know right now, shadow work, and dharma. Be specific and personal. Reference the actual planets and signs. Max 250 words."}`;
+Question: ${q
+  ? `${q} Answer fully but keep it under 350 words so the response finishes cleanly rather than cutting off mid-thought.`
+  : "Give a deep, personalised Vedic reading covering: core personality synthesis of these three signs, current life phase interpretation (Mahadasha + Antardasha), what this person needs to know right now, shadow work, and dharma. Be specific and personal. Reference the actual planets and signs. Keep it under 350 words so it finishes cleanly."}`;
     try {
       const r = await fetch("/api/ask-ai", {
         method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ max_tokens: 700,
+        // Raised from 700 -- a full reading covering personality, dasha,
+        // shadow work and dharma routinely ran past that and got cut off
+        // mid-sentence with no way to see the rest. 1400 gives real
+        // headroom above the ~350-word budget asked for above.
+        body: JSON.stringify({ max_tokens: 1400,
           system: "You are a deeply knowledgeable Vedic astrologer combining Jyotish with psychology. Be precise, specific to this exact chart, speak directly to the person. Warm but honest. Reference specific planet names, signs, and current dasha period.",
           messages: [{ role: "user", content: prompt }] }),
       });
