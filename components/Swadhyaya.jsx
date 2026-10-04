@@ -1650,12 +1650,21 @@ export default function Swadhyaya(){
     return () => { subscription.unsubscribe(); };
   }, []);
 
-  // Save onboarding done flag
+  // Save onboarding done flag.
+  // IMPORTANT: this used to spread the local (camelCase) profile object
+  // directly into the Supabase upsert payload. The profiles table columns
+  // are snake_case, so Supabase rejected the request outright -- and since
+  // the error was never checked, it failed completely silently. The user's
+  // own device looked onboarded (that's set locally first), but nothing
+  // from onboarding -- name, DOB, weight, goals, onboarding_done -- ever
+  // actually reached the cloud. A second device or a cleared browser would
+  // see an empty profile and force them through onboarding again from
+  // scratch. Fixed by mapping fields explicitly, same as saveProfile(),
+  // and by actually surfacing errors instead of swallowing them.
   async function markOnboardingDone(prof) {
     if (!user) return;
-    await supabase.from("profiles").upsert({
+    const { error } = await supabase.from("profiles").upsert({
       id: user.id,
-      ...prof,
       name: prof.name,
       gender: prof.gender,
       age: prof.age,
@@ -1666,16 +1675,29 @@ export default function Swadhyaya(){
       dob: prof.dob,
       birth_time: prof.birthTime,
       birth_place: prof.birthPlace,
+      manual_lagna: prof.manualLagna||"",
+      manual_moon: prof.manualMoon||"",
+      manual_sun: prof.manualSun||"",
       cycle_length: prof.cycleLength,
       period_length: prof.periodLength,
       last_period_start: prof.lastPeriodStart,
       health_conditions: prof.healthConditions||[],
       goals: prof.goals||[],
+      tasks: prof.tasks||[],
+      supplements: prof.supplements||[],
       plan: prof.plan||"trial",
       trial_start_date: prof.trialStartDate,
       onboarding_done: true,
       updated_at: new Date().toISOString(),
     });
+    if (error) {
+      console.error("markOnboardingDone failed to save to Supabase:", error.message);
+      // Surface it locally too -- better an obvious retry prompt than a
+      // silent data loss the user won't discover until much later.
+      setOnboardingSaveError(true);
+    } else {
+      setOnboardingSaveError(false);
+    }
   }
 
   // Load user data from Supabase
@@ -1709,6 +1731,18 @@ export default function Swadhyaya(){
           lastPeriodStart: prof.last_period_start || "",
           healthConditions: prof.health_conditions || [],
           goals: prof.goals || [],
+          tasks: prof.tasks || [],
+          supplements: prof.supplements || [],
+          lastMirror: prof.last_mirror || null,
+          mirrorHistory: prof.mirror_history || [],
+          mirrorSummary: prof.mirror_summary || "",
+          mirrorDataFingerprint: prof.mirror_data_fingerprint || "",
+          mirrorCards: prof.mirror_cards || null,
+          mirrorCardsFingerprint: prof.mirror_cards_fingerprint || "",
+          learnedFoods: prof.learned_foods || {},
+          weightUnit: prof.weight_unit || "kg",
+          heightUnit: prof.height_unit || "cm",
+          pregnant: prof.pregnant || "no",
           plan: prof.plan || "trial",
           trialStartDate: prof.trial_start_date || getLocalDateStr(),
           onboardingDone: prof.onboarding_done || false,
@@ -1749,13 +1783,16 @@ export default function Swadhyaya(){
   // Save profile to Supabase
   async function saveProfile(updates) {
     if (!user) return;
-    await supabase.from("profiles").upsert({
+    const { error } = await supabase.from("profiles").upsert({
       id: user.id,
       name: updates.name,
       gender: updates.gender,
       age: updates.age,
       weight: updates.weight,
+      weight_unit: updates.weightUnit || "kg",
       height: updates.height,
+      height_unit: updates.heightUnit || "cm",
+      pregnant: updates.pregnant || "no",
       activity_level: updates.activityLevel,
       fitness_goal: updates.fitnessGoal,
       dob: updates.dob,
@@ -1769,11 +1806,21 @@ export default function Swadhyaya(){
       last_period_start: updates.lastPeriodStart,
       health_conditions: updates.healthConditions || [],
       goals: updates.goals || [],
+      tasks: updates.tasks || [],
+      supplements: updates.supplements || [],
+      last_mirror: updates.lastMirror || null,
+      mirror_history: updates.mirrorHistory || [],
+      mirror_summary: updates.mirrorSummary || "",
+      mirror_data_fingerprint: updates.mirrorDataFingerprint || "",
+      mirror_cards: updates.mirrorCards || null,
+      mirror_cards_fingerprint: updates.mirrorCardsFingerprint || "",
+      learned_foods: updates.learnedFoods || {},
       plan: updates.plan,
       trial_start_date: updates.trialStartDate,
       onboarding_done: updates.onboardingDone || false,
       updated_at: new Date().toISOString(),
     });
+    if (error) console.error("saveProfile failed:", error.message);
   }
 
   // Save behaviour profile (My Space patterns) to Supabase
@@ -1823,7 +1870,16 @@ export default function Swadhyaya(){
     });
   }
 
-  const [section, setSection] = useState("home");
+  // Lets a push notification (or any shared link) open directly into a
+  // specific tab, e.g. tapping the morning digest opens straight to Today
+  // instead of Home. Falls back to "home" if the param is missing or invalid.
+  const [section, setSection] = useState(()=>{
+    try {
+      const param = new URLSearchParams(window.location.search).get("section");
+      const validIds = ["home","today","morning","wellness","food","cycle","goals","journal","progress","birthchart","myspace"];
+      return validIds.includes(param) ? param : "home";
+    } catch(e) { return "home"; }
+  });
   const [showLogin, setShowLogin] = useState(false);
 
   // Guard: if chart section but not galaxy mode, go home
@@ -1831,6 +1887,11 @@ export default function Swadhyaya(){
   const[onboarded,setOnboarded]=useState(()=>{
     try { return localStorage.getItem("sw_onboarded") === "true"; } catch(e) { return false; }
   });
+  // True when the onboarding cloud-save failed. Onboarding itself still
+  // completes locally so the user isn't stuck, but this shows a small
+  // retry banner so a real failure doesn't go unnoticed and quietly lose
+  // their data the way it used to.
+  const[onboardingSaveError,setOnboardingSaveError]=useState(false);
   const C=galaxy?GALAXY:EARTHY;
 
   const[profile,setProfile]=useState(()=>{
@@ -2099,6 +2160,19 @@ export default function Swadhyaya(){
 
   return(
     <div style={{background:"transparent",minHeight:"100vh",fontFamily:"'Jost',sans-serif",color:C.text}}>
+      {/* Save-failure banner: shown only if a profile save to the cloud
+          genuinely fails (network issue, auth hiccup, etc). Without this,
+          a failed save was previously silent and the user had no way to
+          know their data hadn't actually persisted. */}
+      {onboardingSaveError && (
+        <div style={{position:"sticky",top:0,zIndex:900,background:"#e05a5a",color:"#fff",padding:"10px 16px",fontSize:13,display:"flex",justifyContent:"space-between",alignItems:"center",gap:10}}>
+          <span>Couldn't save your profile to the cloud. Check your connection.</span>
+          <button onClick={()=>markOnboardingDone({...profile, onboardingDone:true})}
+            style={{background:"rgba(255,255,255,0.25)",border:"none",borderRadius:8,color:"#fff",padding:"6px 12px",fontSize:12,cursor:"pointer",flexShrink:0}}>
+            Retry
+          </button>
+        </div>
+      )}
       {/* Login modal */}
       {showLogin&&!user&&(
         <div style={{position:"fixed",inset:0,zIndex:1000,background:"rgba(0,0,0,0.5)",display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
