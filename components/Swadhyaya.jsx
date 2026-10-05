@@ -269,10 +269,10 @@ function WatercolourNav({NAV, section, setSection, C, galaxy}) {
 const EARTHY={
   bg:"rgba(0,0,0,0.25)",
   surface:"rgba(0,0,0,0.3)",
-  card:"rgba(255,255,255,0.1)",
+  card:"rgba(0,0,0,0.55)",
   border:"rgba(255,255,255,0.18)",
   borderDark:"rgba(255,255,255,0.3)",
-  text:"#fff",
+ text:"#ffffff",
   muted:"rgba(255,255,255,0.65)",
   dim:"rgba(255,255,255,0.35)",
   subtext:"rgba(255,255,255,0.65)",
@@ -294,7 +294,7 @@ const EARTHY={
 const GALAXY={
   bg:"#02010a",
   surface:"rgba(10,7,32,0.85)",
-  card:"rgba(255,255,255,0.07)",
+ card:"rgba(0,0,0,0.62)",
   border:"rgba(255,255,255,0.14)",
   borderDark:"rgba(120,90,255,0.3)",
   text:"#fff",
