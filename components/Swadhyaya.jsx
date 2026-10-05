@@ -19,16 +19,18 @@ const FONTS = `
   html{scroll-behavior:smooth;}
   ::-webkit-scrollbar{width:3px;}
   ::-webkit-scrollbar-thumb{background:rgba(180,140,255,0.4);border-radius:2px;}
-  textarea,input,select{outline:none;font-family:inherit;}
+  textarea,input,select{outline:none;font-family:inherit;color-scheme:dark;}
   button{font-family:inherit;}
   /* Artwork background */
-  body{font-family:'Jost',sans-serif;}
+  body{font-family:'Jost',sans-serif;color:#fff;}
   .sw-app-bg{position:fixed;inset:0;z-index:0;background-size:cover;background-position:center;background-repeat:no-repeat;}
   .sw-app-bg::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,0.22);}
   .sw-app-galaxy-bg{position:fixed;inset:0;z-index:0;background:#02010a;}
   .sw-content{position:relative;z-index:1;}
-  /* Glassmorphic card base */
-  .glass-card{backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.22);border-radius:20px;}
+  /* Glassmorphic card base — dark/semi-transparent cards always use light text */
+  .glass-card{backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);border:1px solid rgba(255,255,255,0.22);border-radius:20px;color:#fff;background:rgba(255,255,255,0.1);}
+  .glass-card input,.glass-card textarea,.glass-card select{color:#fff;}
+  .glass-card input::placeholder,.glass-card textarea::placeholder{color:rgba(255,255,255,0.45);}
   /* Galaxy nebula blobs */
   .nebula{position:fixed;border-radius:50%;filter:blur(60px);pointer-events:none;z-index:0;animation:nebulaPulse 8s ease-in-out infinite;}
   .nebula-1{width:350px;height:350px;top:-80px;left:-80px;background:radial-gradient(circle,rgba(90,0,180,0.45),transparent 70%);animation-delay:0s;}
@@ -273,6 +275,7 @@ const EARTHY={
   text:"#fff",
   muted:"rgba(255,255,255,0.65)",
   dim:"rgba(255,255,255,0.35)",
+  subtext:"rgba(255,255,255,0.65)",
   accent:"#c084fc",
   accent2:"#34d399",
   accent3:"#38bdf8",
@@ -297,6 +300,7 @@ const GALAXY={
   text:"#fff",
   muted:"rgba(255,255,255,0.6)",
   dim:"rgba(255,255,255,0.3)",
+  subtext:"rgba(255,255,255,0.6)",
   accent:"#c084fc",
   accent2:"#34d399",
   accent3:"#38bdf8",
@@ -2115,7 +2119,7 @@ export default function Swadhyaya(){
     <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",background:"transparent"}}>
       <div style={{textAlign:"center"}}>
         <div style={{fontSize:28,marginBottom:8}}>✦</div>
-        <div style={{fontSize:14,color:"#9088a0",fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>Loading…</div>
+        <div style={{fontSize:14,color:"rgba(255,255,255,0.65)",fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>Loading…</div>
       </div>
     </div>
   );
@@ -2176,7 +2180,7 @@ export default function Swadhyaya(){
       {/* Login modal */}
       {showLogin&&!user&&(
         <div style={{position:"fixed",inset:0,zIndex:1000,background:"rgba(0,0,0,0.5)",display:"flex",alignItems:"center",justifyContent:"center",padding:20}}>
-          <div style={{width:"100%",maxWidth:400,background:C.card,borderRadius:20,overflow:"hidden"}}>
+          <div className="glass-card" style={{width:"100%",maxWidth:400,background:C.card,borderRadius:20,overflow:"hidden",color:C.text}}>
             <div style={{padding:"16px 20px",display:"flex",justifyContent:"space-between",alignItems:"center",borderBottom:`1px solid ${C.border}`}}>
               <div style={{fontSize:15,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>Sign in to save your data</div>
               <button onClick={()=>setShowLogin(false)} style={{background:"none",border:"none",cursor:"pointer",fontSize:20,color:C.muted}}>×</button>
@@ -2187,7 +2191,7 @@ export default function Swadhyaya(){
       )}
       {showLogin&&user&&(
         <div style={{position:"fixed",inset:0,zIndex:1000,background:"rgba(0,0,0,0.5)",display:"flex",alignItems:"center",justifyContent:"center",padding:20}} onClick={()=>setShowLogin(false)}>
-          <div style={{background:C.card,borderRadius:16,padding:24,textAlign:"center",maxWidth:300}}>
+          <div className="glass-card" style={{background:C.card,borderRadius:16,padding:24,textAlign:"center",maxWidth:300,color:C.text}}>
             <div style={{fontSize:14,marginBottom:8}}>✓ Signed in as</div>
             <div style={{fontSize:13,color:C.accent,marginBottom:16}}>{user.email}</div>
             <button onClick={async()=>{await supabase.auth.signOut();setUser(null);setShowLogin(false);}} style={{padding:"10px 24px",background:C.red+"20",border:`1px solid ${C.red}44`,borderRadius:20,cursor:"pointer",color:C.red,fontSize:13}}>Sign out</button>
@@ -3379,7 +3383,7 @@ function TodaySection({C, galaxy, profile, up}) {
   }
 
   const inputStyle = {width:"100%",padding:"12px 14px",borderRadius:12,border:`1px solid ${C.border||"#e0d8c8"}`,background:C.card||"transparent",color:C.text,fontSize:14,marginBottom:14,boxSizing:"border-box"};
-  const labelStyle = {fontSize:12,color:C.subtext||"#9088a0",marginBottom:6};
+  const labelStyle = {fontSize:12,color:C.subtext||C.muted||"rgba(255,255,255,0.65)",marginBottom:6};
 
   if (view==="add") {
     return (
@@ -3490,7 +3494,7 @@ function TodaySection({C, galaxy, profile, up}) {
 
       <div style={{display:"grid",gridTemplateColumns:"repeat(7,1fr)",gap:2,marginBottom:6}}>
         {TASK_WEEKDAY_LABELS.map((lbl,i)=>(
-          <div key={i} style={{textAlign:"center",fontSize:10,color:C.subtext||"#9088a0",paddingBottom:4}}>{lbl}</div>
+          <div key={i} style={{textAlign:"center",fontSize:10,color:C.subtext||C.muted||"rgba(255,255,255,0.65)",paddingBottom:4}}>{lbl}</div>
         ))}
       </div>
 
@@ -3520,7 +3524,7 @@ function TodaySection({C, galaxy, profile, up}) {
       <div style={{display:"flex",justifyContent:"space-between",alignItems:"baseline",marginBottom:12,paddingBottom:8,borderBottom:`1px solid ${C.border||"#e0d8c8"}`}}>
         <div style={{fontSize:17,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic",color:C.text}}>{selectedLabel}</div>
         {totalToday>0 && (
-          <div style={{fontSize:12,color:doneToday===totalToday?"#3c9650":(C.subtext||"#9088a0")}}>
+          <div style={{fontSize:12,color:doneToday===totalToday?"#3c9650":(C.subtext||C.muted||"rgba(255,255,255,0.65)")}}>
             {doneToday}/{totalToday} done
           </div>
         )}
@@ -3539,7 +3543,7 @@ function TodaySection({C, galaxy, profile, up}) {
 
       {goalsForDay.length>0 && (
         <div style={{marginBottom:18}}>
-          <div style={{fontSize:12,color:C.subtext||"#9088a0",marginBottom:8,fontWeight:600}}>Goal deadlines</div>
+          <div style={{fontSize:12,color:C.subtext||C.muted||"rgba(255,255,255,0.65)",marginBottom:8,fontWeight:600}}>Goal deadlines</div>
           {goalsForDay.map(g=>(
             <div key={g.id} style={{padding:"10px 14px",borderRadius:10,border:`1px solid ${getCatColor(g.category)}44`,marginBottom:8,fontSize:14,color:C.text,display:"flex",alignItems:"center",gap:8}}>
               <span>{getCatIcon(g.category)}</span> {g.title}
@@ -3549,7 +3553,7 @@ function TodaySection({C, galaxy, profile, up}) {
       )}
 
       {totalToday===0 && goalsForDay.length===0 && overdueGoals.length===0 ? (
-        <div style={{textAlign:"center",padding:"30px 0",color:C.subtext||"#9088a0"}}>
+        <div style={{textAlign:"center",padding:"30px 0",color:C.subtext||C.muted||"rgba(255,255,255,0.65)"}}>
           <div style={{fontSize:15,fontFamily:"'Cormorant Garamond',serif",fontStyle:"italic"}}>Nothing on the books.</div>
         </div>
       ) : null}
@@ -3578,8 +3582,8 @@ function TodaySection({C, galaxy, profile, up}) {
               <div style={{flex:1,fontSize:14,color:C.text,textDecoration:done?"line-through":"none",opacity:done?0.55:1,cursor:item.kind==="task"?"pointer":"default"}} onClick={item.kind==="task"?()=>startEdit(item.raw):undefined}>
                 {item.title}
                 {item.kind==="goal" && <span style={{fontSize:10,color:getCatColor(item.category),marginLeft:6}}>◎ goal · {item.tag}</span>}
-                {item.kind==="task" && item.tag && <span style={{fontSize:10,color:C.subtext||"#9088a0",marginLeft:6}}>↻ {item.tag}</span>}
-                {item.notes && <div style={{fontSize:11,color:C.subtext||"#9088a0",marginTop:2}}>{item.notes}</div>}
+                {item.kind==="task" && item.tag && <span style={{fontSize:10,color:C.subtext||C.muted||"rgba(255,255,255,0.65)",marginLeft:6}}>↻ {item.tag}</span>}
+                {item.notes && <div style={{fontSize:11,color:C.subtext||C.muted||"rgba(255,255,255,0.65)",marginTop:2}}>{item.notes}</div>}
               </div>
             </div>
           );
@@ -3588,7 +3592,7 @@ function TodaySection({C, galaxy, profile, up}) {
           <>
             {pending.length>0 && (
               <div style={{marginBottom:16}}>
-                <div style={{fontSize:12,color:C.subtext||"#9088a0",marginBottom:8,fontWeight:600}}>To do</div>
+                <div style={{fontSize:12,color:C.subtext||C.muted||"rgba(255,255,255,0.65)",marginBottom:8,fontWeight:600}}>To do</div>
                 {pending.map(row)}
               </div>
             )}
@@ -9986,43 +9990,44 @@ function AuthScreen({ C, onAuth }) {
       alignItems: 'center', justifyContent: 'center',
       background: 'transparent',
       padding: '20px',
+      color: C?.text || '#fff',
     }}>
       {/* Logo */}
       <div style={{ textAlign: 'center', marginBottom: 32 }}>
         <div style={{ fontSize: 36, marginBottom: 8 }}>✦</div>
-        <div style={{ fontSize: 28, fontFamily: "'Cormorant Garamond',serif", fontStyle: 'italic', color: '#b5622a' }}>Swadhyāya</div>
-        <div style={{ fontSize: 12, color: '#9088a0', letterSpacing: 3, fontFamily: "'DM Mono',monospace", marginTop: 4 }}>स्वाध्याय · KNOW THYSELF</div>
-        <div style={{ fontSize: 14, color: '#9088a0', marginTop: 12, fontStyle: 'italic', fontFamily: "'Cormorant Garamond',serif" }}>
+        <div style={{ fontSize: 28, fontFamily: "'Cormorant Garamond',serif", fontStyle: 'italic', color: C?.accent || '#c084fc' }}>Swadhyāya</div>
+        <div style={{ fontSize: 12, color: C?.muted || 'rgba(255,255,255,0.65)', letterSpacing: 3, fontFamily: "'DM Mono',monospace", marginTop: 4 }}>स्वाध्याय · KNOW THYSELF</div>
+        <div style={{ fontSize: 14, color: C?.muted || 'rgba(255,255,255,0.65)', marginTop: 12, fontStyle: 'italic', fontFamily: "'Cormorant Garamond',serif" }}>
           "You already have the answers.<br/>This helps you hear them."
         </div>
       </div>
 
-      <div style={{ width: '100%', maxWidth: 380, background: '#fff', borderRadius: 20, padding: 28, boxShadow: '0 4px 40px #b5622a12' }}>
+      <div className="glass-card" style={{ width: '100%', maxWidth: 380, background: C?.card || 'rgba(255,255,255,0.1)', borderRadius: 20, padding: 28, color: C?.text || '#fff', border: `1px solid ${C?.border || 'rgba(255,255,255,0.18)'}` }}>
         {sent ? (
           <div style={{ textAlign: 'center', padding: '20px 0' }}>
             <div style={{ fontSize: 32, marginBottom: 12 }}>📧</div>
-            <div style={{ fontSize: 16, fontFamily: "'Cormorant Garamond',serif", fontStyle: 'italic', marginBottom: 8 }}>Check your email</div>
-            <div style={{ fontSize: 13, color: '#9088a0', lineHeight: 1.7 }}>We sent a magic link to <strong>{email}</strong>. Tap it to sign in — no password needed.</div>
-            <button onClick={() => setSent(false)} style={{ marginTop: 16, fontSize: 12, color: '#9088a0', background: 'transparent', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>Use a different email</button>
+            <div style={{ fontSize: 16, fontFamily: "'Cormorant Garamond',serif", fontStyle: 'italic', marginBottom: 8, color: C?.text || '#fff' }}>Check your email</div>
+            <div style={{ fontSize: 13, color: C?.muted || 'rgba(255,255,255,0.65)', lineHeight: 1.7 }}>We sent a magic link to <strong style={{color: C?.text || '#fff'}}>{email}</strong>. Tap it to sign in — no password needed.</div>
+            <button onClick={() => setSent(false)} style={{ marginTop: 16, fontSize: 12, color: C?.muted || 'rgba(255,255,255,0.65)', background: 'transparent', border: 'none', cursor: 'pointer', textDecoration: 'underline' }}>Use a different email</button>
           </div>
         ) : (
           <>
             <button onClick={handleGoogle} disabled={loading} style={{
-              width: '100%', padding: '12px 14px', background: '#fff',
-              border: '1px solid rgba(255,255,255,0.18)', borderRadius: 12, color: '#3f372f',
+              width: '100%', padding: '12px 14px', background: 'rgba(255,255,255,0.12)',
+              border: `1px solid ${C?.border || 'rgba(255,255,255,0.18)'}`, borderRadius: 12, color: C?.text || '#fff',
               cursor: 'pointer', fontSize: 14, marginBottom: 14, fontWeight: 500,
             }}>
               {loading ? 'Opening Google...' : 'Continue with Google'}
             </button>
 
             <div style={{display:'flex',alignItems:'center',gap:10,marginBottom:16}}>
-              <div style={{height:1,background:'#eadfce',flex:1}}/>
-              <div style={{fontSize:11,color:'#c4a882',fontFamily:"'DM Mono',monospace"}}>OR EMAIL</div>
-              <div style={{height:1,background:'#eadfce',flex:1}}/>
+              <div style={{height:1,background: C?.border || 'rgba(255,255,255,0.18)',flex:1}}/>
+              <div style={{fontSize:11,color: C?.dim || 'rgba(255,255,255,0.35)',fontFamily:"'DM Mono',monospace"}}>OR EMAIL</div>
+              <div style={{height:1,background: C?.border || 'rgba(255,255,255,0.18)',flex:1}}/>
             </div>
 
             {/* Email header */}
-            <div style={{ fontSize: 13, color: '#9088a0', textAlign: 'center', marginBottom: 16, fontStyle: 'italic', fontFamily: "'Cormorant Garamond',serif" }}>Sign in to your account</div>
+            <div style={{ fontSize: 13, color: C?.muted || 'rgba(255,255,255,0.65)', textAlign: 'center', marginBottom: 16, fontStyle: 'italic', fontFamily: "'Cormorant Garamond',serif" }}>Sign in to your account</div>
 
             {/* Email */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 14 }}>
@@ -10030,7 +10035,7 @@ function AuthScreen({ C, onAuth }) {
                 value={email} onChange={e => setEmail(e.target.value)}
                 placeholder="Email address"
                 type="email"
-                style={{ padding: '12px 14px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.18)', fontSize: 14, outline: 'none', background: 'rgba(0,0,0,0.25)' }}
+                style={{ padding: '12px 14px', borderRadius: 10, border: `1px solid ${C?.border || 'rgba(255,255,255,0.18)'}`, fontSize: 14, outline: 'none', background: 'rgba(0,0,0,0.25)', color: C?.text || '#fff' }}
               />
               {mode !== 'magic' && (
                 <input
@@ -10038,7 +10043,7 @@ function AuthScreen({ C, onAuth }) {
                   placeholder="Password"
                   type="password"
                   onKeyDown={e => e.key === 'Enter' && handleEmailAuth()}
-                  style={{ padding: '12px 14px', borderRadius: 10, border: '1px solid rgba(255,255,255,0.18)', fontSize: 14, outline: 'none', background: 'rgba(0,0,0,0.25)' }}
+                  style={{ padding: '12px 14px', borderRadius: 10, border: `1px solid ${C?.border || 'rgba(255,255,255,0.18)'}`, fontSize: 14, outline: 'none', background: 'rgba(0,0,0,0.25)', color: C?.text || '#fff' }}
                 />
               )}
             </div>
@@ -10048,17 +10053,17 @@ function AuthScreen({ C, onAuth }) {
             {mode !== 'magic' ? (
               <>
                 <button onClick={handleEmailAuth} disabled={loading} style={{
-                  width: '100%', padding: '13px', background: 'linear-gradient(135deg,#b5622a,#d4855a)',
+                  width: '100%', padding: '13px', background: `linear-gradient(135deg,${C?.accent || '#c084fc'},${C?.warm || '#fb923c'})`,
                   border: 'none', borderRadius: 12, color: '#fff', cursor: 'pointer', fontSize: 15,
                   fontFamily: "'Cormorant Garamond',serif", fontStyle: 'italic', marginBottom: 12,
                 }}>
                   {loading ? '...' : mode === 'signup' ? 'Create account →' : 'Sign in →'}
                 </button>
-                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: '#9088a0' }}>
-                  <button onClick={() => setMode(mode === 'login' ? 'signup' : 'login')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#b5622a', textDecoration: 'underline' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 12, color: C?.muted || 'rgba(255,255,255,0.65)' }}>
+                  <button onClick={() => setMode(mode === 'login' ? 'signup' : 'login')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: C?.accent || '#c084fc', textDecoration: 'underline' }}>
                     {mode === 'login' ? 'Create account' : 'Already have account'}
                   </button>
-                  <button onClick={() => setMode('magic')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#9088a0', textDecoration: 'underline' }}>
+                  <button onClick={() => setMode('magic')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: C?.muted || 'rgba(255,255,255,0.65)', textDecoration: 'underline' }}>
                     Magic link instead
                   </button>
                 </div>
@@ -10066,13 +10071,13 @@ function AuthScreen({ C, onAuth }) {
             ) : (
               <>
                 <button onClick={handleMagicLink} disabled={loading} style={{
-                  width: '100%', padding: '13px', background: 'linear-gradient(135deg,#b5622a,#d4855a)',
+                  width: '100%', padding: '13px', background: `linear-gradient(135deg,${C?.accent || '#c084fc'},${C?.warm || '#fb923c'})`,
                   border: 'none', borderRadius: 12, color: '#fff', cursor: 'pointer', fontSize: 15,
                   fontFamily: "'Cormorant Garamond',serif", fontStyle: 'italic', marginBottom: 12,
                 }}>
                   {loading ? '...' : 'Send magic link →'}
                 </button>
-                <button onClick={() => setMode('login')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: '#9088a0', textDecoration: 'underline', width: '100%' }}>
+                <button onClick={() => setMode('login')} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 12, color: C?.muted || 'rgba(255,255,255,0.65)', textDecoration: 'underline', width: '100%' }}>
                   Use password instead
                 </button>
               </>
@@ -10081,7 +10086,7 @@ function AuthScreen({ C, onAuth }) {
         )}
       </div>
 
-      <div style={{ marginTop: 20, fontSize: 11, color: '#c4a882', textAlign: 'center', lineHeight: 1.7 }}>
+      <div style={{ marginTop: 20, fontSize: 11, color: C?.dim || 'rgba(255,255,255,0.35)', textAlign: 'center', lineHeight: 1.7 }}>
         Your data is private and belongs only to you.<br/>
         We never sell or share it.
       </div>
