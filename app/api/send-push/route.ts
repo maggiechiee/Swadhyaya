@@ -1,9 +1,11 @@
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.SUPABASE_SERVICE_ROLE_KEY!
-);
+function db() {
+  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  if (!url || !key) throw new Error('Server is missing Supabase settings.');
+  return createClient(url, key);
+}
 
 const REMINDERS = {
   morning: [
@@ -121,7 +123,7 @@ export async function GET(req: Request) {
 
   if (!reminderType) return Response.json({ skipped: true, hour });
 
-  const { data: subs } = await supabase.from('push_subscriptions').select('*');
+  const { data: subs } = await db().from('push_subscriptions').select('*');
   if (!subs?.length) return Response.json({ sent: 0 });
 
   const messages = REMINDERS[reminderType];
@@ -141,7 +143,7 @@ export async function GET(req: Request) {
       // as lightweight canned nudges so the digest doesn't feel repeated
       // four times a day.
       if (reminderType === 'morning') {
-        const { data: profileRow } = await supabase
+        const { data: profileRow } = await db()
           .from('profiles')
           .select('tasks, goals')
           .eq('id', row.user_id)
@@ -162,7 +164,7 @@ export async function GET(req: Request) {
     } catch (err: any) {
       console.error('Push failed for user', row.user_id, err.message);
       if (err.statusCode === 410) {
-        await supabase.from('push_subscriptions').delete().eq('user_id', row.user_id);
+        await db().from('push_subscriptions').delete().eq('user_id', row.user_id);
       }
     }
   }
