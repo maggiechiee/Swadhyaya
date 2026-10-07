@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect, useRef, useMemo } from "react";
 import { createClient } from "@supabase/supabase-js";
+import { AlarmScheduler, AlarmsSection, FeelingsSection } from "./CareSections";
 
 const supabase = createClient(
   process.env.NEXT_PUBLIC_SUPABASE_URL || "",
@@ -240,13 +241,13 @@ function WatercolourNav({NAV, section, setSection, C, galaxy}) {
     <div style={{position:"fixed",bottom:0,left:0,right:0,zIndex:200,
       background:"rgba(0,0,0,0.3)",
       borderTop:`1px solid rgba(255,255,255,0.12)`,padding:"6px 0 10px"}}>
-      <div style={{maxWidth:700,margin:"0 auto",display:"flex",justifyContent:"space-around"}}>
+      <div style={{maxWidth:700,margin:"0 auto",display:"flex",justifyContent:"flex-start",overflowX:"auto",gap:2,padding:"0 6px"}}>
         {NAV.map(n => {
           const active = section === n.id;
           return (
             <button key={n.id} onClick={() => setSection(n.id)} style={{
               display:"flex",flexDirection:"column",alignItems:"center",gap:3,
-              padding:"4px 8px",background:"none",border:"none",cursor:"pointer",
+              padding:"4px 8px",background:"none",border:"none",cursor:"pointer",flex:"0 0 auto",
               borderTop:active?`2px solid ${C.accent}`:"2px solid transparent",opacity:active?1:0.75,
             }}>
               <div style={{width:22,height:22,display:"flex",alignItems:"center",justifyContent:"center",position:"relative"}}>
@@ -1603,6 +1604,7 @@ export default function Swadhyaya(){
   const [user, setUser] = useState(null);
   const [authLoading, setAuthLoading] = useState(true);
   const userRef = useRef(null);
+  const bpRef = useRef({});
 
   // Keep userRef in sync
   useEffect(() => { userRef.current = user; }, [user]);
@@ -1753,6 +1755,8 @@ export default function Swadhyaya(){
           manualLagna: prof.manual_lagna || "",
           manualMoon: prof.manual_moon || "",
           manualSun: prof.manual_sun || "",
+          alarms: (prof.behaviour_profile && prof.behaviour_profile.alarms) || p.alarms || [],
+          feelingLogs: (prof.behaviour_profile && prof.behaviour_profile.feelingLogs) || p.feelingLogs || [],
           };
           try { localStorage.setItem("sw_profile", JSON.stringify(restored)); } catch(e) {}
           return restored;
@@ -1880,7 +1884,7 @@ export default function Swadhyaya(){
   const [section, setSection] = useState(()=>{
     try {
       const param = new URLSearchParams(window.location.search).get("section");
-      const validIds = ["home","today","morning","wellness","food","cycle","goals","journal","progress","birthchart","myspace"];
+      const validIds = ["home","today","morning","wellness","food","cycle","goals","journal","progress","birthchart","myspace","alarms","feelings"];
       return validIds.includes(param) ? param : "home";
     } catch(e) { return "home"; }
   });
@@ -1896,6 +1900,7 @@ export default function Swadhyaya(){
   // retry banner so a real failure doesn't go unnoticed and quietly lose
   // their data the way it used to.
   const[onboardingSaveError,setOnboardingSaveError]=useState(false);
+  const[liveAlarm,setLiveAlarm]=useState(null);
   const C=galaxy?GALAXY:EARTHY;
 
   const[profile,setProfile]=useState(()=>{
@@ -2100,14 +2105,66 @@ export default function Swadhyaya(){
     }
   },[waterLog]);
 
+  useEffect(() => { bpRef.current = behaviourProfile; }, [behaviourProfile]);
+
+  async function saveCareFields(updated) {
+    if (!userRef.current) return;
+    const merged = {
+      ...(bpRef.current || {}),
+      alarms: updated.alarms || [],
+      feelingLogs: updated.feelingLogs || [],
+    };
+    bpRef.current = merged;
+    setBehaviourProfile(merged);
+    const { error } = await supabase.from("profiles").update({
+      behaviour_profile: merged,
+      updated_at: new Date().toISOString(),
+    }).eq("id", userRef.current.id);
+    if (error) console.error("Care save failed:", error.message);
+  }
+
   const up=(k,v)=>setProfile(p=>{
     const updated={...p,[k]:v};
     // Save to localStorage immediately
     try { localStorage.setItem("sw_profile", JSON.stringify(updated)); } catch(e) {}
     // Save to Supabase if logged in
-    if(userRef.current) saveProfile(updated);
+    if(userRef.current) {
+      saveProfile(updated);
+      if (k === "alarms" || k === "feelingLogs") saveCareFields(updated);
+    }
     return updated;
   });
+
+  useEffect(() => {
+    function tick() {
+      const alarms = profile.alarms || [];
+      if (!alarms.length) return;
+      const now = new Date();
+      const hhmm = String(now.getHours()).padStart(2,"0") + ":" + String(now.getMinutes()).padStart(2,"0");
+      const day = now.getDay();
+      const due = alarms.find(a => {
+        if (!a.startTime || a.startTime !== hhmm) return false;
+        if (a.days && a.days.length && !a.days.includes(day)) return false;
+        return true;
+      });
+      if (!due) return;
+      const stamp = getLocalDateStr() + " " + hhmm + " " + due.id;
+      try {
+        if (sessionStorage.getItem("sw_fired_" + stamp)) return;
+        sessionStorage.setItem("sw_fired_" + stamp, "1");
+      } catch (e) {}
+      setLiveAlarm(due);
+      try {
+        if (typeof Notification !== "undefined" && Notification.permission === "granted") {
+          const span = due.endTime ? due.startTime + " to " + due.endTime : due.startTime;
+          new Notification(due.title || "Swadhyaya", { body: span, tag: "sw-alarm-" + due.id });
+        }
+      } catch (e) {}
+    }
+    const id = setInterval(tick, 20000);
+    tick();
+    return () => clearInterval(id);
+  }, [profile.alarms]);
   const updateBP=(data)=>setBehaviourProfile(bp=>{
     const updated=updateBehaviourProfile(bp,data);
     // Save to cloud every 5 updates
@@ -2155,6 +2212,8 @@ export default function Swadhyaya(){
     {id:"cycle",icon:"🌙",label:"Cycle",femaleOnly:true},
     {id:"goals",icon:"◎",label:"Goals"},
     {id:"journal",icon:"📔",label:"Journal"},
+    {id:"alarms",icon:"⏰",label:"Alarms"},
+    {id:"feelings",icon:"🌧",label:"Feelings"},
     {id:"progress",icon:"📈",label:"Progress"},
     {id:"birthchart",icon:"✦",label:"Chart",galaxyOnly:true},
     {id:"myspace",icon:"✨",label:"My Space"},
@@ -2244,6 +2303,13 @@ export default function Swadhyaya(){
         </div>
       )}
 
+      {liveAlarm&&(
+        <div style={{background:C.accent+"22",borderBottom:`1px solid ${C.accent}55`,padding:"10px 16px",display:"flex",justifyContent:"space-between",alignItems:"center",gap:10,position:"relative",zIndex:1}}>
+          <span style={{fontSize:13}}>{liveAlarm.title} · {liveAlarm.startTime}{liveAlarm.endTime?`–${liveAlarm.endTime}`:""}</span>
+          <button onClick={()=>{setLiveAlarm(null);setSection("alarms");}} style={{background:"transparent",border:`1px solid ${C.border}`,borderRadius:8,color:C.text,padding:"4px 10px",cursor:"pointer",fontSize:12}}>Open</button>
+        </div>
+      )}
+
       {/* MAIN CONTENT */}
       <div style={{maxWidth:700,margin:"0 auto",padding:"0 0 120px",position:"relative",zIndex:1}}>
         {safeSection==="home"&&<HomeSection C={C} galaxy={galaxy} profile={profile} needs={needs} todayFood={todayFood} waterLog={waterLog} completedSteps={completedSteps} greeting={greeting} section={section} setSection={setSection} todayPhase={todayPhase} behaviourProfile={behaviourProfile} trialDaysLeft={trialDaysLeft} journalEntries={journalEntries} foodLogs={foodLogs}/>}
@@ -2263,6 +2329,9 @@ export default function Swadhyaya(){
         />}
         {safeSection==="birthchart"&&galaxy&&<BirthChartSection C={C} profile={profile} up={up}/>}
         {section==="upgrade"&&<UpgradeSection C={C} profile={profile} up={up} setSection={setSection}/>}
+        <AlarmScheduler alarms={profile.alarms}/>
+        {safeSection==="alarms"&&<AlarmsSection C={C} profile={profile} up={up}/>}
+        {safeSection==="feelings"&&<FeelingsSection C={C} profile={profile} up={up} foodLogs={foodLogs} journalEntries={journalEntries}/>}
       </div>
 
       {/* BOTTOM NAV — Watercolour icons */}
@@ -2982,6 +3051,8 @@ function HomeSection({C,galaxy,profile,needs,todayFood,waterLog,completedSteps,g
               {Icon:({a})=><IconMorning size={22} active={a} C={C}/>,label:"Morning Ritual",sub:"Begin your day",s:"morning"},
               {Icon:({a})=><IconMySpace size={22} active={a} C={C}/>,label:"My Space",sub:"Talk about anything",s:"myspace"},
               {Icon:({a})=><IconNutrition size={22} active={a} C={C}/>,label:"Log Food",sub:"Track nutrition",s:"food"},
+              {Icon:()=><span style={{fontSize:20}}>⏰</span>,label:"Alarms",sub:"Lunch, uke, reading",s:"alarms"},
+              {Icon:()=><span style={{fontSize:20}}>🌧</span>,label:"Feelings",sub:"Anger, sadness, triggers",s:"feelings"},
               {Icon:({a})=><IconWellness size={22} active={a} C={C}/>,label:"Wellness",sub:"Yoga · Breathwork",s:"wellness"},
               {Icon:({a})=><IconProgress size={22} active={a} C={C}/>,label:"Progress",sub:"Track your goals",s:"progress"},
               ...(profile.gender==="female"?[{Icon:({a})=><IconCycle size={22} active={a} C={C}/>,label:"Cycle",sub:"Period tracker",s:"cycle"}]:[{Icon:({a})=><IconProgress size={22} active={a} C={C}/>,label:"Progress",sub:"Track your day",s:"progress"}]),
